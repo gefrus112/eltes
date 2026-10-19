@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 28 models, the tool loop, local history, accounts, pricing and self-hosting." />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 36 models, on-device CAI, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/css/theme.css" />
@@ -20,8 +22,7 @@
     <div class="wrap">
       <div style="display:flex;align-items:center;gap:26px">
         <a class="brand" href="index.html" aria-label="Eltes AI home">
-          <span class="brand-mark">
-            <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".96"/></svg>
+          <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
           </span>
           Eltes
           <span class="brand-sub">AI agent</span>
@@ -58,8 +59,8 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static, local-first agent workspace. No backend, no build step, no demo replies. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v2.0.0</span>
-          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>12 minute read</span>
+          <span class="badge"><span class="dot"></span>v3.0.0</span>
+          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
         </div>
@@ -96,6 +97,7 @@
         <div class="nav-sep"></div>
         <h5>Reference</h5>
         <a href="#pricing"><span data-icon="gift" data-icon-size="14"></span>Pricing</a>
+        <a href="#downloads"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</a>
         <a href="#self-host"><span data-icon="hard-drive" data-icon-size="14"></span>Self-hosting</a>
         <a href="#privacy"><span data-icon="shield" data-icon-size="14"></span>Privacy</a>
         <a href="#faq"><span data-icon="circle-help" data-icon-size="14"></span>FAQ</a>
@@ -105,24 +107,26 @@
       <article class="doc">
         <section id="overview">
           <h2>Overview <a class="anchor" href="#overview" aria-label="Link to overview" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is a browser-based AI agent workspace. You bring a key for a real model provider; Eltes streams that provider's answer, renders the tool calls, and keeps the history in this browser. There is no Eltes server, no account requirement and <strong>no demo mode</strong> — if a provider is not connected, the app says so instead of inventing an answer.</p>
+          <p>Eltes is a browser-based AI agent workspace. Connect a real provider account (or paste a key), pick a model, and Eltes streams that provider's answer, renders the tool calls, and keeps the history in this browser. There is no Eltes server and no account requirement. If a hosted provider is not connected, the app says so instead of inventing an answer — and <strong>Eltes CAI</strong>, our own on-device model family, is always available with no key at all.</p>
 
           <h3>Three ideas, in order</h3>
           <ol>
             <li><strong>Local-first.</strong> Chats, settings, keys and profiles live in <code>localStorage</code>. Clearing site data is the nuclear option, and it is yours to press.</li>
             <li><strong>Bring your own key.</strong> Requests go from your tab to the provider over HTTPS. Eltes never sees or relays them.</li>
             <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
+            <li><strong>On-device when you need it.</strong> Eltes CAI-1 answers chat, Eltes questions, model choice, arithmetic, units and dates in this tab. No key, no network, and it is explicit about what it does not know.</li>
           </ol>
 
-          <h3>What changed in v2</h3>
+          <h3>What changed in v3</h3>
           <table class="doc-table">
-            <thead><tr><th>Area</th><th>v2 behaviour</th></tr></thead>
+            <thead><tr><th>Area</th><th>v3 behaviour</th></tr></thead>
             <tbody>
-              <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry.</td></tr>
-              <tr><td>Chat</td><td>Step timeline, tool cards, per-message model and provider chips, first-token latency, total time, tokens and tok/s.</td></tr>
-              <tr><td>Models</td><td>28 real models across 11 providers, with brand marks, context sizes and star favourites.</td></tr>
-              <tr><td>Accounts</td><td>Optional local profile, local GitHub handle linking, and a drop-in OAuth endpoint hook.</td></tr>
-              <tr><td>Landing</td><td>Darker UI, scroll-driven block scatter, parallax glows and reduced-motion fallbacks.</td></tr>
+              <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry. CAI answers locally and labels itself.</td></tr>
+              <tr><td>Chat</td><td>Dark-blue theme with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
+              <tr><td>Models</td><td>36 real models across 12 providers, including GPT‑6 Astra, Claude 5.5, DeepSeek V4.1 and three Eltes CAI models.</td></tr>
+              <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
+              <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
+              <tr><td>Downloads</td><td>A portable Windows package with <code>eltes.bat</code>, a Start-Eltes helper and the whole static site.</td></tr>
             </tbody>
           </table>
 
@@ -146,7 +150,7 @@
             <div class="step-item">
               <div>
                 <h4>Connect a provider</h4>
-                <p>Press <strong>Connect a provider</strong>, paste a key, and save. Or open Settings → <strong>API keys</strong>. The pill in the top bar turns green when at least one key is present.</p>
+                <p>Press <strong>Connect an account</strong>, choose OpenAI, Anthropic or DeepSeek, and save the key. Or open Settings → <strong>API keys</strong>. The pill in the top bar turns green when at least one key is present. No key yet? Pick <strong>Eltes CAI-1</strong>.</p>
               </div>
             </div>
             <div class="step-item">
@@ -180,26 +184,36 @@ python3 -m http.server 4173
 
           <div class="callout tip">
             <span data-icon="sparkles" data-icon-size="15"></span>
-            <span><strong>No key handy?</strong> Use a local model instead: run Ollama and point Eltes at <code>http://localhost:11434/v1</code> under <a class="inline-link" href="#custom-endpoint">Custom endpoints</a>. It is still a real model, not a demo.</span>
+            <span><strong>No key handy?</strong> Eltes CAI-1 runs in this tab with no key. For an open-weight model, run Ollama and point Eltes at <code>http://localhost:11434/v1</code> under <a class="inline-link" href="#custom-endpoint">Custom endpoints</a>.</span>
           </div>
         </section>
 
         <section id="accounts">
           <h2>Accounts <a class="anchor" href="#accounts" aria-label="Link to accounts" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>An Eltes account is a <strong>profile</strong>, not a login system. It stores a name, an email, an optional GitHub handle and the provider that created it. There is no password, no session cookie and no email delivery. The profile is written to <code>eltes.account.v1</code> and shared with the workspace and marketing pages through the <code>eltes:account</code> event.</p>
+          <p>An Eltes account is a <strong>profile</strong> plus a set of provider connections. It stores a name, an email, the provider that created it and — when you connect one — a provider key. There is no password, no session cookie and no email delivery. The profile is written to <code>eltes.account.v1</code>; provider keys live in <code>eltes.settings.v1</code>.</p>
 
           <h3>Create or sign in</h3>
-          <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Creating a profile needs a display name and an email; signing in restores the profile already in this browser, or creates one from the email if the browser has none. Because there is no server, neither flow can prove ownership of an email address — treat it as a local label, not a credential.</p>
+          <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Sign up with <strong>OpenAI</strong>, <strong>Anthropic</strong> or <strong>DeepSeek</strong>, or create a local profile with a display name and email. Signing in restores the profile already in this browser. Because there is no Eltes server, a local email is a label, not a credential.</p>
 
-          <h3>GitHub</h3>
-          <p>The GitHub button currently links a handle locally. Real OAuth requires a server to hold the client secret and exchange the code — it cannot be done safely in a static page. The button is already wired to switch modes when a backend exists:</p>
+          <table class="doc-table">
+            <thead><tr><th>Provider</th><th>What “connect” does on a static copy</th><th>What it does with a host</th></tr></thead>
+            <tbody>
+              <tr><td>OpenAI</td><td>Validates the key against <code>/v1/models</code>, then stores it locally</td><td>Redirects to <code>/openai/start</code> and returns a profile</td></tr>
+              <tr><td>Anthropic</td><td>Validates against <code>/v1/models</code> with the browser-access header</td><td>Redirects to <code>/anthropic/start</code> and returns a profile</td></tr>
+              <tr><td>DeepSeek</td><td>Saves the key; verification is best-effort because CORS varies</td><td>Redirects to <code>/deepseek/start</code> and returns a profile</td></tr>
+              <tr><td>Local profile</td><td>Name + email, stored in this browser only</td><td>Same — no hosted identity required</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Hosted OAuth contract</h3>
+          <p>A static page cannot hold a client secret, so the hosted path is a contract rather than a fake success state. Set the endpoint before the auth scripts load:</p>
 
           <div class="doc-code">
             <div class="bar">
               <span class="label"><span class="dot"></span>auth.html — before the scripts</span>
               <button class="cpy" type="button">Copy</button>
             </div>
-            <pre><code><span class="c">&lt;!-- Set this once hosted auth exists --&gt;</span>
+            <pre><code><span class="c">&lt;!-- Only when a real auth backend exists --&gt;</span>
 &lt;<span class="k">script</span>&gt;
   window.ELTES_CONFIG = {
     authEndpoint: <span class="s">'https://auth.example.com'</span>
@@ -207,30 +221,34 @@ python3 -m http.server 4173
 &lt;/<span class="k">script</span>&gt;</code></pre>
           </div>
 
-          <p>With <code>authEndpoint</code> set, the button redirects to <code>/github/start?return=…</code>. Your backend completes the OAuth exchange, then returns the user to <code>auth.html</code> with a profile encoded as base64url JSON:</p>
-
+          <p>With <code>authEndpoint</code> set, a provider button redirects to:</p>
           <div class="doc-code">
             <div class="bar">
-              <span class="label"><span class="dot"></span>callback shape</span>
+              <span class="label"><span class="dot"></span>redirect shape</span>
               <button class="cpy" type="button">Copy</button>
             </div>
-            <pre><code><span class="c"># the client accepts this query parameter</span>
+            <pre><code><span class="c"># provider is openai, anthropic or deepseek</span>
+GET https://auth.example.com/&lt;provider&gt;/start
+    ?return=&lt;the full auth.html URL&gt;
+    &amp;mode=signup
+
+<span class="c"># your backend completes OAuth, then returns the user to:</span>
 https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
 
 <span class="c"># profile</span>
 {
   <span class="s">"name"</span>: <span class="s">"Ada Lovelace"</span>,
   <span class="s">"email"</span>: <span class="s">"ada@example.com"</span>,
-  <span class="s">"username"</span>: <span class="s">"ada"</span>,
-  <span class="s">"avatarUrl"</span>: <span class="s">"https://avatars.githubusercontent.com/u/1"</span>
+  <span class="s">"provider"</span>: <span class="s">"openai"</span>,
+  <span class="s">"avatarUrl"</span>: <span class="s">"https://example.com/ada.png"</span>
 }</code></pre>
           </div>
 
-          <p>The page decodes it, writes the local profile, clears the parameter and shows the signed-in state. Avatar URLs are restricted to <code>https:</code>; everything else is stored as text.</p>
+          <p>The page decodes the profile, writes it locally, clears the parameter and shows the signed-in state. Avatar URLs are restricted to <code>https:</code>. An <code>error=…</code> or <code>provider_error=…</code> parameter shows a failure message instead, so a cancelled login never looks successful. <code>code</code> and <code>state</code> are stripped from the address bar after the callback.</p>
 
           <div class="callout warn">
             <span data-icon="triangle-alert" data-icon-size="15"></span>
-            <span><strong>Do not put a client secret in this page.</strong> Anything shipped to the browser is public. The static build deliberately ships without one and says so in the UI.</span>
+            <span><strong>Never put a client secret in this page.</strong> Anything shipped to the browser is public. Without an endpoint, the connect panel asks for a real key and stores it locally — it does not claim an OAuth session.</span>
           </div>
         </section>
 
@@ -301,6 +319,7 @@ https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
               <tr><td>Mistral</td><td><code>api.mistral.ai/v1</code></td><td>Varies</td></tr>
               <tr><td>Groq</td><td><code>api.groq.com/openai/v1</code></td><td>Yes</td></tr>
               <tr><td>OpenRouter</td><td><code>openrouter.ai/api/v1</code></td><td>Yes</td></tr>
+              <tr><td>Eltes CAI</td><td>in this tab</td><td>Not applicable — no network request</td></tr>
               <tr><td>Custom</td><td>your URL</td><td>Depends on your server</td></tr>
             </tbody>
           </table>
@@ -388,31 +407,52 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="models">
           <h2>Models <a class="anchor" href="#models" aria-label="Link to models" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>The catalogue ships 28 models across 11 providers. Each entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a model only answers when its provider has a key.</p>
+          <p>The catalogue ships <strong>36 models across 12 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Models</th><th>Best at</th></tr></thead>
             <tbody>
-              <tr><td>Anthropic</td><td>Claude Sonnet 4.5, Opus 4.1, Haiku 4.5</td><td>Code, long context, careful writing</td></tr>
-              <tr><td>OpenAI</td><td>GPT-4.1, GPT-4.1 mini, o4-mini</td><td>Instruction following, maths, tool use</td></tr>
+              <tr><td>Eltes CAI</td><td>CAI-1, CAI-1 Fast, CAI Docs</td><td>On-device chat, Eltes help, maths, units, dates</td></tr>
+              <tr><td>OpenAI</td><td>ChatGPT Astra, GPT‑6 Sol, GPT‑6.1 Sol, GPT‑6 Luna, GPT‑4.1</td><td>Frontier reasoning, real-time streaming, vision</td></tr>
+              <tr><td>Anthropic</td><td>Claude Sonnet 5.5, Opus 5.5, Haiku 5.5, Fable 5.1, Opus 4.5</td><td>Code, long context, careful writing</td></tr>
+              <tr><td>DeepSeek</td><td>V4.1 Flash, V4 Pro</td><td>Cost, 1M context, multimodal</td></tr>
               <tr><td>Google</td><td>Gemini 2.5 Pro, 2.5 Flash</td><td>1M context, multimodal</td></tr>
               <tr><td>Z.ai</td><td>GLM-4.6, GLM-4.5, GLM-4.5 Air</td><td>Agentic coding, low cost</td></tr>
-              <tr><td>DeepSeek</td><td>DeepSeek V3, DeepSeek R1</td><td>Cheap code, open-weight reasoning</td></tr>
               <tr><td>xAI</td><td>Grok 4, Grok 3</td><td>Direct answers, reasoning</td></tr>
               <tr><td>Qwen</td><td>Qwen3 Max, Qwen3 Coder Plus</td><td>Bilingual, repository-scale code</td></tr>
               <tr><td>Mistral</td><td>Mistral Large, Codestral</td><td>Function calling, completion</td></tr>
               <tr><td>Groq</td><td>Llama 3.3 70B, Llama 4 Scout</td><td>Very high tokens per second</td></tr>
-              <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 4.5, Gemini 2.5 Pro, and more</td><td>One key, routing and fallbacks</td></tr>
+              <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 5.5, ChatGPT Astra, Gemini 2.5 Pro, GLM-4.6, DeepSeek Flash, Qwen3 Coder</td><td>One key, routing and fallbacks</td></tr>
               <tr><td>Custom</td><td>Whatever your endpoint serves</td><td>Local and private models</td></tr>
             </tbody>
           </table>
+
+          <h3>Eltes CAI — our own models</h3>
+          <p>CAI (<em>conversational agent intelligence</em>) is a small deterministic model implemented in <code>assets/js/cai.js</code>. It runs inside the tab with no key and no network. It is accurate on its domain and explicit about its limits; it never pretends to browse.</p>
+          <table class="doc-table">
+            <thead><tr><th>Model</th><th>Strength</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td>Eltes CAI-1</td><td>General on-device chat</td><td>“Which model should I use for code?”</td></tr>
+              <tr><td>Eltes CAI-1 Fast</td><td>Shorter answers, quicker pacing</td><td>“Convert 68 °F to °C”</td></tr>
+              <tr><td>Eltes CAI Docs</td><td>Eltes setup, keys, accounts, downloads</td><td>“How do I connect a DeepSeek key?”</td></tr>
+            </tbody>
+          </table>
+          <p>CAI covers Eltes documentation, model recommendations from the live catalogue, arithmetic and percentages, unit and temperature conversion, the current date and time, word counts and a glossary of AI terms. Anything outside that gets an honest fallback with a suggestion to switch to a hosted model.</p>
+
+          <h3>ChatGPT Astra and real-time streaming</h3>
+          <p><strong>GPT‑6 Astra</strong> (<code>gpt-6-astra</code>) is the flagship OpenAI entry. Eltes calls Chat Completions with <code>stream: true</code> and paints each delta as it arrives. The picker marks it <strong>realtime</strong>, the message head shows a live streaming dot, and the metrics row reports first-token latency and total time.</p>
+          <ul>
+            <li>Streaming is on by default; disable it in Settings → General to receive whole responses instead.</li>
+            <li>Astra exposes tool calling through OpenAI's Responses API. Eltes speaks Chat Completions, so tools stay off for that entry; every other tool-capable model keeps them.</li>
+            <li>OpenRouter also serves Astra (<code>openai/gpt-6-astra</code>) with fallbacks, marked realtime as well.</li>
+          </ul>
 
           <h3>Per-chat models</h3>
           <p>The model is stored on the conversation, not globally. Switch mid-thread and the next reply uses the new model while the history stays intact. New chats use the default model chosen in Settings → Models. Deep links such as <code>app.html?model=glm-4-6</code> preselect a model from the landing page.</p>
 
           <div class="callout">
             <span data-icon="layers" data-icon-size="15"></span>
-            <span><strong>No silent fallbacks.</strong> If a model needs a key, Eltes shows a connect card naming the provider. It does not quietly answer with something else.</span>
+            <span><strong>No silent fallbacks.</strong> If a hosted model needs a key, Eltes shows a connect card naming the provider. It does not quietly answer with something else.</span>
           </div>
         </section>
 
@@ -438,7 +478,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           </ul>
 
           <h3>Tool calling support</h3>
-          <p>Tools are only offered when the selected model advertises support. Reasoning-only models such as DeepSeek R1 and completion models such as Codestral are sent the plain conversation. If a provider rejects the tool schema, the error card reports it and retry without tools still works.</p>
+          <p>Tools are only offered when the selected model advertises support. Models without tool support — the Eltes CAI family and completion models such as Codestral — are sent the plain conversation. If a provider rejects the tool schema, the error card reports it and retry without tools still works.</p>
 
           <div class="callout tip">
             <span data-icon="wrench" data-icon-size="15"></span>
@@ -509,15 +549,82 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <p class="dim" style="margin-top:12px;font-size:12.5px">On Windows and Linux, use <code>Ctrl</code> wherever <code>⌘</code> is shown. The interface relabels the modifier automatically.</p>
         </section>
 
+        <section id="downloads">
+          <h2>Downloads <a class="anchor" href="#downloads" aria-label="Link to downloads" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Everything Eltes ships is static. The Windows download is the same site wrapped in a portable launcher, so the only requirement is a way to serve files locally.</p>
+
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>eltes-windows.zip</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>eltes-windows/
+├── eltes.bat           <span class="c"># double-click to launch</span>
+├── Start-Eltes.ps1     <span class="c"># the actual server + browser open</span>
+├── README-WINDOWS.txt
+├── index.html
+├── app.html
+├── auth.html
+├── docs.html
+└── assets/ …           <span class="c"># css, js, fonts, icons</span></code></pre>
+          </div>
+
+          <h3>What the launcher does</h3>
+          <ol>
+            <li>Changes into its own folder, so it works from any drive or USB stick.</li>
+            <li>Finds <code>python</code>, <code>py -3</code> or <code>node</code>.</li>
+            <li>Starts a static server bound to <code>127.0.0.1:4173</code>.</li>
+            <li>Waits for the port, then opens your default browser at the workspace.</li>
+            <li>Leaves the server running until you close the console window.</li>
+          </ol>
+
+          <div class="callout">
+            <span data-icon="shield-check" data-icon-size="15"></span>
+            <span><strong>It is a text file.</strong> Open <code>eltes.bat</code> in Notepad before running it. There is no installer, no elevation prompt and no outbound connection; the server listens on localhost only.</span>
+          </div>
+
+          <h3>Optional Start-menu shortcut</h3>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>cmd</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c">:: create a shortcut in the Start menu</span>
+eltes.bat --shortcut
+
+<span class="c">:: use a different port (default 4173)</span>
+eltes.bat --port 8080</code></pre>
+          </div>
+
+          <h3>macOS and Linux</h3>
+          <p>Clone or unpack the same files and serve the root:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>terminal</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>python3 -m http.server 4173
+<span class="c"># then open http://127.0.0.1:4173/app.html</span></code></pre>
+          </div>
+
+          <h3>Install as an app</h3>
+          <p><code>site.webmanifest</code> declares standalone display, a dark theme colour and maskable icons at 192 and 512 px. Chrome, Edge and Safari can install the page as a window with the green-cloud icon; there is no Electron wrapper and no auto-updater.</p>
+
+          <div class="callout tip">
+            <span data-icon="download" data-icon-size="15"></span>
+            <span><strong>Update by replacing files.</strong> Copy a new build over the old folder and keep <code>localStorage</code>. Chats, keys and your profile live in the browser, not in the download.</span>
+          </div>
+        </section>
+
         <section id="pricing">
           <h2>Pricing <a class="anchor" href="#pricing" aria-label="Link to pricing" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is free to run and brings your own keys, so you pay providers directly at their published rates. There is no markup, no subscription and no card on file. A hosted tier with managed keys is in progress — the <a class="inline-link" href="index.html#pricing">pricing section</a> says <em>coming soon</em> because it is not purchasable yet.</p>
+          <p>Eltes is free to run with your own keys, so you pay providers directly at their published rates. There is no markup, no subscription and no card on file. A hosted tier with managed keys is in design; the <a class="inline-link" href="index.html#pricing">pricing section</a> shows <em>pricing not announced</em> because nothing is purchasable yet.</p>
 
           <table class="doc-table">
             <thead><tr><th>Plan</th><th>Status</th><th>What you get</th></tr></thead>
             <tbody>
               <tr><td>BYOK</td><td>Available now · $0</td><td>Every model, tool loop, local history, accounts, exports. You pay the provider.</td></tr>
-              <tr><td>Hosted</td><td>Coming soon</td><td>Managed keys and sync without handling credentials. Pricing not announced.</td></tr>
+              <tr><td>Hosted</td><td>In design</td><td>Managed keys and sync without handling credentials. Pricing not announced.</td></tr>
               <tr><td>Self-hosted</td><td>Available now · $0</td><td>Clone the repo and serve the static build wherever you like.</td></tr>
             </tbody>
           </table>
@@ -607,15 +714,19 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             </details>
             <details>
               <summary>Which models can use tools?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>Models with tool support in the catalogue: Claude 4.x, GPT-4.1 and o4-mini, Gemini 2.5, GLM-4.x, DeepSeek V3, Grok, Qwen3, Mistral Large, Llama 3.3/4 and most OpenRouter routes. DeepSeek R1 and Codestral are sent the plain conversation.</p>
+              <p>Models with tool support in the catalogue: Claude 5.5 and 4.5, GPT‑6 Sol/Luna, GPT‑4.1, Gemini 2.5, GLM-4.x, DeepSeek V4.1/V4, Grok, Qwen3, Mistral Large, Llama 3.3/4 and most OpenRouter routes. ChatGPT Astra uses OpenAI's Responses API for tools, so the Chat Completions entry stays tool-free; the Eltes CAI models run their own local intents and Codestral is sent the plain conversation.</p>
             </details>
             <details>
               <summary>Can I use it offline?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>The interface loads locally, but model calls need a network — unless you point a custom endpoint at a model running on your machine.</p>
+              <p>Yes, partly. Eltes CAI-1 answers chat, Eltes questions, arithmetic, units and dates with no network at all. Hosted models need a connection, unless you point a custom endpoint at a model running on your machine. The Windows launcher serves the whole site locally.</p>
             </details>
             <details>
-              <summary>Does GitHub sign-in really work?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>It links a handle locally today. Real OAuth needs a secret-holding backend, which static hosting cannot provide. The client is wired for an <code>authEndpoint</code> so the hosted build can complete the real exchange without a rewrite.</p>
+              <summary>Can I sign up with OpenAI, Anthropic or DeepSeek?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>Yes. The account page offers all three. On a static copy, connecting means validating and storing a real provider key in this browser. On a hosted deployment with <code>ELTES_CONFIG.authEndpoint</code>, the same buttons start a real OAuth redirect. GitHub sign-up has been removed.</p>
+            </details>
+            <details>
+              <summary>What is the Windows .bat file?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p><code>eltes.bat</code> is a readable launcher included in <a class="inline-link" href="#downloads">eltes-windows.zip</a>. It finds Python or Node, starts a static server on <code>127.0.0.1:4173</code> and opens the workspace. It does not install a service, touch the registry or need admin rights.</p>
             </details>
             <details>
               <summary>What happens to my chats if I clear site data?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
@@ -647,6 +758,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
         <a href="#chat">Chats &amp; export</a>
         <a href="#settings">Settings</a>
         <a href="#shortcuts">Shortcuts</a>
+        <a href="#downloads">Downloads</a>
         <a href="#pricing">Pricing</a>
         <a href="#self-host">Self-hosting</a>
         <a href="#privacy">Privacy</a>
@@ -660,7 +772,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
       <div class="footer-grid">
         <div class="footer-about">
           <a class="brand" href="index.html">
-            <span class="brand-mark"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+            <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
             Eltes
           </a>
           <p>A local-first AI agent workspace with real models, real keys and real tool calls. Built in the browser.</p>

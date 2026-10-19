@@ -82,10 +82,11 @@
       m.innerHTML = `
         <div class="am-head">
           ${window.EltesAccount.avatarHtml(account, 'sm')}
-          <div><strong>${escapeHtml(account.name)}</strong><span>${account.provider === 'github' ? 'GitHub' : 'Local profile'} · BYOK</span></div>
+          <div><strong>${escapeHtml(account.name)}</strong><span>${account.provider === 'local' ? 'Local profile' : (window.EltesModels && window.EltesModels.PROVIDERS[account.provider] ? window.EltesModels.PROVIDERS[account.provider].name : 'Provider')} · BYOK</span></div>
         </div>
         <a href="app.html"><span data-icon="layout-grid" data-icon-size="14"></span>Open workspace</a>
         <a href="auth.html"><span data-icon="user" data-icon-size="14"></span>Account settings</a>
+        <a href="index.html#downloads"><span data-icon="download" data-icon-size="14"></span>Downloads</a>
         <a href="index.html#pricing"><span data-icon="gift" data-icon-size="14"></span>Pricing</a>
         <hr />
         <button type="button" id="accountSignOut"><span data-icon="log-out" data-icon-size="14"></span>Sign out</button>`;
@@ -229,56 +230,66 @@
   /* ------------------------------- model wall ----------------------------- */
   const WALL = [
     {
-      brand: 'openai', name: 'OpenAI', meta: 'api.openai.com · GPT family',
-      models: ['GPT-4.1', 'GPT-4.1 mini', 'o4-mini'], href: 'app.html?model=gpt-4-1'
+      brand: 'eltes', name: 'Eltes CAI', meta: 'On-device · no key, no network', local: true,
+      models: ['Eltes CAI-1', 'CAI-1 Fast', 'CAI Docs'], href: 'app.html?model=eltes-cai-1'
     },
     {
-      brand: 'claude', name: 'Anthropic', meta: 'Native Messages API',
-      models: ['Claude Sonnet 4.5', 'Claude Opus 4.1', 'Claude Haiku 4.5'], href: 'app.html?model=claude-sonnet-4-5'
+      provider: 'openai', brand: 'openai', name: 'OpenAI', meta: 'api.openai.com · real-time streaming',
+      models: ['ChatGPT Astra', 'GPT‑6 Sol', 'GPT‑6 Luna'], href: 'app.html?model=gpt-6-astra'
     },
     {
-      brand: 'gemini', name: 'Google Gemini', meta: 'OpenAI-compatible endpoint',
+      provider: 'anthropic', brand: 'claude', name: 'Anthropic', meta: 'Native Messages API',
+      models: ['Claude Sonnet 5.5', 'Claude Opus 5.5', 'Claude Haiku 5.5'], href: 'app.html?model=claude-sonnet-5-5'
+    },
+    {
+      provider: 'deepseek', brand: 'deepseek', name: 'DeepSeek', meta: 'deepseek.com · 1M context',
+      models: ['V4.1 Flash', 'V4 Pro'], href: 'app.html?model=deepseek-flash'
+    },
+    {
+      provider: 'google', brand: 'gemini', name: 'Google Gemini', meta: 'OpenAI-compatible endpoint',
       models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash'], href: 'app.html?model=gemini-2-5-pro'
     },
     {
-      brand: 'glm', name: 'Z.ai · GLM', meta: 'api.z.ai · tool calling',
+      provider: 'zai', brand: 'glm', name: 'Z.ai · GLM', meta: 'api.z.ai · tool calling',
       models: ['GLM-4.6', 'GLM-4.5', 'GLM-4.5 Air'], href: 'app.html?model=glm-4-6'
     },
     {
-      brand: 'deepseek', name: 'DeepSeek', meta: 'deepseek.com',
-      models: ['DeepSeek V3', 'DeepSeek R1'], href: 'app.html?model=deepseek-chat'
-    },
-    {
-      brand: 'grok', name: 'xAI Grok', meta: 'api.x.ai',
+      provider: 'xai', brand: 'grok', name: 'xAI Grok', meta: 'api.x.ai',
       models: ['Grok 4', 'Grok 3'], href: 'app.html?model=grok-4'
     },
     {
-      brand: 'qwen', name: 'Qwen · Alibaba', meta: 'Model Studio',
+      provider: 'qwen', brand: 'qwen', name: 'Qwen · Alibaba', meta: 'Model Studio',
       models: ['Qwen3 Max', 'Qwen3 Coder Plus'], href: 'app.html?model=qwen3-max'
     },
     {
-      brand: 'llama', name: 'Llama · Meta', meta: 'via Groq or OpenRouter',
+      provider: 'groq', brand: 'llama', name: 'Llama · Meta', meta: 'via Groq or OpenRouter',
       models: ['Llama 3.3 70B', 'Llama 4 Scout'], href: 'app.html?model=llama-3-3-70b'
     },
     {
-      brand: 'groq', name: 'Groq', meta: 'api.groq.com · Llama + Qwen',
+      provider: 'groq', brand: 'groq', name: 'Groq', meta: 'api.groq.com · Llama + Qwen',
       models: ['Llama 3.3 70B', 'Llama 4 Scout', 'Qwen 3'], href: 'app.html?model=llama-3-3-70b'
     },
     {
-      brand: 'mistral', name: 'Mistral', meta: 'api.mistral.ai',
+      provider: 'mistral', brand: 'mistral', name: 'Mistral', meta: 'api.mistral.ai',
       models: ['Mistral Large', 'Codestral'], href: 'app.html?model=mistral-large'
     },
     {
-      brand: 'openrouter', name: 'OpenRouter', meta: 'one key · 200+ models',
+      provider: 'openrouter', brand: 'openrouter', name: 'OpenRouter', meta: 'one key · 200+ models',
       models: ['Auto router', 'Claude, Gemini, Qwen…', 'Fallback chains'], href: 'app.html?model=openrouter-auto'
     }
   ];
+
+  const ACCOUNT_PROVIDERS = ['openai', 'anthropic', 'deepseek'];
+  function wallLink(p) {
+    if (p.local || !ACCOUNT_PROVIDERS.includes(p.provider)) return p.href;
+    return `auth.html?provider=${p.provider}&mode=signup&next=${encodeURIComponent(p.href)}`;
+  }
 
   function renderModelWall() {
     const wall = $('#modelWall');
     if (!wall) return;
     wall.innerHTML = WALL.map(
-      (p) => `<a class="model-tile reveal" href="${p.href}" aria-label="${escapeHtml(p.name)} models">
+      (p) => `<a class="model-tile reveal" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : ACCOUNT_PROVIDERS.includes(p.provider) ? '— connect your account' : 'models'}">
         <span class="mt-top">
           <span class="p-logo lg" data-brand="${p.brand}" data-brand-size="22"></span>
           <span>
@@ -287,7 +298,7 @@
           </span>
         </span>
         <ul>${p.models.map((m) => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
-        <span class="mt-link">Open with a key <span data-icon="arrow-right" data-icon-size="11"></span></span>
+        <span class="mt-link">${p.local ? 'Run on-device' : ACCOUNT_PROVIDERS.includes(p.provider) ? 'Connect account' : 'Open with a key'} <span data-icon="arrow-right" data-icon-size="11"></span></span>
       </a>`
     ).join('');
     hydrateBrands(wall);
@@ -357,7 +368,7 @@
       <div class="dlg" style="width:min(430px,calc(100vw - 32px))">
         <div class="dlg-head">
           <span data-icon="gift" data-icon-size="16" style="color:#9cc0ff"></span>
-          <div><h3>Join the pricing waitlist</h3><div class="sub">Paid plans are coming soon.</div></div>
+          <div><h3>Join the pricing waitlist</h3><div class="sub">Hosted pricing is not announced yet.</div></div>
           <span class="grow"></span>
           <button class="icon-btn" type="button" data-close aria-label="Close" data-icon="x" data-icon-size="17"></button>
         </div>

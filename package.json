@@ -1,11 +1,12 @@
 {
   "name": "eltes-ai",
-  "version": "2.0.0",
-  "description": "Eltes AI \u2014 a local-first, browser-only AI agent workspace with real provider streaming, a tool loop, model switching, local accounts and bring-your-own-key.",
+  "version": "3.0.0",
+  "description": "Eltes AI \u2014 a local-first, browser-only AI agent workspace with 36 real models, on-device Eltes CAI, provider accounts, streaming and downloads.",
   "main": "index.html",
   "scripts": {
-    "start": "serve -l 5000",
-    "dev": "serve -l 5000",
+    "start": "serve -l 4173",
+    "dev": "serve -l 4173",
+    "downloads:build": "bash tools/build-windows.sh",
     "validate:html": "html-validate index.html app.html auth.html docs.html",
     "validate:css": "csstree-validator assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css"
   },
@@ -15,11 +16,13 @@
     "chat",
     "llm",
     "byok",
+    "on-device",
     "model-switching",
     "local-first",
     "static",
     "anthropic",
     "openai",
+    "deepseek",
     "streaming"
   ],
   "author": "Eltes",

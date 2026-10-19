@@ -7,10 +7,17 @@
   <meta name="description" content="Eltes is a local-first AI agent workspace. GPT, Claude, Gemini, GLM, DeepSeek, Grok, Qwen and more behind one keyboard — bring your own key, keep your history on your device." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <meta property="og:title" content="Eltes AI — one workspace, every model" />
   <meta property="og:description" content="A local-first AI agent workspace with real model switching, agent tools and bring-your-own-key." />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/icon-512.png" />
+  <meta property="og:image:alt" content="Eltes — a green cloud with one eye closed and one open" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="apple-mobile-web-app-title" content="Eltes" />
+  <meta name="application-name" content="Eltes" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
@@ -24,8 +31,7 @@
     <div class="wrap">
       <div class="nav-left">
         <a class="brand" href="index.html" aria-label="Eltes AI home">
-          <span class="brand-mark">
-            <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".96"/></svg>
+          <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
           </span>
           Eltes
           <span class="brand-sub">AI agent</span>
@@ -34,6 +40,7 @@
           <a href="#models">Models</a>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
+          <a href="#downloads">Downloads</a>
           <a href="docs.html">Docs</a>
         </nav>
       </div>
@@ -52,6 +59,7 @@
     <a href="#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="#downloads">Downloads <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="auth.html">Sign in <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
@@ -67,7 +75,7 @@
       <div class="wrap hero-inner">
         <a class="hero-badge" href="#models">
           <span class="tag">New</span>
-          <span>GLM-4.6, Grok 4 and Qwen3 Max are live</span>
+          <span>GPT‑6 Astra streams live · Eltes CAI runs on-device</span>
           <span class="chev" data-icon="chevron-right" data-icon-size="14"></span>
         </a>
 
@@ -77,25 +85,25 @@
         </h1>
 
         <p class="hero-sub">
-          GPT, Claude, Gemini, <strong>GLM</strong>, DeepSeek, Grok and Qwen behind one keyboard.
-          Bring your own key, switch mid-conversation and keep every token of history on your device.
+          GPT‑6 Astra, Claude 5.5, DeepSeek V4 and <strong>Eltes CAI</strong> behind one keyboard.
+          Bring your own account, switch mid-conversation and keep every token of history on your device.
         </p>
 
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="app.html">
-            Start building
+            Open the workspace
             <span data-icon="arrow-right" data-icon-size="17"></span>
           </a>
           <a class="btn btn-ghost btn-lg" href="auth.html?mode=signup">
             <span data-icon="user-plus" data-icon-size="16"></span>
-            Create free account
+            Connect an account
           </a>
         </div>
 
         <div class="hero-note">
-          <span><span data-icon="key-round" data-icon-size="13"></span>Bring your own key</span>
+          <span><span data-icon="key-round" data-icon-size="13"></span>Bring your own account</span>
           <span><span data-icon="shield-check" data-icon-size="13"></span>Local history</span>
-          <a href="docs.html#quickstart"><span data-icon="terminal" data-icon-size="13"></span>Quickstart</a>
+          <a href="#downloads"><span data-icon="monitor-down" data-icon-size="13"></span>Windows download</a>
         </div>
       </div>
 
@@ -118,7 +126,7 @@
           </div>
           <div class="mock">
             <aside class="mock-side">
-              <div class="brand"><span class="brand-mark sm"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>Eltes</div>
+              <div class="brand"><span class="brand-mark sm"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>Eltes</div>
               <div class="mock-new"><span data-icon="plus" data-icon-size="13"></span>New chat</div>
               <div class="mock-label">Today</div>
               <div class="mock-chat active"><span data-icon="message-square" data-icon-size="12"></span><span>Realtime sync design</span></div>
@@ -127,7 +135,7 @@
               <div class="mock-label">Yesterday</div>
               <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Landing page copy</span></div>
               <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Stripe webhook retries</span></div>
-              <div class="mock-foot"><span data-icon="key-round" data-icon-size="12"></span>4 keys connected</div>
+              <div class="mock-foot"><span data-icon="key-round" data-icon-size="12"></span>3 accounts connected</div>
             </aside>
             <div class="mock-main">
               <div class="mock-top">
@@ -141,7 +149,7 @@
               <div class="mock-thread">
                 <div class="mock-msg user"><div class="mock-bubble">Write a tiny debounce hook for React, then explain the cleanup.</div></div>
                 <div class="mock-msg ai">
-                  <span class="mock-avatar"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+                  <span class="mock-avatar"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
                   <div class="mock-ai-body">
                     <div class="mock-steps">
                       <div class="mock-step"><span class="tool">read</span><span>src/hooks/index.ts</span><span class="res">64 lines</span></div>
@@ -208,7 +216,7 @@
           <span class="sep"></span>
           <span><span data-icon="shuffle" data-icon-size="12"></span> Switch mid-conversation</span>
           <span class="sep"></span>
-          <a href="docs.html#models">See all 28 models<span data-icon="arrow-right" data-icon-size="12"></span></a>
+          <a href="docs.html#models">See all 36 models<span data-icon="arrow-right" data-icon-size="12"></span></a>
         </div>
       </div>
     </section>
@@ -229,12 +237,12 @@
             <p>Send once, switch models, and watch a different intelligence answer with the same context. Each reply keeps a provider chip so you always know who said what.</p>
             <div class="card-visual">
               <div class="provider-pills">
-                <span class="provider-pill on"><span class="p-logo" data-brand="openai"></span>GPT-4.1</span>
-                <span class="provider-pill on"><span class="p-logo" data-brand="claude"></span>Sonnet 4.5</span>
+                <span class="provider-pill on"><span class="p-logo" data-brand="openai"></span>ChatGPT Astra</span>
+                <span class="provider-pill on"><span class="p-logo" data-brand="claude"></span>Sonnet 5.5</span>
                 <span class="provider-pill"><span class="p-logo" data-brand="gemini"></span>Gemini 2.5</span>
                 <span class="provider-pill"><span class="p-logo" data-brand="glm"></span>GLM-4.6</span>
                 <span class="provider-pill"><span class="p-logo" data-brand="grok"></span>Grok 4</span>
-                <span class="provider-pill"><span class="p-logo" data-brand="deepseek"></span>DeepSeek V3</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="deepseek"></span>DeepSeek V4.1</span>
                 <span class="provider-pill"><span class="p-logo" data-brand="qwen"></span>Qwen3</span>
                 <span class="provider-pill"><span class="p-logo" data-brand="llama"></span>Llama 3.3</span>
                 <span class="provider-pill"><span class="p-logo" data-brand="mistral"></span>Mistral</span>
@@ -377,7 +385,7 @@
             <thead>
               <tr>
                 <th scope="col">Capability</th>
-                <th scope="col" class="eltes-col"><span class="head-cell"><span class="brand-mark sm" style="width:20px;height:20px;border-radius:6px"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>Eltes</span></th>
+                <th scope="col" class="eltes-col"><span class="head-cell"><span class="brand-mark sm" style="width:20px;height:20px;border-radius:6px"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>Eltes</span></th>
                 <th scope="col">Typical AI chat</th>
               </tr>
             </thead>
@@ -403,6 +411,16 @@
                 <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Varies by tier</span></td>
               </tr>
               <tr>
+                <td>Sign in with a provider account</td>
+                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>OpenAI · Anthropic · DeepSeek</span></td>
+                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>One vendor only</span></td>
+              </tr>
+              <tr>
+                <td>Works with no key at all</td>
+                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Eltes CAI, on-device</span></td>
+                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Requires an account</span></td>
+              </tr>
+              <tr>
                 <td>Real agent tool loop</td>
                 <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Timed and visible</span></td>
                 <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Hidden or absent</span></td>
@@ -426,7 +444,7 @@
           <span class="eyebrow"><span data-icon="gift" data-icon-size="14"></span>Pricing</span>
           <h2>BYOK is free.<br class="desk-br" /> Hosted plans are next.</h2>
           <p>Use every model with your own key and pay the provider directly for tokens. Managed plans are in build — no price, no checkout, no card.</p>
-          <span class="pricing-banner"><span data-icon="clock" data-icon-size="12"></span>Paid plans are coming soon — join the waitlist below</span>
+          <span class="pricing-banner"><span data-icon="clock" data-icon-size="12"></span>Hosted plans are not announced — join the waitlist below</span>
         </div>
 
         <div class="price-grid">
@@ -436,7 +454,7 @@
             <div class="price"><strong>$0</strong><span>forever</span></div>
             <p>Bring a key from any supported provider and use the full workspace.</p>
             <ul class="price-feats">
-              <li><span data-icon="check" data-icon-size="13"></span>All 28 models, 11 providers</li>
+              <li><span data-icon="check" data-icon-size="13"></span>All 36 models, 12 providers</li>
               <li><span data-icon="check" data-icon-size="13"></span>Agent tools and streaming</li>
               <li><span data-icon="check" data-icon-size="13"></span>Local history and exports</li>
               <li><span data-icon="check" data-icon-size="13"></span>No Eltes account required</li>
@@ -445,7 +463,7 @@
           </article>
 
           <article class="price-card featured reveal" style="--d:70ms">
-            <span class="price-tag soon">Coming soon</span>
+            <span class="price-tag soon">In design</span>
             <h3>Plans &amp; credits</h3>
             <div class="price"><strong>TBD</strong><span>pricing not announced</span></div>
             <p>Hosted keys, one bill and no setup. The same workspace, without pasting anything.</p>
@@ -459,7 +477,7 @@
           </article>
 
           <article class="price-card reveal" style="--d:140ms">
-            <span class="price-tag soon">Coming soon</span>
+            <span class="price-tag soon">In design</span>
             <h3>Team</h3>
             <div class="price"><strong>—</strong><span>talk to us</span></div>
             <p>For teams that want centralised keys, audit trails and SSO.</p>
@@ -483,16 +501,25 @@
         <div class="account-split">
           <div class="reveal">
             <span class="eyebrow"><span data-icon="user-plus" data-icon-size="14"></span>Accounts</span>
-            <h2>An account when<br />you want one.</h2>
-            <p>Eltes works without signing up. Create a profile to keep your name, avatar and preferences together — or continue with GitHub to link your handle. Nothing is uploaded; the profile lives in this browser until hosted accounts ship.</p>
+            <h2>Sign in with<br />the account you use.</h2>
+            <p>Eltes connects OpenAI, Anthropic and DeepSeek directly. Sign up with the provider that already
+              pays for your models, or keep a local profile with no account at all. The profile lives in this
+              browser; no Eltes server ever sees it.</p>
             <div class="account-actions">
-              <a class="btn gh-btn" href="auth.html?method=github">
-                <span data-icon="github" data-icon-size="16"></span>
-                Continue with GitHub
+              <a class="btn btn-ghost account-provider" href="auth.html?provider=openai&amp;mode=signup&amp;next=app.html">
+                <span class="p-logo sm" data-brand="openai" data-brand-size="15"></span>OpenAI
               </a>
-              <a class="btn btn-ghost" href="auth.html?mode=signup">
-                <span data-icon="mail" data-icon-size="15"></span>
-                Use an email
+              <a class="btn btn-ghost account-provider" href="auth.html?provider=anthropic&amp;mode=signup&amp;next=app.html">
+                <span class="p-logo sm" data-brand="anthropic" data-brand-size="15"></span>Anthropic
+              </a>
+              <a class="btn btn-ghost account-provider" href="auth.html?provider=deepseek&amp;mode=signup&amp;next=app.html">
+                <span class="p-logo sm" data-brand="deepseek" data-brand-size="15"></span>DeepSeek
+              </a>
+            </div>
+            <div class="account-actions" style="margin-top:10px">
+              <a class="btn btn-primary" href="auth.html?mode=signup">
+                <span data-icon="plug" data-icon-size="15"></span>
+                Connect an account
               </a>
             </div>
           </div>
@@ -500,12 +527,12 @@
           <div class="auth-card reveal" style="--d:90ms">
             <div class="ac-head">
               <span class="p-logo" data-brand="openai"></span>
-              <span class="p-logo" data-brand="claude"></span>
-              <span class="p-logo" data-brand="gemini"></span>
-              <span class="p-logo" data-brand="glm"></span>
+              <span class="p-logo" data-brand="anthropic"></span>
+              <span class="p-logo" data-brand="deepseek"></span>
+              <span class="p-logo" data-brand="eltes"></span>
               <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px"><span data-icon="shield-check" data-icon-size="11"></span>local</span>
             </div>
-            <strong style="font-size:13px;display:block;margin-bottom:12px">Create your Eltes profile</strong>
+            <strong style="font-size:13px;display:block;margin-bottom:12px">Create a local profile</strong>
             <form id="quickSignup" novalidate>
               <label class="auth-field">
                 <span data-icon="user" data-icon-size="14"></span>
@@ -517,14 +544,65 @@
               </label>
               <button class="btn btn-primary" type="submit">Create profile<span data-icon="arrow-right" data-icon-size="14"></span></button>
             </form>
-            <div class="auth-or">or</div>
-            <a class="btn gh-btn" href="auth.html?method=github" style="margin-top:0">
-              <span data-icon="github" data-icon-size="16"></span>
-              Continue with GitHub
-            </a>
-            <p class="tiny">No password. No email is sent. <a href="docs.html#accounts">How accounts work</a></p>
+            <p class="tiny">No password and no email is sent. Provider keys stay in this browser.
+              <a href="docs.html#accounts">How accounts work</a></p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ============================= downloads ============================ -->
+    <section class="section" id="downloads">
+      <span class="aura" data-parallax="0.08" style="width:480px;height:480px;right:-60px;top:60px;background:radial-gradient(circle,rgba(57,220,162,.1),transparent 68%)"></span>
+      <div class="wrap" style="position:relative">
+        <div class="section-head center reveal">
+          <span class="eyebrow"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</span>
+          <h2>Run Eltes<br class="desk-br" /> from your desktop.</h2>
+          <p>The whole workspace is static files. The Windows launcher starts a tiny local server and opens
+            your browser — no installer, no registry, no admin rights, no background service.</p>
+        </div>
+
+        <div class="download-grid">
+          <article class="download-card featured reveal">
+            <div class="dl-top">
+              <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Windows</span>
+              <span class="dl-ver">v3.0.0 · portable</span>
+            </div>
+            <h3>Eltes for Windows</h3>
+            <p>Unzip anywhere and double-click <code class="mono">eltes.bat</code>. It finds Python or Node,
+              serves the folder on <code class="mono">127.0.0.1:4173</code> and opens the workspace.</p>
+            <ul class="dl-list">
+              <li><span data-icon="check" data-icon-size="13"></span>Includes the launcher and the full site</li>
+              <li><span data-icon="check" data-icon-size="13"></span>Optional Start-menu shortcut with <code class="mono">--shortcut</code></li>
+              <li><span data-icon="check" data-icon-size="13"></span>Needs Windows 10/11 and Python 3 or Node 18+</li>
+              <li><span data-icon="shield-check" data-icon-size="13"></span>Runs offline; keys stay in your browser</li>
+            </ul>
+            <a class="btn btn-primary btn-lg dl-btn" href="downloads/eltes-windows.zip" download>
+              <span data-icon="download" data-icon-size="16"></span>
+              Download eltes-windows.zip
+            </a>
+            <div class="dl-meta">Zip · includes <span class="mono">eltes.bat</span>, <span class="mono">Start-Eltes.ps1</span> and the site</div>
+          </article>
+
+          <div class="dl-side reveal" style="--d:80ms">
+            <article class="download-card small">
+              <span class="dl-os"><span data-icon="terminal" data-icon-size="15"></span>macOS · Linux</span>
+              <h3>Serve the same files</h3>
+              <p>Clone the repository and run <code class="mono">python3 -m http.server 4173</code> in the project
+                root. Eltes is a static site; nothing is compiled.</p>
+              <div class="cmd-row"><code class="mono">python3 -m http.server 4173</code></div>
+            </article>
+            <article class="download-card small">
+              <span class="dl-os"><span data-icon="layout-grid" data-icon-size="15"></span>Install as an app</span>
+              <h3>No download needed</h3>
+              <p>Eltes ships a web manifest. Use your browser’s <strong>Install</strong> or <strong>Add to Home Screen</strong>
+                action to get a standalone window with the green-cloud icon.</p>
+              <a class="btn btn-ghost btn-sm" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="12"></span></a>
+            </article>
+          </div>
+        </div>
+        <p class="dl-note">The launcher is a reviewable text file — read it before you run it. Eltes hosts nothing;
+          the server binds to localhost and only serves files from the folder you unzipped.</p>
       </div>
     </section>
 
@@ -535,8 +613,9 @@
           <div class="cta-inner">
             <div class="grid-bg"></div>
             <span class="eyebrow"><span data-icon="rocket" data-icon-size="14"></span>No demo mode</span>
-            <h2 style="margin-top:16px">Connect a key.<br class="desk-br" /> Get a real answer.</h2>
-            <p>Every response in Eltes comes from a live provider you connected. Add one key and the workspace is fully live — no simulated replies, no fake latency.</p>
+            <h2 style="margin-top:16px">Connect an account.<br class="desk-br" /> Get a real answer.</h2>
+            <p>Every hosted answer comes from a live provider you connected. Or start with Eltes CAI and get
+              a real on-device answer before you add a key — no simulated replies, no fake latency.</p>
             <div class="hero-cta">
               <a class="btn btn-primary btn-lg" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="17"></span></a>
               <a class="btn btn-ghost btn-lg" href="docs.html#api-keys"><span data-icon="key-round" data-icon-size="16"></span>How keys work</a>
@@ -557,7 +636,7 @@
       <div class="footer-grid">
         <div class="footer-about">
           <a class="brand" href="index.html">
-            <span class="brand-mark"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+            <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
             Eltes
           </a>
           <p>A local-first AI agent workspace with real models, real keys and real tool calls. Built in the browser.</p>
@@ -568,6 +647,7 @@
           <a href="#models">Models</a>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
+          <a href="#downloads">Downloads</a>
         </div>
         <div class="footer-col">
           <h4>Resources</h4>
@@ -575,6 +655,7 @@
           <a href="docs.html#quickstart">Quickstart</a>
           <a href="docs.html#api-keys">API keys</a>
           <a href="docs.html#agent">Agent tools</a>
+          <a href="docs.html#downloads">Downloads</a>
         </div>
         <div class="footer-col">
           <h4>Project</h4>
@@ -585,7 +666,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="year">2026</span> Eltes AI. Built in the browser.</span>
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Windows build 3.0.0.</span>
         <span class="status"><i></i>All systems local</span>
       </div>
     </div>

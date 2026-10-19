@@ -7,6 +7,8 @@
   <meta name="description" content="The Eltes AI agent workspace. Real models, real keys, real tool calls — with local history and live latency metrics." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/css/theme.css" />
@@ -14,6 +16,7 @@
 </head>
 <body class="app">
   <a class="skip" href="#thread">Skip to conversation</a>
+  <div class="block-field" id="blockField" aria-hidden="true"></div>
 
   <div class="shell" id="shell">
     <div class="side-backdrop" id="sideBackdrop"></div>
@@ -22,8 +25,7 @@
     <aside class="side" id="side" aria-label="Chats">
       <div class="side-head">
         <a class="brand" href="index.html" title="Eltes home">
-          <span class="brand-mark">
-            <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".96"/></svg>
+          <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
           </span>
           Eltes
         </a>
@@ -70,9 +72,10 @@
         <button class="icon-btn" id="sidebarBtn" aria-label="Toggle sidebar" title="Toggle sidebar (⌘B)" data-icon="panel-left" data-icon-size="17"></button>
 
         <button class="model-btn" id="modelBtn" aria-haspopup="dialog" aria-label="Switch model">
-          <span class="p-logo sm" id="modelBtnLogo" data-brand="claude" data-brand-size="15"></span>
-          <span class="name" id="modelBtnName">Claude Sonnet 4.5</span>
-          <span class="tier" id="modelBtnTier">Balanced</span>
+          <span class="p-logo sm" id="modelBtnLogo" data-brand="eltes" data-brand-size="15"></span>
+          <span class="name" id="modelBtnName">Eltes CAI-1</span>
+          <span class="tier" id="modelBtnTier">On-device</span>
+          <span class="rt-badge" id="rtBadge" hidden><i></i>real time</span>
           <span class="chev" data-icon="chevron-down" data-icon-size="14"></span>
         </button>
 
@@ -96,7 +99,7 @@
       <main class="thread" id="thread" tabindex="-1">
         <div class="empty" id="emptyState">
           <div class="empty-mark">
-            <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".97"/></svg>
+            <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
           </div>
           <h1>What should we <em>build</em>?</h1>
           <p class="sub" id="emptySub">Connect a provider key and every answer comes live from the model you picked.</p>
@@ -149,8 +152,9 @@
           <textarea id="input" rows="1" placeholder="Message Eltes…" aria-label="Message Eltes" autocomplete="off" spellcheck="true"></textarea>
           <div class="composer-bar">
             <button class="chip model-chip-btn" id="composerModel" title="Switch model (⌘M)">
-              <span class="p-logo sm" id="composerLogo" data-brand="claude" data-brand-size="13"></span>
-              <span id="composerModelName">Claude Sonnet 4.5</span>
+              <span class="p-logo sm" id="composerLogo" data-brand="eltes" data-brand-size="13"></span>
+              <span id="composerModelName">Eltes CAI-1</span>
+              <span class="rt-badge" id="composerRt" hidden><i></i>real time</span>
               <span data-icon="chevron-down" data-icon-size="12"></span>
             </button>
             <button class="chip" id="agentChip" aria-pressed="false" title="Enable tool calling for this run">
@@ -191,6 +195,7 @@
         <span data-icon="lock" data-icon-size="11"></span>Stored in this browser · sent only to the provider
         <span class="grow"></span>
         <button class="btn btn-ghost btn-sm" id="connectAdvanced">All providers</button>
+        <a class="btn btn-ghost btn-sm" id="connectAccount" href="auth.html?mode=signup&next=app.html">Provider accounts<span data-icon="arrow-up-right" data-icon-size="12"></span></a>
       </div>
     </div>
   </dialog>
@@ -199,7 +204,7 @@
   <dialog id="modelDialog" aria-label="Switch model">
     <div class="dlg">
       <div class="dlg-head">
-        <span class="brand-mark sm"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+        <span class="brand-mark sm"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
         <div>
           <h3>Switch model</h3>
           <div class="sub">The conversation follows you — only the model changes.</div>
@@ -212,10 +217,12 @@
         <input type="text" id="modelSearch" placeholder="Search models, providers, capabilities…" aria-label="Search models" autocomplete="off" />
         <span class="kbd esc">esc</span>
       </div>
+      <div class="provider-connect" id="providerConnect" role="group" aria-label="Provider accounts"></div>
       <div class="picker-list" id="modelList" role="listbox" aria-label="Models"></div>
       <div class="dlg-foot">
         <span id="keysFoot">No API keys connected</span>
         <span class="grow"></span>
+        <a class="btn btn-ghost btn-sm" id="connectAccountBtn" href="auth.html?mode=signup&next=app.html"><span data-icon="user-plus" data-icon-size="13"></span>Connect account</a>
         <button class="btn btn-ghost btn-sm" id="manageKeysBtn"><span data-icon="key-round" data-icon-size="13"></span>Manage keys</button>
       </div>
     </div>
@@ -243,10 +250,10 @@
   <dialog id="settingsDialog" aria-label="Settings">
     <div class="dlg settings">
       <div class="dlg-head">
-        <span class="brand-mark sm"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+        <span class="brand-mark sm"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
         <div>
           <h3>Settings</h3>
-          <div class="sub">Saved locally · <span id="settingsModelName">Claude Sonnet 4.5</span></div>
+          <div class="sub">Saved locally · <span id="settingsModelName">Eltes CAI-1</span></div>
         </div>
         <span class="grow"></span>
         <button class="icon-btn" data-close="settingsDialog" aria-label="Close" data-icon="x" data-icon-size="17"></button>
@@ -272,7 +279,7 @@
 
               <div class="set-row">
                 <div class="lbl"><strong>Default model</strong><span>Used for new chats and after a reload.</span></div>
-                <div class="ctl"><button class="btn btn-ghost btn-sm" id="defaultModelBtn"><span id="defaultModelLabel">Claude Sonnet 4.5</span><span data-icon="chevron-down" data-icon-size="13"></span></button></div>
+                <div class="ctl"><button class="btn btn-ghost btn-sm" id="defaultModelBtn"><span id="defaultModelLabel">Eltes CAI-1</span><span data-icon="chevron-down" data-icon-size="13"></span></button></div>
               </div>
 
               <div class="set-row">
@@ -381,13 +388,13 @@
           <section data-panel="account">
             <div class="set-group">
               <h4>Your account</h4>
-              <p class="group-desc">Accounts are optional and stored in this browser until hosted sign-in ships. Connect a GitHub handle or use an email — nothing is uploaded.</p>
+              <p class="group-desc">Accounts are optional and stored in this browser. Connect an OpenAI, Anthropic or DeepSeek account, or use a local profile — nothing is uploaded.</p>
               <div id="accountPanel"></div>
             </div>
             <div class="set-group">
               <h4>Session</h4>
               <div class="set-row">
-                <div class="lbl"><strong>Plan</strong><span>Hosted plans are coming soon. BYOK stays free.</span></div>
+                <div class="lbl"><strong>Plan</strong><span>Hosted plans are not announced. BYOK stays free.</span></div>
                 <div class="ctl"><span class="key-status ok"><i></i>BYOK</span></div>
               </div>
               <div class="set-row">
@@ -440,13 +447,14 @@
           <section data-panel="about">
             <div class="about-box">
               <a class="brand" href="index.html">
-                <span class="brand-mark"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+                <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>2.0.0</span></div>
+              <div class="kv"><span>Version</span><span>3.0.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
-              <div class="kv"><span>Models</span><span>28 · 11 providers</span></div>
+              <div class="kv"><span>Models</span><span>36 · 12 providers</span></div>
+              <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>
               <div class="kv"><span>Requests to Eltes</span><span>0</span></div>
             </div>
 
@@ -514,6 +522,7 @@
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/brands.js"></script>
   <script src="assets/js/models.js"></script>
+  <script src="assets/js/cai.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/app.js"></script>
 </body>

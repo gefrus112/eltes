@@ -9,6 +9,7 @@
   const I = window.EltesIcons;
   const B = window.EltesBrandSvg;
   const Account = window.EltesAccount;
+  const CAI = window.EltesCAI;
   const ic = (name, size = 16) => I.icon(name, { size });
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -48,7 +49,7 @@
     reduceMotion: false,
     showTime: true,
     showMetrics: true,
-    favorites: ['claude-sonnet-4-5', 'gpt-4-1', 'glm-4-6', 'gemini-2-5-pro']
+    favorites: ['eltes-cai-1', 'claude-sonnet-5-5', 'gpt-6-astra', 'deepseek-flash']
   };
 
   const savedSettings = readJSON(LS.settings, {});
@@ -97,6 +98,8 @@
   }
 
   state.chats = normalizeChats(state.chats);
+  if (!M.MODELS.some((m) => m.id === state.settings.model)) state.settings.model = M.DEFAULT_MODEL;
+  state.settings.favorites = (state.settings.favorites || []).filter((id) => M.MODELS.some((m) => m.id === id));
   if (state.chats.length && !state.chats.some((c) => c.id === state.activeId)) {
     state.activeId = state.chats[0].id;
   }
@@ -126,6 +129,7 @@
     providerId === 'custom' ? state.settings.customKey : state.settings.keys[providerId];
   const hasKeyFor = (model) => {
     if (!model) return false;
+    if (M.isLocal(model)) return true;
     if (model.provider === 'custom') return !!state.settings.customBaseUrl;
     return !!state.settings.keys[model.provider];
   };
@@ -423,15 +427,27 @@
     els.modelBtnTier.textContent = model.tier;
     els.modelBtnLogo.dataset.brand = M.brandOf(model);
     els.modelBtnLogo.innerHTML = brand(model, 15);
+    const rtBadge = $('#rtBadge');
+    if (rtBadge) rtBadge.hidden = !model.realtime;
+    const composerRt = $('#composerRt');
+    if (composerRt) composerRt.hidden = !model.realtime;
+    ['connectAccount', 'connectAccountBtn'].forEach((id) => {
+      const link = document.getElementById(id);
+      if (link) link.href = `auth.html?provider=${model.provider}&mode=signup&next=${encodeURIComponent('app.html')}`;
+    });
     els.composerModelName.textContent = model.name;
     els.composerLogo.dataset.brand = M.brandOf(model);
     els.composerLogo.innerHTML = brand(model, 13);
 
     const n = connectedKeyCount();
     const live = hasKeyFor(model);
+    const local = M.isLocal(model);
     els.keyPill.classList.toggle('live', live);
-    els.keyPillText.textContent = live ? `${n} key${n === 1 ? '' : 's'}` : 'No key';
-    els.keyPill.title = live ? 'Connected — manage API keys' : 'No key for this model — connect a provider';
+    els.keyPill.classList.toggle('local', local);
+    els.keyPillText.textContent = local ? 'On-device' : live ? `${n} key${n === 1 ? '' : 's'}` : 'No key';
+    els.keyPill.title = local
+      ? 'Eltes CAI runs in this tab — no key or network needed'
+      : live ? 'Connected — manage API keys' : 'No key for this model — connect a provider';
 
     const profileName = $('#profileName');
     const profileMeta = $('#profileMeta');
@@ -458,9 +474,11 @@
 
     const emptySub = $('#emptySub');
     if (emptySub) {
-      emptySub.textContent = anyKeyConnected()
-        ? `Connected to ${n} provider${n === 1 ? '' : 's'}. Every answer streams live from ${model.name}.`
-        : 'Connect a provider key and every answer comes live from the model you picked.';
+      emptySub.textContent = local
+        ? `On-device ${model.name} is ready — no key, no network. Connect a provider any time for frontier models.`
+        : anyKeyConnected()
+          ? `Connected to ${n} provider${n === 1 ? '' : 's'}. Every answer streams live from ${model.name}.`
+          : 'Connect a provider key and every answer comes live from the model you picked.';
     }
   }
 
@@ -474,7 +492,7 @@
     els.accountSlot.innerHTML = `
       <button class="account-btn" id="topAccountBtn" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">
         ${Account.avatarHtml(account, 'sm')}
-        <span class="who"><strong>${esc(account.name.split(' ')[0])}</strong><span>${account.provider === 'github' ? 'GitHub' : 'Local'}</span></span>
+        <span class="who"><strong>${esc(account.name.split(' ')[0])}</strong><span>${account.provider === 'local' || !M.PROVIDERS[account.provider] ? 'Local' : M.PROVIDERS[account.provider].name}</span></span>
         <span data-icon="chevron-down" data-icon-size="12" style="color:var(--text-3)"></span>
       </button>`;
     I.hydrate(els.accountSlot);
@@ -691,11 +709,14 @@
     const streaming = msg.streaming || msg.phase === 'tools';
     const thinkingLabel = msg.phase === 'tools' ? 'Running tools…' : `Thinking with ${model.name}…`;
     return `<div class="msg ai" data-msg="${msg.id}">
-      <span class="avatar-ai"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+      <span class="avatar-ai">${ic('cloud', 15)}</span>
       <div class="msg-body">
         <div class="msg-head">
           <span class="who">Eltes</span>
           <span class="model-chip">${brand(model, 12)}${esc(model.name)}<span style="opacity:.6">· ${esc(M.providerOf(model).name)}</span></span>
+          ${M.isLocal(model) ? '<span class="local-chip"><i></i>on-device</span>' : ''}
+          ${model.realtime ? '<span class="rt-inline"><i></i>real-time</span>' : ''}
+          ${streaming && msg.content && model.realtime ? `<span class="rt-inline live-count"><i></i><b>${estimateTokens(msg.content)}</b> tok</span>` : ''}
           ${streaming ? `<span class="streaming-dot"><i></i>${msg.phase === 'tools' ? 'tool loop' : 'streaming'}</span>` : time}
         </div>
         ${toolCardsHtml(msg)}
@@ -743,8 +764,12 @@
     const box = els.providerQuick;
     if (!box) return;
     if (!state.settings) return;
-    const providers = Object.keys(M.PROVIDERS).filter((id) => id !== 'custom');
-    box.innerHTML = providers
+    const providers = Object.keys(M.PROVIDERS).filter((id) => id !== 'custom' && id !== 'eltes');
+    box.innerHTML = `<button data-local-cai="1" class="connected local" title="Eltes CAI runs on this device">
+        <span class="p-logo sm" data-brand="eltes" data-brand-size="14"></span>
+        Eltes CAI
+        ${ic('cpu', 11)}
+      </button>` + providers
       .map((id) => {
         const p = M.PROVIDERS[id];
         const on = !!state.settings.keys[id];
@@ -756,7 +781,7 @@
       })
       .join('');
     hydrateLogos(box);
-    if (els.connectStrip) els.connectStrip.hidden = anyKeyConnected();
+    if (els.connectStrip) els.connectStrip.hidden = anyKeyConnected() || M.isLocal(currentModel());
   }
 
   function renderAll() {
@@ -955,9 +980,12 @@
         <span class="info">
           <strong>${esc(m.name)}
             <span class="tag">${esc(m.tier)}</span>
-            ${keyed
-              ? `<span class="tag" style="color:#8ce6c4;border-color:rgba(55,214,160,.26)">key</span>`
-              : `<span class="needs-key">needs key</span>`}
+            ${M.isLocal(m)
+              ? `<span class="tag" style="color:#8ce6c4;border-color:rgba(55,214,160,.26)">on-device</span>`
+              : keyed
+                ? `<span class="tag" style="color:#8ce6c4;border-color:rgba(55,214,160,.26)">key</span>`
+                : `<span class="needs-key">needs key</span>`}
+            ${m.realtime ? `<span class="tag rt"><span class="rt-dot"></span>realtime</span>` : ''}
           </strong>
           <span>${esc(p.name)} · ${esc(m.context)} context · ${esc(m.blurb)}</span>
         </span>
@@ -968,8 +996,31 @@
       </button>`;
     };
     const group = (label, list) => (list.length ? `<div class="pick-group">${label}</div>${list.map(item).join('')}` : '');
-    els.modelList.innerHTML = group('Starred', favorites) + (q ? group('All models', others) : group('Anthropic · OpenAI · Google · Z.ai · DeepSeek · xAI · Qwen', others));
+    const localOnly = others.filter((m) => M.isLocal(m));
+    const hosted = others.filter((m) => !M.isLocal(m));
+    els.modelList.innerHTML = group('Starred', favorites) + (q
+      ? group('All models', others)
+      : group('On-device · no key', localOnly) + group('Hosted · Anthropic · OpenAI · DeepSeek · Google · Z.ai · xAI · Qwen · Mistral · Groq · OpenRouter', hosted));
     hydrateLogos(els.modelList);
+
+    const pc = $('#providerConnect');
+    if (pc) {
+      const ids = ['openai', 'anthropic', 'deepseek'];
+      pc.innerHTML = `<span class="pc-label">Accounts</span>` + ids.map((id) => {
+        const p = M.PROVIDERS[id];
+        const connected = !!state.settings.keys[id];
+        return `<button type="button" class="pc-chip${connected ? ' on' : ''}" data-connect-account="${id}" title="${esc(connected ? 'Manage your ' + p.name + ' connection' : 'Connect ' + p.name)}">
+          <span class="p-logo" data-brand="${p.brand}" data-brand-size="13"></span>
+          ${esc(p.name)}
+          <span class="pc-state">${connected ? 'connected' : 'connect'}</span>
+        </button>`;
+      }).join('') + `<button type="button" class="pc-chip on-device" data-local-cai title="Switch to the on-device Eltes CAI model">
+        <span class="p-logo" data-brand="eltes" data-brand-size="13"></span>
+        Eltes CAI
+        <span class="pc-state">on-device</span>
+      </button>`;
+      hydrateLogos(pc);
+    }
 
     const foot = $('#keysFoot');
     if (foot) {
@@ -1335,7 +1386,7 @@
         <p class="group-desc" style="margin-top:0">Create a profile to keep a name, avatar and preferences together. It is stored in this browser and can be deleted at any time.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <a class="btn btn-primary btn-sm" href="auth.html?mode=signup">Create account</a>
-          <a class="btn btn-ghost btn-sm" href="auth.html?method=github"><span data-icon="github" data-icon-size="14"></span>Continue with GitHub</a>
+          <a class="btn btn-ghost btn-sm" href="auth.html?mode=signup"><span data-icon="plug" data-icon-size="14"></span>Connect a provider</a>
         </div>`;
       I.hydrate(box);
       return;
@@ -1347,7 +1398,7 @@
           <strong>${esc(account.name)}</strong>
           <span>${esc(account.email || (account.username ? '@' + account.username : 'Local profile'))}</span>
         </div>
-        <span class="badge"><span class="dot"></span>${account.provider === 'github' ? 'GitHub' : 'Local'}</span>
+        <span class="badge"><span class="dot"></span>${account.provider === 'local' || !M.PROVIDERS[account.provider] ? 'Local' : esc(M.PROVIDERS[account.provider].name)}</span>
       </div>
       <div class="set-row">
         <div class="lbl"><strong>Display name</strong><span>Shown in the sidebar and account menu.</span></div>
@@ -1642,6 +1693,46 @@
   }
 
   els.input.addEventListener('input', () => { autoGrow(); updateSendState(); });
+
+  /* ------------------------- block field / scroll FX ---------------------- */
+  (function initBlockField() {
+    const field = $('#blockField');
+    if (!field) return;
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const specs = [
+      [4, 12, 38, 18], [9, 26, 22, -12], [16, 8, 30, 24], [23, 34, 16, 8], [31, 16, 44, -18],
+      [38, 28, 24, 12], [46, 9, 34, -24], [53, 31, 18, 16], [61, 18, 40, -8], [68, 26, 26, 20],
+      [75, 11, 32, -14], [82, 33, 20, 10], [89, 20, 38, -20], [96, 30, 24, 14], [6, 52, 20, -10],
+      [14, 62, 34, 18], [22, 74, 16, -16], [30, 58, 42, 8], [40, 68, 22, 22], [49, 54, 28, -12],
+      [58, 66, 18, 14], [67, 76, 36, -20], [76, 60, 24, 10], [85, 72, 30, -8], [93, 56, 16, 18],
+      [11, 88, 26, -16], [28, 92, 36, 12], [47, 86, 20, -10], [64, 94, 32, 16], [81, 88, 22, -14]
+    ];
+    field.innerHTML = specs.map(([x, y, s, d], i) => {
+      const r = ((i * 37) % 24) - 12;
+      const delay = ((i * 13) % 90) / 10;
+      return `<span class="bf-block" style="--x:${x};--y:${y};--s:${s};--r:${r}deg;--d:${d};--delay:${delay}s"></span>`;
+    }).join('');
+
+    let ticking = false;
+    const apply = () => {
+      ticking = false;
+      const y = els.thread ? els.thread.scrollTop : window.scrollY;
+      field.style.setProperty('--sy', String(Math.round(y)));
+      field.style.setProperty('--sy-slow', String(Math.round(y * 0.32)));
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    };
+    if (els.thread) els.thread.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    apply();
+    if (reduced) field.classList.add('still');
+    const sync = () => field.classList.toggle('still', document.body.classList.contains('reduce-motion'));
+    sync();
+    new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  })();
   els.input.addEventListener('keydown', (e) => {
     const mod = e.metaKey || e.ctrlKey;
     if (e.key !== 'Enter') return;
@@ -1661,9 +1752,27 @@
   }));
 
   els.providerQuick.addEventListener('click', (e) => {
+    if (e.target.closest('[data-local-cai]')) { selectModel('eltes-cai-1'); return; }
     const btn = e.target.closest('[data-connect]');
     if (btn) openConnect(btn.dataset.connect);
   });
+
+  const providerConnectEl = $('#providerConnect');
+  if (providerConnectEl) {
+    providerConnectEl.addEventListener('click', (e) => {
+      const account = e.target.closest('[data-connect-account]');
+      if (account) {
+        const id = account.dataset.connectAccount;
+        const next = encodeURIComponent('app.html');
+        location.href = `auth.html?provider=${encodeURIComponent(id)}&mode=signup&next=${next}`;
+        return;
+      }
+      if (e.target.closest('[data-local-cai]')) {
+        selectModel('eltes-cai-1');
+        closeDialog(els.modelDialog);
+      }
+    });
+  }
 
   /* -------------------------------- attach -------------------------------- */
   const LANG_BY_EXT = {
@@ -1718,6 +1827,11 @@
   /* ------------------------------ connect UI ------------------------------ */
   function openConnect(providerId) {
     state.connectProvider = providerId || null;
+    const accLink = $('#connectAccount');
+    if (accLink) {
+      const pid = providerId || (M.MODELS.some((m) => m.id === state.settings.model) ? M.byId(state.settings.model).provider : 'openai');
+      accLink.href = `auth.html?provider=${pid}&mode=signup&next=${encodeURIComponent('app.html')}`;
+    }
     const list = $('#connectList');
     const providers = Object.keys(M.PROVIDERS).filter((id) => id !== 'custom');
     list.innerHTML = providers
@@ -1863,6 +1977,11 @@
     const provider = M.providerOf(model);
     const key = providerKey(model.provider);
 
+    if (M.isLocal(model)) {
+      await runLocalTurn(chat, assistant, prompt, model);
+      return;
+    }
+
     if (!hasKeyFor(model)) {
       assistant.streaming = false;
       assistant.needsKey = true;
@@ -1906,7 +2025,7 @@
       apiMessages = [{ role: /^o\d/.test(model.apiId || '') ? 'developer' : 'system', content: SYSTEM_PROMPT }, ...history];
     }
 
-    const paint = throttle(() => updateStreamingNode(assistant), 40);
+    const paint = throttle(() => updateStreamingNode(assistant), model.realtime ? 12 : 40);
 
     try {
       for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
@@ -2016,6 +2135,64 @@
     saveAndRender(chat, assistant);
   }
 
+  async function runLocalTurn(chat, assistant, prompt, model) {
+    assistant.needsKey = false;
+    assistant.error = null;
+    assistant.local = true;
+    assistant.phase = 'thinking';
+    renderMessages();
+    const controller = new AbortController();
+    state.abort = controller;
+    const started = performance.now();
+    const history = chat.messages
+      .filter((m) => m !== assistant && !m.streaming && !m.needsKey && m.content)
+      .slice(-24)
+      .map((m) => ({ role: m.role, content: m.content }));
+    const paint = throttle(() => updateStreamingNode(assistant), 24);
+    let result = null;
+
+    try {
+      result = await CAI.stream({
+        modelId: model.id,
+        messages: history,
+        signal: controller.signal,
+        onMeta: (meta) => { assistant.localIntent = meta.intent; },
+        onToken: (_chunk, full) => {
+          assistant.content = full;
+          assistant.phase = 'streaming';
+          paint();
+        }
+      });
+    } catch (err) {
+      if (!(err && err.name === 'AbortError')) {
+        assistant.error = {
+          title: 'The on-device model could not finish.',
+          detail: (err && err.message) || 'Unknown local error.',
+          hint: 'Try again, or switch to a hosted model.',
+          provider: 'eltes'
+        };
+      }
+    } finally {
+      state.abort = null;
+    }
+
+    const total = Math.round(performance.now() - started);
+    assistant.streaming = false;
+    assistant.phase = null;
+    assistant.usage = (result && result.usage) || {
+      input: estimateTokens(prompt),
+      output: estimateTokens(assistant.content)
+    };
+    assistant.latency = assistant.error ? null : {
+      ttft: result && result.firstTokenAt ? Math.round(result.firstTokenAt - started) : null,
+      total
+    };
+    if (state.stopped && !assistant.content && !assistant.error) {
+      assistant.content = '_Stopped before the model returned text._';
+    }
+    saveAndRender(chat, assistant);
+  }
+
   function saveAndRender(chat, assistant) {
     chat.updatedAt = Date.now();
     persistNow();
@@ -2048,6 +2225,8 @@
     if (!node) return;
     const prose = node.querySelector('.prose');
     if (prose) prose.innerHTML = renderMarkdown(msg.content) + (msg.streaming ? '<span class="caret"></span>' : '');
+    const liveCount = node.querySelector('.live-count b');
+    if (liveCount && msg.content) liveCount.textContent = String(estimateTokens(msg.content));
     const thinking = node.querySelector('.thinking');
     if (thinking && msg.content) thinking.remove();
     scrollToBottom(false);

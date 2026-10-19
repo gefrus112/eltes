@@ -1,6 +1,7 @@
-/* Eltes — provider catalogue
-   OpenAI-compatible endpoints plus native Anthropic. No demo models: every entry is a
-   real API target that needs a key (or a custom base URL pointed at your own server). */
+/* Eltes — provider catalogue (v3, October 2026)
+   OpenAI-compatible endpoints plus native Anthropic and the on-device Eltes CAI family.
+   No demo models: every hosted entry is a real API target that needs a key (or a custom
+   base URL pointed at your own server). CAI models run locally in this tab and say so. */
 window.EltesModels = (function () {
   'use strict';
 
@@ -12,7 +13,7 @@ window.EltesModels = (function () {
       keyHint: 'sk-ant-…',
       keyUrl: 'https://console.anthropic.com/settings/keys',
       baseUrl: 'https://api.anthropic.com/v1',
-      blurb: 'Claude Opus, Sonnet and Haiku. Native Messages API and streaming.'
+      blurb: 'Claude Opus, Sonnet, Haiku and Fable. Native Messages API and streaming.'
     },
     openai: {
       name: 'OpenAI',
@@ -21,7 +22,7 @@ window.EltesModels = (function () {
       keyHint: 'sk-proj-…',
       keyUrl: 'https://platform.openai.com/api-keys',
       baseUrl: 'https://api.openai.com/v1',
-      blurb: 'GPT-4.1, GPT-4.1 mini and the o-series reasoning models.'
+      blurb: 'GPT‑6 Astra, GPT‑6 Sol and Luna — with real-time streaming.'
     },
     google: {
       name: 'Google',
@@ -48,7 +49,7 @@ window.EltesModels = (function () {
       keyHint: 'sk-…',
       keyUrl: 'https://platform.deepseek.com/api_keys',
       baseUrl: 'https://api.deepseek.com/v1',
-      blurb: 'DeepSeek V3 chat and R1-style reasoning at low cost.'
+      blurb: 'DeepSeek V4.1 Flash and V4 Pro — low cost, million-token context.'
     },
     xai: {
       name: 'xAI',
@@ -95,6 +96,16 @@ window.EltesModels = (function () {
       baseUrl: 'https://openrouter.ai/api/v1',
       blurb: 'One key for hundreds of models, with automatic routing and fallbacks.'
     },
+    eltes: {
+      name: 'Eltes CAI',
+      brand: 'eltes',
+      api: 'eltes',
+      keyHint: '',
+      keyUrl: '',
+      baseUrl: '',
+      local: true,
+      blurb: 'Our own on-device conversational models. No key, no network, no waiting.'
+    },
     custom: {
       name: 'Custom endpoint',
       brand: 'glm',
@@ -107,37 +118,78 @@ window.EltesModels = (function () {
   };
 
   const MODELS = [
+    /* ------------------------------- Eltes CAI ------------------------------ */
+    {
+      id: 'eltes-cai-1', apiId: 'eltes-cai-1', name: 'Eltes CAI-1',
+      provider: 'eltes', context: 'on-device', tier: 'On-device', tools: false, vision: false,
+      local: true, tags: ['local', 'chat', 'no-key'],
+      blurb: 'Our own conversational model. Understands plain chat and answers instantly, offline.'
+    },
+    {
+      id: 'eltes-cai-1-fast', apiId: 'eltes-cai-1-fast', name: 'Eltes CAI-1 Fast',
+      provider: 'eltes', context: 'on-device', tier: 'Fast', tools: false, vision: false,
+      local: true, tags: ['local', 'fast', 'no-key'],
+      blurb: 'Short, tight answers from the CAI engine. The quickest way to test a thought.'
+    },
+    {
+      id: 'eltes-cai-docs', apiId: 'eltes-cai-docs', name: 'Eltes CAI Docs',
+      provider: 'eltes', context: 'on-device', tier: 'On-device', tools: false, vision: false,
+      local: true, tags: ['local', 'docs', 'no-key'],
+      blurb: 'A local specialist for Eltes itself: setup, keys, models, accounts and downloads.'
+    },
     /* ------------------------------- Anthropic ------------------------------ */
     {
-      id: 'claude-sonnet-4-5', apiId: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5',
+      id: 'claude-sonnet-5-5', apiId: 'claude-sonnet-5-5', name: 'Claude Sonnet 5.5',
       provider: 'anthropic', context: '200K', tier: 'Balanced', tools: true, vision: true,
-      tags: ['coding', 'tools', 'reasoning'], blurb: 'Best default for code, long context and careful writing.'
+      tags: ['coding', 'tools', 'reasoning', 'default'],
+      blurb: 'Best default for code, long context and careful writing.'
     },
     {
-      id: 'claude-opus-4-1', apiId: 'claude-opus-4-1', name: 'Claude Opus 4.1',
+      id: 'claude-opus-5-5', apiId: 'claude-opus-5-5', name: 'Claude Opus 5.5',
       provider: 'anthropic', context: '200K', tier: 'Frontier', tools: true, vision: true,
-      tags: ['reasoning', 'coding'], blurb: 'Deepest reasoning in the Claude family. Slower, pricier.'
+      tags: ['reasoning', 'coding'], blurb: 'The deepest Claude for hard reasoning and large refactors.'
     },
     {
-      id: 'claude-haiku-4-5', apiId: 'claude-haiku-4-5', name: 'Claude Haiku 4.5',
+      id: 'claude-haiku-5-5', apiId: 'claude-haiku-5-5', name: 'Claude Haiku 5.5',
       provider: 'anthropic', context: '200K', tier: 'Fast', tools: true, vision: true,
       tags: ['fast'], blurb: 'Instant answers for short tasks and quick edits.'
     },
+    {
+      id: 'claude-fable-5-1', apiId: 'claude-fable-5-1', name: 'Claude Fable 5.1',
+      provider: 'anthropic', context: '200K', tier: 'Balanced', tools: true, vision: true,
+      tags: ['writing', 'creative'], blurb: 'Voice-first Claude for narrative, product copy and editing.'
+    },
+    {
+      id: 'claude-opus-4-5', apiId: 'claude-opus-4-5-20251101', name: 'Claude Opus 4.5',
+      provider: 'anthropic', context: '200K', tier: 'Frontier', tools: true, vision: true,
+      tags: ['reasoning'], blurb: 'The previous Opus generation, still strong and widely available.'
+    },
     /* --------------------------------- OpenAI ------------------------------- */
     {
-      id: 'gpt-4-1', apiId: 'gpt-4.1', name: 'GPT-4.1',
+      id: 'gpt-6-astra', apiId: 'gpt-6-astra', name: 'ChatGPT Astra',
+      provider: 'openai', context: '1M', tier: 'Frontier', tools: false, vision: true,
+      realtime: true, tags: ['reasoning', 'vision', 'realtime', 'new'],
+      blurb: 'GPT‑6 Astra with real-time token streaming. Eltes paints the first token as it lands.'
+    },
+    {
+      id: 'gpt-6-sol', apiId: 'gpt-6-sol', name: 'GPT‑6 Sol',
+      provider: 'openai', context: 'varies', tier: 'Balanced', tools: true, vision: true,
+      tags: ['coding', 'tools'], blurb: 'The balanced GPT‑6 tier — dependable tool calling and code.'
+    },
+    {
+      id: 'gpt-6-1-sol', apiId: 'gpt-6-1-sol', name: 'GPT‑6.1 Sol',
+      provider: 'openai', context: 'varies', tier: 'Balanced', tools: true, vision: true,
+      tags: ['coding', 'tools'], blurb: 'A refinement of Sol with better instruction following.'
+    },
+    {
+      id: 'gpt-6-luna', apiId: 'gpt-6-luna', name: 'GPT‑6 Luna',
+      provider: 'openai', context: 'varies', tier: 'Fast', tools: true, vision: true,
+      tags: ['fast'], blurb: 'Low-latency GPT‑6 for drafts, extraction and chat.'
+    },
+    {
+      id: 'gpt-4-1', apiId: 'gpt-4.1', name: 'GPT‑4.1',
       provider: 'openai', context: '1M', tier: 'Balanced', tools: true, vision: true,
-      tags: ['coding', 'tools'], blurb: 'Very long context with dependable instruction following.'
-    },
-    {
-      id: 'gpt-4-1-mini', apiId: 'gpt-4.1-mini', name: 'GPT-4.1 mini',
-      provider: 'openai', context: '1M', tier: 'Fast', tools: true, vision: true,
-      tags: ['fast'], blurb: 'Cheap and quick for drafts, extraction and classification.'
-    },
-    {
-      id: 'o4-mini', apiId: 'o4-mini', name: 'o4-mini',
-      provider: 'openai', context: '200K', tier: 'Reasoning', tools: true, vision: false,
-      tags: ['reasoning'], blurb: 'Thinks before answering. Good for maths and tricky bugs.'
+      tags: ['coding', 'tools'], blurb: 'Legacy but reliable: very long context, steady instruction following.'
     },
     /* --------------------------------- Google ------------------------------- */
     {
@@ -168,14 +220,14 @@ window.EltesModels = (function () {
     },
     /* -------------------------------- DeepSeek ------------------------------ */
     {
-      id: 'deepseek-chat', apiId: 'deepseek-chat', name: 'DeepSeek V3',
-      provider: 'deepseek', context: '128K', tier: 'Balanced', tools: true, vision: false,
-      tags: ['coding', 'tools'], blurb: 'Open weights, strong code, very low cost per token.'
+      id: 'deepseek-flash', apiId: 'deepseek-flash', name: 'DeepSeek V4.1 Flash',
+      provider: 'deepseek', context: '1M', tier: 'Fast', tools: true, vision: true,
+      tags: ['fast', 'vision', 'new'], blurb: 'V4.1 Flash (1017): fast, multimodal and very cheap at 1M context.'
     },
     {
-      id: 'deepseek-reasoner', apiId: 'deepseek-reasoner', name: 'DeepSeek R1',
-      provider: 'deepseek', context: '128K', tier: 'Reasoning', tools: false, vision: false,
-      tags: ['reasoning'], blurb: 'Long chain-of-thought reasoning, no tool calling.'
+      id: 'deepseek-v4-pro', apiId: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro',
+      provider: 'deepseek', context: '1M', tier: 'Frontier', tools: true, vision: true,
+      tags: ['reasoning', 'coding'], blurb: 'The heavy DeepSeek tier for reasoning, code and long documents.'
     },
     /* ---------------------------------- xAI --------------------------------- */
     {
@@ -228,9 +280,14 @@ window.EltesModels = (function () {
       tags: ['auto'], blurb: 'Routes each request to the best available model and falls back on errors.'
     },
     {
-      id: 'or-claude-sonnet', apiId: 'anthropic/claude-sonnet-4.5', name: 'Claude Sonnet 4.5',
+      id: 'or-claude-sonnet', apiId: 'anthropic/claude-sonnet-5.5', name: 'Claude Sonnet 5.5',
       provider: 'openrouter', context: '200K', tier: 'Balanced', tools: true, vision: true,
       tags: ['coding'], blurb: 'Anthropic’s Sonnet billed through OpenRouter credits.'
+    },
+    {
+      id: 'or-gpt-astra', apiId: 'openai/gpt-6-astra', name: 'ChatGPT Astra',
+      provider: 'openrouter', context: '1M', tier: 'Frontier', tools: true, vision: true,
+      realtime: true, tags: ['reasoning', 'realtime'], blurb: 'GPT‑6 Astra routed by OpenRouter with fallbacks.'
     },
     {
       id: 'or-gemini-pro', apiId: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro',
@@ -243,9 +300,9 @@ window.EltesModels = (function () {
       tags: ['coding', 'tools'], blurb: 'Z.ai GLM-4.6 routed by OpenRouter.'
     },
     {
-      id: 'or-deepseek', apiId: 'deepseek/deepseek-chat', name: 'DeepSeek V3',
-      provider: 'openrouter', context: '128K', tier: 'Balanced', tools: true, vision: false,
-      tags: ['coding'], blurb: 'DeepSeek chat through OpenRouter with fallbacks.'
+      id: 'or-deepseek', apiId: 'deepseek/deepseek-flash', name: 'DeepSeek V4.1 Flash',
+      provider: 'openrouter', context: '1M', tier: 'Fast', tools: true, vision: true,
+      tags: ['coding'], blurb: 'DeepSeek Flash through OpenRouter with fallbacks.'
     },
     {
       id: 'or-qwen-coder', apiId: 'qwen/qwen3-coder', name: 'Qwen3 Coder',
@@ -260,11 +317,12 @@ window.EltesModels = (function () {
     }
   ];
 
-  const DEFAULT_MODEL = 'claude-sonnet-4-5';
+  const DEFAULT_MODEL = 'eltes-cai-1';
 
   const byId = (id) => MODELS.find((m) => m.id === id) || MODELS[0];
   const providerOf = (model) => PROVIDERS[(model && model.provider) || 'anthropic'] || PROVIDERS.anthropic;
   const brandOf = (model) => providerOf(model).brand;
+  const isLocal = (model) => !!(model && model.local);
 
-  return { PROVIDERS, MODELS, DEFAULT_MODEL, byId, providerOf, brandOf };
+  return { PROVIDERS, MODELS, DEFAULT_MODEL, byId, providerOf, brandOf, isLocal };
 })();

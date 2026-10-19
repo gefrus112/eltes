@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eltes — accounts</title>
-  <meta name="description" content="Create a local Eltes profile or continue with GitHub. No password, no server, no telemetry — your account lives in this browser." />
-  <meta name="theme-color" content="#02050a" />
+  <title>Eltes — connect an account</title>
+  <meta name="description" content="Sign up or sign in with OpenAI, Anthropic or DeepSeek. Eltes stores the profile on this device and connects provider accounts without a middle server." />
+  <meta name="theme-color" content="#010308" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/css/theme.css" />
@@ -14,64 +16,74 @@
 </head>
 <body class="auth-page">
   <a class="skip" href="#authMain">Skip to the form</a>
+  <div class="auth-blocks" id="authBlocks" aria-hidden="true"></div>
 
   <header class="auth-nav">
     <div class="wrap auth-nav-in">
       <a class="brand" href="index.html" aria-label="Eltes home">
-        <span class="brand-mark">
-          <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".96"/></svg>
+        <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
         </span>
         Eltes <span class="brand-sub">AI</span>
       </a>
       <span class="grow"></span>
-      <a class="auth-back" href="index.html"><span data-icon="arrow-left" data-icon-size="13"></span>Back to home</a>
+      <a class="auth-back" href="docs.html#accounts">How accounts work</a>
+      <a class="auth-back" href="index.html"><span data-icon="arrow-left" data-icon-size="13"></span>Home</a>
       <a class="btn btn-ghost btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="13"></span></a>
     </div>
   </header>
 
   <main class="auth-main wrap" id="authMain">
     <aside class="auth-side">
-      <span class="eyebrow"><span class="dot"></span>Accounts · local-first</span>
-      <h1>Put a name on<br /><span class="grad">your workspace.</span></h1>
+      <span class="eyebrow"><span class="dot"></span>Accounts · provider connect</span>
+      <h1>One workspace.<br /><span class="grad">Every account.</span></h1>
       <p class="lead">
-        A profile keeps your name, avatar and preferences together across Eltes.
-        No password, no server, no email — and it never leaves this browser.
+        Sign up with the account that already pays for your models. Eltes connects
+        OpenAI, Anthropic and DeepSeek — then keeps the profile on this device.
       </p>
 
-      <ul class="auth-points">
+      <ul class="provider-list" aria-label="Supported accounts">
         <li>
-          <span class="ap-ico" data-icon="hard-drive" data-icon-size="15"></span>
-          <div><strong>Stored on this device</strong><span>Profiles live in local storage. Clearing site data removes them.</span></div>
+          <span class="pl-logo" data-brand="openai" data-brand-size="18"></span>
+          <div><strong>OpenAI</strong><span>GPT‑6 Astra, Sol and Luna</span></div>
+          <span class="pl-state">connect</span>
         </li>
         <li>
-          <span class="ap-ico" data-icon="shield-check" data-icon-size="15"></span>
-          <div><strong>Nothing to breach</strong><span>No password to hash, no session cookie, no telemetry.</span></div>
+          <span class="pl-logo" data-brand="anthropic" data-brand-size="18"></span>
+          <div><strong>Anthropic</strong><span>Claude Opus, Sonnet and Haiku</span></div>
+          <span class="pl-state">connect</span>
         </li>
         <li>
-          <span class="ap-ico" data-icon="github" data-icon-size="15"></span>
-          <div><strong>GitHub-ready</strong><span>Link a handle now; the button switches to real OAuth the moment a backend exists.</span></div>
+          <span class="pl-logo" data-brand="deepseek" data-brand-size="18"></span>
+          <div><strong>DeepSeek</strong><span>V4.1 Flash and V4 Pro</span></div>
+          <span class="pl-state">connect</span>
+        </li>
+        <li class="local">
+          <span class="pl-logo" data-brand="eltes" data-brand-size="18"></span>
+          <div><strong>Eltes CAI</strong><span>On-device · no account required</span></div>
+          <span class="pl-state on">always on</span>
         </li>
       </ul>
 
       <div class="auth-note">
-        <span data-icon="info" data-icon-size="13"></span>
-        <p>Eltes works without an account. Signing in only adds a profile — your chats and API keys are separate and stay local either way.</p>
+        <span data-icon="lock" data-icon-size="13"></span>
+        <p>No password, no Eltes server, no telemetry. A provider connection is either a real OAuth redirect
+          from your host or a key you paste — never a fabricated session.</p>
       </div>
 
       <div class="auth-stats">
-        <div><strong>28</strong><span>real models</span></div>
-        <div><strong>11</strong><span>providers</span></div>
+        <div><strong>36</strong><span>real models</span></div>
+        <div><strong>12</strong><span>providers</span></div>
         <div><strong>0</strong><span>Eltes servers</span></div>
       </div>
     </aside>
 
     <section class="auth-card" aria-labelledby="authTitle">
-      <div class="auth-glow" aria-hidden="true"></div>
+      <div class="card-blocks" aria-hidden="true"></div>
 
       <div class="auth-card-head">
         <div>
           <h2 id="authTitle">Create your account</h2>
-          <p id="authSub">A local profile. No password, no email sent.</p>
+          <p id="authSub">Connect a provider, or keep a local profile.</p>
         </div>
         <span class="badge"><span class="dot"></span>BYOK</span>
       </div>
@@ -83,17 +95,30 @@
           <span class="tab-ink" aria-hidden="true"></span>
         </div>
 
-        <button class="btn gh-btn gh-full" id="githubBtn" type="button">
-          <span data-icon="github" data-icon-size="17"></span>
-          Continue with GitHub
-        </button>
+        <div class="provider-grid" id="providerGrid" role="group" aria-label="Connect a provider account">
+          <button type="button" class="provider-btn" data-provider="openai">
+            <span class="pb-logo" data-brand="openai" data-brand-size="20"></span>
+            <span class="pb-text"><strong>Continue with OpenAI</strong><span>Connect ChatGPT / API account</span></span>
+            <span class="pb-state" data-state-for="openai">connect</span>
+          </button>
+          <button type="button" class="provider-btn" data-provider="anthropic">
+            <span class="pb-logo" data-brand="anthropic" data-brand-size="20"></span>
+            <span class="pb-text"><strong>Continue with Anthropic</strong><span>Connect Claude account</span></span>
+            <span class="pb-state" data-state-for="anthropic">connect</span>
+          </button>
+          <button type="button" class="provider-btn" data-provider="deepseek">
+            <span class="pb-logo" data-brand="deepseek" data-brand-size="20"></span>
+            <span class="pb-text"><strong>Continue with DeepSeek</strong><span>Connect DeepSeek platform account</span></span>
+            <span class="pb-state" data-state-for="deepseek">connect</span>
+          </button>
+        </div>
 
-        <div class="or"><span>or use a local profile</span></div>
+        <div class="or"><span>or keep a local profile</span></div>
 
         <form id="authForm" novalidate autocomplete="off">
           <div class="fld" id="nameField">
             <label for="nameInput">Display name</label>
-            <div class="fld-in" id="nameWrap">
+            <div class="fld-in">
               <span data-icon="user" data-icon-size="15"></span>
               <input id="nameInput" name="name" type="text" placeholder="Ada Lovelace" autocomplete="name" maxlength="60" />
               <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
@@ -102,23 +127,13 @@
           </div>
 
           <div class="fld">
-            <label for="emailInput">Email</label>
-            <div class="fld-in" id="emailWrap">
+            <label for="emailInput">Email <span class="opt">stays on this device</span></label>
+            <div class="fld-in">
               <span data-icon="mail" data-icon-size="15"></span>
               <input id="emailInput" name="email" type="email" placeholder="ada@example.com" autocomplete="email" maxlength="120" inputmode="email" />
               <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
             </div>
             <em class="fld-err" id="emailErr" role="alert"></em>
-          </div>
-
-          <div class="fld" id="handleField" hidden>
-            <label for="handleInput">GitHub handle <span class="opt">optional</span></label>
-            <div class="fld-in" id="handleWrap">
-              <span class="at">@</span>
-              <input id="handleInput" name="handle" type="text" placeholder="your-handle" autocomplete="off" maxlength="40" spellcheck="false" />
-              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
-            </div>
-            <em class="fld-err" id="handleErr" role="alert"></em>
           </div>
 
           <div class="auth-error" id="authError" role="alert" hidden>
@@ -127,52 +142,65 @@
           </div>
 
           <button class="btn btn-primary btn-lg auth-submit" id="submitBtn" type="submit">
-            <span id="submitLabel">Create account</span>
+            <span id="submitLabel">Create local profile</span>
             <span data-icon="arrow-right" data-icon-size="16"></span>
           </button>
 
           <p class="terms">
-            No password and no email is sent. Eltes stores this profile in local storage and nothing else.
+            No password and no email is sent. Eltes stores this profile in local storage.
             <a href="docs.html#accounts">How accounts work</a>
           </p>
         </form>
 
-        <div class="gh-flow" id="ghFlow" hidden>
-          <div class="gh-flow-head">
-            <span class="gh-mark"><span data-icon="github" data-icon-size="18"></span></span>
+        <!-- provider connect panel -->
+        <div class="provider-flow" id="providerFlow" hidden>
+          <div class="pf-head">
+            <span class="pf-logo" id="pfLogo" data-brand="openai" data-brand-size="22"></span>
             <div>
-              <strong>Continue with GitHub</strong>
-              <span>Link your handle to this local profile.</span>
+              <strong id="pfTitle">Connect OpenAI</strong>
+              <span id="pfSub">One account for Astra, Sol and Luna.</span>
             </div>
+            <button class="icon-btn" id="pfClose" type="button" aria-label="Back to all providers" data-icon="x" data-icon-size="16"></button>
           </div>
 
-          <div class="gh-note">
+          <div class="pf-mode" id="pfMode"></div>
+
+          <div class="fld" id="pfKeyField">
+            <label for="providerKey" id="pfKeyLabel">API key</label>
+            <div class="fld-in">
+              <span data-icon="key-round" data-icon-size="15"></span>
+              <input id="providerKey" type="password" placeholder="sk-…" autocomplete="new-password" spellcheck="false" />
+              <button class="pf-reveal" id="pfReveal" type="button" aria-label="Show key" data-icon="eye" data-icon-size="14"></button>
+            </div>
+            <em class="fld-err" id="pfKeyErr" role="alert"></em>
+          </div>
+
+          <div class="pf-row">
+            <a class="pf-link" id="pfKeyLink" href="#" target="_blank" rel="noopener">
+              Open provider keys <span data-icon="arrow-up-right" data-icon-size="12"></span>
+            </a>
+            <span class="pf-hint">Stored in this browser only</span>
+          </div>
+
+          <div class="pf-note">
             <span data-icon="info" data-icon-size="13"></span>
-            <p>
-              Real GitHub OAuth needs a server to exchange the code. Until hosted accounts ship,
-              this links your handle <strong>locally</strong> — no token is created and no request is sent to GitHub.
+            <p id="pfNote">
+              Hosted OAuth needs a backend to exchange the code. On this static copy, connecting means saving
+              a real provider key on this device — we verify it against the provider when CORS allows.
             </p>
           </div>
 
-          <div class="fld">
-            <label for="ghHandle">GitHub username</label>
-            <div class="fld-in" id="ghWrap">
-              <span class="at">@</span>
-              <input id="ghHandle" type="text" placeholder="your-handle" autocomplete="off" maxlength="40" spellcheck="false" />
-              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
-            </div>
-            <em class="fld-err" id="ghErr" role="alert"></em>
-          </div>
-
-          <div class="gh-actions">
-            <button class="btn btn-ghost" id="ghCancel" type="button">Cancel</button>
-            <button class="btn gh-btn" id="ghConnect" type="button">
-              <span data-icon="github" data-icon-size="15"></span>Connect GitHub
+          <div class="pf-actions">
+            <button class="btn btn-ghost" id="pfCancel" type="button">Cancel</button>
+            <button class="btn btn-primary" id="pfConnect" type="button">
+              <span data-icon="plug" data-icon-size="14"></span><span id="pfConnectLabel">Connect account</span>
             </button>
           </div>
-          <p class="terms">
-            Backend configured? Set <code class="mono">window.ELTES_CONFIG.authEndpoint</code> and this button
-            starts the real OAuth redirect. <a href="docs.html#accounts">Read the setup</a>.
+
+          <p class="pf-contract">
+            Hosted setup: set <code class="mono">window.ELTES_CONFIG.authEndpoint</code>. Eltes calls
+            <code class="mono">/&lt;provider&gt;/start</code> and expects
+            <code class="mono">?account=&lt;base64url JSON&gt;</code> back.
           </p>
         </div>
       </div>
@@ -187,6 +215,8 @@
           <span class="key-status ok" id="siProvider"><i></i>Local</span>
         </div>
 
+        <div class="si-connections" id="siConnections" role="group" aria-label="Provider connections"></div>
+
         <div class="si-rows">
           <div class="si-row"><span>Profile ID</span><span class="mono" id="siId">u_…</span></div>
           <div class="si-row"><span>Created</span><span id="siCreated">Today</span></div>
@@ -199,19 +229,21 @@
           <button class="btn btn-ghost" id="siSignOut" type="button"><span data-icon="log-out" data-icon-size="14"></span>Sign out</button>
         </div>
         <button class="si-delete" id="siDelete" type="button"><span data-icon="trash-2" data-icon-size="12"></span>Delete this profile</button>
-        <p class="terms">Signing out keeps your chats and API keys on this device.</p>
+        <p class="terms">Signing out keeps your chats <em>and</em> your provider keys on this device.</p>
       </div>
     </section>
   </main>
 
   <footer class="auth-foot wrap">
-    <p>Eltes is local-first by design. <a href="docs.html#accounts">Accounts</a> · <a href="docs.html#privacy">Privacy</a> · <a href="index.html#pricing">Pricing</a></p>
-    <p class="dim">No server. No telemetry. No demo replies.</p>
+    <p>Eltes is local-first by design. <a href="docs.html#accounts">Accounts</a> · <a href="docs.html#providers">Provider setup</a> · <a href="index.html#downloads">Downloads</a></p>
+    <p class="dim">No server. No telemetry. No invented sessions.</p>
   </footer>
 
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
   <script src="assets/js/icons.js"></script>
+  <script src="assets/js/brands.js"></script>
+  <script src="assets/js/models.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/auth.js"></script>
 </body>

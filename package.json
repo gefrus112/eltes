@@ -1,16 +1,23 @@
 {
-  "name": "html-css",
-  "version": "1.0.0",
-  "description": "A template for HTML and CSS",
+  "name": "eltes-ai",
+  "version": "1.2.0",
+  "description": "Eltes AI — a local-first AI agent workspace with model switching, bring-your-own-key and local chat history.",
   "main": "index.html",
   "scripts": {
-    "start": "serve"
+    "start": "serve -l 5000",
+    "dev": "serve -l 5000"
   },
   "keywords": [
-    "html",
-    "css"
+    "ai",
+    "agent",
+    "chat",
+    "llm",
+    "byok",
+    "model-switching",
+    "local-first",
+    "static"
   ],
-  "author": "Ives van Hoorne",
+  "author": "Eltes",
   "license": "MIT",
   "devDependencies": {
     "serve": "11.2.0"

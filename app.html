@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eltes AI — workspace</title>
+  <meta name="description" content="The Eltes AI agent workspace. Bring your own key, switch models mid-conversation and keep your chat history on your device." />
+  <meta name="theme-color" content="#04070e" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="assets/css/app.css" />
+</head>
+<body class="app">
+  <a class="skip" href="#thread">Skip to conversation</a>
+
+  <div class="shell" id="shell">
+    <div class="side-backdrop" id="sideBackdrop"></div>
+
+    <!-- ============================= sidebar ============================= -->
+    <aside class="side" id="side" aria-label="Chats">
+      <div class="side-head">
+        <a class="brand" href="index.html" title="Eltes home">
+          <span class="brand-mark">
+            <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".96"/></svg>
+          </span>
+          Eltes
+        </a>
+        <button class="icon-btn" id="collapseBtn" aria-label="Hide sidebar" title="Hide sidebar (⌘B)" data-icon="panel-left" data-icon-size="17"></button>
+      </div>
+
+      <div class="side-body">
+        <button class="new-chat" id="newChatBtn">
+          <span data-icon="plus" data-icon-size="16"></span>
+          New chat
+          <span class="kbd">⌘N</span>
+        </button>
+        <button class="side-search" id="searchBtn">
+          <span data-icon="search" data-icon-size="15"></span>
+          Search chats
+          <span class="kbd">⌘K</span>
+        </button>
+
+        <div class="chat-scroll" id="chatScroll">
+          <div id="chatList"></div>
+        </div>
+
+        <div class="storage">
+          <div class="lbl"><span>Local storage</span><span id="storageLabel">0 KB</span></div>
+          <div class="track"><i id="storageBar"></i></div>
+        </div>
+      </div>
+
+      <div class="side-foot">
+        <div class="side-card" id="profileCard" role="button" tabindex="0" aria-label="Open settings">
+          <span class="side-avatar" data-icon="shield-check" data-icon-size="15"></span>
+          <div class="meta">
+            <strong>Local workspace</strong>
+            <span><i></i><span id="profileMeta">Demo mode</span></span>
+          </div>
+          <span data-icon="settings" data-icon-size="16" style="color:var(--text-3)"></span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =============================== main =============================== -->
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn" id="sidebarBtn" aria-label="Toggle sidebar" title="Toggle sidebar (⌘B)" data-icon="panel-left" data-icon-size="17"></button>
+
+        <button class="model-btn" id="modelBtn" aria-haspopup="dialog" aria-label="Switch model">
+          <span class="mb mb-anthropic" id="modelBtnBadge" style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:9px;font-weight:650;color:#fff">C</span>
+          <span class="name" id="modelBtnName">Claude Sonnet 4.5</span>
+          <span class="tier" id="modelBtnTier">Balanced</span>
+          <span class="chev" data-icon="chevron-down" data-icon-size="14"></span>
+        </button>
+
+        <button class="demo-pill" id="demoPill" type="button" title="Add an API key to leave demo mode" aria-label="Demo mode — open API key settings">
+          <span data-icon="flask" data-icon-size="12"></span>Demo mode
+        </button>
+
+        <div class="grow"></div>
+
+        <div class="topbar-right">
+          <button class="icon-btn" id="cmdBtn" aria-label="Command palette" title="Command palette (⌘K)" data-icon="search" data-icon-size="17"></button>
+          <button class="icon-btn desk-only" id="shareBtn" aria-label="Share conversation" title="Share or export" data-icon="download" data-icon-size="17"></button>
+          <button class="icon-btn desk-only" id="docsBtn" aria-label="Documentation" title="Docs" data-icon="book-open" data-icon-size="17"></button>
+          <span class="sep desk-only"></span>
+          <button class="icon-btn" id="settingsBtn" aria-label="Settings" title="Settings (⌘,)" data-icon="settings" data-icon-size="17"></button>
+        </div>
+      </header>
+
+      <main class="thread" id="thread" tabindex="-1">
+        <div class="empty" id="emptyState">
+          <div class="empty-mark">
+            <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".97"/></svg>
+          </div>
+          <h1>What should we <em>build</em>?</h1>
+          <p class="sub">Ask anything, switch models mid-thought. Your keys and history stay in this browser.</p>
+
+          <div class="suggestions">
+            <button class="suggestion" data-prompt="Write a debounce hook in React and explain the cleanup.">
+              <span class="sicon" data-icon="code-2" data-icon-size="15"></span>
+              <span><strong>Write a React hook</strong><span class="txt">debounce with a correct cleanup path</span></span>
+            </button>
+            <button class="suggestion" data-prompt="Explain how JWT refresh tokens should rotate, then show a small implementation.">
+              <span class="sicon" data-icon="shield-check" data-icon-size="15"></span>
+              <span><strong>Design auth</strong><span class="txt">rotating refresh tokens, done safely</span></span>
+            </button>
+            <button class="suggestion" data-prompt="Compare Claude, GPT and Gemini for a coding agent. Where does each one win?">
+              <span class="sicon" data-icon="layers" data-icon-size="15"></span>
+              <span><strong>Compare models</strong><span class="txt">Claude vs GPT vs Gemini for code</span></span>
+            </button>
+            <button class="suggestion" data-prompt="Plan an index strategy for a slow orders query on Postgres.">
+              <span class="sicon" data-icon="database" data-icon-size="15"></span>
+              <span><strong>Fix a slow query</strong><span class="txt">Postgres indexes that actually help</span></span>
+            </button>
+          </div>
+
+          <button class="sample-link" id="sampleBtn" type="button">
+            <span data-icon="sparkles" data-icon-size="13"></span>
+            Open a sample conversation
+          </button>
+
+          <div class="kbd-row">
+            <span class="kbd">⌘</span><span class="kbd">K</span><span>commands</span>
+            <span class="dot-sep"></span>
+            <span class="kbd">⌘</span><span class="kbd">M</span><span>models</span>
+            <span class="dot-sep"></span>
+            <span class="kbd">⌘</span><span class="kbd">,</span><span>settings</span>
+          </div>
+        </div>
+
+        <div class="thread-inner" id="messages" hidden aria-live="polite"></div>
+      </main>
+
+      <div class="composer-dock">
+        <div class="composer" id="composer">
+          <textarea id="input" rows="1" placeholder="Message Eltes…" aria-label="Message Eltes" autocomplete="off" spellcheck="true"></textarea>
+          <div class="composer-bar">
+            <button class="chip model-chip-btn" id="composerModel" title="Switch model (⌘M)">
+              <span class="mb mb-anthropic" id="composerBadge" style="width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:8.5px;font-weight:650;color:#fff">C</span>
+              <span id="composerModelName">Claude Sonnet 4.5</span>
+              <span data-icon="chevron-down" data-icon-size="12"></span>
+            </button>
+            <button class="chip" id="agentChip" aria-pressed="false" title="Show agent tool steps">
+              <span data-icon="bot" data-icon-size="14"></span>Agent
+            </button>
+            <button class="chip" id="attachBtn" title="Attach a text file" aria-label="Attach a text file">
+              <span data-icon="paperclip" data-icon-size="14"></span>
+            </button>
+            <span class="grow"></span>
+            <span class="composer-hint"><span class="kbd">↵</span> send</span>
+            <button class="send-btn" id="sendBtn" aria-label="Send message">
+              <span data-icon="arrow-up" data-icon-size="17"></span>
+            </button>
+          </div>
+        </div>
+        <input type="file" id="attachInput" multiple hidden
+          accept=".txt,.md,.markdown,.js,.mjs,.cjs,.ts,.tsx,.jsx,.json,.css,.scss,.html,.xml,.py,.go,.rs,.java,.c,.h,.cpp,.sh,.sql,.yml,.yaml,.toml,.env,.csv,.log,.ini" />
+
+        <div class="composer-foot">
+          <span data-icon="lock" data-icon-size="11"></span>
+          Keys and history stay in this browser — Eltes has no server.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ model picker =========================== -->
+  <dialog id="modelDialog" aria-label="Switch model">
+    <div class="dlg">
+      <div class="dlg-head">
+        <span class="brand-mark sm"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+        <div>
+          <h3>Switch model</h3>
+          <div class="sub">The conversation follows you — only the model changes.</div>
+        </div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="modelDialog" aria-label="Close" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="field">
+        <span data-icon="search" data-icon-size="15"></span>
+        <input type="text" id="modelSearch" placeholder="Search models, providers, capabilities…" aria-label="Search models" autocomplete="off" />
+        <span class="kbd esc">esc</span>
+      </div>
+      <div class="picker-list" id="modelList" role="listbox" aria-label="Models"></div>
+      <div class="dlg-foot">
+        <span id="keysFoot">No API keys connected · demo replies</span>
+        <span class="grow"></span>
+        <button class="btn btn-ghost btn-sm" id="manageKeysBtn"><span data-icon="key-round" data-icon-size="13"></span>Manage keys</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- =========================== command palette ========================= -->
+  <dialog id="cmdDialog" aria-label="Command palette">
+    <div class="dlg">
+      <div class="field" style="padding:12px 14px">
+        <span data-icon="command" data-icon-size="16"></span>
+        <input type="text" id="cmdSearch" placeholder="Search chats and commands…" aria-label="Search chats and commands" autocomplete="off" />
+        <span class="kbd esc">esc</span>
+      </div>
+      <div class="cmd-list" id="cmdList" role="listbox" aria-label="Results"></div>
+      <div class="dlg-foot">
+        <span><span class="kbd">↑</span> <span class="kbd">↓</span> navigate</span>
+        <span><span class="kbd">↵</span> select</span>
+        <span class="grow"></span>
+        <span id="cmdCount">0 results</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============================== settings ============================= -->
+  <dialog id="settingsDialog" aria-label="Settings">
+    <div class="dlg settings">
+      <div class="dlg-head">
+        <span class="brand-mark sm"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+        <div>
+          <h3>Settings</h3>
+          <div class="sub">Saved locally · <span id="settingsModelName">Claude Sonnet 4.5</span></div>
+        </div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="settingsDialog" aria-label="Close" data-icon="x" data-icon-size="17"></button>
+      </div>
+
+      <div class="settings-body">
+        <nav class="settings-nav" aria-label="Settings sections">
+          <button class="active" data-tab="general"><span data-icon="sliders-horizontal" data-icon-size="16"></span>General</button>
+          <button data-tab="keys"><span data-icon="key-round" data-icon-size="16"></span>API keys</button>
+          <button data-tab="models"><span data-icon="layers" data-icon-size="16"></span>Models</button>
+          <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
+          <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
+          <div class="nav-foot">Eltes v1.2 · local-first<br />No account. No telemetry.</div>
+        </nav>
+
+        <div class="settings-panel" id="settingsPanel">
+          <!-- general -->
+          <section data-panel="general" class="active">
+            <div class="set-group">
+              <h4>Conversation</h4>
+              <p class="group-desc">How Eltes behaves while you work.</p>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Default model</strong><span>Used for new chats and after a reload.</span></div>
+                <div class="ctl"><button class="btn btn-ghost btn-sm" id="defaultModelBtn"><span id="defaultModelLabel">Claude Sonnet 4.5</span><span data-icon="chevron-down" data-icon-size="13"></span></button></div>
+              </div>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Stream responses</strong><span>Render tokens as they arrive instead of waiting for the full answer.</span></div>
+                <div class="ctl"><button class="toggle" role="switch" aria-checked="true" id="toggleStream" aria-label="Stream responses"></button></div>
+              </div>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Send with</strong><span>Choose which key submits a message.</span></div>
+                <div class="ctl">
+                  <select class="select" id="sendKeySelect">
+                    <option value="enter">Enter</option>
+                    <option value="mod-enter">⌘ + Enter</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Agent mode by default</strong><span>Show tool steps (read, grep, edit) before answers.</span></div>
+                <div class="ctl"><button class="toggle" role="switch" aria-checked="false" id="toggleAgent" aria-label="Agent mode by default"></button></div>
+              </div>
+            </div>
+
+            <div class="set-group">
+              <h4>Appearance</h4>
+              <p class="group-desc">The interface is dark by design. These adjust density and motion.</p>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Density</strong><span>Comfortable adds breathing room between messages.</span></div>
+                <div class="ctl">
+                  <select class="select" id="densitySelect">
+                    <option value="comfortable">Comfortable</option>
+                    <option value="compact">Compact</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Reduce motion</strong><span>Disable message and interface animations.</span></div>
+                <div class="ctl"><button class="toggle" role="switch" aria-checked="false" id="toggleMotion" aria-label="Reduce motion"></button></div>
+              </div>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Show timestamps</strong><span>Display the time next to each reply.</span></div>
+                <div class="ctl"><button class="toggle" role="switch" aria-checked="true" id="toggleTime" aria-label="Show timestamps"></button></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- keys -->
+          <section data-panel="keys">
+            <div class="set-group">
+              <h4>Bring your own key</h4>
+              <p class="group-desc">
+                Keys are kept in this browser's local storage and sent directly to the provider you choose.
+                They never touch an Eltes server — because there isn't one. Add any provider you use; requests
+                go straight from this tab to the API.
+              </p>
+              <div id="keyList"></div>
+            </div>
+
+            <div class="set-group">
+              <h4>Custom endpoint</h4>
+              <p class="group-desc">Point Eltes at Ollama, vLLM, LiteLLM or your own gateway. Any OpenAI-compatible <code class="mono">/chat/completions</code> endpoint works — no key needed for localhost.</p>
+              <div class="set-row" style="display:block">
+                <div class="key-input-row">
+                  <label class="key-input">
+                    <span data-icon="globe" data-icon-size="13"></span>
+                    <input type="url" id="customBaseUrl" placeholder="http://localhost:11434/v1" aria-label="Custom base URL" />
+                  </label>
+                  <label class="key-input" style="max-width:170px">
+                    <span data-icon="cpu" data-icon-size="13"></span>
+                    <input type="text" id="customModel" placeholder="model id · llama3.1" aria-label="Custom model ID" autocomplete="off" />
+                  </label>
+                  <label class="key-input" style="max-width:170px">
+                    <span data-icon="key-round" data-icon-size="13"></span>
+                    <input type="password" id="customKey" placeholder="optional key" aria-label="Custom endpoint key" autocomplete="new-password" />
+                  </label>
+                  <div class="key-actions"><button class="btn btn-ghost btn-sm" id="customSave">Save</button></div>
+                </div>
+                <div class="key-help"><span data-icon="info" data-icon-size="11"></span>Requests are sent from your browser; localhost endpoints must allow CORS.</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- models -->
+          <section data-panel="models">
+            <div class="set-group">
+              <h4>Model visibility</h4>
+              <p class="group-desc">Star the models you reach for. Starred models stay at the top of the picker and in the command palette.</p>
+              <div id="modelPrefs"></div>
+            </div>
+            <div class="set-group">
+              <h4>Defaults</h4>
+              <div class="set-row">
+                <div class="lbl"><strong>Model for new chats</strong><span>The picker still lets you switch at any time.</span></div>
+                <div class="ctl">
+                  <select class="select" id="defaultModelSelect"></select>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- data -->
+          <section data-panel="data">
+            <div class="set-group">
+              <h4>Your data, on your device</h4>
+              <p class="group-desc">Everything Eltes knows lives in this browser's local storage: chats, settings and keys. Export it as JSON whenever you like, or clear it completely.</p>
+
+              <div class="data-card">
+                <div class="dico" data-icon="message-square" data-icon-size="15"></div>
+                <div class="info"><strong>Chat history</strong><span id="dataChats">0 conversations</span></div>
+                <button class="btn btn-ghost btn-sm" id="exportChats">Export</button>
+              </div>
+
+              <div class="data-card">
+                <div class="dico" data-icon="hard-drive" data-icon-size="15"></div>
+                <div class="info"><strong>Storage used</strong><span id="dataStorage">0 KB of local storage</span></div>
+                <button class="btn btn-ghost btn-sm" id="refreshStorage"><span data-icon="refresh-cw" data-icon-size="13"></span>Refresh</button>
+              </div>
+
+              <div class="data-card">
+                <div class="dico" data-icon="download" data-icon-size="15"></div>
+                <div class="info"><strong>Export everything</strong><span>Chats, settings and model preferences as JSON.</span></div>
+                <button class="btn btn-ghost btn-sm" id="exportAll">Download</button>
+              </div>
+
+              <div class="data-card">
+                <div class="dico" data-icon="rotate-ccw" data-icon-size="15"></div>
+                <div class="info"><strong>Import a backup</strong><span>Restore chats and settings from an Eltes JSON export.</span></div>
+                <button class="btn btn-ghost btn-sm" id="importBtn">Import</button>
+                <input type="file" id="importFile" accept="application/json" hidden />
+              </div>
+
+              <div class="data-card" style="border-color:rgba(255,114,133,.22)">
+                <div class="dico" style="background:rgba(255,114,133,.09);border-color:rgba(255,114,133,.24);color:#ff9fac" data-icon="trash-2" data-icon-size="15"></div>
+                <div class="info"><strong>Delete all chats</strong><span>Removes every conversation from this browser. Keys are kept.</span></div>
+                <button class="btn btn-danger btn-sm" id="clearChats">Delete</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- about -->
+          <section data-panel="about">
+            <div class="about-box">
+              <a class="brand" href="index.html">
+                <span class="brand-mark"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
+                Eltes <span class="brand-sub">AI agent</span>
+              </a>
+              <p>A local-first AI agent workspace. Bring your own key, keep every conversation on your device and switch models without losing your place.</p>
+              <div class="kv"><span>Version</span><span>1.2.0</span></div>
+              <div class="kv"><span>Storage</span><span>localStorage</span></div>
+              <div class="kv"><span>Default model</span><span id="aboutModel">claude-sonnet-4-5</span></div>
+              <div class="kv"><span>Requests to Eltes</span><span>0</span></div>
+            </div>
+
+            <div class="set-row" style="padding-top:16px">
+              <div class="lbl"><strong>Read the docs</strong><span>Setup, keys, models and self-hosting.</span></div>
+              <div class="ctl">
+                <a class="btn btn-ghost btn-sm" href="docs.html">Documentation<span data-icon="arrow-up-right" data-icon-size="13"></span></a>
+                <a class="btn btn-ghost btn-sm" href="index.html">Landing page<span data-icon="arrow-up-right" data-icon-size="13"></span></a>
+              </div>
+            </div>
+
+            <div class="set-group">
+              <h4>Shortcuts</h4>
+              <div class="set-row"><div class="lbl"><strong>Command palette</strong><span>Chats, models and actions in one list.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">K</span></div></div>
+              <div class="set-row"><div class="lbl"><strong>Switch model</strong><span>Open the model picker from anywhere.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">M</span></div></div>
+              <div class="set-row"><div class="lbl"><strong>Toggle sidebar</strong><span>More room for long answers.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">B</span></div></div>
+              <div class="set-row"><div class="lbl"><strong>New chat</strong><span>Start with the current model.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">N</span></div></div>
+              <div class="set-row"><div class="lbl"><strong>Settings</strong><span>Open this dialog.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">,</span></div></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ================================ share ============================== -->
+  <dialog id="shareDialog" aria-label="Share conversation">
+    <div class="dlg small">
+      <div class="dlg-head">
+        <span data-icon="download" data-icon-size="16" style="color:#9cc0ff"></span>
+        <div><h3>Export this conversation</h3><div class="sub">Nothing leaves your browser.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="shareDialog" aria-label="Close" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="dlg-body">
+        Download a clean Markdown transcript, copy it to the clipboard, or export raw JSON for a backup.
+        <div class="share-preview" id="sharePreview">No conversation yet.</div>
+      </div>
+      <div class="dlg-actions">
+        <button class="btn btn-ghost btn-sm" id="copyTranscript"><span data-icon="clipboard" data-icon-size="13"></span>Copy</button>
+        <button class="btn btn-ghost btn-sm" id="downloadJson"><span data-icon="file-code-2" data-icon-size="13"></span>JSON</button>
+        <button class="btn btn-primary btn-sm" id="downloadMarkdown"><span data-icon="download" data-icon-size="13"></span>Markdown</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- =============================== confirm ============================= -->
+  <dialog id="confirmDialog" aria-label="Confirm action">
+    <div class="dlg small">
+      <div class="dlg-head">
+        <span data-icon="triangle-alert" data-icon-size="16" style="color:#ffc266"></span>
+        <div><h3 id="confirmTitle">Are you sure?</h3></div>
+      </div>
+      <div class="dlg-body" id="confirmBody">This cannot be undone.</div>
+      <div class="dlg-actions">
+        <button class="btn btn-ghost btn-sm" id="confirmCancel">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="assets/js/icons.js"></script>
+  <script src="assets/js/models.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

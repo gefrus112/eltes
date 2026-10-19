@@ -1,7 +1,13 @@
 {
-  "title": "HTML + CSS",
-  "description": "A template for HTML and CSS",
-  "tags": ["html", "css"],
+  "title": "Eltes AI",
+  "description": "A local-first AI agent workspace \u2014 landing page, chat app and docs.",
+  "tags": [
+    "html",
+    "css",
+    "javascript",
+    "ai",
+    "chat"
+  ],
   "published": true,
   "runtime": "static"
 }

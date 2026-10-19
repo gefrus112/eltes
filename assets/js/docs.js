@@ -50,23 +50,45 @@
     });
   });
 
-  /* sidebar filter */
+  /* sidebar filter — narrows nav links and sections together */
   const search = $('#docsSearch');
   const navLinks = $$('#docsNav a');
+  const filterSections = $$('.doc section[id]');
   navLinks.forEach((a) => {
     a.dataset.text = a.textContent.trim().toLowerCase();
   });
-  if (search) {
-    search.addEventListener('input', () => {
-      const q = search.value.trim().toLowerCase();
-      navLinks.forEach((a) => {
-        a.classList.toggle('hidden-by-search', !!q && !a.dataset.text.includes(q));
-      });
+  filterSections.forEach((s) => {
+    s.dataset.text = s.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+  });
+  let none = $('#docsNoResults');
+  if (!none) {
+    none = document.createElement('div');
+    none.id = 'docsNoResults';
+    none.className = 'docs-none';
+    none.hidden = true;
+    none.innerHTML = '<strong>No sections match that filter.</strong><span>Try “keys”, “CORS”, “models”, “accounts” or “tools”. Press Escape to clear.</span>';
+    const article = $('.doc');
+    if (article) article.appendChild(none);
+  }
+  const applyFilter = (raw) => {
+    const q = raw.trim().toLowerCase();
+    let visible = 0;
+    navLinks.forEach((a) => {
+      const hit = !q || a.dataset.text.includes(q);
+      a.classList.toggle('hidden-by-search', !hit);
+      if (hit) visible++;
     });
+    filterSections.forEach((s) => {
+      s.classList.toggle('hidden-by-search', !!q && !s.dataset.text.includes(q));
+    });
+    if (none) none.hidden = !q || visible > 0;
+  };
+  if (search) {
+    search.addEventListener('input', () => applyFilter(search.value));
     search.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         search.value = '';
-        navLinks.forEach((a) => a.classList.remove('hidden-by-search'));
+        applyFilter('');
         search.blur();
       }
     });

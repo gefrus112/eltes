@@ -1,0 +1,17 @@
+{
+  "name": "Eltes AI",
+  "short_name": "Eltes",
+  "description": "A local-first AI agent workspace with model switching and bring-your-own-key.",
+  "start_url": "./app.html",
+  "display": "standalone",
+  "background_color": "#04070e",
+  "theme_color": "#04070e",
+  "icons": [
+    {
+      "src": "assets/img/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

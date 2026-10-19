@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eltes — accounts</title>
+  <meta name="description" content="Create a local Eltes profile or continue with GitHub. No password, no server, no telemetry — your account lives in this browser." />
+  <meta name="theme-color" content="#02050a" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="assets/css/auth.css" />
+</head>
+<body class="auth-page">
+  <a class="skip" href="#authMain">Skip to the form</a>
+
+  <header class="auth-nav">
+    <div class="wrap auth-nav-in">
+      <a class="brand" href="index.html" aria-label="Eltes home">
+        <span class="brand-mark">
+          <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".96"/></svg>
+        </span>
+        Eltes <span class="brand-sub">AI</span>
+      </a>
+      <span class="grow"></span>
+      <a class="auth-back" href="index.html"><span data-icon="arrow-left" data-icon-size="13"></span>Back to home</a>
+      <a class="btn btn-ghost btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="13"></span></a>
+    </div>
+  </header>
+
+  <main class="auth-main wrap" id="authMain">
+    <aside class="auth-side">
+      <span class="eyebrow"><span class="dot"></span>Accounts · local-first</span>
+      <h1>Put a name on<br /><span class="grad">your workspace.</span></h1>
+      <p class="lead">
+        A profile keeps your name, avatar and preferences together across Eltes.
+        No password, no server, no email — and it never leaves this browser.
+      </p>
+
+      <ul class="auth-points">
+        <li>
+          <span class="ap-ico" data-icon="hard-drive" data-icon-size="15"></span>
+          <div><strong>Stored on this device</strong><span>Profiles live in local storage. Clearing site data removes them.</span></div>
+        </li>
+        <li>
+          <span class="ap-ico" data-icon="shield-check" data-icon-size="15"></span>
+          <div><strong>Nothing to breach</strong><span>No password to hash, no session cookie, no telemetry.</span></div>
+        </li>
+        <li>
+          <span class="ap-ico" data-icon="github" data-icon-size="15"></span>
+          <div><strong>GitHub-ready</strong><span>Link a handle now; the button switches to real OAuth the moment a backend exists.</span></div>
+        </li>
+      </ul>
+
+      <div class="auth-note">
+        <span data-icon="info" data-icon-size="13"></span>
+        <p>Eltes works without an account. Signing in only adds a profile — your chats and API keys are separate and stay local either way.</p>
+      </div>
+
+      <div class="auth-stats">
+        <div><strong>28</strong><span>real models</span></div>
+        <div><strong>11</strong><span>providers</span></div>
+        <div><strong>0</strong><span>Eltes servers</span></div>
+      </div>
+    </aside>
+
+    <section class="auth-card" aria-labelledby="authTitle">
+      <div class="auth-glow" aria-hidden="true"></div>
+
+      <div class="auth-card-head">
+        <div>
+          <h2 id="authTitle">Create your account</h2>
+          <p id="authSub">A local profile. No password, no email sent.</p>
+        </div>
+        <span class="badge"><span class="dot"></span>BYOK</span>
+      </div>
+
+      <div class="auth-flow" id="authFlow">
+        <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
+          <button role="tab" data-mode="signin" aria-selected="false" id="tabSignin">Sign in</button>
+          <button role="tab" data-mode="signup" aria-selected="true" id="tabSignup">Create account</button>
+          <span class="tab-ink" aria-hidden="true"></span>
+        </div>
+
+        <button class="btn gh-btn gh-full" id="githubBtn" type="button">
+          <span data-icon="github" data-icon-size="17"></span>
+          Continue with GitHub
+        </button>
+
+        <div class="or"><span>or use a local profile</span></div>
+
+        <form id="authForm" novalidate autocomplete="off">
+          <div class="fld" id="nameField">
+            <label for="nameInput">Display name</label>
+            <div class="fld-in" id="nameWrap">
+              <span data-icon="user" data-icon-size="15"></span>
+              <input id="nameInput" name="name" type="text" placeholder="Ada Lovelace" autocomplete="name" maxlength="60" />
+              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
+            </div>
+            <em class="fld-err" id="nameErr" role="alert"></em>
+          </div>
+
+          <div class="fld">
+            <label for="emailInput">Email</label>
+            <div class="fld-in" id="emailWrap">
+              <span data-icon="mail" data-icon-size="15"></span>
+              <input id="emailInput" name="email" type="email" placeholder="ada@example.com" autocomplete="email" maxlength="120" inputmode="email" />
+              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
+            </div>
+            <em class="fld-err" id="emailErr" role="alert"></em>
+          </div>
+
+          <div class="fld" id="handleField" hidden>
+            <label for="handleInput">GitHub handle <span class="opt">optional</span></label>
+            <div class="fld-in" id="handleWrap">
+              <span class="at">@</span>
+              <input id="handleInput" name="handle" type="text" placeholder="your-handle" autocomplete="off" maxlength="40" spellcheck="false" />
+              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
+            </div>
+            <em class="fld-err" id="handleErr" role="alert"></em>
+          </div>
+
+          <div class="auth-error" id="authError" role="alert" hidden>
+            <span data-icon="triangle-alert" data-icon-size="14"></span>
+            <span id="authErrorText"></span>
+          </div>
+
+          <button class="btn btn-primary btn-lg auth-submit" id="submitBtn" type="submit">
+            <span id="submitLabel">Create account</span>
+            <span data-icon="arrow-right" data-icon-size="16"></span>
+          </button>
+
+          <p class="terms">
+            No password and no email is sent. Eltes stores this profile in local storage and nothing else.
+            <a href="docs.html#accounts">How accounts work</a>
+          </p>
+        </form>
+
+        <div class="gh-flow" id="ghFlow" hidden>
+          <div class="gh-flow-head">
+            <span class="gh-mark"><span data-icon="github" data-icon-size="18"></span></span>
+            <div>
+              <strong>Continue with GitHub</strong>
+              <span>Link your handle to this local profile.</span>
+            </div>
+          </div>
+
+          <div class="gh-note">
+            <span data-icon="info" data-icon-size="13"></span>
+            <p>
+              Real GitHub OAuth needs a server to exchange the code. Until hosted accounts ship,
+              this links your handle <strong>locally</strong> — no token is created and no request is sent to GitHub.
+            </p>
+          </div>
+
+          <div class="fld">
+            <label for="ghHandle">GitHub username</label>
+            <div class="fld-in" id="ghWrap">
+              <span class="at">@</span>
+              <input id="ghHandle" type="text" placeholder="your-handle" autocomplete="off" maxlength="40" spellcheck="false" />
+              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
+            </div>
+            <em class="fld-err" id="ghErr" role="alert"></em>
+          </div>
+
+          <div class="gh-actions">
+            <button class="btn btn-ghost" id="ghCancel" type="button">Cancel</button>
+            <button class="btn gh-btn" id="ghConnect" type="button">
+              <span data-icon="github" data-icon-size="15"></span>Connect GitHub
+            </button>
+          </div>
+          <p class="terms">
+            Backend configured? Set <code class="mono">window.ELTES_CONFIG.authEndpoint</code> and this button
+            starts the real OAuth redirect. <a href="docs.html#accounts">Read the setup</a>.
+          </p>
+        </div>
+      </div>
+
+      <div class="signed-in" id="signedIn" hidden>
+        <div class="si-head">
+          <span class="avatar lg" id="siAvatar" aria-hidden="true">EL</span>
+          <div class="si-who">
+            <strong id="siName">Eltes user</strong>
+            <span id="siEmail">you@example.com</span>
+          </div>
+          <span class="key-status ok" id="siProvider"><i></i>Local</span>
+        </div>
+
+        <div class="si-rows">
+          <div class="si-row"><span>Profile ID</span><span class="mono" id="siId">u_…</span></div>
+          <div class="si-row"><span>Created</span><span id="siCreated">Today</span></div>
+          <div class="si-row"><span>Plan</span><span>BYOK · free</span></div>
+          <div class="si-row"><span>Storage</span><span>This browser</span></div>
+        </div>
+
+        <div class="si-actions">
+          <a class="btn btn-primary" id="siContinue" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          <button class="btn btn-ghost" id="siSignOut" type="button"><span data-icon="log-out" data-icon-size="14"></span>Sign out</button>
+        </div>
+        <button class="si-delete" id="siDelete" type="button"><span data-icon="trash-2" data-icon-size="12"></span>Delete this profile</button>
+        <p class="terms">Signing out keeps your chats and API keys on this device.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="auth-foot wrap">
+    <p>Eltes is local-first by design. <a href="docs.html#accounts">Accounts</a> · <a href="docs.html#privacy">Privacy</a> · <a href="index.html#pricing">Pricing</a></p>
+    <p class="dim">No server. No telemetry. No demo replies.</p>
+  </footer>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script src="assets/js/icons.js"></script>
+  <script src="assets/js/account.js"></script>
+  <script src="assets/js/auth.js"></script>
+</body>
+</html>

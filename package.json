@@ -1,11 +1,13 @@
 {
   "name": "eltes-ai",
-  "version": "1.2.0",
-  "description": "Eltes AI — a local-first AI agent workspace with model switching, bring-your-own-key and local chat history.",
+  "version": "2.0.0",
+  "description": "Eltes AI \u2014 a local-first, browser-only AI agent workspace with real provider streaming, a tool loop, model switching, local accounts and bring-your-own-key.",
   "main": "index.html",
   "scripts": {
     "start": "serve -l 5000",
-    "dev": "serve -l 5000"
+    "dev": "serve -l 5000",
+    "validate:html": "html-validate index.html app.html auth.html docs.html",
+    "validate:css": "csstree-validator assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css"
   },
   "keywords": [
     "ai",
@@ -15,11 +17,16 @@
     "byok",
     "model-switching",
     "local-first",
-    "static"
+    "static",
+    "anthropic",
+    "openai",
+    "streaming"
   ],
   "author": "Eltes",
   "license": "MIT",
   "devDependencies": {
-    "serve": "11.2.0"
+    "serve": "11.2.0",
+    "html-validate": "11.16.4",
+    "csstree-validator": "4.0.1"
   }
 }

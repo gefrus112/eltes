@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, API keys, model switching, agent mode, local chat history, settings, keyboard shortcuts and self-hosting." />
-  <meta name="theme-color" content="#04070e" />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 28 models, the tool loop, local history, accounts, pricing and self-hosting." />
+  <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -30,14 +30,15 @@
           <a href="index.html#features">Features</a>
           <a href="index.html#models">Models</a>
           <a href="docs.html" class="active" aria-current="page">Docs</a>
-          <a href="index.html#compare">Why Eltes</a>
+          <a href="index.html#pricing">Pricing</a>
         </nav>
       </div>
       <div class="nav-right">
-        <div class="nav-actions">
-          <a class="icon-btn" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer" aria-label="GitHub repository" data-icon="github"></a>
-          <a class="btn btn-primary btn-sm" href="app.html">Try Eltes<span data-icon="arrow-right" data-icon-size="15"></span></a>
+        <div class="nav-actions" id="navAuth">
+          <a class="btn btn-ghost btn-sm" href="auth.html">Sign in</a>
+          <a class="btn btn-primary btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
         </div>
+        <div class="nav-actions" id="navAccount" hidden></div>
         <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" data-icon="menu" data-icon-size="20"></button>
       </div>
     </div>
@@ -46,7 +47,7 @@
     <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
-    <a href="index.html#compare">Why Eltes <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="index.html#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
   </div>
 
@@ -55,15 +56,16 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="book-open" data-icon-size="14"></span>Documentation</span>
         <h1>Everything, in one page.</h1>
-        <p>Eltes is a static, local-first workspace. No account, no backend, no build step. This guide covers setup, keys, models, agent runs and where your data actually lives.</p>
+        <p>Eltes is a static, local-first agent workspace. No backend, no build step, no demo replies. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v1.2.0</span>
-          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>8 minute read</span>
+          <span class="badge"><span class="dot"></span>v2.0.0</span>
+          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>12 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
+          <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
         </div>
         <label class="docs-search">
           <span data-icon="search" data-icon-size="15"></span>
-          <input type="text" id="docsSearch" placeholder="Filter this page — try “keys” or “shortcuts”" aria-label="Filter documentation" />
+          <input type="text" id="docsSearch" placeholder="Filter sections — try “keys”, “CORS” or “accounts”" aria-label="Filter documentation sections" />
           <span class="kbd">/</span>
         </label>
       </div>
@@ -75,18 +77,27 @@
         <h5>Getting started</h5>
         <a href="#overview" class="active"><span data-icon="compass" data-icon-size="14"></span>Overview</a>
         <a href="#quickstart"><span data-icon="rocket" data-icon-size="14"></span>Quickstart</a>
+        <a href="#accounts"><span data-icon="user-check" data-icon-size="14"></span>Accounts</a>
+
+        <div class="nav-sep"></div>
+        <h5>Keys &amp; providers</h5>
         <a href="#api-keys"><span data-icon="key-round" data-icon-size="14"></span>API keys</a>
+        <a href="#providers"><span data-icon="globe" data-icon-size="14"></span>Providers &amp; CORS</a>
+        <a href="#custom-endpoint"><span data-icon="server" data-icon-size="14"></span>Custom endpoints</a>
+
         <div class="nav-sep"></div>
         <h5>Using Eltes</h5>
         <a href="#models"><span data-icon="layers" data-icon-size="14"></span>Models</a>
-        <a href="#agent"><span data-icon="bot" data-icon-size="14"></span>Agent mode</a>
-        <a href="#history"><span data-icon="history" data-icon-size="14"></span>History &amp; export</a>
+        <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
+        <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
+
         <div class="nav-sep"></div>
         <h5>Reference</h5>
-        <a href="#self-host"><span data-icon="server" data-icon-size="14"></span>Self-hosting</a>
-        <a href="#privacy"><span data-icon="shield-check" data-icon-size="14"></span>Privacy</a>
+        <a href="#pricing"><span data-icon="gift" data-icon-size="14"></span>Pricing</a>
+        <a href="#self-host"><span data-icon="hard-drive" data-icon-size="14"></span>Self-hosting</a>
+        <a href="#privacy"><span data-icon="shield" data-icon-size="14"></span>Privacy</a>
         <a href="#faq"><span data-icon="circle-help" data-icon-size="14"></span>FAQ</a>
       </nav>
 
@@ -94,60 +105,60 @@
       <article class="doc">
         <section id="overview">
           <h2>Overview <a class="anchor" href="#overview" aria-label="Link to overview" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is a browser-based AI agent workspace. It gives you a fast chat interface, a model switcher that works mid-conversation, agent-style tool steps and a history you own. There is no Eltes account and no Eltes server: the app is static files, and requests go from your tab directly to whichever model provider you connect.</p>
+          <p>Eltes is a browser-based AI agent workspace. You bring a key for a real model provider; Eltes streams that provider's answer, renders the tool calls, and keeps the history in this browser. There is no Eltes server, no account requirement and <strong>no demo mode</strong> — if a provider is not connected, the app says so instead of inventing an answer.</p>
 
           <h3>Three ideas, in order</h3>
-          <ul>
-            <li><strong>Bring your own key.</strong> Paste a provider key into Settings. It is stored in this browser's local storage and attached to requests at request time.</li>
-            <li><strong>One conversation, many models.</strong> The transcript is shared. Only the reply header changes when you switch.</li>
-            <li><strong>Local by default.</strong> Chats, preferences and keys live in <code>localStorage</code>. Clearing site data removes them for good.</li>
-          </ul>
+          <ol>
+            <li><strong>Local-first.</strong> Chats, settings, keys and profiles live in <code>localStorage</code>. Clearing site data is the nuclear option, and it is yours to press.</li>
+            <li><strong>Bring your own key.</strong> Requests go from your tab to the provider over HTTPS. Eltes never sees or relays them.</li>
+            <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
+          </ol>
+
+          <h3>What changed in v2</h3>
+          <table class="doc-table">
+            <thead><tr><th>Area</th><th>v2 behaviour</th></tr></thead>
+            <tbody>
+              <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry.</td></tr>
+              <tr><td>Chat</td><td>Step timeline, tool cards, per-message model and provider chips, first-token latency, total time, tokens and tok/s.</td></tr>
+              <tr><td>Models</td><td>28 real models across 11 providers, with brand marks, context sizes and star favourites.</td></tr>
+              <tr><td>Accounts</td><td>Optional local profile, local GitHub handle linking, and a drop-in OAuth endpoint hook.</td></tr>
+              <tr><td>Landing</td><td>Darker UI, scroll-driven block scatter, parallax glows and reduced-motion fallbacks.</td></tr>
+            </tbody>
+          </table>
 
           <div class="callout">
             <span data-icon="info" data-icon-size="15"></span>
-            <span><strong>Demo mode.</strong> With no key connected, Eltes answers from a small local script so the interface is fully explorable. Demo replies are labelled and never claim to be a live model.</span>
+            <span><strong>Static by design.</strong> Eltes is plain HTML, CSS and JavaScript. Host it on any static host, or open it from a local server. There is nothing to compile and no secrets in the bundle.</span>
           </div>
-
-          <h3>What ships in the box</h3>
-          <table class="doc-table">
-            <thead><tr><th>Surface</th><th>What it does</th></tr></thead>
-            <tbody>
-              <tr><td>Workspace</td><td>Streaming chat, model switching, prompt editing, retry and local ratings.</td></tr>
-              <tr><td>Model picker</td><td>15 models across nine providers, searchable, with starred favourites.</td></tr>
-              <tr><td>Command palette</td><td>Jump to any chat, switch models, export, clear, load a sample.</td></tr>
-              <tr><td>Agent mode</td><td>Visible read / grep / edit steps before the answer (simulated in demo).</td></tr>
-              <tr><td>Data controls</td><td>JSON export and import, storage meter, scoped deletion.</td></tr>
-            </tbody>
-          </table>
         </section>
 
         <section id="quickstart">
           <h2>Quickstart <a class="anchor" href="#quickstart" aria-label="Link to quickstart" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Sixty seconds from a blank tab to a live answer.</p>
+          <p>From a blank tab to a live answer, with one provider key.</p>
 
           <div class="steps-list">
             <div class="step-item">
               <div>
                 <h4>Open the workspace</h4>
-                <p>Eltes runs entirely client-side. Open <a class="inline-link" href="app.html">app.html</a> — no install, no sign-in. It works from a local file server or any static host.</p>
+                <p>Go to <a class="inline-link" href="app.html">app.html</a>. No install and no sign-in. An account is optional and only adds a profile.</p>
               </div>
             </div>
             <div class="step-item">
               <div>
-                <h4>Pick a starting model</h4>
-                <p>Use the picker in the top bar, or press <code>⌘M</code>. Claude Sonnet 4.5 is a good default; Gemini 2.5 Flash is the fastest.</p>
+                <h4>Connect a provider</h4>
+                <p>Press <strong>Connect a provider</strong>, paste a key, and save. Or open Settings → <strong>API keys</strong>. The pill in the top bar turns green when at least one key is present.</p>
               </div>
             </div>
             <div class="step-item">
               <div>
-                <h4>Add one provider key</h4>
-                <p>Settings → <strong>API keys</strong>, paste a key, press Save. The status chip flips to <em>Connected</em> and the demo pill disappears when that model's provider is available.</p>
+                <h4>Pick a model</h4>
+                <p>Use the model button or <code>⌘M</code>. Models without a key show a <em>needs key</em> badge; star the ones you use most and they move to the top.</p>
               </div>
             </div>
             <div class="step-item">
               <div>
                 <h4>Send a message</h4>
-                <p>Type, press <code>Enter</code>, watch tokens arrive. Use the stop button at any time — partial answers are kept.</p>
+                <p>Type and press <code>Enter</code>. Tokens stream in as they arrive; press the stop button to keep a partial answer. Metrics appear under the reply when it finishes.</p>
               </div>
             </div>
           </div>
@@ -161,338 +172,485 @@
 git clone https://github.com/gefrus112/eltes
 <span class="k">cd</span> eltes
 
-<span class="c"># any static server works; no build step</span>
+<span class="c"># any static server works; there is no build step</span>
 python3 -m http.server 4173
 
-<span class="c"># then open http://localhost:4173</span></code></pre>
+<span class="c"># open http://localhost:4173</span></code></pre>
           </div>
 
           <div class="callout tip">
             <span data-icon="sparkles" data-icon-size="15"></span>
-            <span><strong>No key handy?</strong> Open <code>app.html?sample=1</code> to load a ready-made conversation, then try the command palette with <code>⌘K</code>.</span>
+            <span><strong>No key handy?</strong> Use a local model instead: run Ollama and point Eltes at <code>http://localhost:11434/v1</code> under <a class="inline-link" href="#custom-endpoint">Custom endpoints</a>. It is still a real model, not a demo.</span>
+          </div>
+        </section>
+
+        <section id="accounts">
+          <h2>Accounts <a class="anchor" href="#accounts" aria-label="Link to accounts" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>An Eltes account is a <strong>profile</strong>, not a login system. It stores a name, an email, an optional GitHub handle and the provider that created it. There is no password, no session cookie and no email delivery. The profile is written to <code>eltes.account.v1</code> and shared with the workspace and marketing pages through the <code>eltes:account</code> event.</p>
+
+          <h3>Create or sign in</h3>
+          <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Creating a profile needs a display name and an email; signing in restores the profile already in this browser, or creates one from the email if the browser has none. Because there is no server, neither flow can prove ownership of an email address — treat it as a local label, not a credential.</p>
+
+          <h3>GitHub</h3>
+          <p>The GitHub button currently links a handle locally. Real OAuth requires a server to hold the client secret and exchange the code — it cannot be done safely in a static page. The button is already wired to switch modes when a backend exists:</p>
+
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>auth.html — before the scripts</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c">&lt;!-- Set this once hosted auth exists --&gt;</span>
+&lt;<span class="k">script</span>&gt;
+  window.ELTES_CONFIG = {
+    authEndpoint: <span class="s">'https://auth.example.com'</span>
+  };
+&lt;/<span class="k">script</span>&gt;</code></pre>
+          </div>
+
+          <p>With <code>authEndpoint</code> set, the button redirects to <code>/github/start?return=…</code>. Your backend completes the OAuth exchange, then returns the user to <code>auth.html</code> with a profile encoded as base64url JSON:</p>
+
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>callback shape</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># the client accepts this query parameter</span>
+https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
+
+<span class="c"># profile</span>
+{
+  <span class="s">"name"</span>: <span class="s">"Ada Lovelace"</span>,
+  <span class="s">"email"</span>: <span class="s">"ada@example.com"</span>,
+  <span class="s">"username"</span>: <span class="s">"ada"</span>,
+  <span class="s">"avatarUrl"</span>: <span class="s">"https://avatars.githubusercontent.com/u/1"</span>
+}</code></pre>
+          </div>
+
+          <p>The page decodes it, writes the local profile, clears the parameter and shows the signed-in state. Avatar URLs are restricted to <code>https:</code>; everything else is stored as text.</p>
+
+          <div class="callout warn">
+            <span data-icon="triangle-alert" data-icon-size="15"></span>
+            <span><strong>Do not put a client secret in this page.</strong> Anything shipped to the browser is public. The static build deliberately ships without one and says so in the UI.</span>
           </div>
         </section>
 
         <section id="api-keys">
           <h2>API keys <a class="anchor" href="#api-keys" aria-label="Link to API keys" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Keys are read from <code>localStorage</code> when a request is made and sent as the <code>Authorization</code> header (OpenAI-compatible) or <code>x-api-key</code> (Anthropic). They are never bundled into exports and never posted anywhere except the provider's own endpoint.</p>
+          <p>Keys are read from <code>localStorage</code> at request time. OpenAI-compatible providers receive them as <code>Authorization: Bearer …</code>; Anthropic receives <code>x-api-key</code> plus <code>anthropic-version</code> and the direct-browser header. They are excluded from exports and never sent anywhere except the provider endpoint you selected.</p>
 
           <table class="doc-table">
-            <thead><tr><th>Provider</th><th>Key prefix</th><th>Where to get one</th></tr></thead>
+            <thead><tr><th>Provider</th><th>Key prefix</th><th>Where to get it</th></tr></thead>
             <tbody>
-              <tr><td>OpenAI</td><td><code>sk-proj-…</code></td><td><a class="inline-link" href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">platform.openai.com/api-keys</a></td></tr>
-              <tr><td>Anthropic</td><td><code>sk-ant-…</code></td><td><a class="inline-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a></td></tr>
-              <tr><td>Google</td><td><code>AIza…</code></td><td><a class="inline-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">aistudio.google.com</a></td></tr>
-              <tr><td>xAI</td><td><code>xai-…</code></td><td><a class="inline-link" href="https://console.x.ai" target="_blank" rel="noreferrer">console.x.ai</a></td></tr>
-              <tr><td>OpenRouter</td><td><code>sk-or-v1-…</code></td><td><a class="inline-link" href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">openrouter.ai/keys</a></td></tr>
-              <tr><td>Groq</td><td><code>gsk_…</code></td><td><a class="inline-link" href="https://console.groq.com/keys" target="_blank" rel="noreferrer">console.groq.com</a></td></tr>
-              <tr><td>DeepSeek</td><td><code>sk-…</code></td><td><a class="inline-link" href="https://platform.deepseek.com/api_keys" target="_blank" rel="noreferrer">platform.deepseek.com</a></td></tr>
-              <tr><td>Mistral</td><td>API key</td><td><a class="inline-link" href="https://console.mistral.ai/api-keys" target="_blank" rel="noreferrer">console.mistral.ai</a></td></tr>
+              <tr><td>Anthropic</td><td><code>sk-ant-…</code></td><td>console.anthropic.com → API keys</td></tr>
+              <tr><td>OpenAI</td><td><code>sk-proj-…</code></td><td>platform.openai.com → API keys</td></tr>
+              <tr><td>Google</td><td><code>AIza…</code></td><td>aistudio.google.com → API key</td></tr>
+              <tr><td>Z.ai · GLM</td><td>account token</td><td>z.ai → API keys</td></tr>
+              <tr><td>DeepSeek</td><td><code>sk-…</code></td><td>platform.deepseek.com</td></tr>
+              <tr><td>xAI</td><td><code>xai-…</code></td><td>console.x.ai</td></tr>
+              <tr><td>Qwen · Alibaba</td><td><code>sk-…</code></td><td>Model Studio console</td></tr>
+              <tr><td>Mistral</td><td>API key</td><td>console.mistral.ai</td></tr>
+              <tr><td>Groq</td><td><code>gsk_…</code></td><td>console.groq.com</td></tr>
+              <tr><td>OpenRouter</td><td><code>sk-or-v1-…</code></td><td>openrouter.ai/keys</td></tr>
             </tbody>
           </table>
 
           <h3>What a request looks like</h3>
-          <p>Eltes builds the smallest request the provider accepts: a system message, the last 24 turns of the conversation and <code>stream: true</code>. Nothing is proxied.</p>
-
           <div class="doc-code">
             <div class="bar">
-              <span class="label"><span class="dot"></span>request shape — OpenAI-compatible</span>
+              <span class="label"><span class="dot"></span>OpenAI-compatible streaming</span>
               <button class="cpy" type="button">Copy</button>
             </div>
-            <pre><code>POST https://api.openai.com/v1/chat/completions
-Authorization: Bearer sk-proj-…
-Content-Type: application/json
+            <pre><code><span class="f">POST</span> {baseUrl}/chat/completions
+<span class="k">Authorization</span>: Bearer &lt;your key&gt;
+<span class="k">Content-Type</span>: application/json
 
 {
   <span class="s">"model"</span>: <span class="s">"gpt-4.1"</span>,
-  <span class="s">"stream"</span>: <span class="k">true</span>,
-  <span class="s">"messages"</span>: [
-    { <span class="s">"role"</span>: <span class="s">"system"</span>, <span class="s">"content"</span>: <span class="s">"You are Eltes…"</span> },
-    { <span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Hello"</span> }
-  ]
+  <span class="s">"stream"</span>: true,
+  <span class="s">"messages"</span>: [{ <span class="s">"role"</span>: <span class="s">"user"</span>, <span class="s">"content"</span>: <span class="s">"Hello"</span> }]
 }</code></pre>
           </div>
 
-          <h3>Custom endpoints</h3>
-          <p>Any OpenAI-compatible base URL works: Ollama, vLLM, LiteLLM, LM Studio, a corporate gateway. Add the base URL, a model ID and an optional token under <em>Settings → API keys → Custom endpoint</em>.</p>
+          <h3>Rotating and removing keys</h3>
+          <ul>
+            <li>Keys can be replaced at any time under <strong>Settings → API keys</strong>; saving overwrites the old value immediately.</li>
+            <li>Removing a key disables that provider's models until a new one is saved.</li>
+            <li>Exports never include keys. Backups are safe to share; <code>localStorage</code> is not.</li>
+          </ul>
+
+          <div class="callout tip">
+            <span data-icon="shield-check" data-icon-size="15"></span>
+            <span><strong>Least privilege.</strong> Use a dedicated key per device, set a spend limit at the provider, and revoke it from the provider dashboard if a machine is shared.</span>
+          </div>
+        </section>
+
+        <section id="providers">
+          <h2>Providers &amp; CORS <a class="anchor" href="#providers" aria-label="Link to providers and CORS" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Every provider is called directly from the page. That only works when the provider returns permissive CORS headers. Some do; some do not. Eltes does not hide the difference: a blocked call becomes a network/CORS error card with a retry button and a link to this section.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Provider</th><th>Base URL</th><th>Direct browser calls</th></tr></thead>
+            <tbody>
+              <tr><td>Anthropic</td><td><code>api.anthropic.com/v1</code></td><td>Yes — sends <code>anthropic-dangerous-direct-browser-access</code></td></tr>
+              <tr><td>OpenAI</td><td><code>api.openai.com/v1</code></td><td>Yes</td></tr>
+              <tr><td>Google Gemini</td><td><code>generativelanguage.googleapis.com/v1beta/openai</code></td><td>Yes</td></tr>
+              <tr><td>Z.ai · GLM</td><td><code>api.z.ai/api/paas/v4</code></td><td>Usually</td></tr>
+              <tr><td>DeepSeek</td><td><code>api.deepseek.com/v1</code></td><td>Varies by region</td></tr>
+              <tr><td>xAI</td><td><code>api.x.ai/v1</code></td><td>Varies</td></tr>
+              <tr><td>Qwen</td><td><code>dashscope-intl.aliyuncs.com/compatible-mode/v1</code></td><td>Varies</td></tr>
+              <tr><td>Mistral</td><td><code>api.mistral.ai/v1</code></td><td>Varies</td></tr>
+              <tr><td>Groq</td><td><code>api.groq.com/openai/v1</code></td><td>Yes</td></tr>
+              <tr><td>OpenRouter</td><td><code>openrouter.ai/api/v1</code></td><td>Yes</td></tr>
+              <tr><td>Custom</td><td>your URL</td><td>Depends on your server</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Error states you will actually see</h3>
+          <table class="doc-table">
+            <thead><tr><th>State</th><th>What Eltes shows</th><th>What to do</th></tr></thead>
+            <tbody>
+              <tr><td><code>401</code> / <code>403</code></td><td>“Provider rejected that key”, with <strong>Fix key</strong></td><td>Paste a fresh key; the failed turn retries automatically after saving</td></tr>
+              <tr><td><code>429</code></td><td>Rate limit or quota reached</td><td>Wait, retry, or switch to another connected model</td></tr>
+              <tr><td>Network / CORS</td><td>“Could not reach provider”</td><td>Check the network, try another provider, or route through a proxy</td></tr>
+              <tr><td><code>404</code></td><td>Model not available on this account</td><td>Pick another model from the picker</td></tr>
+              <tr><td>No key</td><td>Connect card with the provider row</td><td>Add a key or switch models — no fake answer is generated</td></tr>
+              <tr><td>Offline</td><td>“You are offline”</td><td>Reconnect and press retry</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <span data-icon="globe" data-icon-size="15"></span>
+            <span><strong>Why not proxy everything?</strong> A proxy would need to hold your key, which defeats the point of BYOK. Eltes only recommends one when the provider blocks browsers, and then it is your proxy, your key.</span>
+          </div>
+        </section>
+
+        <section id="custom-endpoint">
+          <h2>Custom endpoints <a class="anchor" href="#custom-endpoint" aria-label="Link to custom endpoints" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Anything that speaks OpenAI's <code>/chat/completions</code> can back Eltes: Ollama, vLLM, LiteLLM, LM Studio, a Cloudflare Worker or your team gateway. Set a base URL, a model id and — only if your server requires one — a token.</p>
+
+          <ol>
+            <li>Open <strong>Settings → API keys → Custom endpoint</strong>.</li>
+            <li>Enter the base URL, including <code>/v1</code> when that is what your server expects.</li>
+            <li>Enter the model id exactly as the server reports it.</li>
+            <li>Pick <em>Custom endpoint</em> from the model picker and send a message.</li>
+          </ol>
 
           <div class="doc-code">
             <div class="bar">
-              <span class="label"><span class="dot"></span>local Ollama</span>
+              <span class="label"><span class="dot"></span>Ollama — OpenAI-compatible</span>
               <button class="cpy" type="button">Copy</button>
             </div>
-            <pre><code><span class="c"># base URL</span>
-http://localhost:11434/v1
+            <pre><code><span class="c"># 1. run a model</span>
+ollama run llama3.1
 
-<span class="c"># model id</span>
-llama3.1
+<span class="c"># 2. in Eltes → Settings → Custom endpoint</span>
+<span class="c">Base URL   http://localhost:11434/v1</span>
+<span class="c">Model id   llama3.1</span>
 
-<span class="c"># key — leave empty for local models</span></code></pre>
+<span class="c"># Ollama allows browser origins from localhost by default.</span>
+<span class="c"># For another device, set OLLAMA_ORIGINS to your static host.</span>
+OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code></pre>
+          </div>
+
+          <h3>When CORS blocks the browser</h3>
+          <p>A small proxy that forwards to the provider fixes it without changing the app. Keep the key on the proxy, never in the page, and restrict the origin:</p>
+
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>Cloudflare Worker — minimal CORS proxy</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="k">export default</span> {
+  <span class="f">async fetch</span>(request, env) {
+    <span class="k">const</span> url = <span class="k">new</span> URL(request.url);
+    <span class="k">if</span> (url.pathname === <span class="s">'/health'</span>) <span class="k">return new</span> Response(<span class="s">'ok'</span>);
+
+    <span class="k">const</span> upstream = <span class="k">new</span> Request(
+      <span class="s">'https://api.deepseek.com/v1/'</span> + url.pathname.replace(<span class="s">/^\/v1\//</span>, <span class="s">''</span>),
+      request
+    );
+    upstream.headers.set(<span class="s">'authorization'</span>, <span class="s">`Bearer ${env.PROVIDER_KEY}`</span>);
+    upstream.headers.delete(<span class="s">'host'</span>);
+
+    <span class="k">const</span> res = <span class="k">await</span> fetch(upstream);
+    <span class="k">const</span> out = <span class="k">new</span> Response(res.body, res);
+    out.headers.set(<span class="s">'access-control-allow-origin'</span>, <span class="s">'https://eltes.example'</span>);
+    <span class="k">return</span> out;
+  }
+};</code></pre>
           </div>
 
           <div class="callout warn">
             <span data-icon="triangle-alert" data-icon-size="15"></span>
-            <span><strong>Browser CORS applies.</strong> A provider must allow requests from your origin. OpenAI, Anthropic, Google, Groq and OpenRouter do. Self-hosted servers may need <code>--allow-origins</code> or a proxy. If a request fails instantly with “Could not reach…”, CORS is usually the cause.</span>
-          </div>
-
-          <div class="callout">
-            <span data-icon="lock" data-icon-size="15"></span>
-            <span><strong>Shared machine?</strong> Keys sit in plain local storage. Remove them in Settings before handing over the browser, and keep <code>eltes-backup.json</code> files private — exports intentionally leave keys out.</span>
+            <span><strong>HTTPS pages cannot call HTTP endpoints.</strong> If Eltes is served over HTTPS, a plain <code>http://localhost</code> endpoint will be blocked by mixed-content rules. Serve Eltes locally for local models, or expose the model over HTTPS.</span>
           </div>
         </section>
 
         <section id="models">
           <h2>Models <a class="anchor" href="#models" aria-label="Link to models" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Switch at any time with the top-bar picker or <code>⌘M</code>. The conversation is not reset — the new model receives the same transcript, and each reply keeps a chip showing which model produced it.</p>
+          <p>The catalogue ships 28 models across 11 providers. Each entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a model only answers when its provider has a key.</p>
 
           <table class="doc-table">
-            <thead><tr><th>Model</th><th>Provider</th><th>Context</th><th>Best for</th></tr></thead>
+            <thead><tr><th>Provider</th><th>Models</th><th>Best at</th></tr></thead>
             <tbody>
-              <tr><td>Claude Sonnet 4.5</td><td>Anthropic</td><td>200K</td><td>Default for code and multi-file edits</td></tr>
-              <tr><td>Claude Opus 4.1</td><td>Anthropic</td><td>200K</td><td>Hard reasoning, longer waits</td></tr>
-              <tr><td>Claude Haiku 4.5</td><td>Anthropic</td><td>200K</td><td>Fast short tasks</td></tr>
-              <tr><td>GPT-4.1</td><td>OpenAI</td><td>1M</td><td>Long context, strict instructions</td></tr>
-              <tr><td>GPT-4.1 mini</td><td>OpenAI</td><td>1M</td><td>Drafts, extraction, cheap iteration</td></tr>
-              <tr><td>o4-mini</td><td>OpenAI</td><td>200K</td><td>Maths and tricky bugs</td></tr>
-              <tr><td>Gemini 2.5 Pro</td><td>Google</td><td>1M</td><td>Multimodal, very long inputs</td></tr>
-              <tr><td>Gemini 2.5 Flash</td><td>Google</td><td>1M</td><td>Lowest latency</td></tr>
-              <tr><td>Grok 4</td><td>xAI</td><td>256K</td><td>Direct answers, tool use</td></tr>
-              <tr><td>DeepSeek V3</td><td>DeepSeek</td><td>128K</td><td>Cost-sensitive coding</td></tr>
-              <tr><td>Llama 4 Maverick</td><td>Groq</td><td>1M</td><td>Open weights, high throughput</td></tr>
-              <tr><td>Mistral Large</td><td>Mistral</td><td>128K</td><td>European hosting, function calling</td></tr>
-              <tr><td>Qwen3 Coder</td><td>OpenRouter</td><td>256K</td><td>Open code model</td></tr>
-              <tr><td>Eltes Auto</td><td>OpenRouter</td><td>varies</td><td>Let OpenRouter route the request</td></tr>
+              <tr><td>Anthropic</td><td>Claude Sonnet 4.5, Opus 4.1, Haiku 4.5</td><td>Code, long context, careful writing</td></tr>
+              <tr><td>OpenAI</td><td>GPT-4.1, GPT-4.1 mini, o4-mini</td><td>Instruction following, maths, tool use</td></tr>
+              <tr><td>Google</td><td>Gemini 2.5 Pro, 2.5 Flash</td><td>1M context, multimodal</td></tr>
+              <tr><td>Z.ai</td><td>GLM-4.6, GLM-4.5, GLM-4.5 Air</td><td>Agentic coding, low cost</td></tr>
+              <tr><td>DeepSeek</td><td>DeepSeek V3, DeepSeek R1</td><td>Cheap code, open-weight reasoning</td></tr>
+              <tr><td>xAI</td><td>Grok 4, Grok 3</td><td>Direct answers, reasoning</td></tr>
+              <tr><td>Qwen</td><td>Qwen3 Max, Qwen3 Coder Plus</td><td>Bilingual, repository-scale code</td></tr>
+              <tr><td>Mistral</td><td>Mistral Large, Codestral</td><td>Function calling, completion</td></tr>
+              <tr><td>Groq</td><td>Llama 3.3 70B, Llama 4 Scout</td><td>Very high tokens per second</td></tr>
+              <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 4.5, Gemini 2.5 Pro, and more</td><td>One key, routing and fallbacks</td></tr>
+              <tr><td>Custom</td><td>Whatever your endpoint serves</td><td>Local and private models</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Per-chat models</h3>
+          <p>The model is stored on the conversation, not globally. Switch mid-thread and the next reply uses the new model while the history stays intact. New chats use the default model chosen in Settings → Models. Deep links such as <code>app.html?model=glm-4-6</code> preselect a model from the landing page.</p>
+
+          <div class="callout">
+            <span data-icon="layers" data-icon-size="15"></span>
+            <span><strong>No silent fallbacks.</strong> If a model needs a key, Eltes shows a connect card naming the provider. It does not quietly answer with something else.</span>
+          </div>
+        </section>
+
+        <section id="agent">
+          <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of three local tools. Eltes executes the call in the page, returns the result to the model, and lets it continue — up to four rounds.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic in a restricted sandbox — digits and operators only</td></tr>
+              <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
+              <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
+            </tbody>
+          </table>
+
+          <h3>What the timeline shows</h3>
+          <ul>
+            <li><strong>Thinking</strong> while the request is open, then <strong>streaming</strong> once tokens arrive.</li>
+            <li><strong>Tool cards</strong> with the tool name, arguments, a running/done state and the runtime in milliseconds.</li>
+            <li><strong>Metrics</strong> after the turn: first-token latency, total time, tokens in/out and tokens per second.</li>
+            <li><strong>Model and provider chips</strong> on every assistant message, so a long thread with switches stays readable.</li>
+          </ul>
+
+          <h3>Tool calling support</h3>
+          <p>Tools are only offered when the selected model advertises support. Reasoning-only models such as DeepSeek R1 and completion models such as Codestral are sent the plain conversation. If a provider rejects the tool schema, the error card reports it and retry without tools still works.</p>
+
+          <div class="callout tip">
+            <span data-icon="wrench" data-icon-size="15"></span>
+            <span><strong>Nothing leaves the page for tools.</strong> Arithmetic, time and history search run locally in JavaScript. Only the model request and its tool results go to the provider.</span>
+          </div>
+        </section>
+
+        <section id="chat">
+          <h2>Chats &amp; export <a class="anchor" href="#chat" aria-label="Link to chats and export" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Conversations are grouped into Today, Yesterday, Previous 7 days, Previous 30 days and Older. Pinned chats sit on top. Every row has a menu with rename, pin, clear, export and delete.</p>
+
+          <h3>Editing and retrying</h3>
+          <ul>
+            <li><strong>Edit</strong> a user message to rewind the thread to that point and put the text back in the composer.</li>
+            <li><strong>Retry</strong> re-runs the last turn with the current model; the failed turn is kept out of the history.</li>
+            <li><strong>Copy</strong> works on replies and on each code block independently.</li>
+            <li><strong>Feedback</strong> thumb buttons are stored locally and never uploaded.</li>
+          </ul>
+
+          <h3>Exports</h3>
+          <table class="doc-table">
+            <thead><tr><th>Format</th><th>Contains</th><th>Use it for</th></tr></thead>
+            <tbody>
+              <tr><td>Markdown</td><td>Full transcript with model, tool runtimes and token counts</td><td>Docs, issues, sharing in a repo</td></tr>
+              <tr><td>JSON (one chat)</td><td>Raw conversation object</td><td>Debugging or your own tooling</td></tr>
+              <tr><td>JSON (all chats)</td><td>Chats and settings, keys stripped</td><td>Backups and moving devices</td></tr>
             </tbody>
           </table>
 
           <div class="callout">
-            <span data-icon="layers" data-icon-size="15"></span>
-            <span><strong>Star a model</strong> in the picker (or under Settings → Models) to keep it pinned near the top. Favourites are stored locally with the rest of your settings.</span>
-          </div>
-
-          <h3>Per-chat models</h3>
-          <p>A chat remembers the model it was last using. The default model in Settings applies to new chats only, so an old thread does not silently change brains when you return to it.</p>
-        </section>
-
-        <section id="agent">
-          <h2>Agent mode <a class="anchor" href="#agent" aria-label="Link to agent mode" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Toggle <strong>Agent</strong> in the composer (or in Settings → General) to see the work behind an answer as a sequence of tool steps rather than a wall of text:</p>
-
-          <div class="doc-code">
-            <div class="bar">
-              <span class="label"><span class="dot"></span>agent run — step log</span>
-              <button class="cpy" type="button">Copy</button>
-            </div>
-            <pre><code>read    src/auth/session.ts        312 lines
-grep    "refreshToken"             6 matches
-edit    src/auth/session.ts        +18 −4
-test    pnpm test session          12 passed</code></pre>
-          </div>
-
-          <p>Each step is rendered inside the assistant message and collapses naturally into the transcript. Steps are simulated in demo mode; with a connected key the run streams the model's answer in real time.</p>
-
-          <p>Attach a text file with the paperclip to inline it into the prompt as a fenced block. Files are read in the browser and never uploaded anywhere except to the provider you ask.</p>
-
-          <h3>Design rules Eltes follows</h3>
-          <ul>
-            <li><strong>Visible, not magical.</strong> Tools appear with their arguments and result counts, not as "done".</li>
-            <li><strong>Interruptible.</strong> Stop keeps every token received so far and cancels the request.</li>
-            <li><strong>No silent writes.</strong> Erasing the active run is explicit; retrying a reply truncates the branch you can see.</li>
-          </ul>
-
-          <div class="callout tip">
-            <span data-icon="terminal" data-icon-size="15"></span>
-            <span><strong>Attach context, not code execution.</strong> Use the paperclip (or drop a file on the composer) to inline a text file into your prompt. Workspace-wide tools, MCP connectors and sandboxed execution are next — no code is executed in your browser today.</span>
-          </div>
-        </section>
-
-        <section id="history">
-          <h2>History &amp; export <a class="anchor" href="#history" aria-label="Link to history" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Every conversation is written to <code>localStorage</code> on change, debounced by 120&nbsp;ms. When there is no active chat the welcome screen appears; existing threads are grouped by <em>Today</em>, <em>Yesterday</em>, <em>Previous 7 days</em> and so on.</p>
-
-          <table class="doc-table">
-            <thead><tr><th>Key</th><th>Contents</th></tr></thead>
-            <tbody>
-              <tr><td><code>eltes.chats.v1</code></td><td>Array of chats: id, title, model, messages, timestamps, pinned flag.</td></tr>
-              <tr><td><code>eltes.settings.v1</code></td><td>Keys, default model, favourites, streaming, density and motion preferences.</td></tr>
-              <tr><td><code>eltes.active.v1</code></td><td>The id of the conversation you were last reading.</td></tr>
-            </tbody>
-          </table>
-
-          <h3>Renaming, pinning, branching</h3>
-          <p>Hover a conversation in the sidebar for pin and menu actions. The menu supports rename, clear, export and delete. Editing one of your own prompts truncates the thread at that point so the next reply is generated from the edited text.</p>
-
-          <h3>Exports</h3>
-          <p>Use the download icon in the top bar or <code>⌘K → Export conversation</code>. Markdown is for sharing; JSON is for backups. Settings → Data exports every chat at once, and importing a backup restores chats without overwriting your existing keys.</p>
-
-          <div class="callout warn">
-            <span data-icon="triangle-alert" data-icon-size="15"></span>
-            <span><strong>Local means local.</strong> There is no recovery, no sync and no server copy. Clearing site data, using private mode, or switching browsers starts you from zero. Export before you clean up.</span>
+            <span data-icon="download" data-icon-size="15"></span>
+            <span><strong>Backups never include keys.</strong> Import merges chats and settings into this browser while keeping the keys already there.</span>
           </div>
         </section>
 
         <section id="settings">
           <h2>Settings <a class="anchor" href="#settings" aria-label="Link to settings" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Everything is stored in this browser. Changes apply immediately and survive a reload.</p>
+          <p>Open with <code>⌘,</code> or the gear in the top bar. Settings are stored in <code>eltes.settings.v1</code> and apply instantly.</p>
 
           <table class="doc-table">
-            <thead><tr><th>Option</th><th>Default</th><th>Effect</th></tr></thead>
+            <thead><tr><th>Panel</th><th>Controls</th></tr></thead>
             <tbody>
-              <tr><td>Default model</td><td>Claude Sonnet 4.5</td><td>Starting model for new chats.</td></tr>
-              <tr><td>Stream responses</td><td>On</td><td>Render tokens as they arrive.</td></tr>
-              <tr><td>Send with</td><td>Enter</td><td>Or ⌘/Ctrl + Enter if you paste multi-line prompts.</td></tr>
-              <tr><td>Agent mode by default</td><td>Off</td><td>Show tool steps before replies.</td></tr>
-              <tr><td>Density</td><td>Comfortable</td><td>Compact tightens message and code spacing.</td></tr>
-              <tr><td>Reduce motion</td><td>Off</td><td>Removes animations; the OS setting is also respected.</td></tr>
-              <tr><td>Show timestamps</td><td>On</td><td>Displays local time beside assistant replies.</td></tr>
+              <tr><td>General</td><td>Default model, streaming, send key, tools by default, density, reduced motion, timestamps, metrics</td></tr>
+              <tr><td>API keys</td><td>Ten provider keys, reveal/save/remove, custom base URL, model id and token</td></tr>
+              <tr><td>Models</td><td>Star favourites, choose the default model for new chats</td></tr>
+              <tr><td>Account</td><td>Profile, display name, sign out, delete profile, plan</td></tr>
+              <tr><td>Data</td><td>Chat count, storage meter, export all, import, delete all chats</td></tr>
+              <tr><td>About</td><td>Version, model count, shortcuts and links</td></tr>
             </tbody>
           </table>
 
           <h3>Storage meter</h3>
-          <p>The sidebar shows an estimate of the space your chats occupy against a ~5&nbsp;MB browser budget. Long code-heavy threads consume the most; exporting and deleting old ones keeps the meter healthy.</p>
+          <p>The sidebar footer shows how much of the browser's local storage the app is using. The meter is deliberately conservative: browsers commonly allow about 5 MB per origin, and large attachments or very long threads consume it fastest.</p>
         </section>
 
         <section id="shortcuts">
           <h2>Keyboard shortcuts <a class="anchor" href="#shortcuts" aria-label="Link to shortcuts" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>On Windows and Linux, use <code>Ctrl</code> wherever <code>⌘</code> appears.</p>
-
           <div class="keys-table">
-            <div class="krow">Command palette<span class="keys"><span class="kbd">⌘</span><span class="kbd">K</span></span></div>
-            <div class="krow">Switch model<span class="keys"><span class="kbd">⌘</span><span class="kbd">M</span></span></div>
-            <div class="krow">New chat<span class="keys"><span class="kbd">⌘</span><span class="kbd">N</span></span></div>
-            <div class="krow">Toggle sidebar<span class="keys"><span class="kbd">⌘</span><span class="kbd">B</span></span></div>
-            <div class="krow">Open settings<span class="keys"><span class="kbd">⌘</span><span class="kbd">,</span></span></div>
-            <div class="krow">Focus the composer<span class="keys"><span class="kbd">⌘</span><span class="kbd">/</span></span></div>
-            <div class="krow">Send message<span class="keys"><span class="kbd">↵</span></span></div>
-            <div class="krow">New line<span class="keys"><span class="kbd">⇧</span><span class="kbd">↵</span></span></div>
-            <div class="krow">Close dialog or menu<span class="keys"><span class="kbd">esc</span></span></div>
-            <div class="krow">Move through a list<span class="keys"><span class="kbd">↑</span><span class="kbd">↓</span><span class="kbd">↵</span></span></div>
+            <div class="krow"><span>Command palette — chats, models, actions</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">K</span></span></div>
+            <div class="krow"><span>Model picker</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">M</span></span></div>
+            <div class="krow"><span>Toggle the sidebar</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">B</span></span></div>
+            <div class="krow"><span>New chat</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">N</span></span></div>
+            <div class="krow"><span>Settings</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">,</span></span></div>
+            <div class="krow"><span>Focus the composer</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">/</span></span></div>
+            <div class="krow"><span>Send / newline</span><span class="keys"><span class="kbd">↵</span><span class="kbd">⇧↵</span></span></div>
+            <div class="krow"><span>Close dialog or menu</span><span class="keys"><span class="kbd">esc</span></span></div>
+          </div>
+          <p class="dim" style="margin-top:12px;font-size:12.5px">On Windows and Linux, use <code>Ctrl</code> wherever <code>⌘</code> is shown. The interface relabels the modifier automatically.</p>
+        </section>
+
+        <section id="pricing">
+          <h2>Pricing <a class="anchor" href="#pricing" aria-label="Link to pricing" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes is free to run and brings your own keys, so you pay providers directly at their published rates. There is no markup, no subscription and no card on file. A hosted tier with managed keys is in progress — the <a class="inline-link" href="index.html#pricing">pricing section</a> says <em>coming soon</em> because it is not purchasable yet.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Plan</th><th>Status</th><th>What you get</th></tr></thead>
+            <tbody>
+              <tr><td>BYOK</td><td>Available now · $0</td><td>Every model, tool loop, local history, accounts, exports. You pay the provider.</td></tr>
+              <tr><td>Hosted</td><td>Coming soon</td><td>Managed keys and sync without handling credentials. Pricing not announced.</td></tr>
+              <tr><td>Self-hosted</td><td>Available now · $0</td><td>Clone the repo and serve the static build wherever you like.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout warn">
+            <span data-icon="gift" data-icon-size="15"></span>
+            <span><strong>No bait pricing.</strong> Nothing on the site can take a payment. When the hosted plan is real, the pricing page will show the amount, the limits and the cancellation path before checkout.</span>
           </div>
         </section>
 
         <section id="self-host">
           <h2>Self-hosting <a class="anchor" href="#self-host" aria-label="Link to self-hosting" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is plain HTML, CSS and JavaScript. There is nothing to compile and no environment variables to configure. Serve the directory from any static host — GitHub Pages, Netlify, Vercel, S3, nginx or a laptop.</p>
+          <p>Eltes is a static site. Any host that serves files with the right MIME types works: GitHub Pages, Cloudflare Pages, Netlify, S3, nginx or <code>python3 -m http.server</code>. There is no server-side code to run and no environment variable to set.</p>
 
           <div class="doc-code">
             <div class="bar">
-              <span class="label"><span class="dot"></span>production static server</span>
+              <span class="label"><span class="dot"></span>repository layout</span>
               <button class="cpy" type="button">Copy</button>
             </div>
-            <pre><code><span class="c"># nginx — minimal config</span>
-server {
-  listen 80;
-  root /var/www/eltes;
-  index index.html;
-
-  <span class="c"># optional: keep the docs and app in the same place</span>
-  location / { try_files $uri $uri/ /index.html; }
-}</code></pre>
+            <pre><code>eltes/
+  index.html            <span class="c"># marketing home</span>
+  app.html              <span class="c"># the workspace</span>
+  auth.html             <span class="c"># local accounts</span>
+  docs.html             <span class="c"># this page</span>
+  assets/
+    css/                <span class="c"># theme, landing, app, docs, auth</span>
+    js/                 <span class="c"># models, brands, icons, app engine</span>
+    fonts/              <span class="c"># Inter + JetBrains Mono, self-hosted</span>
+    img/                <span class="c"># favicon and social card</span>
+  site.webmanifest
+  LICENSE · NOTICE.md</code></pre>
           </div>
 
-          <h3>Structure</h3>
+          <h3>Deployment checklist</h3>
           <ul>
-            <li><code>index.html</code> — landing page.</li>
-            <li><code>app.html</code> — the workspace.</li>
-            <li><code>docs.html</code> — this page.</li>
-            <li><code>assets/js</code> — icons, model catalogue, app engine and site scripts.</li>
-            <li><code>assets/css</code> — theme tokens, landing, app and docs styles.</li>
+            <li>Serve over HTTPS in production. The clipboard API and some provider endpoints require a secure context.</li>
+            <li>Keep every asset path relative so the app works from a subdirectory.</li>
+            <li>Do not add analytics that read <code>localStorage</code>; it holds keys.</li>
+            <li>If you add a content security policy, allow <code>connect-src</code> for each provider you use.</li>
           </ul>
 
           <div class="callout tip">
             <span data-icon="server" data-icon-size="15"></span>
-            <span><strong>Want a private deployment?</strong> Host the files behind your SSO, put a proxy in front of the provider APIs and point the custom endpoint at the proxy. No Eltes infrastructure is involved.</span>
+            <span><strong>Sharing with a team?</strong> Host the static build, then give each person their own keys. There is no shared key store by design.</span>
           </div>
         </section>
 
         <section id="privacy">
           <h2>Privacy <a class="anchor" href="#privacy" aria-label="Link to privacy" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>The honest version: your prompts travel directly to the model provider you selected and are governed by that provider's terms. Eltes itself has no server to receive them.</p>
+          <p>Eltes has no analytics, no telemetry, no fonts fetched from a third party and no backend to receive anything. The only outbound requests are the ones you trigger: a model call to the provider you configured, or a link you click.</p>
 
           <h3>What Eltes stores</h3>
-          <ul>
-            <li><strong>Locally:</strong> chats, titles, settings, favourites and API keys — all in <code>localStorage</code>.</li>
-            <li><strong>Nowhere else:</strong> no analytics, no error reporting, no feature flags, no fonts fetched from a CDN. Fonts are bundled.</li>
-            <li><strong>In exports:</strong> chats and settings only. Keys are deliberately excluded.</li>
-          </ul>
+          <div class="keys-table">
+            <div class="krow"><span><code>eltes.chats.v1</code> — conversations and per-message metadata</span><span class="keys mono">local</span></div>
+            <div class="krow"><span><code>eltes.settings.v1</code> — provider keys, model default, preferences</span><span class="keys mono">local</span></div>
+            <div class="krow"><span><code>eltes.account.v1</code> — optional profile</span><span class="keys mono">local</span></div>
+            <div class="krow"><span><code>eltes.waitlist.v1</code> — pricing waitlist entries, if you join</span><span class="keys mono">local</span></div>
+            <div class="krow"><span>No cookies, no fingerprinting, no session replay</span><span class="keys mono">none</span></div>
+          </div>
 
           <h3>What providers see</h3>
-          <p>A short system prompt, the recent conversation and your key. Eltes does not add telemetry headers or identifiers. Review each provider's retention policy; several offer zero-retention modes for API traffic.</p>
+          <p>Your prompt, the conversation history sent with it, and whatever tool definitions or results are included in that request. That is exactly what any chat client must send to get an answer. Eltes adds no account identifier, because it does not have one to add.</p>
 
-          <div class="callout">
-            <span data-icon="shield-check" data-icon-size="15"></span>
-            <span><strong>Threat model, plainly.</strong> Anyone with access to your unlocked browser profile can read local storage. Use a dedicated browser profile for keys you care about, and rotate anything you paste into a shared machine.</span>
-          </div>
+          <h3>Deleting data</h3>
+          <p>Use <strong>Settings → Data</strong> to delete all chats, or <strong>Account → Delete profile</strong> to remove the profile. Keys can be removed individually. Clearing site data for the origin removes everything at once.</p>
         </section>
 
         <section id="faq">
           <h2>FAQ <a class="anchor" href="#faq" aria-label="Link to FAQ" data-icon="link-2" data-icon-size="16"></a></h2>
 
           <div class="faq">
-            <details open>
-              <summary>Do I need an account or a subscription?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>No. Eltes has no accounts. You only need an API key from a provider you already use, and you pay that provider directly for tokens.</p>
+            <details>
+              <summary>Why is there no demo mode?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>A simulated answer is indistinguishable from a wrong one. Eltes would rather show a connect card or a typed error than pretend a model replied. If you want to try the interface without a paid provider, run Ollama locally and use a custom endpoint.</p>
             </details>
             <details>
-              <summary>Are my API keys safe in local storage?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>They are as safe as your browser profile. They are never sent to Eltes, never included in exports, and are masked in the interface. On a shared machine, remove them when you finish. A dedicated browser profile is the pragmatic answer.</p>
+              <summary>Do I need an account?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>No. Accounts are optional profiles. The workspace, keys, history and exports work without one. <a class="inline-link" href="auth.html">Create a profile</a> only if you want a name and avatar attached.</p>
             </details>
             <details>
-              <summary>Why does a request fail instantly?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>Usually CORS or an invalid key. A 401/403 means the provider rejected the credential; “Could not reach…” in under a second means the browser blocked the request before it left. Check the network panel, the key, and whether the provider allows direct browser calls.</p>
+              <summary>Is it safe to paste an API key into a web page?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>Only on a page you trust and control. Eltes is static and self-hostable, so you can audit every line and serve it yourself. Keys sit in <code>localStorage</code>, which any script on the origin can read — do not load untrusted third-party scripts alongside it.</p>
             </details>
             <details>
-              <summary>Does it work offline?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>The interface and demo mode work offline once loaded. Live model replies require a network connection to the provider. A service worker is not included yet — if you host the files locally they never need re-downloading.</p>
+              <summary>Why does a provider fail with a network error?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>Usually CORS. The provider must allow the browser origin. See <a class="inline-link" href="#providers">Providers &amp; CORS</a>, or route the request through your own proxy and point a custom endpoint at it.</p>
             </details>
             <details>
-              <summary>Can I run local models?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>Yes. Start Ollama (or any OpenAI-compatible server) with CORS enabled and point Settings → Custom endpoint at it, for example <code>http://localhost:11434/v1</code> with model <code>llama3.1</code>.</p>
+              <summary>Which models can use tools?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>Models with tool support in the catalogue: Claude 4.x, GPT-4.1 and o4-mini, Gemini 2.5, GLM-4.x, DeepSeek V3, Grok, Qwen3, Mistral Large, Llama 3.3/4 and most OpenRouter routes. DeepSeek R1 and Codestral are sent the plain conversation.</p>
             </details>
             <details>
-              <summary>What exactly does demo mode do?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>It streams a locally generated reply from a small set of intents — code, auth, model comparison, SQL, debugging, copywriting — and labels the result. Nothing is sent anywhere and no request is charged to anyone.</p>
+              <summary>Can I use it offline?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>The interface loads locally, but model calls need a network — unless you point a custom endpoint at a model running on your machine.</p>
             </details>
             <details>
-              <summary>Is this affiliated with OpenAI, Anthropic or Google?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>No. Eltes is an independent interface. Model names and provider marks are used descriptively and remain the property of their owners.</p>
+              <summary>Does GitHub sign-in really work?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>It links a handle locally today. Real OAuth needs a secret-holding backend, which static hosting cannot provide. The client is wired for an <code>authEndpoint</code> so the hosted build can complete the real exchange without a rewrite.</p>
             </details>
             <details>
-              <summary>How do I move my chats to another computer?<span class="chev" data-icon="chevron-down" data-icon-size="15"></span></summary>
-              <p>Settings → Data → Download, then Import on the other machine. Keys are not transferred, so add them again there.</p>
+              <summary>What happens to my chats if I clear site data?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>They are gone. <code>localStorage</code> is the only copy. Export a JSON backup from Settings → Data first if the thread matters.</p>
             </details>
           </div>
 
           <div class="doc-cta">
             <div class="txt">
-              <h3>Ready to try it?</h3>
-              <p>The workspace is one click away. Demo mode works with no key at all.</p>
+              <h3>Ready to connect a real model?</h3>
+              <p>Bring one key. Eltes does the rest — streaming, tools, metrics and history that stays here.</p>
             </div>
             <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
           </div>
         </section>
       </article>
 
-      <!-- ======================= right toc ======================= -->
+      <!-- ======================= toc ======================= -->
       <aside class="toc" aria-label="On this page">
         <h5>On this page</h5>
         <a href="#overview" class="active">Overview</a>
         <a href="#quickstart">Quickstart</a>
+        <a href="#accounts">Accounts</a>
         <a href="#api-keys">API keys</a>
+        <a href="#providers">Providers &amp; CORS</a>
+        <a href="#custom-endpoint">Custom endpoints</a>
         <a href="#models">Models</a>
-        <a href="#agent">Agent mode</a>
-        <a href="#history">History &amp; export</a>
+        <a href="#agent">Agent &amp; tools</a>
+        <a href="#chat">Chats &amp; export</a>
         <a href="#settings">Settings</a>
         <a href="#shortcuts">Shortcuts</a>
+        <a href="#pricing">Pricing</a>
         <a href="#self-host">Self-hosting</a>
         <a href="#privacy">Privacy</a>
         <a href="#faq">FAQ</a>
-        <div style="margin-top:18px;padding:12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.02)">
-          <div style="font-size:11px;color:var(--text-3);display:flex;align-items:center;gap:6px">
-            <span data-icon="lightbulb" data-icon-size="13"></span>Need a key?
-          </div>
-          <a class="inline-link" href="app.html" style="display:block;margin-top:6px;font-size:11.5px">Open demo mode</a>
-        </div>
       </aside>
     </div>
   </main>
@@ -505,28 +663,28 @@ server {
             <span class="brand-mark"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
             Eltes
           </a>
-          <p>A local-first AI agent workspace. Bring your own key, keep your history, switch models without breaking your train of thought.</p>
+          <p>A local-first AI agent workspace with real models, real keys and real tool calls. Built in the browser.</p>
         </div>
         <div class="footer-col">
           <h4>Product</h4>
           <a href="app.html">Open the app</a>
-          <a href="index.html#features">Features</a>
           <a href="index.html#models">Models</a>
-          <a href="docs.html#agent">Agent mode</a>
+          <a href="index.html#features">Features</a>
+          <a href="index.html#pricing">Pricing</a>
         </div>
         <div class="footer-col">
           <h4>Resources</h4>
-          <a href="docs.html">Documentation</a>
-          <a href="docs.html#quickstart">Quickstart</a>
-          <a href="docs.html#api-keys">API keys</a>
-          <a href="docs.html#shortcuts">Keyboard shortcuts</a>
+          <a href="#quickstart">Quickstart</a>
+          <a href="#api-keys">API keys</a>
+          <a href="#providers">Providers &amp; CORS</a>
+          <a href="#agent">Agent tools</a>
         </div>
         <div class="footer-col">
           <h4>Project</h4>
           <a href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="docs.html#self-host">Self-hosting</a>
-          <a href="docs.html#privacy">Privacy</a>
-          <a href="docs.html#faq">FAQ</a>
+          <a href="auth.html">Accounts</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#faq">FAQ</a>
         </div>
       </div>
       <div class="footer-bottom">
@@ -537,6 +695,7 @@ server {
   </footer>
 
   <script src="assets/js/icons.js"></script>
+  <script src="assets/js/account.js"></script>
   <script src="assets/js/site.js"></script>
   <script src="assets/js/docs.js"></script>
 </body>

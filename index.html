@@ -4,16 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eltes AI — one workspace, every model</title>
-  <meta name="description" content="Eltes is a fast, local-first AI agent workspace. Switch between GPT, Claude, Gemini and open models in one keystroke, with your own API key and chat history that never leaves your browser." />
-  <meta name="theme-color" content="#04070e" />
+  <meta name="description" content="Eltes is a local-first AI agent workspace. GPT, Claude, Gemini, GLM, DeepSeek, Grok, Qwen and more behind one keyboard — bring your own key, keep your history on your device." />
+  <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="site.webmanifest" />
   <meta property="og:title" content="Eltes AI — one workspace, every model" />
-  <meta property="og:description" content="A local-first AI agent workspace with model switching, bring-your-own-key and a history that stays on your device." />
+  <meta property="og:description" content="A local-first AI agent workspace with real model switching, agent tools and bring-your-own-key." />
   <meta property="og:type" content="website" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
+  <noscript><style>.reveal{opacity:1;transform:none;filter:none}</style></noscript>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -21,7 +22,7 @@
   <!-- ============================== nav ============================== -->
   <header class="nav" id="nav">
     <div class="wrap">
-      <div style="display:flex;align-items:center;gap:26px">
+      <div class="nav-left">
         <a class="brand" href="index.html" aria-label="Eltes AI home">
           <span class="brand-mark">
             <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff" fill-opacity=".96"/></svg>
@@ -30,81 +31,86 @@
           <span class="brand-sub">AI agent</span>
         </a>
         <nav class="nav-links" aria-label="Primary">
-          <a href="index.html#features">Features</a>
-          <a href="index.html#models">Models</a>
+          <a href="#models">Models</a>
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
           <a href="docs.html">Docs</a>
-          <a href="index.html#compare">Why Eltes</a>
         </nav>
       </div>
       <div class="nav-right">
-        <div class="nav-actions">
+        <div class="nav-actions" id="navAuth">
           <a class="icon-btn" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer" aria-label="GitHub repository" data-icon="github"></a>
-          <a class="btn btn-ghost btn-sm" href="app.html"><span data-icon="arrow-up-right" data-icon-size="15"></span>Open app</a>
-          <a class="btn btn-primary btn-sm" href="app.html">Try Eltes<span data-icon="arrow-right" data-icon-size="15"></span></a>
+          <a class="btn btn-ghost btn-sm" href="auth.html">Sign in</a>
+          <a class="btn btn-primary btn-sm" href="auth.html?mode=signup">Create account<span data-icon="arrow-right" data-icon-size="15"></span></a>
         </div>
+        <div class="nav-actions" id="navAccount" hidden></div>
         <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" data-icon="menu" data-icon-size="20"></button>
       </div>
     </div>
   </header>
   <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
-    <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
-    <a href="index.html#compare">Why Eltes <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="auth.html">Sign in <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
   </div>
 
   <main id="main">
     <!-- ============================= hero ============================= -->
     <section class="hero">
-      <div class="grid-bg"></div>
+      <span class="aura a1" data-parallax="0.12"></span>
+      <span class="aura a2" data-parallax="0.22"></span>
+      <span class="aura a3" data-parallax="-0.18"></span>
+
       <div class="wrap hero-inner">
-        <a class="hero-badge" href="docs.html#agent">
+        <a class="hero-badge" href="#models">
           <span class="tag">New</span>
-          <span>Agent mode — files, tools, terminals</span>
+          <span>GLM-4.6, Grok 4 and Qwen3 Max are live</span>
           <span class="chev" data-icon="chevron-right" data-icon-size="14"></span>
         </a>
 
         <h1>
           One workspace.
-          <span class="line-2">Every model.</span>
+          <span class="line-2">Every real model.</span>
         </h1>
 
         <p class="hero-sub">
-          Eltes is a fast, local-first AI agent that puts <strong>GPT, Claude, Gemini</strong> and open models
-          behind one keyboard. Bring your own API key. Keep your history on your device.
+          GPT, Claude, Gemini, <strong>GLM</strong>, DeepSeek, Grok and Qwen behind one keyboard.
+          Bring your own key, switch mid-conversation and keep every token of history on your device.
         </p>
 
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="app.html">
-            Try Eltes free
+            Start building
             <span data-icon="arrow-right" data-icon-size="17"></span>
           </a>
-          <a class="btn btn-ghost btn-lg" href="docs.html">
-            <span data-icon="book-open" data-icon-size="16"></span>
-            Read the docs
+          <a class="btn btn-ghost btn-lg" href="auth.html?mode=signup">
+            <span data-icon="user-plus" data-icon-size="16"></span>
+            Create free account
           </a>
         </div>
 
         <div class="hero-note">
-          <span><span data-icon="check" data-icon-size="13"></span>No account needed</span>
-          <span><span data-icon="lock" data-icon-size="13"></span>Keys stay on device</span>
-          <a href="app.html?sample=1" class="hero-sample"><span data-icon="sparkles" data-icon-size="13"></span>See a sample chat</a>
+          <span><span data-icon="key-round" data-icon-size="13"></span>Bring your own key</span>
+          <span><span data-icon="shield-check" data-icon-size="13"></span>Local history</span>
+          <a href="docs.html#quickstart"><span data-icon="terminal" data-icon-size="13"></span>Quickstart</a>
         </div>
       </div>
 
       <!-- app preview -->
       <div class="hero-stage">
         <div class="float-card f1">
-          <span class="ficon" data-icon="chevron-down" data-icon-size="14"></span>
-          <div><strong>Claude Sonnet 4.5</strong><small>Switched mid-conversation</small></div>
+          <span class="ficon" data-icon="layers" data-icon-size="14"></span>
+          <div><strong>GLM-4.6</strong><small>Switched mid-conversation</small></div>
         </div>
         <div class="float-card f2">
-          <span class="ficon" data-icon="shield-check" data-icon-size="14"></span>
-          <div><strong>Keys on this device</strong><small>0 bytes sent to our servers</small></div>
+          <span class="ficon" data-icon="activity" data-icon-size="14"></span>
+          <div><strong>42 tok/s · 380 ms</strong><small>Live stream metrics</small></div>
         </div>
 
-        <div class="window" role="img" aria-label="Preview of the Eltes AI chat workspace">
+        <div class="window" role="img" aria-label="Preview of the Eltes AI workspace with a real model answering">
           <div class="window-bar">
             <div class="traffic"><i></i><i></i><i></i></div>
             <div class="url"><span data-icon="lock" data-icon-size="10"></span>eltes.ai/app</div>
@@ -121,14 +127,14 @@
               <div class="mock-label">Yesterday</div>
               <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Landing page copy</span></div>
               <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Stripe webhook retries</span></div>
-              <div class="mock-foot"><span data-icon="key-round" data-icon-size="12"></span>Demo mode</div>
+              <div class="mock-foot"><span data-icon="key-round" data-icon-size="12"></span>4 keys connected</div>
             </aside>
             <div class="mock-main">
               <div class="mock-top">
                 <div class="mock-model">
-                  <span class="mono-badge mb-anthropic" style="width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:9px;font-weight:650;color:#fff">C</span>
-                  Claude Sonnet 4.5
-                  <span data-icon="chevron-down" data-icon-size="11" style="color:#5d6f91"></span>
+                  <span class="p-logo sm" data-brand="glm"></span>
+                  GLM-4.6
+                  <span data-icon="chevron-down" data-icon-size="11" style="color:#566788"></span>
                 </div>
                 <div class="right"><span data-icon="search" data-icon-size="14"></span><span data-icon="panel-left" data-icon-size="14"></span></div>
               </div>
@@ -137,9 +143,14 @@
                 <div class="mock-msg ai">
                   <span class="mock-avatar"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
                   <div class="mock-ai-body">
+                    <div class="mock-steps">
+                      <div class="mock-step"><span class="tool">read</span><span>src/hooks/index.ts</span><span class="res">64 lines</span></div>
+                      <div class="mock-step"><span class="tool">write</span><span>src/hooks/useDebounce.ts</span><span class="res">+21</span></div>
+                      <div class="mock-step"><span class="ok">done</span><span>verified with tsc</span><span class="res">0 errors</span></div>
+                    </div>
                     <p><span class="hi">Here's a dependency-free version.</span> The timer is cleared on cleanup, so fast re-renders never fire a stale callback.</p>
                     <div class="mock-code">
-                      <div class="bar"><span data-icon="code-2" data-icon-size="10"></span>useDebounce.js</div>
+                      <div class="bar"><span data-icon="code-2" data-icon-size="10"></span>useDebounce.ts</div>
                       <pre><span class="k">export function</span> <span class="f">useDebounce</span>(value, delay) {
   <span class="k">const</span> [debounced, setDebounced] = <span class="f">useState</span>(value);
   <span class="f">useEffect</span>(() => {
@@ -150,12 +161,12 @@
   <span class="k">return</span> debounced;
 }</pre>
                     </div>
-                    <p>The returned function is recreated only when <code>value</code> or <code>delay</code> changes<span class="caret"></span></p>
+                    <p>The returned value only changes after the delay<span class="caret"></span></p>
                   </div>
                 </div>
               </div>
               <div class="mock-composer">
-                <span data-icon="paperclip" data-icon-size="15" style="color:#546787"></span>
+                <span data-icon="paperclip" data-icon-size="15" style="color:#4e6080"></span>
                 <span class="hint">Ask anything, or type / for commands</span>
                 <span class="mock-send"><span data-icon="arrow-up" data-icon-size="15"></span></span>
               </div>
@@ -165,58 +176,109 @@
       </div>
 
       <div class="wrap hero-support">
-        <p>Bring your own key from</p>
-        <div class="provider-row">
-          <span>OpenAI</span><span>Anthropic</span><span>Google</span><span>xAI</span>
-          <span>OpenRouter</span><span>Groq</span><span>DeepSeek</span><span>Mistral</span>
+        <p>Real APIs, real keys, no demo mode</p>
+        <div class="mini-providers" id="miniProviders"></div>
+      </div>
+    </section>
+
+    <!-- ===================== scroll shard divider ===================== -->
+    <div class="shard-band" data-blocks="14x5" data-blocks-seed="7" aria-hidden="true">
+      <div class="band-label">
+        <div class="inner">
+          <p>Break the page apart</p>
+          <h3>Eleven providers. <span>Twenty-three models.</span></h3>
+          <div class="hint">Keep scrolling — the blocks reassemble themselves.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ models ============================ -->
+    <section class="section" id="models">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow"><span data-icon="layers" data-icon-size="14"></span>The model wall</span>
+          <h2>Every frontier lab.<br class="desk-br" /> One interface.</h2>
+          <p>Real provider logos, real endpoints, real streaming. Pick a model, paste a key, and the same conversation carries across labs.</p>
+        </div>
+
+        <div class="model-wall" id="modelWall"></div>
+
+        <div class="wall-foot reveal">
+          <span><span data-icon="key-round" data-icon-size="12"></span> One key per provider</span>
+          <span class="sep"></span>
+          <span><span data-icon="shuffle" data-icon-size="12"></span> Switch mid-conversation</span>
+          <span class="sep"></span>
+          <a href="docs.html#models">See all 28 models<span data-icon="arrow-right" data-icon-size="12"></span></a>
         </div>
       </div>
     </section>
 
-    <!-- ============================ features ============================ -->
-    <section class="section" id="features">
+    <!-- =========================== features =========================== -->
+    <section class="section tight" id="features">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="sparkles" data-icon-size="14"></span>The workspace</span>
-          <h2>Everything a chat UI<br class="desk-br" /> should have been.</h2>
-          <p>No tab switching, no model lock-in, no account. A sharp, quiet interface that gets out of the way of the work.</p>
+          <h2>Built for people who<br class="desk-br" /> switch models.</h2>
+          <p>No account walls, no model lock-in, no fake answers. A sharp interface that gets out of the way of the work.</p>
         </div>
 
         <div class="bento">
-          <article class="card span-4 reveal" id="models">
+          <article class="card span-4 reveal">
             <div class="card-icon" data-icon="layers" data-icon-size="19"></div>
-            <h3>Switch models mid-thought</h3>
-            <p>Compare frontier models on the exact same prompt. Your conversation follows you, so the only thing that changes is the intelligence answering.</p>
+            <h3>Compare labs on the same prompt</h3>
+            <p>Send once, switch models, and watch a different intelligence answer with the same context. Each reply keeps a provider chip so you always know who said what.</p>
             <div class="card-visual">
-              <div class="model-pills">
-                <span class="model-pill"><span class="mb mb-openai">G</span>GPT-4.1</span>
-                <span class="model-pill on"><span class="mb mb-anthropic">C</span>Claude Sonnet 4.5<span data-icon="check" data-icon-size="12"></span></span>
-                <span class="model-pill"><span class="mb mb-google">G</span>Gemini 2.5 Pro</span>
-                <span class="model-pill"><span class="mb mb-xai">X</span>Grok 4</span>
-                <span class="model-pill"><span class="mb mb-deepseek">D</span>DeepSeek V3</span>
-                <span class="model-pill"><span class="mb mb-meta">L</span>Llama 4</span>
-                <span class="model-pill"><span class="mb mb-mistral">M</span>Mistral Large</span>
-                <span class="model-pill"><span class="mb mb-openrouter">R</span>OpenRouter</span>
+              <div class="provider-pills">
+                <span class="provider-pill on"><span class="p-logo" data-brand="openai"></span>GPT-4.1</span>
+                <span class="provider-pill on"><span class="p-logo" data-brand="claude"></span>Sonnet 4.5</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="gemini"></span>Gemini 2.5</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="glm"></span>GLM-4.6</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="grok"></span>Grok 4</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="deepseek"></span>DeepSeek V3</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="qwen"></span>Qwen3</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="llama"></span>Llama 3.3</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="mistral"></span>Mistral</span>
+                <span class="provider-pill"><span class="p-logo" data-brand="openrouter"></span>OpenRouter</span>
               </div>
             </div>
           </article>
 
           <article class="card span-2 reveal" style="--d:60ms">
-            <div class="card-icon" data-icon="key-round" data-icon-size="19"></div>
-            <h3>Your keys. Your device.</h3>
-            <p>Bring a key from any supported provider. It is stored in this browser and sent straight to the model — never to us.</p>
+            <div class="card-icon" data-icon="bot" data-icon-size="19"></div>
+            <h3>Agent tools that actually run</h3>
+            <p>Native tool calling with a real loop: the model asks, Eltes executes locally and feeds the result back — with timing for every step.</p>
             <div class="card-visual">
               <div class="code-mini">
-                <div class="head"><span data-icon="lock" data-icon-size="10"></span>local storage · this browser only</div>
-                <div class="body"><span class="pr">ELTES_KEY</span> = <span class="st">"sk-ant-••••4f2c"</span><br /><span class="cm">// 0 requests to eltes servers</span></div>
+                <div class="head"><span data-icon="terminal" data-icon-size="10"></span>agent · 3 tool calls</div>
+                <div class="body">
+                  <span class="fn">calculate</span> 17 * 43 = <span class="st">731</span><br />
+                  <span class="fn">search_history</span> "index" · 6 hits<br />
+                  <span class="fn">current_time</span> 2026-10-19T23:14Z
+                </div>
               </div>
             </div>
           </article>
 
           <article class="card span-2 reveal">
+            <div class="card-icon" data-icon="key-round" data-icon-size="19"></div>
+            <h3>Your keys, your browser</h3>
+            <p>Each provider key is stored locally and attached at request time. Nothing is proxied, nothing is billed through us.</p>
+            <div class="card-visual">
+              <div class="code-mini">
+                <div class="head"><span data-icon="lock" data-icon-size="10"></span>this browser only</div>
+                <div class="body">
+                  <span class="pr">ELTES_KEYS</span>.<span class="fn">openai</span> = <span class="st">"sk-••••9f2c"</span><br />
+                  <span class="pr">ELTES_KEYS</span>.<span class="fn">zai</span> = <span class="st">"••••7a1e"</span><br />
+                  <span class="cm">// never leaves the tab</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card span-2 reveal" style="--d:60ms">
             <div class="card-icon" data-icon="history" data-icon-size="19"></div>
             <h3>History that stays local</h3>
-            <p>Every thread, renamed and searchable, saved in your browser. Clear it in one click — nothing to request, nothing to delete server-side.</p>
+            <p>Threads, titles and pins live in local storage. Search them from the palette, export them as Markdown, delete them in one click.</p>
             <div class="card-visual">
               <div class="mini-list">
                 <div class="row active"><span data-icon="message-square" data-icon-size="12"></span>Realtime sync design<span class="time">now</span></div>
@@ -226,58 +288,30 @@
             </div>
           </article>
 
-          <article class="card span-2 reveal" style="--d:60ms">
-            <div class="card-icon" data-icon="code-2" data-icon-size="19"></div>
-            <h3>Markdown that renders</h3>
-            <p>Streaming answers with real code blocks, syntax-aware labels and one-tap copy. Tables, lists and links all behave.</p>
-            <div class="card-visual">
-              <div class="mini-md">
-                <div class="lbl">Claude Sonnet 4.5</div>
-                <p>Use <code>Promise.all</code> to parallelise the fetches:</p>
-                <div class="fence">const [user, repo] = await Promise.all([...])</div>
-              </div>
-            </div>
-          </article>
-
-          <article class="card span-2 reveal" style="--d:120ms">
-            <div class="card-icon" data-icon="command" data-icon-size="19"></div>
-            <h3>Keyboard first</h3>
-            <p>Open the palette, jump between threads, swap models or start fresh without ever reaching for the mouse.</p>
-            <div class="card-visual">
-              <div class="keys-row">
-                <span class="kbd">⌘</span><span class="kbd">K</span>
-                <span style="font-size:11.5px;color:var(--text-3);margin:0 4px">palette</span>
-                <span class="kbd">⌘</span><span class="kbd">B</span>
-                <span style="font-size:11.5px;color:var(--text-3);margin:0 4px">sidebar</span>
-                <span class="kbd">↵</span>
-              </div>
-            </div>
-          </article>
-
           <article class="card span-3 reveal">
-            <div class="card-icon" data-icon="shield-check" data-icon-size="19"></div>
-            <h3>Private by architecture, not policy</h3>
-            <p>There is no Eltes account and no Eltes database. Your prompts go directly from your browser to the provider you chose.</p>
+            <div class="card-icon" data-icon="gauge" data-icon-size="19"></div>
+            <h3>Real numbers, not vibes</h3>
+            <p>Every reply records time to first token, total latency, input and output tokens, and tokens per second straight from the provider's usage payload.</p>
             <div class="card-visual">
               <div class="stat-row">
-                <div class="stat"><strong>0</strong><span>accounts</span></div>
-                <div class="stat"><strong>0</strong><span>trackers</span></div>
-                <div class="stat"><strong>100%</strong><span>local history</span></div>
+                <div class="stat"><strong>380<span style="font-size:13px"> ms</span></strong><span>first token</span></div>
+                <div class="stat"><strong>1.9<span style="font-size:13px"> s</span></strong><span>total</span></div>
+                <div class="stat"><strong>42</strong><span>tok / s</span></div>
               </div>
             </div>
           </article>
 
           <article class="card span-3 reveal" style="--d:60ms">
-            <div class="card-icon" data-icon="terminal" data-icon-size="19"></div>
-            <h3>Agent mode in the same window</h3>
-            <p>Hand the agent a task and watch it read, search and edit. Tool calls are shown as structured steps — never as a wall of text.</p>
+            <div class="card-icon" data-icon="triangle-alert" data-icon-size="19"></div>
+            <h3>Failure states with answers</h3>
+            <p>401, 429, CORS and offline each get a specific explanation and a retry that keeps your prompt. No silent fallbacks, no invented replies.</p>
             <div class="card-visual">
               <div class="code-mini">
-                <div class="head"><span data-icon="terminal" data-icon-size="10"></span>agent · 3 steps</div>
+                <div class="head"><span data-icon="shield" data-icon-size="10"></span>error contract</div>
                 <div class="body">
-                  <span class="fn">read</span> src/api/session.ts<br />
-                  <span class="fn">grep</span> "token_expired" · 2 hits<br />
-                  <span class="fn">edit</span> src/api/session.ts <span class="st">+18 −4</span>
+                  <span class="fn">401</span> key rejected · check Settings<br />
+                  <span class="fn">429</span> rate limited · retry in 4s<br />
+                  <span class="fn">CORS</span> blocked · use a proxy
                 </div>
               </div>
             </div>
@@ -286,20 +320,20 @@
       </div>
     </section>
 
-    <!-- ============================= agent ============================= -->
-    <section class="section" style="padding-top:20px">
+    <!-- ============================ agent ============================= -->
+    <section class="section tight">
       <div class="wrap">
         <div class="agent">
           <div class="reveal">
             <span class="eyebrow"><span data-icon="bot" data-icon-size="14"></span>Agent mode</span>
-            <h2>It doesn't just chat.<br />It does the work.</h2>
-            <p>Eltes runs a real tool loop: read the codebase, find the cause, make the edit and explain what changed. Every step is visible and interruptible.</p>
+            <h2>It calls tools.<br />It doesn't pretend to.</h2>
+            <p>Eltes runs a real tool loop through your provider: the model requests a tool, the browser executes it, the result goes back into the conversation. Every call is timed and visible.</p>
             <ul class="check-list">
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Streamed tool calls</strong> — see what the agent reads, greps and writes, as it happens.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Stop at any token</strong> — cancel a run without losing the partial answer.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Bring your own endpoint</strong> — any OpenAI-compatible base URL works.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Local tools</strong> — calculate maths, read the clock, search your own chat history.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic tool_use, streamed.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Interruptible</strong> — stop mid-loop and keep every token already received.</span></li>
             </ul>
-            <a class="btn btn-ghost" href="docs.html#agent">How agent mode works<span data-icon="arrow-right" data-icon-size="15"></span></a>
+            <a class="btn btn-ghost" href="docs.html#agent">How the tool loop works<span data-icon="arrow-right" data-icon-size="15"></span></a>
           </div>
 
           <div class="terminal reveal" style="--d:100ms">
@@ -309,33 +343,33 @@
               <span class="live"><i></i>live</span>
             </div>
             <div class="term-body">
-              <div class="term-line"><span class="p">$</span><span class="cmd">fix the flaky session refresh test</span></div>
+              <div class="term-line"><span style="color:#5b7ba6">$</span><span class="cmd">how many weeks until 2027, and what did we decide about indexes?</span></div>
               <div class="term-block">
-                <div class="term-line"><span class="dim2">[1/4]</span><span class="path">read</span><span>tests/session.test.ts</span></div>
-                <div class="term-line"><span class="dim2">[2/4]</span><span class="path">grep</span><span>"refreshToken" · 6 matches</span></div>
-                <div class="term-line"><span class="dim2">[3/4]</span><span class="path">read</span><span>src/auth/session.ts</span></div>
+                <div class="term-tool"><span class="ic" data-icon="calculator" data-icon-size="11"></span><span class="tool" style="color:#8bb4ff">calculate</span><span>{"expression":"(2027-01-01 - now) / 7 days"}</span><span class="res">10.5 weeks</span></div>
+                <div class="term-tool"><span class="ic" data-icon="search" data-icon-size="11"></span><span class="tool" style="color:#8bb4ff">search_history</span><span>"index strategy"</span><span class="res">2 threads</span></div>
               </div>
-              <div class="term-line"><span class="ok" data-icon="check" data-icon-size="11"></span><span>Found it. The test never advances the mocked clock.</span></div>
-              <div class="term-line" style="margin-top:6px"><span class="path">src/auth/session.ts</span></div>
-              <div class="term-line"><span class="add">+ const now = () =&gt; clock.now();</span></div>
-              <div class="term-line"><span class="add">+ if (now() &gt;= expiresAt) await refresh();</span></div>
-              <div class="term-line"><span class="del">− if (Date.now() &gt;= expiresAt) await refresh();</span></div>
-              <div class="term-line" style="margin-top:6px"><span class="p">$</span><span class="dim2">running tests…</span></div>
-              <div class="term-line"><span class="ok" style="display:inline-flex;align-items:center;gap:5px"><span data-icon="check" data-icon-size="11"></span>12 passed</span><span class="dim2">· session.test.ts · 284ms</span></div>
-              <div class="term-progress"><span>agent</span><span class="track"><i></i></span><span>4 steps</span></div>
+              <div class="term-line"><span class="ok" data-icon="check" data-icon-size="11"></span><span>About <b style="color:#d8e4f8">10.5 weeks</b>. On indexes you picked the composite key <span class="path">(tenant_id, status, created_at DESC)</span> with <span class="path">INCLUDE (total_cents)</span>.</span></div>
+              <div class="term-line" style="margin-top:9px"><span class="dim2">source</span><span class="path">chat: Postgres index strategy · 1 day ago</span></div>
+              <div class="term-meter">
+                <span><b>2</b> tools</span>
+                <span><b>1.4s</b> total</span>
+                <span><b>212</b> tokens</span>
+                <span class="bar"><i></i></span>
+                <span>streamed</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- =========================== comparison =========================== -->
-    <section class="section" id="compare">
+    <!-- =========================== compare ============================ -->
+    <section class="section tight" id="compare">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="ruler" data-icon-size="14"></span>Why Eltes</span>
           <h2>Less platform.<br />More leverage.</h2>
-          <p>Most chat products ask you to pick a model, then keep the receipts. Eltes does the opposite.</p>
+          <p>Most chat products pick a model for you and keep the receipts. Eltes does the opposite.</p>
         </div>
 
         <div class="compare-wrap reveal">
@@ -364,19 +398,19 @@
                 <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Cloud account</span></td>
               </tr>
               <tr>
-                <td>Account required to start</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>None</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Email + phone</span></td>
+                <td>Answers come from a real model</td>
+                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Always</span></td>
+                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Varies by tier</span></td>
               </tr>
               <tr>
-                <td>Keyboard-first command palette</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>⌘K built in</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Mouse only</span></td>
+                <td>Real agent tool loop</td>
+                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Timed and visible</span></td>
+                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Hidden or absent</span></td>
               </tr>
               <tr>
-                <td>Prompts used to train models</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Never by Eltes</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Often opt-out</span></td>
+                <td>Latency and token metrics</td>
+                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Per reply</span></td>
+                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Rarely exposed</span></td>
               </tr>
             </tbody>
           </table>
@@ -384,21 +418,131 @@
       </div>
     </section>
 
+    <!-- ============================ pricing =========================== -->
+    <section class="section" id="pricing">
+      <span class="aura" data-parallax="0.1" style="width:520px;height:520px;left:50%;margin-left:-260px;top:40px;background:radial-gradient(circle,rgba(52,108,255,.18),transparent 66%)"></span>
+      <div class="wrap" style="position:relative">
+        <div class="section-head center reveal">
+          <span class="eyebrow"><span data-icon="gift" data-icon-size="14"></span>Pricing</span>
+          <h2>BYOK is free.<br class="desk-br" /> Hosted plans are next.</h2>
+          <p>Use every model with your own key and pay the provider directly for tokens. Managed plans are in build — no price, no checkout, no card.</p>
+          <span class="pricing-banner"><span data-icon="clock" data-icon-size="12"></span>Paid plans are coming soon — join the waitlist below</span>
+        </div>
+
+        <div class="price-grid">
+          <article class="price-card reveal">
+            <span class="price-tag now">Available now</span>
+            <h3>BYOK</h3>
+            <div class="price"><strong>$0</strong><span>forever</span></div>
+            <p>Bring a key from any supported provider and use the full workspace.</p>
+            <ul class="price-feats">
+              <li><span data-icon="check" data-icon-size="13"></span>All 28 models, 11 providers</li>
+              <li><span data-icon="check" data-icon-size="13"></span>Agent tools and streaming</li>
+              <li><span data-icon="check" data-icon-size="13"></span>Local history and exports</li>
+              <li><span data-icon="check" data-icon-size="13"></span>No Eltes account required</li>
+            </ul>
+            <a class="btn btn-ghost" href="app.html">Open the workspace</a>
+          </article>
+
+          <article class="price-card featured reveal" style="--d:70ms">
+            <span class="price-tag soon">Coming soon</span>
+            <h3>Plans &amp; credits</h3>
+            <div class="price"><strong>TBD</strong><span>pricing not announced</span></div>
+            <p>Hosted keys, one bill and no setup. The same workspace, without pasting anything.</p>
+            <ul class="price-feats">
+              <li><span data-icon="check" data-icon-size="13"></span>Hosted model access</li>
+              <li><span data-icon="check" data-icon-size="13"></span>Usage dashboard and caps</li>
+              <li><span data-icon="check" data-icon-size="13"></span>Shared threads and teams</li>
+              <li class="off"><span data-icon="lock" data-icon-size="13"></span>Waiting on billing infrastructure</li>
+            </ul>
+            <button class="btn btn-primary" id="waitlistBtn">Join the waitlist</button>
+          </article>
+
+          <article class="price-card reveal" style="--d:140ms">
+            <span class="price-tag soon">Coming soon</span>
+            <h3>Team</h3>
+            <div class="price"><strong>—</strong><span>talk to us</span></div>
+            <p>For teams that want centralised keys, audit trails and SSO.</p>
+            <ul class="price-feats">
+              <li><span data-icon="check" data-icon-size="13"></span>SSO and role controls</li>
+              <li><span data-icon="check" data-icon-size="13"></span>Shared prompt library</li>
+              <li><span data-icon="check" data-icon-size="13"></span>Self-hosted deployment</li>
+              <li class="off"><span data-icon="lock" data-icon-size="13"></span>Design partner programme</li>
+            </ul>
+            <a class="btn btn-ghost" href="auth.html?mode=signup">Create an account</a>
+          </article>
+        </div>
+
+        <p class="price-note">Pricing is a placeholder while the beta runs. Nothing is charged, and no card is ever requested. <a href="docs.html#pricing">Read the pricing notes</a>.</p>
+      </div>
+    </section>
+
+    <!-- ============================ account =========================== -->
+    <section class="section tight" id="account">
+      <div class="wrap">
+        <div class="account-split">
+          <div class="reveal">
+            <span class="eyebrow"><span data-icon="user-plus" data-icon-size="14"></span>Accounts</span>
+            <h2>An account when<br />you want one.</h2>
+            <p>Eltes works without signing up. Create a profile to keep your name, avatar and preferences together — or continue with GitHub to link your handle. Nothing is uploaded; the profile lives in this browser until hosted accounts ship.</p>
+            <div class="account-actions">
+              <a class="btn gh-btn" href="auth.html?method=github">
+                <span data-icon="github" data-icon-size="16"></span>
+                Continue with GitHub
+              </a>
+              <a class="btn btn-ghost" href="auth.html?mode=signup">
+                <span data-icon="mail" data-icon-size="15"></span>
+                Use an email
+              </a>
+            </div>
+          </div>
+
+          <div class="auth-card reveal" style="--d:90ms">
+            <div class="ac-head">
+              <span class="p-logo" data-brand="openai"></span>
+              <span class="p-logo" data-brand="claude"></span>
+              <span class="p-logo" data-brand="gemini"></span>
+              <span class="p-logo" data-brand="glm"></span>
+              <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px"><span data-icon="shield-check" data-icon-size="11"></span>local</span>
+            </div>
+            <strong style="font-size:13px;display:block;margin-bottom:12px">Create your Eltes profile</strong>
+            <form id="quickSignup" novalidate>
+              <label class="auth-field">
+                <span data-icon="user" data-icon-size="14"></span>
+                <input type="text" name="name" placeholder="Your name" autocomplete="name" required />
+              </label>
+              <label class="auth-field">
+                <span data-icon="mail" data-icon-size="14"></span>
+                <input type="email" name="email" placeholder="you@domain.com" autocomplete="email" required />
+              </label>
+              <button class="btn btn-primary" type="submit">Create profile<span data-icon="arrow-right" data-icon-size="14"></span></button>
+            </form>
+            <div class="auth-or">or</div>
+            <a class="btn gh-btn" href="auth.html?method=github" style="margin-top:0">
+              <span data-icon="github" data-icon-size="16"></span>
+              Continue with GitHub
+            </a>
+            <p class="tiny">No password. No email is sent. <a href="docs.html#accounts">How accounts work</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============================== cta ============================== -->
-    <section class="section" style="padding-top:24px;padding-bottom:20px">
+    <section class="section tight">
       <div class="wrap">
         <div class="cta reveal">
           <div class="cta-inner">
             <div class="grid-bg"></div>
-            <span class="eyebrow"><span data-icon="rocket" data-icon-size="14"></span>No sign-up</span>
-            <h2 style="margin-top:18px">Start with your own key.<br class="desk-br" /> Or none at all.</h2>
-            <p>Explore the full interface in demo mode, then connect OpenAI, Anthropic, Google or any OpenAI-compatible endpoint whenever you're ready.</p>
+            <span class="eyebrow"><span data-icon="rocket" data-icon-size="14"></span>No demo mode</span>
+            <h2 style="margin-top:16px">Connect a key.<br class="desk-br" /> Get a real answer.</h2>
+            <p>Every response in Eltes comes from a live provider you connected. Add one key and the workspace is fully live — no simulated replies, no fake latency.</p>
             <div class="hero-cta">
-              <a class="btn btn-primary btn-lg" href="app.html">Try Eltes AI<span data-icon="arrow-right" data-icon-size="17"></span></a>
-              <a class="btn btn-ghost btn-lg" href="docs.html#quickstart"><span data-icon="terminal" data-icon-size="16"></span>Quickstart</a>
+              <a class="btn btn-primary btn-lg" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="17"></span></a>
+              <a class="btn btn-ghost btn-lg" href="docs.html#api-keys"><span data-icon="key-round" data-icon-size="16"></span>How keys work</a>
             </div>
             <div class="hero-note">
-              <span><span data-icon="check" data-icon-size="13"></span>Runs entirely in your browser</span>
+              <span><span data-icon="check" data-icon-size="13"></span>Runs in your browser</span>
               <span><span data-icon="clock" data-icon-size="13"></span>Setup takes 30 seconds</span>
             </div>
           </div>
@@ -416,26 +560,26 @@
             <span class="brand-mark"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6c.7 5.2 4.2 8.7 9.4 9.4-5.2.7-8.7 4.2-9.4 9.4-.7-5.2-4.2-8.7-9.4-9.4 5.2-.7 8.7-4.2 9.4-9.4Z" fill="#fff"/></svg></span>
             Eltes
           </a>
-          <p>A local-first AI agent workspace. Bring your own key, keep your history, switch models without breaking your train of thought.</p>
+          <p>A local-first AI agent workspace with real models, real keys and real tool calls. Built in the browser.</p>
         </div>
         <div class="footer-col">
           <h4>Product</h4>
           <a href="app.html">Open the app</a>
-          <a href="index.html#features">Features</a>
-          <a href="index.html#models">Models</a>
-          <a href="docs.html#agent">Agent mode</a>
+          <a href="#models">Models</a>
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
         </div>
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="docs.html">Documentation</a>
           <a href="docs.html#quickstart">Quickstart</a>
           <a href="docs.html#api-keys">API keys</a>
-          <a href="docs.html#shortcuts">Keyboard shortcuts</a>
+          <a href="docs.html#agent">Agent tools</a>
         </div>
         <div class="footer-col">
           <h4>Project</h4>
           <a href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="docs.html#self-host">Self-hosting</a>
+          <a href="auth.html">Accounts</a>
           <a href="docs.html#privacy">Privacy</a>
           <a href="docs.html#faq">FAQ</a>
         </div>
@@ -448,6 +592,9 @@
   </footer>
 
   <script src="assets/js/icons.js"></script>
+  <script src="assets/js/brands.js"></script>
+  <script src="assets/js/models.js"></script>
+  <script src="assets/js/account.js"></script>
   <script src="assets/js/site.js"></script>
 </body>
 </html>

@@ -4,13 +4,15 @@ A local-first AI workspace for real provider APIs, user-run open models, and an 
 
 Eltes is a static browser app by default. Hosted requests can go directly from your browser to a provider, or through an optional Vercel/local proxy that forwards your own key for one request and does not persist it. Chats, keys, profiles, and preferences stay in browser storage. There are no simulated hosted-model replies.
 
+**Live:** <https://gefrus112.github.io/eltes/> · **Supabase copy:** <https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html> — the same files, two hosts.
+
 ## Pages
 
 | Page | What it is |
 | --- | --- |
 | `index.html` | Landing page and model catalogue |
 | `app.html` | Chat workspace, streaming, local history, settings, custom endpoints |
-| `auth.html` | Local profile and provider-key utilities; it is not a hosted identity service |
+| `auth.html` | Account page: a real Supabase account (email and password, confirmation, magic link, password reset) when `config.js` is filled in, otherwise a local profile and provider-key utilities |
 | `docs.html` | App, local-model, proxy, deployment, privacy, and troubleshooting guide |
 | `studio.html` | Coding workspace: file tree, editor, live preview and a real local terminal |
 | `news.html` | Release notes with screenshots of the galaxy backdrop, the effects library, the workflow guide, Studio and the chat theme |

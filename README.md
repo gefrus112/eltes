@@ -11,12 +11,12 @@ picked, failures are explicit, and **Eltes CAI** answers locally when you have n
 
 | Page | What it is |
 | --- | --- |
-| `index.html` | Landing page: scroll-driven block field, 12-provider model wall, feature bento, agent terminal, comparison, provider accounts, downloads, pricing (not announced) |
+| `index.html` | Landing page: scroll-driven block field, 13-provider model wall, feature bento, agent terminal, comparison, provider accounts, downloads, pricing (not announced) |
 | `app.html` | The workspace: dark-blue theme, streaming chat, block field, step timeline, tool cards, model picker, provider accounts, command palette, settings, export |
 | `auth.html` | Sign up or in with OpenAI, Anthropic or DeepSeek — or keep a local profile. OAuth contract plus honest key fallback; no GitHub button |
-| `docs.html` | 16 sections: quickstart, accounts, provider keys, CORS, custom endpoints, models, CAI, Astra streaming, tools, chats, settings, shortcuts, downloads, pricing, self-hosting, privacy, FAQ |
+| `docs.html` | 16 sections: quickstart, accounts, provider keys, CORS, custom endpoints, models, CAI, provider streaming, tools, chats, settings, shortcuts, downloads, pricing, self-hosting, privacy, FAQ |
 
-## What is new in v3
+## What is new in v3.2
 
 - **Green-cloud brand** — one eye closed, one open. Inline SVG mark, favicon, `.ico`, Apple touch icon,
   192/512 PNGs and a maskable manifest icon.
@@ -27,11 +27,11 @@ picked, failures are explicit, and **Eltes CAI** answers locally when you have n
   field; the account pages are black with solid block geometry.
 - **Eltes CAI** — three on-device models (`Eltes CAI-1`, `CAI-1 Fast`, `CAI Docs`) built in
   `assets/js/cai.js`. No key, no network, and honest about the limits of what they know.
-- **ChatGPT Astra, real time** — `gpt-6-astra` streams through Chat Completions with a 12 ms paint
-  throttle, a live streaming dot and first-token metrics. Also routed through OpenRouter.
+- **Claude Sonnet streaming** — Anthropic Messages API SSE with a stored provider key, live token painting
+  and first-token metrics. OpenAI-compatible providers stream through their chat-completions endpoint.
 - **Downloads** — `downloads/eltes-windows.zip` ships `eltes.bat`, `Start-Eltes.ps1`, a Windows README
   and the whole static site. Unzip, double-click, browser opens. macOS/Linux use any static server.
-- **Catalogue refresh** — 38 models across 13 providers, including Claude 5.5, GPT‑6 Sol/Luna,
+- **Catalogue refresh** — 36 models across 13 providers, including Claude Sonnet 5.5, GPT‑6 Sol/Luna,
   DeepSeek V4.1 Flash / V4 Pro, NVIDIA NIM and Eltes CAI.
 - **Docs completion** — every section is written; nothing is marked “coming soon”.
 
@@ -55,18 +55,26 @@ picked, failures are explicit, and **Eltes CAI** answers locally when you have n
 - **Optional accounts** — a local profile with editable bio and PNG/JPEG/WebP/GIF avatar plus per-provider
   connection state, shared across pages via the `eltes:account` event. GitHub OAuth is intentionally not
   enabled on the static build; do not paste personal access tokens into the browser.
-- **Honest pricing** — BYOK is free and pay-the-provider. Hosted plans are marked “pricing not
-  announced”; nothing can take a payment.
+- **Honest pricing** — Eltes is free as a static workspace; hosted model calls need a provider key and
+  may be billed by that provider. CAI is local and key-free. No hosted Eltes plan is currently available.
 - **No emoji, no icon fonts** — inline Lucide vectors and real provider marks; Inter and JetBrains Mono
   are bundled locally.
 
 ## Models
 
-38 entries across 13 providers: Anthropic, OpenAI, Google, Z.ai, DeepSeek, xAI, Qwen, Mistral, Groq,
+36 entries across 13 providers: Anthropic, OpenAI, Google, Z.ai, DeepSeek, xAI, Qwen, Mistral, Groq,
 OpenRouter, NVIDIA NIM, Eltes CAI and a custom OpenAI-compatible endpoint. The picker marks every hosted model that
-has a connected account, `realtime` entries with a live dot, and CAI as `on-device`.
+has a connected account, streaming Claude entries with a live token dot, and CAI as `on-device`.
 
-## Run it
+## Publish on GitHub Pages
+
+The repository includes a GitHub Actions workflow that assembles the static site and deploys it to Pages
+on every push to `main`. The app confirms that a key is saved before a call; only the provider can confirm account access or free-tier eligibility. In the repository’s **Settings → Pages**, select **GitHub Actions** as the build
+and deployment source once. No API keys belong in GitHub Actions: browser keys stay in local storage and
+are sent directly from the user's browser to the selected provider. GitHub Pages serves static files; it
+cannot proxy provider API calls or provide free hosted model credits.
+
+## Run it locally
 
 No build step. Any static server works:
 
@@ -83,7 +91,8 @@ npm start
 ```
 
 Then either chat with **Eltes CAI-1** immediately or connect a provider under **Accounts** or
-**Settings → API keys**. There is no sample conversation to load.
+**Settings → API keys**. Claude Sonnet 5.5 streams after an Anthropic key is saved. Eltes checks for a
+saved key before sending and offers a connect prompt when one is missing. There is no sample conversation.
 
 ### Windows
 

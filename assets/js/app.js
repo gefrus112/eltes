@@ -49,7 +49,7 @@
     reduceMotion: false,
     showTime: true,
     showMetrics: true,
-    favorites: ['eltes-cai-1', 'claude-sonnet-5-5', 'gpt-6-astra', 'deepseek-flash']
+    favorites: ['eltes-cai-1', 'claude-sonnet-5-5', 'deepseek-flash']
   };
 
   const savedSettings = readJSON(LS.settings, {});
@@ -79,6 +79,7 @@
           .filter((m) => m && (m.role === 'user' || m.role === 'assistant'))
           .map((m) => Object.assign({}, m, {
             id: m.id || uid(),
+            model: validModel(m.model) ? m.model : (validModel(c.model) ? c.model : M.DEFAULT_MODEL),
             content: typeof m.content === 'string' ? m.content : String(m.content == null ? '' : m.content),
             ts: m.ts || now,
             streaming: false,
@@ -687,7 +688,7 @@
     return `<div class="connect-card">
       <strong>No key for ${esc(p.name)}.</strong><br />
       Eltes has no demo replies — this is a real request that needs a real credential.
-      Add a ${esc(p.name)} key or switch to a provider you already connected.
+      Add a ${esc(p.name)} key or switch to a provider you already connected. Provider free tiers and billing are managed by that provider; Eltes cannot see your plan.
       <div class="providers">${Object.keys(M.PROVIDERS)
         .filter((id) => id !== 'custom')
         .map((id) => `<span class="p-logo sm" data-brand="${M.PROVIDERS[id].brand}" data-brand-size="13" title="${esc(M.PROVIDERS[id].name)}" data-connect="${id}" role="button" tabindex="0"></span>`)
@@ -2789,6 +2790,8 @@
     if (window.innerWidth <= 900) els.shell.classList.add('collapsed');
     applySettingsToUI();
     renderAll();
+    // Normalize migrated model IDs (and stale favorites) back to storage at boot.
+    persistNow();
     autoGrow();
     updateSendState();
     if (activeChat() && activeChat().messages.length) scrollToBottom(true);

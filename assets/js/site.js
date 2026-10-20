@@ -234,8 +234,8 @@
       models: ['Eltes CAI-1', 'CAI-1 Fast', 'CAI Docs'], href: 'app.html?model=eltes-cai-1'
     },
     {
-      provider: 'openai', brand: 'openai', name: 'OpenAI', meta: 'api.openai.com · real-time streaming',
-      models: ['ChatGPT Astra', 'GPT‑6 Sol', 'GPT‑6 Luna'], href: 'app.html?model=gpt-6-astra'
+      provider: 'openai', brand: 'openai', name: 'OpenAI', meta: 'api.openai.com · streamed responses',
+      models: ['GPT‑6 Sol', 'GPT‑6.1 Sol', 'GPT‑6 Luna', 'GPT‑4.1'], href: 'app.html?model=gpt-6-sol'
     },
     {
       provider: 'anthropic', brand: 'claude', name: 'Anthropic', meta: 'Native Messages API',
@@ -272,6 +272,10 @@
     {
       provider: 'mistral', brand: 'mistral', name: 'Mistral', meta: 'api.mistral.ai',
       models: ['Mistral Large', 'Codestral'], href: 'app.html?model=mistral-large'
+    },
+    {
+      provider: 'nvidia', brand: 'nvidia', name: 'NVIDIA NIM', meta: 'NVIDIA-hosted · key required',
+      models: ['Llama 3.3 70B', 'Nemotron Ultra'], href: 'app.html?model=nvidia-llama-3-3'
     },
     {
       provider: 'openrouter', brand: 'openrouter', name: 'OpenRouter', meta: 'one key · 200+ models',

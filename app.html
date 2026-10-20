@@ -212,6 +212,10 @@
         <span class="grow"></span>
         <button class="icon-btn" data-close="modelDialog" aria-label="Close" data-icon="x" data-icon-size="17"></button>
       </div>
+      <div class="picker-tabs" role="tablist" aria-label="Model availability">
+        <button type="button" class="active" id="modelsAvailableTab" role="tab" aria-selected="true">Available</button>
+        <button type="button" id="modelsComingTab" role="tab" aria-selected="false">Coming soon</button>
+      </div>
       <div class="field">
         <span data-icon="search" data-icon-size="15"></span>
         <input type="text" id="modelSearch" placeholder="Search models, providers, capabilities…" aria-label="Search models" autocomplete="off" />
@@ -267,7 +271,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v2.0 · BYOK<br />No server. No telemetry.</div>
+          <div class="nav-foot">Eltes v3.1 · BYOK<br />No server. No telemetry.</div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -451,9 +455,9 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.0.0</span></div>
+              <div class="kv"><span>Version</span><span>3.1.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
-              <div class="kv"><span>Models</span><span>36 · 12 providers</span></div>
+              <div class="kv"><span>Models</span><span>38 · 13 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>
               <div class="kv"><span>Requests to Eltes</span><span>0</span></div>
             </div>
@@ -497,6 +501,23 @@
         <button class="btn btn-ghost btn-sm" id="copyTranscript"><span data-icon="clipboard" data-icon-size="13"></span>Copy</button>
         <button class="btn btn-ghost btn-sm" id="downloadJson"><span data-icon="file-code-2" data-icon-size="13"></span>JSON</button>
         <button class="btn btn-primary btn-sm" id="downloadMarkdown"><span data-icon="download" data-icon-size="13"></span>Markdown</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ============================== HTML preview ========================== -->
+  <dialog id="htmlPreviewDialog" class="html-preview-dialog" aria-label="HTML code preview">
+    <div class="dlg html-preview-shell">
+      <div class="dlg-head">
+        <span data-icon="code-2" data-icon-size="16" style="color:#9cc0ff"></span>
+        <div><h3>HTML preview</h3><div class="sub">Isolated preview · scripts cannot access this app or your files.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="htmlPreviewDialog" aria-label="Close preview" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <iframe id="htmlPreviewFrame" title="Isolated HTML preview" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+      <div class="dlg-actions">
+        <button class="btn btn-ghost btn-sm" id="copyPreviewHtml"><span data-icon="copy" data-icon-size="13"></span>Copy HTML</button>
+        <button class="btn btn-primary btn-sm" id="downloadPreviewHtml"><span data-icon="download" data-icon-size="13"></span>Download HTML</button>
       </div>
     </div>
   </dialog>

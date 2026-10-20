@@ -1,7 +1,7 @@
 {
   "name": "eltes-ai",
-  "version": "3.0.0",
-  "description": "Eltes AI \u2014 a local-first, browser-only AI agent workspace with 36 real models, on-device Eltes CAI, provider accounts, streaming and downloads.",
+  "version": "3.1.0",
+  "description": "Eltes AI \u2014 a local-first, browser-only AI agent workspace with 38 real models, on-device Eltes CAI, provider accounts, streaming and downloads.",
   "main": "index.html",
   "scripts": {
     "start": "serve -l 4173",

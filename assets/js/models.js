@@ -1,4 +1,4 @@
-/* Eltes — provider catalogue (v3, October 2026)
+/* Eltes — provider catalogue (v3.1, October 2026)
    OpenAI-compatible endpoints plus native Anthropic and the on-device Eltes CAI family.
    No demo models: every hosted entry is a real API target that needs a key (or a custom
    base URL pointed at your own server). CAI models run locally in this tab and say so. */
@@ -77,6 +77,15 @@ window.EltesModels = (function () {
       keyUrl: 'https://console.mistral.ai/api-keys',
       baseUrl: 'https://api.mistral.ai/v1',
       blurb: 'Mistral Large and Codestral with function calling.'
+    },
+    nvidia: {
+      name: 'NVIDIA NIM',
+      brand: 'nvidia',
+      api: 'openai',
+      keyHint: 'nvapi-…',
+      keyUrl: 'https://build.nvidia.com/',
+      baseUrl: 'https://integrate.api.nvidia.com/v1',
+      blurb: 'NVIDIA-hosted open models through the OpenAI-compatible NIM endpoint. Availability and free quotas depend on your NVIDIA account.'
     },
     groq: {
       name: 'Groq',
@@ -272,6 +281,17 @@ window.EltesModels = (function () {
       id: 'llama-4-scout', apiId: 'meta-llama/llama-4-scout-17b-16e-instruct', name: 'Llama 4 Scout',
       provider: 'groq', context: '128K', tier: 'Open', tools: true, vision: true,
       tags: ['open', 'vision'], blurb: 'Llama 4 with vision, fast on Groq.'
+    },
+    /* -------------------------------- NVIDIA NIM --------------------------- */
+    {
+      id: 'nvidia-llama-3-3', apiId: 'meta/llama-3.3-70b-instruct', name: 'Llama 3.3 70B · NVIDIA',
+      provider: 'nvidia', context: '128K', tier: 'Open', tools: true, vision: false,
+      tags: ['open', 'coding', 'nvidia'], blurb: 'Open-weight Llama served through NVIDIA NIM. Requires your NVIDIA API key; free quota is subject to NVIDIA account availability.'
+    },
+    {
+      id: 'nvidia-nemotron-ultra', apiId: 'nvidia/llama-3.1-nemotron-ultra-253b-v1', name: 'Nemotron Ultra · NVIDIA',
+      provider: 'nvidia', context: '128K', tier: 'Open', tools: true, vision: false,
+      tags: ['open', 'reasoning', 'nvidia'], blurb: 'NVIDIA Nemotron via NIM. Requires your NVIDIA API key; endpoint access may vary by account.'
     },
     /* ------------------------------- OpenRouter ----------------------------- */
     {

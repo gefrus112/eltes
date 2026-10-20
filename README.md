@@ -20,8 +20,9 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Local open models:** connect Ollama, LM Studio, vLLM, or another OpenAI-compatible server using the Custom endpoint setting. Model weights and inference stay on your own computer/server, subject to that runner's configuration.
 - **Eltes CAI:** a deterministic, on-device JavaScript rules-and-knowledge helper for Eltes guidance, arithmetic, common math functions, one-variable linear/quadratic equations, unit/temperature/time conversion, number-base conversion, date arithmetic, text transforms, random utilities, a curated 50+ term AI glossary, and exact retrieval from messages included in the active chat. It is not a trained neural network or a general-purpose LLM, and it cannot solve every kind of math.
 - **Local-first workspace:** chat history, profiles, settings, and exports are controlled in your browser. No analytics or telemetry are included.
-- **Agent tools:** five local tools — `calculate`, `convert_units`, `define_term`, `current_time`, and `search_history` — can be offered to compatible hosted models. Tool results are sent back as part of the model request.
-- **Chat slash commands:** `/help`, `/clear`, `/export`, `/model`, `/calc`, `/convert`, `/define`, `/base`, `/time`, `/coin`, `/dice`, `/random`, `/uppercase`, `/reverse`, `/sort` — all handled on-device with a live autocomplete menu and no key required.
+- **Chat slash commands:** `/help`, `/clear`, `/export`, `/model`, `/calc`, `/convert`, `/define`, `/base`, `/web`, `/time`, `/coin`, `/dice`, `/random`, `/uppercase`, `/reverse`, `/sort` — handled on-device with a live autocomplete menu; only `/web` needs a search key.
+- **Live web search with sources:** turn on the **Web** chip and Eltes searches Brave, Tavily, Serper or Exa through the optional backend, then renders a numbered source list with links and excerpts. Hosted models are asked to cite sources inline as `[1]`, `[2]`; CAI formats the same list deterministically. Your search key stays in this browser and is forwarded per request.
+- **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
 - **Model catalogue:** 65 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, and custom endpoints.
 - **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
 
@@ -35,7 +36,7 @@ npm start
 # open http://localhost:4173/app.html
 ```
 
-`npm start` serves the site and local API routes together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, and `/api/chat`. Stop the server with Ctrl+C. The local server has no user authentication; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`.
+`npm start` serves the site and local API routes together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, `/api/chat`, and `/api/search`. Stop the server with Ctrl+C. The local server has no user authentication; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`.
 
 For a static-only preview, Python also works:
 
@@ -71,7 +72,7 @@ GitHub Pages remains a static host. The separate `api/` functions are for Vercel
 1. Import this repository into a Vercel project with the root directory set to the repository root.
 2. Set the Vercel environment variable `ELTES_ALLOWED_ORIGINS` to a comma-separated list of exact allowed browser **origins**, with no paths or trailing slashes. Example:
    `https://gefrus112.github.io,http://localhost:4173`
-3. Deploy the project. Vercel exposes `/api/health`, `/api/key-check`, and `/api/chat`.
+3. Deploy the project. Vercel exposes `/api/health`, `/api/key-check`, `/api/chat`, and `/api/search`.
 4. In Eltes **Settings → API keys → Optional Vercel/local backend**, enter the deployed origin, such as `https://your-project.vercel.app`, save, and check that the health test succeeds.
 5. Use **Test key** beside a saved provider key, or send a hosted-model message. Clear the backend URL to return to direct browser-to-provider mode.
 

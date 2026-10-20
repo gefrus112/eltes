@@ -231,8 +231,8 @@
                 <div class="head"><span data-icon="cpu" data-icon-size="10"></span>available · runs in your browser</div>
                 <div class="body">
                   <span class="fn">calculate</span>(expression)<br />
-                  <span class="fn">current_time</span>()<br />
-                  <span class="fn">search_history</span>(query)
+                  <span class="fn">web_search</span>(query) → sources<br />
+                  <span class="fn">convert_units</span>(value, from, to)
                 </div>
               </div>
             </div>
@@ -308,7 +308,8 @@
             <h2>It calls tools.<br />It doesn't pretend to.</h2>
             <p>Eltes runs a real tool loop through your provider: the model requests a tool, the browser executes it, the result goes back into the conversation. Every call is timed and visible.</p>
             <ul class="check-list">
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Local tools</strong> — calculate maths, read the clock, search your own chat history.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Local tools</strong> — calculate maths, convert units, read the clock, search your own chat history.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Live web search</strong> — numbered sources and inline <code>[1]</code> citations, using your own search key.</span></li>
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic tool_use, streamed.</span></li>
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Interruptible</strong> — stop mid-loop and keep every token already received.</span></li>
             </ul>
@@ -363,7 +364,7 @@
               <tr><td>Conversation continuity</td><td class="eltes-col"><span class="yes"><span data-icon="shuffle" data-icon-size="14"></span>Switch mid-thread</span></td><td>Choose a different model without discarding the chat.</td></tr>
               <tr><td>History</td><td class="eltes-col"><span class="yes"><span data-icon="hard-drive" data-icon-size="14"></span>Local by default</span></td><td>Export or clear it from this browser at any time.</td></tr>
               <tr><td>No-key option</td><td class="eltes-col"><span class="yes"><span data-icon="cpu" data-icon-size="14"></span>Eltes CAI</span></td><td>A small, bounded on-device helper—not a frontier LLM.</td></tr>
-              <tr><td>Agent tools</td><td class="eltes-col"><span class="yes"><span data-icon="workflow" data-icon-size="14"></span>Visible and local</span></td><td>Calculator, clock, and chat search; no shell access.</td></tr>
+              <tr><td>Agent tools</td><td class="eltes-col"><span class="yes"><span data-icon="workflow" data-icon-size="14"></span>Visible and local</span></td><td>Calculator, units, clock, chat search, and cited web search; no shell access.</td></tr>
               <tr><td>Usage visibility</td><td class="eltes-col"><span class="yes"><span data-icon="gauge" data-icon-size="14"></span>Latency and tokens</span></td><td>Metrics depend on what each provider reports.</td></tr>
               <tr><td>Hosted billing</td><td class="eltes-col"><span class="yes"><span data-icon="globe" data-icon-size="14"></span>Provider-controlled</span></td><td>Provider pricing and account limits still apply.</td></tr>
             </tbody>

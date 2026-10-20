@@ -13,6 +13,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 | `auth.html` | Local profile and provider-key utilities; it is not a hosted identity service |
 | `docs.html` | App, local-model, proxy, deployment, privacy, and troubleshooting guide |
 | `studio.html` | Coding workspace: file tree, editor, live preview and a real local terminal |
+| `news.html` | Release notes with screenshots of the effects library, the workflow guide, Studio and the chat theme |
 
 ## Features
 
@@ -25,9 +26,10 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Live web search with sources:** click the **Web** chip — it always switches on (and reads *Web on*) — and Eltes searches Brave, Tavily, Serper or Exa through the optional backend, then renders a numbered source list with links and excerpts. Hosted models are asked to cite sources inline as `[1]`, `[2]`; CAI formats the same list deterministically. A recency filter (day, week, month, year) is mapped to each provider's own upstream filter. Your search key stays in this browser and is forwarded per request.
 - **Visible search thinking:** while a search runs, the reply shows live steps — the condensed query, provider and recency, the result count and the time each step took. Nothing is pre-scripted; failed searches leave a failed step. Finished traces collapse to a summary and can be reopened; turn them off under Settings → General.
 - **Eltes Studio:** a separate page with a workspace file tree, editor, live preview and a real shell. The **Guide** button walks the build-a-website workflow — scaffold files, run the build in the terminal, add a page, preview it, open it in its own tab — and ticks steps off as the real actions happen. The written version is in [docs.html#workflow](docs.html#workflow). Any `.html` file previews at `/preview/<path>` with relative assets intact; edits and terminal builds reload it automatically. The terminal runs `/bin/bash` in `.studio/`, streams output, tracks `cd`, and stops on timeout or Ctrl+C. Without the local server the editor still works in browser-only mode with an in-browser preview and zip export.
+- **Effects from code:** the **Effects** button in Studio writes one of six dependency-free recipes — gradient mesh, canvas particles, aurora, halftone, glowing orb, generative poster — into `effects/<name>.html`, opens it in the editor and loads it in the preview. Every recipe is CSS, SVG or canvas, so there is no bitmap to export or download; the guide is in [docs.html#effects](docs.html#effects). The starter `build.mjs` walks subfolders, so the effects ship with the site. Release notes with screenshots: [news.html](news.html).
 - **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
 - **Model catalogue:** 65 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, and custom endpoints.
-- **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
+- **Interface:** Graphite (neutral grey) by default with Midnight blue as an option under Settings → General, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports. The theme is tokenised in `assets/css/app.css` and stored in `eltes.settings.v1`.
 
 ## Run the app and local API
 

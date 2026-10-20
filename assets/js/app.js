@@ -49,6 +49,7 @@
     sendKey: 'enter',
     tools: false,
     density: 'comfortable',
+    theme: 'grey',
     reduceMotion: false,
     showTime: true,
     showMetrics: true,
@@ -1672,8 +1673,18 @@
   }
   $$('.settings-nav button').forEach((btn) => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
 
+  const THEMES = { grey: 'Graphite', blue: 'Midnight' };
+
+  function applyTheme(theme) {
+    const id = THEMES[theme] ? theme : 'grey';
+    document.body.dataset.theme = id;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', id === 'grey' ? '#0a0b0d' : '#02050a');
+  }
+
   function applySettingsToUI() {
     const s = state.settings;
+    applyTheme(s.theme);
     const setToggle = (id, val) => { const t = $(id); if (t) t.setAttribute('aria-checked', String(!!val)); };
     setToggle('#toggleStream', s.stream);
     setToggle('#toggleTools', s.tools);
@@ -1685,6 +1696,7 @@
     const freshness = $('#searchFreshness');
     if (freshness) freshness.value = s.searchFreshness || 'any';
     const density = $('#densitySelect'); if (density) density.value = s.density;
+    const theme = $('#themeSelect'); if (theme) theme.value = THEMES[s.theme] ? s.theme : 'grey';
     const customUrl = $('#customBaseUrl'); if (customUrl) customUrl.value = s.customBaseUrl || '';
     const customKey = $('#customKey'); if (customKey) customKey.value = s.customKey || '';
     const customModel = $('#customModel'); if (customModel) customModel.value = s.customModel || '';
@@ -1730,6 +1742,15 @@
   bindToggle('#toggleThink', 'thinkTrace', renderMessages);
   $('#sendKeySelect').addEventListener('change', (e) => { state.settings.sendKey = e.target.value; persist(); renderComposerHint(); });
   $('#densitySelect').addEventListener('change', (e) => { state.settings.density = e.target.value; persist(); applySettingsToUI(); });
+  const themeSelect = $('#themeSelect');
+  if (themeSelect) {
+    themeSelect.addEventListener('change', (e) => {
+      state.settings.theme = THEMES[e.target.value] ? e.target.value : 'grey';
+      persistNow();
+      applySettingsToUI();
+      toast(`Theme: ${THEMES[state.settings.theme]}`, 'palette');
+    });
+  }
 
   $('#defaultModelBtn').addEventListener('click', () => {
     state.modelPickerFor = 'default';
@@ -3855,5 +3876,5 @@
   }
   boot();
 
-  window.Eltes = { state, renderAll, persistNow, openSettings, selectModel, openConnect, send };
+  window.Eltes = { state, renderAll, persistNow, openSettings, selectModel, openConnect, send, applyTheme };
 })();

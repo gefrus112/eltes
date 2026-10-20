@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News — Eltes AI</title>
+  <meta name="description" content="Eltes release notes with real screenshots: the code-generated effects library, the guided build-a-website workflow, Studio's file editor, live preview and Linux terminal, and the Graphite chat theme." />
+  <meta name="theme-color" content="#02050a" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="assets/css/landing.css" />
+  <link rel="stylesheet" href="assets/css/news.css" />
+</head>
+<body>
+  <a class="skip" href="#r310">Skip to the latest release</a>
+
+  <header class="nav" id="nav">
+    <div class="wrap">
+      <div class="nav-left">
+        <a class="brand" href="index.html" aria-label="Eltes AI home">
+          <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          Eltes
+          <span class="brand-sub">AI agent</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html#features">Features</a>
+          <a href="index.html#models">Models</a>
+          <a href="studio.html">Studio</a>
+          <a href="docs.html">Docs</a>
+          <a href="news.html" class="active" aria-current="page">News</a>
+          <a href="index.html#pricing">Pricing</a>
+        </nav>
+      </div>
+      <div class="nav-right">
+        <div class="nav-actions" id="navAuth">
+          <a class="icon-btn" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer" aria-label="GitHub repository" data-icon="github"></a>
+          <a class="btn btn-ghost btn-sm" href="auth.html">Sign in</a>
+          <a class="btn btn-primary btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
+        </div>
+        <div class="nav-actions" id="navAccount" hidden></div>
+        <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" data-icon="menu" data-icon-size="20"></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="studio.html">Studio <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="news.html">News <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
+  </div>
+
+  <main>
+    <!-- ============================== hero ============================== -->
+    <section class="news-hero">
+      <div class="wrap">
+        <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
+        <h1>Every release, with the screen to prove it.</h1>
+        <p class="lede">Notes from the Eltes build: the effects library that draws its own imagery, the five-step website workflow, Studio's editor and Linux terminal, and the Graphite chat theme. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <div class="news-meta">
+          <span class="badge"><span class="dot"></span>v3.10.0</span>
+          <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
+          <span class="badge"><span data-icon="image" data-icon-size="12"></span>4 screenshots</span>
+          <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
+        </div>
+        <nav class="news-jump" aria-label="Releases">
+          <a href="#r310" class="active">v3.10 · Effects from code</a>
+          <a href="#r39">v3.9 · Website workflow</a>
+          <a href="#r38">v3.8 · Studio</a>
+          <a href="#r371">v3.7.1 · Graphite theme</a>
+        </nav>
+      </div>
+    </section>
+
+    <!-- =========================== latest =============================== -->
+    <section class="news-feed" id="r310" aria-labelledby="h-r310">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <figure class="shot">
+            <a href="assets/img/news/effects.svg" target="_blank" rel="noreferrer" aria-label="Open the effects library screenshot at full size">
+              <img src="assets/img/news/effects.svg" alt="The Eltes Studio effects dialog: six cards with live previews of a gradient mesh, a particle field, aurora ribbons, a halftone pattern, a glowing orb and a generative poster." width="1280" height="760" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>Studio → Effects: six recipes, each one a self-contained HTML page. “Create &amp; preview” writes the file and reloads the pane.</span>
+              <span class="tag">effects.svg</span>
+            </figcaption>
+          </figure>
+
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver latest">v3.10.0</span>
+              <span class="news-kind">Latest release</span>
+            </div>
+            <h2 id="h-r310">Draw the imagery. Don't download it.</h2>
+            <p class="news-sum">A new effects library turns CSS gradients, SVG filters and canvas into finished visuals — and writes each one into your project as readable code, ready for the preview.</p>
+            <ul class="news-points">
+              <li><strong>Six recipes</strong> — gradient mesh, particles, aurora, halftone, orb and poster.</li>
+              <li><strong>One click, one file</strong> — <code>effects/&lt;name&gt;.html</code> in the tree, open in the editor, loaded in the preview.</li>
+              <li><strong>Real documentation</strong> — a new guide section walks from the first gradient to a built <code>dist/</code>.</li>
+              <li><strong>Build-aware</strong> — the starter <code>build.mjs</code> now copies subfolders, so <code>effects/</code> ships with the site.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="studio.html"><span data-icon="sparkles" data-icon-size="14"></span>Open the effects library</a>
+              <a href="docs.html#effects">Read the guide<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================= feed =============================== -->
+    <div class="news-feed">
+      <div class="wrap">
+        <article class="news-item reveal" id="r39" aria-labelledby="h-r39">
+          <div class="news-item-head">
+            <span class="news-ver">v3.9.0</span>
+            <span class="news-kind">Workflow</span>
+          </div>
+          <h2 id="h-r39">A guide for the whole build.</h2>
+          <p class="news-sum">The website workflow is now written down and wired into Studio. Six written steps cover the terminal, file creation, live preview and the build; the in-app Guide runs the same actions and ticks them off as they really happen.</p>
+          <figure class="shot">
+            <a href="assets/img/news/workflow.svg" target="_blank" rel="noreferrer" aria-label="Open the workflow guide screenshot at full size">
+              <img src="assets/img/news/workflow.svg" alt="The Eltes Studio guide dialog with five steps: create the project files, start the terminal, add another page, preview it live and open the page on its own. Four steps show Run again, one shows Preview page." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>The Guide: five steps, each backed by the real action. Progress is stored in the browser, not simulated.</span>
+              <span class="tag">workflow.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>Docs</strong> — open the workspace, start the terminal, create files, preview, pop out, build.</li>
+            <li><strong>Guide dialog</strong> — Create files, Run build, New file, Preview page and Open page.</li>
+            <li><strong>Honest progress</strong> — a step only ticks when the matching event fires.</li>
+            <li><strong>Tested</strong> — a contract test keeps the docs and the dialog in sync.</li>
+          </ul>
+          <div class="news-links">
+            <a href="docs.html#workflow">Read the workflow<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            <a href="studio.html">Open Studio</a>
+          </div>
+        </article>
+
+        <article class="news-item reveal" id="r38" aria-labelledby="h-r38">
+          <div class="news-item-head">
+            <span class="news-ver">v3.8.0</span>
+            <span class="news-kind">Studio</span>
+          </div>
+          <h2 id="h-r38">Files, editor, preview, terminal — one window.</h2>
+          <p class="news-sum">Eltes Studio is a coding workspace served next to the app. A real shell runs in <code>.studio/</code>, every HTML file previews at <code>/preview/</code> with its CSS and scripts intact, and saving reloads the pane.</p>
+          <figure class="shot">
+            <a href="assets/img/news/studio.svg" target="_blank" rel="noreferrer" aria-label="Open the Studio screenshot at full size">
+              <img src="assets/img/news/studio.svg" alt="Eltes Studio: the file tree with an effects folder, a code editor showing gradient-mesh.html, a live preview of the gradient mesh effect and a terminal that ran npm run build." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>Studio at 1280×760: tree, tabs, editor, preview and a real Linux shell with streaming output.</span>
+              <span class="tag">studio.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>Any HTML previews</strong> — the pane follows the file you open, not a fixed index.</li>
+            <li><strong>Auto-save, auto-reload</strong> — edits and build output both refresh the preview.</li>
+            <li><strong>Real commands</strong> — <code>ls</code>, <code>node</code>, <code>npm run build</code>, 60-second limit, <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop.</li>
+            <li><strong>Safe by default</strong> — token-protected routes confined to <code>.studio/</code>.</li>
+          </ul>
+          <div class="news-links">
+            <a href="docs.html#studio">Studio docs<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            <a href="studio.html">Open Studio</a>
+          </div>
+        </article>
+
+        <article class="news-item reveal" id="r371" aria-labelledby="h-r371">
+          <div class="news-item-head">
+            <span class="news-ver">v3.7.1</span>
+            <span class="news-kind">Interface</span>
+          </div>
+          <h2 id="h-r371">Grey chat, not blue.</h2>
+          <p class="news-sum">The workspace now ships Graphite: neutral grey shell, bubbles, accents and send button. Midnight blue is still there as a second theme, one dropdown away in Settings → General.</p>
+          <figure class="shot">
+            <a href="assets/img/news/theme.svg" target="_blank" rel="noreferrer" aria-label="Open the Graphite theme screenshot at full size">
+              <img src="assets/img/news/theme.svg" alt="The Eltes chat interface in the Graphite theme: dark grey sidebar, grey user bubble, grey send button, a web-search thinking panel and the composer." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>Graphite: accents, bubbles and composer are neutral; green stays green where it means “running”.</span>
+              <span class="tag">theme.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>Grey by default</strong> — <code>data-theme="grey"</code> on the app shell.</li>
+            <li><strong>Tokenised</strong> — accents, panels and gradients come from CSS variables.</li>
+            <li><strong>Persisted</strong> — the choice lives in <code>eltes.settings.v1</code> and updates the browser chrome colour.</li>
+            <li><strong>Reversible</strong> — switch to Midnight in Settings → General, no reload.</li>
+          </ul>
+          <div class="news-links">
+            <a href="app.html">Open the app<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            <a href="docs.html#settings">Theme settings</a>
+          </div>
+        </article>
+
+        <div class="news-cta">
+          <div class="txt">
+            <h3>Try the newest build</h3>
+            <p>Studio runs locally with <code>npm start</code>; the docs cover the rest.</p>
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="studio.html">Open Studio<span data-icon="arrow-right" data-icon-size="15"></span></a>
+            <a class="btn btn-ghost" href="docs.html#effects">Effects guide</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================ footer ============================ -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            Eltes
+          </a>
+          <p>A local-first AI agent workspace with real models, real keys and real tool calls. Built in the browser.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="app.html">Open the app</a>
+          <a href="index.html#models">Models</a>
+          <a href="index.html#features">Features</a>
+          <a href="studio.html">Studio</a>
+          <a href="index.html#pricing">Pricing</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="docs.html">Documentation</a>
+          <a href="news.html">Release notes</a>
+          <a href="docs.html#workflow">Website workflow</a>
+          <a href="docs.html#effects">Images &amp; effects</a>
+          <a href="docs.html#api-keys">API keys</a>
+        </div>
+        <div class="footer-col">
+          <h4>Project</h4>
+          <a href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="auth.html">Accounts</a>
+          <a href="docs.html#privacy">Privacy</a>
+          <a href="docs.html#faq">FAQ</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser.</span>
+        <span class="status"><i></i>Local-first workspace</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/icons.js"></script>
+  <script src="assets/js/brands.js"></script>
+  <script src="assets/js/models.js"></script>
+  <script src="assets/js/account.js"></script>
+  <script src="assets/js/site.js"></script>
+</body>
+</html>

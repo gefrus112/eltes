@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="1280" height="760" role="img" aria-label="The Studio guide showing five workflow steps, four completed">
+  <defs>
+    <linearGradient id="wfBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1018"/>
+      <stop offset="1" stop-color="#05070b"/>
+    </linearGradient>
+    <linearGradient id="wfBtn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4785ff"/>
+      <stop offset="1" stop-color="#2a63ee"/>
+    </linearGradient>
+    <clipPath id="wfClip"><rect width="1280" height="760" rx="18"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#wfClip)">
+    <rect width="1280" height="760" fill="url(#wfBg)"/>
+
+    <!-- dimmed studio behind the dialog -->
+    <rect x="0" y="0" width="1280" height="760" fill="#05070b" opacity="0.72"/>
+    <rect x="0" y="0" width="1280" height="54" fill="#070b12"/>
+    <line x1="0" y1="54" x2="1280" y2="54" stroke="#1b2432"/>
+    <circle cx="26" cy="27" r="9" fill="#39dca2"/>
+    <text x="44" y="33" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="600" fill="#e9effb">Eltes</text>
+    <text x="90" y="33" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#48546b">/</text>
+    <text x="104" y="33" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#9dadc9">Studio</text>
+    <rect x="700" y="16" width="92" height="24" rx="7" fill="#101827" stroke="#243349"/>
+    <text x="715" y="32" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#b9c6da">Guide 5/5</text>
+
+    <rect x="0" y="54" width="228" height="706" fill="#060a11" opacity="0.8"/>
+    <text x="16" y="82" font-family="Inter, system-ui, sans-serif" font-size="9.5" letter-spacing="1.4" fill="#5b6a85">WORKSPACE</text>
+    <text x="16" y="112" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ff9f68">•  index.html</text>
+    <text x="16" y="136" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ff9f68">•  about.html</text>
+    <text x="16" y="160" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#6fb4ff">•  styles.css</text>
+    <text x="16" y="184" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#9ee493">• package.json</text>
+
+    <!-- dialog -->
+    <rect x="300" y="96" width="680" height="580" rx="16" fill="#0b1017" stroke="#28344a"/>
+    <rect x="300" y="96" width="680" height="580" rx="16" fill="none" stroke="#000" stroke-opacity="0.6"/>
+
+    <!-- header -->
+    <rect x="332" y="126" width="38" height="38" rx="11" fill="#13233f" stroke="#2c4a7e"/>
+    <path d="M343 145h16M343 139h16M343 151h10" stroke="#8fb7ff" stroke-width="2" stroke-linecap="round"/>
+    <text x="386" y="144" font-family="Inter, system-ui, sans-serif" font-size="17" font-weight="600" fill="#f0f3f9">Build a website, step by step</text>
+    <text x="386" y="164" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#7d8ca6">Five real actions in this workspace — no mock screens. Progress saves in this browser.</text>
+
+    <!-- step list -->
+    <rect x="332" y="188" width="616" height="402" rx="12" fill="#0a0e15" stroke="#1d2737"/>
+
+    <!-- step 1 done -->
+    <rect x="332" y="188" width="616" height="80" rx="12" fill="#0d1a17"/>
+    <circle cx="362" cy="216" r="11" fill="#123c31" stroke="#2a6b52"/>
+    <path d="M357 216l4 4 7-8" stroke="#6fdcb6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="388" y="214" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e9effb">Create the project files</text>
+    <text x="388" y="234" font-family="Inter, system-ui, sans-serif" font-size="11.5" fill="#7d8ca6">index.html · about.html · styles.css · package.json · build.mjs</text>
+    <rect x="772" y="208" width="152" height="28" rx="8" fill="#0d1a17" stroke="#2a4b3f"/>
+    <text x="800" y="226" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#6fdcb6">Run again</text>
+    <line x1="332" y1="268" x2="948" y2="268" stroke="#1d2737"/>
+
+    <!-- step 2 done -->
+    <rect x="332" y="268" width="616" height="80" fill="#0d1a17"/>
+    <circle cx="362" cy="296" r="11" fill="#123c31" stroke="#2a6b52"/>
+    <path d="M357 296l4 4 7-8" stroke="#6fdcb6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="388" y="294" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e9effb">Start the terminal</text>
+    <text x="388" y="314" font-family="Inter, system-ui, sans-serif" font-size="11.5" fill="#7d8ca6">npm run build → dist/ · streamed while it runs</text>
+    <rect x="772" y="288" width="152" height="28" rx="8" fill="#0d1a17" stroke="#2a4b3f"/>
+    <text x="800" y="306" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#6fdcb6">Run again</text>
+    <line x1="332" y1="348" x2="948" y2="348" stroke="#1d2737"/>
+
+    <!-- step 3 done -->
+    <rect x="332" y="348" width="616" height="80" fill="#0d1a17"/>
+    <circle cx="362" cy="376" r="11" fill="#123c31" stroke="#2a6b52"/>
+    <path d="M357 376l4 4 7-8" stroke="#6fdcb6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="388" y="374" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e9effb">Add another page</text>
+    <text x="388" y="394" font-family="Inter, system-ui, sans-serif" font-size="11.5" fill="#7d8ca6">pricing.html · every HTML file can be previewed</text>
+    <rect x="772" y="368" width="152" height="28" rx="8" fill="#0d1a17" stroke="#2a4b3f"/>
+    <text x="800" y="386" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#6fdcb6">Run again</text>
+    <line x1="332" y1="428" x2="948" y2="428" stroke="#1d2737"/>
+
+    <!-- step 4 active -->
+    <rect x="332" y="428" width="616" height="80" fill="#0a121e"/>
+    <circle cx="362" cy="456" r="11" fill="#12213c" stroke="#3a5a94"/>
+    <text x="358" y="460" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#8fb7ff">4</text>
+    <text x="388" y="454" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e9effb">Preview it live</text>
+    <text x="388" y="474" font-family="Inter, system-ui, sans-serif" font-size="11.5" fill="#7d8ca6">Loads the page from /preview/ with its CSS and scripts intact</text>
+    <rect x="772" y="448" width="152" height="28" rx="8" fill="url(#wfBtn)"/>
+    <text x="806" y="466" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#ffffff">Preview page</text>
+    <line x1="332" y1="508" x2="948" y2="508" stroke="#1d2737"/>
+
+    <!-- step 5 pending -->
+    <rect x="332" y="508" width="616" height="82" fill="#0a0e15"/>
+    <circle cx="362" cy="536" r="11" fill="#0d1420" stroke="#2b3a52"/>
+    <text x="358" y="540" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#5b6a85">5</text>
+    <text x="388" y="534" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e9effb">Open the page on its own</text>
+    <text x="388" y="554" font-family="Inter, system-ui, sans-serif" font-size="11.5" fill="#7d8ca6">Opens /preview/index.html in a new browser tab</text>
+    <rect x="772" y="528" width="152" height="28" rx="8" fill="#101827" stroke="#243349"/>
+    <text x="806" y="546" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#b9c6da">Open page</text>
+
+    <!-- footer -->
+    <rect x="332" y="604" width="616" height="34" rx="8" fill="#0a121c" stroke="#1d2737"/>
+    <text x="346" y="625" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#7d8ca6">Tip: Ctrl/⌘+S saves, and the preview reloads after saves and after build commands.</text>
+    <text x="332" y="656" font-family="Inter, system-ui, sans-serif" font-size="11.5" fill="#8fb7ff">Read the full workflow ↗</text>
+    <rect x="682" y="638" width="110" height="28" rx="8" fill="#101827" stroke="#243349"/>
+    <text x="698" y="656" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#b9c6da">Reset progress</text>
+    <rect x="804" y="638" width="144" height="28" rx="8" fill="url(#wfBtn)"/>
+    <text x="863" y="656" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#ffffff">Close</text>
+  </g>
+</svg>

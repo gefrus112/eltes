@@ -347,6 +347,8 @@ button.addEventListener('click', () => {
     el.newFileForm = $('#newFileForm');
     el.newFileName = $('#newFileName');
     el.helpDialog = $('#helpDialog');
+    el.effectsDialog = $('#effectsDialog');
+    el.effectGrid = $('#effectGrid');
     el.guideDialog = $('#guideDialog');
     el.guideSteps = $('#guideSteps');
     el.guideCount = $('#guideCount');
@@ -1227,6 +1229,68 @@ button.addEventListener('click', () => {
 
   /* --------------------------------- files -------------------------------- */
 
+  /* -------------------------------- effects -------------------------------- */
+
+  function renderEffects() {
+    if (!el.effectGrid) return;
+    const items = (window.EltesEffects && window.EltesEffects.items) || [];
+    if (!items.length) {
+      el.effectGrid.innerHTML = '<p class="effect-empty">The effect library did not load.</p>';
+      return;
+    }
+    el.effectGrid.innerHTML = items.map((item) => `
+      <article class="effect-card" data-effect="${esc(item.id)}">
+        <span class="effect-swatch" style="background:${esc(item.swatch)}" aria-hidden="true"></span>
+        <div class="effect-body">
+          <div class="effect-title"><strong>${esc(item.name)}</strong><span>${esc(item.tag)}</span></div>
+          <p>${esc(item.blurb)}</p>
+          <button class="st-btn" type="button" data-make-effect="${esc(item.id)}">Create &amp; preview</button>
+        </div>
+      </article>`).join('');
+  }
+
+  async function createEffect(id) {
+    const items = (window.EltesEffects && window.EltesEffects.items) || [];
+    const item = items.find((entry) => entry.id === id);
+    if (!item) return;
+    const path = `effects/${item.id}.html`;
+    if (el.effectsDialog && el.effectsDialog.open) closeModal(el.effectsDialog);
+    try {
+      await writeWorkspaceFile(path, item.code);
+      state.open.delete(path);
+      state.tabs = state.tabs.filter((tab) => tab !== path);
+      await refreshTree();
+      await openFile(path);
+      setPreviewPath(path);
+      reloadPreview();
+      markWorkflow('create');
+      markWorkflow('preview');
+      toast(`${item.name} → ${path}`, 'ok');
+    } catch (error) {
+      toast(`Could not generate the effect: ${error.message}`, 'warn');
+    }
+  }
+
+  function bindEffects() {
+    renderEffects();
+    const dialog = $('#effectsDialog');
+    if ($('#btnEffects')) {
+      $('#btnEffects').addEventListener('click', () => {
+        renderEffects();
+        openModal(dialog);
+      });
+    }
+    if ($('#btnEffectsClose')) $('#btnEffectsClose').addEventListener('click', () => closeModal(dialog));
+    if (el.effectGrid) {
+      el.effectGrid.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-make-effect]');
+        if (!button) return;
+        button.disabled = true;
+        createEffect(button.dataset.makeEffect).finally(() => { button.disabled = false; });
+      });
+    }
+  }
+
   /* ------------------------------- workflow -------------------------------- */
   /* A guided version of the real flow: scaffold files, run a command, add a
      page, preview it, open it. Every step is completed by the action itself,
@@ -1440,14 +1504,28 @@ footer a { color: #9dadc9; }
 `,
       'build.mjs': `/* Copy the site into dist/ — no dependencies, no network. */
 import { cp, mkdir, readdir, rm } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
-const include = /\\.(html|css|js)$/i;
-const files = (await readdir('.')).filter((name) => include.test(name));
+const include = /\\.(html|css|js|svg|json)$/i;
+const skip = new Set(['node_modules', 'dist', 'build']);
+
+async function walk(dir, out = []) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.') || skip.has(entry.name)) continue;
+    const file = join(dir, entry.name);
+    if (entry.isDirectory()) await walk(file, out);
+    else if (include.test(entry.name)) out.push(file);
+  }
+  return out;
+}
+
+const files = await walk('.');
 
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
 for (const file of files) {
-  await cp(file, \`dist/\${file}\`);
+  await mkdir(dirname(join('dist', file)), { recursive: true });
+  await cp(file, join('dist', file));
 }
 console.log(\`built \${files.length} files into dist/: \${files.join(', ')}\`);
 `,
@@ -1716,6 +1794,7 @@ Swap \`build.mjs\` for Vite or any other tool whenever you want one.
     $('#btnHelp').addEventListener('click', () => openModal(el.helpDialog));
     $('#btnHelpClose').addEventListener('click', () => closeModal(el.helpDialog));
     bindWorkflow();
+    bindEffects();
 
     $('#btnRunBuild').addEventListener('click', runBuild);
     $('#btnFilesMobile').addEventListener('click', () => el.filesPanel.classList.toggle('open'));
@@ -1800,6 +1879,7 @@ Swap \`build.mjs\` for Vite or any other tool whenever you want one.
     execute,
     scaffoldSite,
     markWorkflow,
-    renderWorkflow
+    renderWorkflow,
+    createEffect
   };
 })();

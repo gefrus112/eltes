@@ -1,9 +1,10 @@
 /* ==========================================================================
-   Eltes CAI — our own on-device conversational models.
+   Eltes CAI — a deterministic on-device conversational helper.
    CAI ("conversational agent intelligence") runs entirely in this tab.
-   It is a small, deterministic model: it knows Eltes, model choice, arithmetic,
-   units, dates and a working glossary of AI terms, and it says so when a
-   question is outside that range. No network, no key, no invented facts.
+   It uses JavaScript rules and a curated knowledge set, not trained neural
+   weights. It handles bounded Eltes help, model choice, arithmetic, units,
+   dates, glossary terms and active-chat excerpts. It can still be wrong.
+   No network and no key; unsupported questions should receive an abstention.
    ========================================================================== */
 window.EltesCAI = (function () {
   'use strict';
@@ -50,58 +51,153 @@ window.EltesCAI = (function () {
 
   /* --------------------------------- maths -------------------------------- */
 
-  const tokenize = (src) => {
+  const MATH_FUNCTIONS = Object.freeze({
+    sqrt: { min: 1, max: 1, run: (a) => Math.sqrt(a[0]) },
+    cbrt: { min: 1, max: 1, run: (a) => Math.cbrt(a[0]) },
+    abs: { min: 1, max: 1, run: (a) => Math.abs(a[0]) },
+    sin: { min: 1, max: 1, run: (a) => Math.sin(a[0]) },
+    cos: { min: 1, max: 1, run: (a) => Math.cos(a[0]) },
+    tan: { min: 1, max: 1, run: (a) => Math.tan(a[0]) },
+    asin: { min: 1, max: 1, run: (a) => Math.asin(a[0]) },
+    acos: { min: 1, max: 1, run: (a) => Math.acos(a[0]) },
+    atan: { min: 1, max: 1, run: (a) => Math.atan(a[0]) },
+    ln: { min: 1, max: 1, run: (a) => Math.log(a[0]) },
+    log: { min: 1, max: 2, run: (a) => a.length === 1 ? Math.log(a[0]) : Math.log(a[0]) / Math.log(a[1]) },
+    log10: { min: 1, max: 1, run: (a) => Math.log10(a[0]) },
+    log2: { min: 1, max: 1, run: (a) => Math.log2(a[0]) },
+    exp: { min: 1, max: 1, run: (a) => Math.exp(a[0]) },
+    floor: { min: 1, max: 1, run: (a) => Math.floor(a[0]) },
+    ceil: { min: 1, max: 1, run: (a) => Math.ceil(a[0]) },
+    round: { min: 1, max: 1, run: (a) => Math.round(a[0]) },
+    min: { min: 1, max: Infinity, run: (a) => Math.min(...a) },
+    max: { min: 1, max: Infinity, run: (a) => Math.max(...a) },
+    sum: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total + n, 0) },
+    mean: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total + n, 0) / a.length },
+    product: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total * n, 1) },
+    pow: { min: 2, max: 2, run: (a) => Math.pow(a[0], a[1]) }
+  });
+
+  function tokenize(src) {
     const out = [];
     let i = 0;
-    const s = src.replace(/[×x]/gi, '*').replace(/÷/g, '/').replace(/\^/g, '^').replace(/,/g, '');
+    // Accept common calculator notation without treating arbitrary text as code.
+    const s = String(src)
+      .replace(/(\d)\s*[xX]\s*(\d)/g, '$1*$2')
+      .replace(/\b(\d{1,3}(?:,\d{3})+)\b/g, (n) => n.replace(/,/g, ''))
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/');
     while (i < s.length) {
       const ch = s[i];
       if (/\s/.test(ch)) { i++; continue; }
-      if (/[0-9.]/.test(ch)) {
-        let j = i;
-        while (j < s.length && /[0-9.]/.test(s[j])) j++;
-        const raw = s.slice(i, j);
-        const n = Number(raw);
-        if (!Number.isFinite(n)) throw new Error('bad number');
-        out.push({ type: 'num', value: n });
-        i = j;
+      const rest = s.slice(i);
+      const number = rest.match(/^(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:e[+-]?\d+)?/i);
+      if (number) {
+        const value = Number(number[0]);
+        if (!Number.isFinite(value)) throw new Error('bad number');
+        out.push({ type: 'num', value });
+        i += number[0].length;
         continue;
       }
-      if ('+-*/^%()'.includes(ch)) { out.push({ type: ch === '(' || ch === ')' ? ch : 'op', op: ch }); i++; continue; }
+      const ident = rest.match(/^[a-z]+/i);
+      if (ident) {
+        out.push({ type: 'ident', value: ident[0].toLowerCase() });
+        i += ident[0].length;
+        continue;
+      }
+      if ('+-*/^%(),!'.includes(ch)) {
+        out.push({ type: ch === ',' ? 'comma' : ch === '(' || ch === ')' ? ch : 'op', op: ch });
+        i++;
+        continue;
+      }
       throw new Error('unexpected character');
     }
-    return out;
-  };
 
-  function evaluate(src) {
+    // Conventional implicit products: 2pi, 3(4+5), and (a)(b).
+    const expanded = [];
+    out.forEach((token, index) => {
+      const prev = expanded[expanded.length - 1];
+      const nextStartsValue = token.type === 'num' || token.type === 'ident' || token.type === '(';
+      const prevEndsValue = prev && (prev.type === 'num' || prev.type === ')' ||
+        (prev.type === 'ident' && (prev.value === 'pi' || prev.value === 'e')));
+      const isFunctionCall = prev && prev.type === 'ident' && MATH_FUNCTIONS[prev.value] && token.type === '(';
+      if (prevEndsValue && nextStartsValue && !isFunctionCall) expanded.push({ type: 'op', op: '*' });
+      expanded.push(token);
+    });
+    return expanded;
+  }
+
+  function evaluate(src, variables) {
     const tokens = tokenize(src);
+    const vars = variables || {};
     let pos = 0;
     const peek = () => tokens[pos];
-    const eat = (kind) => {
-      const t = tokens[pos];
-      if (!t || (kind && t.type !== kind && t.op !== kind)) throw new Error('parse');
+    const eat = (type, op) => {
+      const token = tokens[pos];
+      if (!token || token.type !== type || (op && token.op !== op)) throw new Error('parse');
       pos++;
-      return t;
+      return token;
     };
 
+    function factorial(value) {
+      if (value < 0 || !Number.isInteger(value) || value > 170) throw new Error('factorial domain');
+      let result = 1;
+      for (let n = 2; n <= value; n++) result *= n;
+      return result;
+    }
+
     function primary() {
-      const t = peek();
-      if (!t) throw new Error('parse');
-      if (t.type === 'num') { pos++; return t.value; }
-      if (t.op === '(') { eat('('); const v = expr(0); eat(')'); return v; }
-      if (t.op === '-' || t.op === '+') { pos++; const v = primary(); return t.op === '-' ? -v : v; }
+      const token = peek();
+      if (!token) throw new Error('parse');
+      if (token.type === 'num') { pos++; return token.value; }
+      if (token.type === 'op' && (token.op === '-' || token.op === '+')) {
+        pos++;
+        const value = expr(3);
+        return token.op === '-' ? -value : value;
+      }
+      if (token.type === '(') {
+        eat('(');
+        const value = expr(0);
+        eat(')');
+        return value;
+      }
+      if (token.type === 'ident') {
+        pos++;
+        const name = token.value;
+        if (peek() && peek().type === '(' && MATH_FUNCTIONS[name]) {
+          eat('(');
+          const args = [];
+          if (!peek() || peek().type !== ')') {
+            args.push(expr(0));
+            while (peek() && peek().type === 'comma') {
+              pos++;
+              args.push(expr(0));
+            }
+          }
+          eat(')');
+          const fn = MATH_FUNCTIONS[name];
+          if (args.length < fn.min || args.length > fn.max) throw new Error('argument count');
+          return fn.run(args);
+        }
+        if (name === 'pi') return Math.PI;
+        if (name === 'e') return Math.E;
+        if (Object.prototype.hasOwnProperty.call(vars, name)) return vars[name];
+      }
       throw new Error('parse');
     }
 
-    const prec = { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '^': 3 };
+    const precedence = { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '^': 3 };
     function expr(minPrec) {
       let left = primary();
-      while (true) {
-        const t = peek();
-        if (!t || t.type !== 'op' || !prec[t.op] || prec[t.op] < minPrec) break;
-        const op = t.op;
+      while (peek() && peek().type === 'op' && peek().op === '!') {
         pos++;
-        const right = expr(prec[op] + (op === '^' ? 0 : 1));
+        left = factorial(left);
+      }
+      while (true) {
+        const token = peek();
+        if (!token || token.type !== 'op' || !precedence[token.op] || precedence[token.op] < minPrec) break;
+        const op = token.op;
+        pos++;
+        const right = expr(precedence[op] + (op === '^' ? 0 : 1));
         if (op === '+') left += right;
         else if (op === '-') left -= right;
         else if (op === '*') left *= right;
@@ -119,41 +215,127 @@ window.EltesCAI = (function () {
 
   function cleanNumber(n) {
     if (!Number.isFinite(n)) return String(n);
-    const rounded = Math.round(n * 1e10) / 1e10;
-    return String(rounded);
+    if (Math.abs(n) >= 1e12 || (Math.abs(n) > 0 && Math.abs(n) < 1e-8)) {
+      return n.toExponential(10).replace(/(\.\d*?[1-9])0+e/, '$1e').replace(/\.0+e/, 'e');
+    }
+    return String(Math.round(n * 1e10) / 1e10);
+  }
+
+  function equationIntent(text) {
+    let equation = norm(text)
+      .replace(/^(?:please\s+)?(?:solve(?:\s+for\s+[a-z])?|find\s+[a-z]|calculate|compute|what is|does)\s*:?\s*/i, '')
+      .replace(/\s+equals?\s+/g, '=')
+      .replace(/[−–—]/g, '-')
+      .replace(/²/g, '^2')
+      .replace(/³/g, '^3')
+      .replace(/[×]/g, '*')
+      .replace(/[÷]/g, '/')
+      .replace(/(\d)\s*x\s*(\d)/g, '$1*$2');
+    if ((equation.match(/=/g) || []).length !== 1) return null;
+    const sides = equation.split('=').map((part) => part.trim());
+    if (!sides[0] || !sides[1] || !/^[a-z0-9+\-*/^%().,\s×÷!=]+$/i.test(equation)) return null;
+    const known = new Set([...Object.keys(MATH_FUNCTIONS), 'pi', 'e']);
+    const symbols = Array.from(new Set((equation.match(/[a-z]+/gi) || []).map((name) => name.toLowerCase()).filter((name) => !known.has(name))));
+    if (!symbols.length) {
+      try {
+        const left = evaluate(sides[0]);
+        const right = evaluate(sides[1]);
+        if (!Number.isFinite(left) || !Number.isFinite(right)) return { intent: 'math-limit', text: 'That equation does not produce finite numeric values, so I cannot compare its sides reliably.' };
+        return { intent: 'math', text: left === right ? `Both sides equal **${cleanNumber(left)}**, so the equation is true.` : `The sides are **${cleanNumber(left)}** and **${cleanNumber(right)}**, so the equation is false.` };
+      } catch (e) { return null; }
+    }
+    if (symbols.length !== 1) return { intent: 'math-limit', text: 'I can only solve equations with one variable at a time. This one has multiple variables, so I will not guess a solution.' };
+    const variable = symbols[0];
+    if (!/^[a-z]$/.test(variable)) return { intent: 'math-limit', text: 'For symbolic equations, CAI currently supports one-letter variables and a limited linear/quadratic form. I will not guess how a longer identifier should be treated.' };
+    const numberTerm = '(?:\\d+(?:\\.\\d*)?|\\.\\d+)';
+    const term = `(?:(?:${numberTerm})?\\s*\\*?\\s*${variable}(?:\\s*\\^\\s*[0-2])?|${numberTerm})`;
+    const polynomial = new RegExp(`^[+\\-\\s]*${term}(?:\\s*[+\\-]\\s*${term})*$`);
+    if (!sides.every((side) => polynomial.test(side))) {
+      return { intent: 'math-limit', text: `I can evaluate arithmetic and solve one-variable linear or quadratic equations written as sums of constant, ${variable}, and ${variable}² terms. This equation uses a form outside that solver, so I will not guess a solution.` };
+    }
+    const at = (value) => evaluate(sides[0], { [variable]: value }) - evaluate(sides[1], { [variable]: value });
+    try {
+      const c = at(0);
+      const f1 = at(1);
+      const fm1 = at(-1);
+      if (![c, f1, fm1].every(Number.isFinite)) throw new Error('non-finite');
+      const a = (f1 + fm1 - 2 * c) / 2;
+      const b = (f1 - fm1) / 2;
+      const close = (left, right) => Math.abs(left - right) <= 1e-9 * Math.max(1, Math.abs(left), Math.abs(right));
+      let roots;
+      if (close(a, 0)) {
+        if (close(b, 0)) return { intent: 'math', text: close(c, 0) ? 'Every value of the variable satisfies this equation.' : 'This equation has no solution.' };
+        roots = [-c / b];
+      } else {
+        const discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) return { intent: 'math', text: 'This quadratic has no real solutions. CAI does not report complex roots.' };
+        const root = Math.sqrt(discriminant);
+        roots = close(root, 0) ? [-b / (2 * a)] : [(-b - root) / (2 * a), (-b + root) / (2 * a)];
+      }
+      const shown = roots.map((value) => `**${variable} = ${cleanNumber(value)}**`);
+      const doubleNewline = String.fromCharCode(10, 10);
+      return { intent: 'math', text: `${shown.join(doubleNewline)}${doubleNewline}Solved as a one-variable ${close(a, 0) ? 'linear' : 'quadratic'} equation and checked by substitution.` };
+    } catch (e) {
+      return { intent: 'math-limit', text: 'I could not safely evaluate both sides of that equation. Check the syntax, then try a simpler one-variable linear or quadratic equation.' };
+    }
   }
 
   function mathIntent(text) {
-    // percentages first: "15% of 240", "what is 20 percent of 80"
-    let m = norm(text).match(/(-?\d+(?:\.\d+)?)\s*(?:%|percent)\s*(?:of|off)\s*(-?\d+(?:\.\d+)?)/);
+    const original = norm(text);
+    // Percentages first: "15% of 240", "what is 20 percent of 80".
+    let m = original.match(/(-?\d+(?:\.\d+)?)\s*(?:%|percent)\s*(?:of|off)\s*(-?\d+(?:\.\d+)?)/);
     if (m) {
       const pct = Number(m[1]);
       const base = Number(m[2]);
       const part = (pct / 100) * base;
-      if (/off/.test(m[0])) {
-        return `**${cleanNumber(part)}** is ${m[1]}% of ${m[2]}, so ${m[2]} minus that is **${cleanNumber(base - part)}**.`;
-      }
-      return `**${cleanNumber(part)}** — ${m[1]}% of ${m[2]}.\n\n\`${m[2]} × ${m[1]} / 100 = ${cleanNumber(part)}\``;
+      if (/off/.test(m[0])) return `**${cleanNumber(base - part)}** after ${m[1]}% off ${m[2]} (a discount of ${cleanNumber(part)}).`;
+      return `**${cleanNumber(part)}** — ${m[1]}% of ${m[2]}.${String.fromCharCode(10, 10)}${m[2]} × ${m[1]} / 100 = ${cleanNumber(part)}`;
     }
-    // percentage change
-    m = norm(text).match(/from\s+(-?\d+(?:\.\d+)?)\s+to\s+(-?\d+(?:\.\d+)?)/);
-    if (m && /(percent|increase|decrease|change)/.test(norm(text))) {
+
+    m = original.match(/from\s+(-?\d+(?:\.\d+)?)\s+to\s+(-?\d+(?:\.\d+)?)/);
+    if (m && /(percent|increase|decrease|change)/.test(original)) {
       const a = Number(m[1]);
       const b = Number(m[2]);
+      if (a === 0) return 'Percentage change from zero is undefined because the calculation divides by the starting value. I will not report a finite percentage.';
       const change = ((b - a) / Math.abs(a)) * 100;
-      return `**${cleanNumber(change)}%** change from ${m[1]} to ${m[2]}.\n\n\`(${m[2]} − ${m[1]}) ÷ |${m[1]}| × 100\``;
+      return `**${cleanNumber(change)}%** change from ${m[1]} to ${m[2]}.${String.fromCharCode(10, 10)}Formula: (${m[2]} − ${m[1]}) ÷ |${m[1]}| × 100`;
     }
-    const candidate = norm(text)
-      .replace(/^(what(?:'s| is)|calculate|compute|solve|how much is|evaluate)\s+/i, '')
+
+    let candidate = original
+      .replace(/^(what(?:'s| is)|calculate|compute|solve|how much is|evaluate|what is the value of)\s+/i, '')
       .replace(/[?=]+\s*$/, '')
       .replace(/\s+equals?$/i, '')
+      .trim()
+      .replace(/^the\s+/i, '')
+      .replace(/[−–—]/g, '-')
+      .replace(/²/g, '^2')
+      .replace(/³/g, '^3');
+
+    const average = candidate.match(/^(?:average|mean)\s+of\s+(.+)$/);
+    if (average) candidate = `mean(${average[1].replace(/\s+and\s+/g, ',')})`;
+    candidate = candidate
+      .replace(/\bsquare root of\s+(-?(?:\d+(?:\.\d+)?|pi|e))\b/g, 'sqrt($1)')
+      .replace(/\bcube root of\s+(-?(?:\d+(?:\.\d+)?|pi|e))\b/g, 'cbrt($1)')
+      .replace(/\bfactorial of\s+(\d+(?:\.\d+)?)/g, '$1!')
+      .replace(/(\d+(?:\.\d+)?|\([^()]+\))\s+factorial\b/g, '$1!')
+      .replace(/(\d+(?:\.\d+)?|\([^()]+\))\s+squared\b/g, '($1)^2')
+      .replace(/(\d+(?:\.\d+)?|\([^()]+\))\s+cubed\b/g, '($1)^3')
+      .replace(/\bto the power of\b/g, '^')
+      .replace(/\bdivided by\b/g, '/')
+      .replace(/\b(?:multiplied by|times)\b/g, '*')
+      .replace(/\bplus\b/g, '+')
+      .replace(/\bminus\b/g, '-')
+      .replace(/(\d+(?:\.\d+)?)\s*percent\b/g, '($1/100)')
       .trim();
-    if (!candidate || !/[0-9]/.test(candidate)) return null;
-    if (!/^[-+*/^%().\d\s×x÷,]+$/i.test(candidate)) return null;
-    if (!/[-+*/^%×x÷]/.test(candidate)) return null;
+
+    if (!candidate || !/^[a-z0-9+\-*/^%().,!×÷\s]+$/i.test(candidate)) return null;
+    if (!/[0-9]/.test(candidate) && !/\b(?:pi|e)\b/.test(candidate)) return null;
+    if (!/[-+*/^%×÷!()]|(?:\d\s*x\s*\d|\bx\b)|\b(?:sqrt|cbrt|abs|sin|cos|tan|asin|acos|atan|ln|log|log10|log2|exp|floor|ceil|round|min|max|sum|mean|product|pi|e)\b/i.test(candidate)) return null;
     try {
       const value = evaluate(candidate);
-      return `**${cleanNumber(value)}**\n\n\`${candidate.replace(/[×x]/g, '×')} = ${cleanNumber(value)}\``;
+      if (!Number.isFinite(value)) return 'That expression does not produce a finite number (for example, division by zero, an invalid function domain or numeric overflow), so I will not present it as a normal result.';
+      const trigNote = /\b(?:sin|cos|tan|asin|acos|atan)\s*\(/.test(candidate) ? `${String.fromCharCode(10, 10)}Trigonometric functions use radians.` : '';
+      return `**${cleanNumber(value)}**${String.fromCharCode(10, 10)}Expression: ${candidate.replace(/(\d)\s*x\s*(?=\d)/gi, '$1×').replace(/\*/g, '×')} = ${cleanNumber(value)}${trigNote}`;
     } catch (e) { return null; }
   }
 
@@ -242,27 +424,27 @@ window.EltesCAI = (function () {
   const KB = [
     {
       keys: ['quickstart', 'get started', 'start', 'first message', 'how do i use', 'how to use', 'begin'],
-      a: `## Quickstart\n\n1. Open **auth.html** and connect a provider account (OpenAI, Anthropic or DeepSeek), or paste a key under **Settings → API keys**.\n2. Return to **app.html** and pick a model from the switcher at the top.\n3. Type a message. Eltes streams the answer directly from the provider — there is no middle server.\n\nNo key yet? Choose **Eltes CAI-1** and the on-device model answers instantly without a network.`
+      a: `## Quickstart\n\n1. Open **auth.html** to connect where supported, or add a provider key in **Settings → API keys**.\n2. Return to **app.html** and pick a model from the switcher.\n3. Send a message. Hosted requests go directly to the provider unless you configured the optional proxy.\n\nNo key? Choose **Eltes CAI-1** for a local answer without a network call.`
     },
     {
       keys: ['api key', 'api keys', 'keys', 'byok', 'bring your own', 'connect provider', 'connect a provider', 'add key', 'paste key', 'openai key', 'anthropic key', 'deepseek key', 'connect a key', 'connect my key', 'where do i put'],
-      a: `## Provider keys\n\nEltes is bring-your-own-key. Keys are saved in **\`eltes.settings.v1\`** in this browser's local storage and sent only to the provider you picked.\n\n- OpenAI keys start \`sk-\` — create one at platform.openai.com/api-keys.\n- Anthropic keys start \`sk-ant-\` — console.anthropic.com/settings/keys.\n- DeepSeek keys look like \`sk-…\` — platform.deepseek.com/api_keys.\n\nAdd or replace them in **Settings → API keys**, or on the account page. Nothing is uploaded to Eltes.`
+      a: `## Provider keys\n\nEltes is bring-your-own-key. In direct mode, keys are stored in this browser's \`eltes.settings.v1\` local-storage record and sent to the provider you select. If you configure the optional proxy, the key is sent transiently through that proxy to the provider; Eltes function code does not persist or log it.\n\n- OpenAI keys start \`sk-\` — create one at platform.openai.com/api-keys.\n- Anthropic keys start \`sk-ant-\` — console.anthropic.com/settings/keys.\n- DeepSeek keys look like \`sk-…\` — platform.deepseek.com/api_keys.\n\nAdd or replace them in **Settings → API keys**, or on the account page. Never share or commit a key.`
     },
     {
       keys: ['cors', 'failed to fetch', 'network error', 'blocked', 'preflight'],
-      a: `## CORS and direct browser calls\n\nEltes talks to providers from the tab, so their CORS policy decides whether a key can be used directly.\n\n- OpenAI, Anthropic, Google, Groq, OpenRouter and Mistral accept browser requests.\n- DeepSeek, xAI, Z.ai and some Qwen endpoints may refuse them.\n\nIf you see **Could not reach …**, the request never reached the provider. Options: use a provider that allows browser calls, or run a small proxy and set it as a **Custom endpoint** in Settings.`
+      a: `## CORS and direct browser calls\n\nIn direct mode, the browser can read a provider response only when that provider permits the page's origin through CORS. Provider policies can change, so CAI does not promise that any particular endpoint will work from every browser.\n\nIf a request fails with a network/CORS error, check the provider's current browser-access policy, your connection and extensions. Alternatively, configure the optional Eltes proxy or a trusted OpenAI-compatible endpoint. GitHub Pages is static and cannot host the API routes.`
     },
     {
       keys: ['401', '429', '403', 'rate limit', 'quota', 'unauthorized', 'error', 'retry'],
-      a: `## Reading provider errors\n\n- **401 / 403** — the provider rejected the key. Paste a fresh one in Settings → API keys, then press **Retry**.\n- **429** — rate limit or no credit. Wait a moment, or switch models.\n- **404** — the model id is not enabled for your account.\n- **400** — the provider rejected the payload; check the model id or endpoint.\n- **Could not reach** — usually CORS, an ad-blocker or being offline.\n\nEltes keeps the failed turn in the thread with a retry button, so nothing is lost.`
+      a: `## Reading provider errors\n\n- **401 / 403** — authentication or permission was rejected. Check the key and account access.\n- **429** — rate limit or billing/quota restriction; check the provider dashboard before retrying.\n- **404** — the selected model or endpoint may be unavailable to your account.\n- **400** — the provider rejected the request; the exact error message is the best clue.\n- **Network/CORS error** — check connectivity, browser extensions and the provider's current browser-access policy.\n\nThese codes are common patterns, not universal guarantees; providers may use different status codes. Eltes keeps failed turns with retry guidance.`
     },
     {
       keys: ['streaming', 'real-time', 'realtime', 'token streaming', 'live tokens'],
-      a: `## Real model streaming\n\nEltes streams replies from the provider you selected when **Settings → General → Stream responses** is enabled. Claude uses Anthropic’s Messages API; OpenAI-compatible providers use server-sent events from their chat completions endpoint.\n\n- Add that provider’s API key in **Settings → API keys** first. Keys stay in this browser and are sent directly to the provider.\n- Missing keys show a connect prompt; rejected keys, quota limits and network/CORS failures show separate retry guidance.\n- Eltes itself does not include hosted model credits. CAI runs locally without a key; hosted usage follows the provider’s plan and billing.`
+      a: `## Real model streaming\n\nWhen **Settings → General → Stream responses** is enabled, Eltes streams output from the selected provider. The request may go directly from this browser to the provider or through the optional proxy configured by the user.\n\n- Add the provider key in **Settings → API keys**. Direct mode sends it to the provider; proxy mode forwards it transiently through the selected backend.\n- Missing keys, provider rejections and network failures are shown as distinct errors with retry guidance.\n- Eltes does not include hosted-model credits. CAI runs locally without a key; hosted usage and charges follow the provider's terms.`
     },
     {
       keys: ['cai', 'on-device', 'local model', 'own model', 'custom model', 'eltes model', 'offline model'],
-      a: `## Eltes CAI — our own models\n\nCAI runs inside this tab: no key, no network, no per-token cost.\n\n- **Eltes CAI-1** — general chat, model advice, arithmetic, units, dates and Eltes help.\n- **Eltes CAI-1 Fast** — shorter answers with quicker pacing.\n- **Eltes CAI Docs** — a specialist for setup, keys, accounts, downloads and troubleshooting.\n\nCAI is a small deterministic model. It is accurate on what it knows and says so when a question needs a hosted model. It never pretends to browse.`
+      a: `## Eltes CAI — our own models\n\nCAI runs inside this tab: no key, no network, no per-token cost.\n\n- **Eltes CAI-1** — bounded chat, model advice, arithmetic, common functions, simple equations, units, dates and Eltes help.\n- **Eltes CAI-1 Fast** — shorter answers with quicker pacing.\n- **Eltes CAI Docs** — a specialist for setup, keys, accounts, downloads and troubleshooting.\n\nCAI is a deterministic JavaScript rules-and-knowledge system, not a trained general-purpose neural model. It has a narrow scope, can still make mistakes, and has no network or live browsing. For questions outside its supported knowledge, it should say so rather than invent an answer.`
     },
     {
       keys: ['models', 'model list', 'catalogue', 'catalog', 'how many models', 'providers', 'how many providers'],
@@ -274,15 +456,15 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['account', 'sign up', 'signup', 'sign in', 'signin', 'login', 'profile', 'openai account', 'anthropic account', 'deepseek account', 'oauth'],
-      a: `## Accounts and provider connect\n\nYou can create a profile with **OpenAI, Anthropic or DeepSeek**, or keep a local profile. There is no GitHub button any more.\n\n- With \`window.ELTES_CONFIG.authEndpoint\` set by a host, the provider buttons start a real OAuth redirect.\n- On a static copy of Eltes there is no server to exchange an OAuth code, so the same panel asks for an API key instead and stores it locally. It never claims a connection that did not happen.\n\nA profile lives in \`eltes.account.v1\` and is never sent anywhere.`
+      a: `## Accounts and provider connect\n\nYou can create a profile with **OpenAI, Anthropic or DeepSeek**, or keep a local profile. There is no GitHub button any more.\n\n- With \`window.ELTES_CONFIG.authEndpoint\` set by a host, the provider buttons start a real OAuth redirect.\n- On a static copy of Eltes there is no server to exchange an OAuth code, so the same panel asks for an API key instead and stores it locally. It never claims a connection that did not happen.\n\nA local profile is stored in \`eltes.account.v1\`. OAuth and provider sign-in behavior depends on the configured host; do not assume a profile is private from an external auth provider.`
     },
     {
       keys: ['pricing', 'price', 'cost', 'free', 'subscription', 'plan'],
-      a: `## Pricing\n\nEltes itself is **free while in BYOK**: you pay your provider for tokens, directly. There is no Eltes subscription and no markup.\n\nHosted plans are not announced, so no price is shown on the site. When they ship, the same workspace keeps working with your own keys.`
+      a: `## Pricing\n\nEltes has no hosted subscription or included model credits. With BYOK, provider usage may incur charges under that provider's plan; direct or proxy routing does not change the provider's billing terms. Check the provider dashboard for current prices and limits.\n\nEltes's hosted plans are marked coming soon; no future price is promised here.`
     },
     {
       keys: ['privacy', 'storage', 'local storage', 'data', 'telemetry', 'tracking'],
-      a: `## Privacy and storage\n\nEverything stays in this browser:\n\n- \`eltes.chats.v1\` — conversations\n- \`eltes.settings.v1\` — model, keys, preferences\n- \`eltes.active.v1\` — the open conversation\n- \`eltes.account.v1\` — your local profile\n\nNo analytics, no telemetry, no Eltes server. **Settings → Data** can export everything as JSON or clear it.`
+      a: `## Privacy and storage\n\nChats, settings and the local profile are stored in this browser. In direct mode, hosted prompts and keys go to the provider you selected. If you configure the optional proxy, the request also transits that backend/platform before reaching the provider; Eltes's function code does not persist or log the key.\n\n**Settings → Data** can export or clear local data. Review the configured provider and backend privacy terms before sending sensitive content.`
     },
     {
       keys: ['download', 'downloads', 'windows', 'bat', 'install', 'offline', 'desktop', 'launcher'],
@@ -294,11 +476,11 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['export', 'import', 'backup', 'share', 'json', 'markdown'],
-      a: `## Export and import\n\n- **Export all** in Settings → Data writes one JSON file with chats, settings and account (keys included only if you confirm).\n- The download icon in the top bar exports the open conversation as Markdown.\n- Import merges a previous JSON export; chats are normalised and invalid model ids fall back to your default.`
+      a: `## Export and import\n\n- **Export all** in Settings → Data writes a JSON backup; secret API keys are excluded.\n- The download icon in the top bar exports the open conversation as Markdown.\n- Import merges a previous JSON export; chats are normalised and invalid model ids fall back to your default.`
     },
     {
       keys: ['custom endpoint', 'ollama', 'vllm', 'litellm', 'proxy', 'self-host', 'self hosted', 'local server'],
-      a: `## Custom endpoints\n\nSettings → API keys → **Custom endpoint** accepts any OpenAI-compatible base URL: Ollama (\`http://localhost:11434/v1\`), vLLM, LiteLLM, a Cloudflare Worker or your own gateway.\n\nSet the base URL, the model id and an optional token. Then pick **Custom endpoint** in the model switcher. A proxy is also the reliable fix for providers that block browser CORS.`
+      a: `## Custom endpoints\n\nSettings → API keys → **Custom endpoint** accepts an OpenAI-compatible base URL, such as a local Ollama or vLLM server, LiteLLM, or a gateway you control.\n\nSet the base URL, model id and optional token, then select **Custom endpoint** in the model switcher. Browser CORS, network exposure and authentication depend on that endpoint; do not expose an unauthenticated local service to the public internet.`
     },
     {
       keys: ['shortcut', 'keyboard', 'hotkey', 'command palette', 'cmd k'],
@@ -314,35 +496,60 @@ window.EltesCAI = (function () {
     }
   ];
 
+  const KB_SOURCES = Object.freeze({
+    quickstart: 'docs.html#quickstart', 'api key': 'docs.html#api-keys', cors: 'docs.html#providers',
+    '401': 'docs.html#providers', streaming: 'docs.html#providers', cai: 'docs.html#models',
+    models: 'docs.html#models', 'which model should': 'docs.html#models', account: 'docs.html#accounts',
+    pricing: 'docs.html#pricing', privacy: 'docs.html#privacy', download: 'docs.html#downloads',
+    tools: 'docs.html#agent', export: 'docs.html#chat', 'custom endpoint': 'docs.html#custom-endpoint',
+    shortcut: 'docs.html#shortcuts', docs: 'docs.html', reset: 'docs.html#settings'
+  });
+
   const GLOSSARY = {
-    'llm': 'A **large language model** predicts the next token across billions of parameters. It is not a database: it reasons over what is in the prompt and what it learned in training.',
-    'token': 'A **token** is the unit models read and bill. English averages about four characters per token; code and unusual words use more.',
-    'context window': 'The **context window** is the maximum number of tokens a model can hold in one request — prompt plus answer. A 200K window is roughly 150,000 words.',
-    'rag': '**RAG** (retrieval-augmented generation) fetches relevant documents first, then puts them in the prompt so the model answers from evidence instead of memory.',
-    'embedding': 'An **embedding** is a vector that represents meaning. Similar text lands nearby, which is what makes semantic search and clustering work.',
-    'fine-tuning': '**Fine-tuning** trains a model further on your examples. It changes behaviour and style; it is a poor way to add facts that change often.',
+    'llm': 'A **large language model** is a neural network trained to process and generate text. It learns statistical patterns from training data; it is not a verified database, and its answers can be wrong.',
+    'token': 'A **token** is a unit produced by a model tokenizer, often a word piece, punctuation mark or other text fragment. Some providers bill by tokens; billing rules vary.',
+    'context window': 'The **context window** is the maximum number of tokens a model can process in one request, including instructions, conversation and generated output. The limit and its exact accounting are model-specific.',
     'agent': 'An **agent** is a model given tools and a loop: it plans, calls a tool, reads the result and continues. Eltes caps the loop at four rounds.',
     'cors': '**CORS** is a browser rule: a page can only read a cross-origin response when the server sends the right headers. A missing header looks like a network failure, even though the request may have reached the API.',
-    'byok': '**BYOK** means bring your own key. You pay the provider directly and the app never sees your bill or your tokens.',
+    'byok': '**BYOK** means bring your own key. Your provider account is billed under its terms. In direct mode Eltes sends requests to that provider; with an optional proxy, requests also transit the configured backend.',
     'api key': 'An **API key** is a secret that identifies your account to a provider. Treat it like a password: never commit it, and rotate it if it leaks.',
-    'streaming': '**Streaming** sends the answer as server-sent events while it is generated, so the first words appear in hundreds of milliseconds instead of after the whole reply.',
+    'streaming': '**Streaming** delivers pieces of a response while the provider generates it, rather than waiting for the complete response. Latency depends on the model, network and provider.',
     'ttft': '**TTFT** is time to first token — the delay before streaming starts. It is the number that decides whether an interface feels instant.',
-    'temperature': '**Temperature** scales randomness. Low values are consistent and factual; higher values are more varied and creative.',
+    'temperature': '**Temperature** adjusts sampling randomness in models that support the setting. Lower values can make output more repeatable, but do not guarantee factual accuracy or identical answers.',
     'quantization': '**Quantization** stores weights at lower precision (8-bit, 4-bit) to cut memory and raise speed, at a small cost in quality.',
     'transformer': 'A **transformer** is the architecture behind modern LLMs. Self-attention lets each token weigh every other token in context.',
     'prompt injection': '**Prompt injection** is text that tries to override instructions — often hidden in a web page or document. Treat retrieved text as untrusted.',
     'vector database': 'A **vector database** stores embeddings and answers nearest-neighbour queries. It is the storage layer behind most RAG systems.',
     'mcp': '**MCP** (Model Context Protocol) is an open way to expose tools and data to models through a standard server interface.',
-    'reasoning model': 'A **reasoning model** spends extra tokens thinking before it answers. It helps on maths, code and planning, and costs more latency.',
+    'reasoning model': 'A **reasoning model** is marketed or configured to spend additional computation on multi-step tasks. Results, latency and cost vary by model; the label is not a correctness guarantee.',
     'hallucination': 'A **hallucination** is a confident statement the model cannot support. The fix is evidence in the prompt, not a louder instruction.',
-    'temperature 0': 'Temperature 0 makes sampling greedy: the same prompt tends to give the same answer, which is useful for extraction and tests.',
+    'temperature 0': 'A temperature setting of zero requests low-randomness sampling where supported. It does not guarantee identical output across systems or make answers factually reliable.',
     'ocr': '**OCR** turns pixels of text into characters. Vision models can often read images without a separate OCR pass.',
     'ssrf': '**SSRF** tricks a server into calling internal addresses. Any proxy that accepts user URLs needs an allowlist.',
     'inference': '**Inference** is running a trained model to produce output. Cost and latency come from inference, not training.',
     'multimodal': 'A **multimodal** model accepts more than text — usually images, sometimes audio or video. In Eltes, vision is a per-model tag.',
     'system prompt': 'The **system prompt** is the standing instruction that shapes tone and rules for a conversation. Hosted models receive it with every request.',
     'function calling': '**Function calling** (tool calling) lets a model request a structured tool invocation instead of guessing. Eltes caps tool rounds at four.',
-    'open weights': '**Open weights** means the model files are downloadable. It does not mean free to run: you still pay for hardware or hosting.'
+    'open weights': '**Open weights** means a model’s learned parameters are available under the publisher’s terms. It does not necessarily mean open training data, unrestricted use or free hosting.',
+    'tokenizer': 'A **tokenizer** converts text into the token IDs a model accepts. Its vocabulary is a set of token pieces, not a list of everything the model knows.',
+    'vocabulary': 'A model **vocabulary** usually means the token pieces recognized by its tokenizer. A four-million-entry word list is not the same thing as a four-million-token model vocabulary, training data or verified knowledge, and adding entries alone does not teach a model facts.',
+    'pretraining': '**Pretraining** is the initial training of model weights on a broad dataset, commonly by predicting text tokens. It requires a model design, training data and substantial compute; it is different from adding documents to a searchable knowledge base.',
+    'training data': '**Training data** is the material used to adjust a model’s weights. Its quality, licensing, coverage and deduplication matter; putting text into a dataset does not ensure the model will recall it correctly.',
+    'dataset': 'A **dataset** is an organized collection of examples or documents. For model work, it should have clear provenance, permitted usage, quality checks and a train/validation/test split.',
+    'supervised fine-tuning': '**Supervised fine-tuning (SFT)** trains an existing model on input-and-target examples. It can teach response patterns; it does not guarantee factual correctness or reliably store a very large knowledge base.',
+    'knowledge base': 'A **knowledge base** is a collection of organized information that can be searched. It can be updated without retraining a language model, but its answers depend on source quality and retrieval.',
+    'retrieval': '**Retrieval** is searching a collection for items relevant to a query. Keyword retrieval is lightweight; semantic retrieval often uses embeddings. Neither guarantees that a result is correct.',
+    'grounding': '**Grounding** means tying an answer to supplied evidence, such as a retrieved document or chat message. A grounded system should distinguish what the source says from unsupported inference.',
+    'citation': 'A **citation** identifies the source supporting a claim. A citation is useful only when it points to a real, relevant source that actually supports that claim.',
+    'abstention': '**Abstention** is declining to answer when evidence or confidence is insufficient. It is a reliability feature, not a promise that every other answer is correct.',
+    'evaluation': '**Evaluation** measures a system against a defined set of questions and expected outcomes. A useful reliability test includes answerable, ambiguous, out-of-scope and adversarial cases.',
+    'benchmark': 'A **benchmark** is a standardized set of tasks or measurements used to compare systems. Scores apply to that benchmark and do not guarantee performance on a user’s particular question.',
+    'chunk': 'A retrieval **chunk** is a portion of a document indexed and returned as evidence. Chunk size and overlap affect which context can be found; the source should remain traceable.',
+    'lora': '**LoRA** (low-rank adaptation) is a parameter-efficient fine-tuning method that trains small adapter weights alongside a frozen base model. It still requires a suitable base model, examples and compute.',
+    'epoch': 'An **epoch** is one pass through the training examples. More epochs are not automatically better; too many can overfit the data.',
+    'data leakage': '**Data leakage** occurs when evaluation information unintentionally influences training or model selection, making reported test performance overly optimistic.',
+    'tf-idf': '**TF-IDF** scores terms by how frequent they are in a document and how uncommon they are across the collection. It is a simple lexical retrieval method, not a language model.',
+    'top-k': '**Top-k retrieval** returns the k highest-ranked results for a query. A high rank is a relevance estimate, not proof that the result is evidence.'
   };
 
   const GLOSSARY_ALIASES = {
@@ -358,7 +565,18 @@ window.EltesCAI = (function () {
     'key': 'api key',
     'api keys': 'api key',
     'model weights': 'open weights',
-    'temperature zero': 'temperature 0'
+    'temperature zero': 'temperature 0',
+    'token vocabulary': 'vocabulary',
+    'tokenizer vocabulary': 'vocabulary',
+    'word vocabulary': 'vocabulary',
+    'supervised fine tuning': 'supervised fine-tuning',
+    'fine tuning': 'fine-tuning',
+    'low rank adaptation': 'lora',
+    'low-rank adaptation': 'lora',
+    'training corpus': 'training data',
+    'test set': 'evaluation',
+    'eval': 'evaluation',
+    'tf idf': 'tf-idf'
   };
 
   function modelAdvice(text) {
@@ -401,31 +619,91 @@ window.EltesCAI = (function () {
   }
 
   function kbLookup(text) {
-    const t = strip(text);
+    const query = norm(text).replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+    if (!query) return null;
+    const broadSingles = new Set(['key', 'keys', 'start', 'data', 'error', 'free', 'install', 'help', 'local', 'model', 'account', 'provider']);
     let best = null;
     let bestScore = 0;
     KB.forEach((entry) => {
       let score = 0;
-      entry.keys.forEach((k) => {
-        const key = norm(k);
-        if (!key) return;
-        if (t.includes(' ' + key + ' ')) score += key.includes(' ') ? 3 : 2;
+      entry.keys.forEach((rawKey) => {
+        const key = norm(rawKey).replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+        if (!key || !(` ${query} `).includes(` ${key} `)) return;
+        const words = key.split(' ');
+        if (words.length === 1 && broadSingles.has(key)) return;
+        // Prefer specific phrases; broad single-word triggers are deliberately ignored.
+        score = Math.max(score, words.length > 1 ? 4 + Math.min(words.length, 4) : 3);
       });
       if (score > bestScore) { bestScore = score; best = entry; }
     });
-    return bestScore >= 2 ? best : null;
+    if (!best || bestScore < 3) return null;
+    return { ...best, score: bestScore, source: KB_SOURCES[best.keys[0]] || null };
   }
 
   function glossaryLookup(text) {
-    const m = norm(text).match(/(?:what (?:is|are|does)|define|meaning of|explain)\s+(?:an?\s+|the\s+)?([a-z0-9 .+\-]{2,40})/);
-    if (!m) return null;
-    const term = m[1].replace(/[?.!]+$/, '').trim();
+    const t = norm(text).replace(/[?!.]+$/, '').trim();
+    let rawTerm = '';
+    let m = t.match(/^(?:what(?:'s| is| are)\s+|define\s+|meaning of\s+|explain\s+)(.+)$/);
+    if (m) rawTerm = m[1];
+    if (!rawTerm) {
+      m = t.match(/^what does\s+(.+?)\s+(?:mean|stand for)(?:\s+in\s+.+)?$/);
+      if (m) rawTerm = m[1];
+    }
+    if (!rawTerm) return null;
+    const term = rawTerm.replace(/^(?:an?\s+|the\s+)/, '').replace(/\s+(?:mean|means|stand for|in ai|in machine learning)$/, '').trim();
     if (GLOSSARY_ALIASES[term]) return { term, text: GLOSSARY[GLOSSARY_ALIASES[term]] };
     if (GLOSSARY[term]) return { term, text: GLOSSARY[term] };
     const found = Object.keys(GLOSSARY).find((k) => term === k || term === k + 's' || term.startsWith(k + ' '));
     if (found) return { term: found, text: GLOSSARY[found] };
     const alias = Object.keys(GLOSSARY_ALIASES).find((k) => term === k || term === k + 's');
     return alias ? { term, text: GLOSSARY[GLOSSARY_ALIASES[alias]] } : null;
+  }
+
+  function trainingIntent(text) {
+    const t = norm(text);
+    const mentionsEltesModel = /\b(eltes|etles|cai|custom ai|custom model|ai model|assistant|yourself)\b/.test(t);
+    const asksToTrain = /\b(train|training|teach)\b|\bfine[\s-]*tune\w*\b/.test(t) && mentionsEltesModel;
+    const asksHugeVocab = /(?:4[, ]?000[, ]?000|4000000|four million)/.test(t) && /vocab|word|token|train|knowledge/.test(t);
+    return asksToTrain || asksHugeVocab;
+  }
+
+  function trainingAnswer() {
+    return `## CAI training and the “4,000,000 vocabulary”\n\nI have not trained model weights. In this repository, CAI is a deterministic JavaScript rules-and-knowledge system; there is no neural checkpoint, training corpus or training pipeline to run.\n\nA tokenizer vocabulary is a set of text pieces, not a measure of how much verified knowledge a model has. A four-million-word list would not by itself teach meanings or stop wrong answers, and it is not a sensible substitute for training data.\n\nA practical reliability path is to use a suitable existing open-weight model, retrieve answers from curated documents with source references, abstain when evidence is weak, and evaluate it against a test set that includes ambiguous and out-of-scope questions. Fine-tuning can shape behavior but does not guarantee factual accuracy; retrieval is usually the better way to add changing facts.\n\nThis CAI update can retrieve exact evidence from the active chat and is more conservative about unsupported questions. It is not a training run or a four-million-entry knowledge base.`;
+  }
+
+  function historyIntent(prompt, history) {
+    const t = norm(prompt);
+    const messages = (Array.isArray(history) ? history : []).filter((m) => m &&
+      (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim()).slice(-24);
+    if (!messages.length) return null;
+    const userMessages = messages.filter((m) => m.role === 'user');
+    const wantsLastQuestion = /\bwhat did i (?:just )?(?:ask|say|write)|\brepeat (?:my )?(?:last|previous) (?:question|message|prompt)|\bmy last prompt\b/.test(t) && !/\babout\b/.test(t);
+    const wantsRecap = /\b(?:summari[sz]e|recap|what did we (?:talk|discuss)|what have we (?:talked|discussed|covered))\b/.test(t) && /\b(?:chat|conversation|here|so far|we)\b/.test(t);
+    const wantsSearch = /\b(?:what did i (?:say|ask|write)|what did we decide|did i mention|find|search|remember|recall)\b/.test(t) && /\b(?:about|earlier|before|in this chat|in this conversation)\b/.test(t);
+    if (wantsLastQuestion) {
+      const last = userMessages[userMessages.length - 1];
+      return { intent: 'chat-recall', text: last ? `Your most recent message in the context I can see was:\n\n> ${last.content.replace(/\s+/g, ' ').slice(0, 500)}` : 'I do not have an earlier user message in the context supplied to this turn.' };
+    }
+    if (wantsRecap) {
+      const recent = userMessages.slice(-6);
+      return { intent: 'chat-recap', text: recent.length
+        ? `I can recap the user messages included in this active chat. These are excerpts, not an interpretation of decisions:\n\n${recent.map((m) => `- “${m.content.replace(/\s+/g, ' ').slice(0, 220)}”`).join('\n')}`
+        : 'I do not have earlier user messages in the context supplied to this turn.' };
+    }
+    if (wantsSearch) {
+      const about = t.match(/\babout\s+(.+?)(?:\s+in this (?:chat|conversation))?$/);
+      const query = (about ? about[1] : t).replace(/\b(?:what|did|i|we|say|ask|asked|write|wrote|decide|mention|find|search|remember|recall|earlier|before|in|this|chat|conversation|the|a|an|about)\b/g, ' ');
+      const terms = Array.from(new Set(query.match(/[a-z0-9]{3,}/g) || []));
+      if (!terms.length) return { intent: 'chat-search', text: 'Please give me a more specific word or phrase to search for in the messages included in this chat.' };
+      const matches = messages.map((m, index) => {
+        const bodyTerms = new Set(norm(m.content).match(/[a-z0-9]+/g) || []);
+        const hits = terms.filter((term) => bodyTerms.has(term)).length;
+        return { m, index, hits };
+      }).filter((item) => item.hits > 0).sort((a, b) => b.hits - a.hits || b.index - a.index).slice(0, 3);
+      if (!matches.length) return { intent: 'chat-search', text: `I did not find “${terms.join(' ')}” in the active-chat messages supplied to me. I cannot search other saved chats from this local CAI turn.` };
+      return { intent: 'chat-search', text: `Matching excerpts from this active chat (not confirmation that they represent a final decision):\n\n${matches.map(({ m }) => `- **${m.role === 'user' ? 'You' : 'Assistant'}:** “${m.content.replace(/\s+/g, ' ').slice(0, 280)}”`).join('\n')}` };
+    }
+    return null;
   }
 
   /* ----------------------------- answer builder ---------------------------- */
@@ -437,15 +715,19 @@ window.EltesCAI = (function () {
     const docsOnly = modelId === 'eltes-cai-docs';
 
     if (!text) {
-      return { intent: 'empty', text: 'Ask me anything about Eltes, models, arithmetic, units or dates. I answer on this device, so there is no network round trip.' };
+      return { intent: 'empty', text: 'Ask me about Eltes, arithmetic, units, dates, AI terms or messages included in this chat. I answer on this device, so there is no network round trip.' };
     }
+
+    if (trainingIntent(text)) return { intent: 'training-limits', text: trainingAnswer() };
+    const chatContext = historyIntent(text, history);
+    if (chatContext) return chatContext;
 
     if (hasAny(t, /^(hi|hey|hello|yo|good (morning|afternoon|evening)|howdy)\b/)) {
       const hour = now.getHours();
       const part = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
       return {
         intent: 'greeting',
-        text: `Good ${part}. I am **Eltes CAI-1**, running on this device.\n\nI can help with:\n\n- Eltes itself — setup, keys, accounts, downloads\n- choosing between the ${M.MODELS.length} models in the catalogue\n- arithmetic, unit conversions, dates and definitions\n\nWhat do you want to work on?`
+        text: `Good ${part}. I am **Eltes CAI-1**, running on this device.\n\nI can help with:\n\n- Eltes itself — setup, keys, accounts, downloads\n- choosing between the ${M.MODELS.length} models in the catalogue\n- arithmetic, common math functions, simple equations, unit conversions, dates and definitions\n\nWhat do you want to work on?`
       };
     }
 
@@ -460,14 +742,14 @@ window.EltesCAI = (function () {
     if (hasAny(t, /who are you|what are you|are you (chatgpt|claude|gpt|openai)|your name|what model are you/)) {
       return {
         intent: 'identity',
-        text: `I am **Eltes CAI-1**, an on-device model built into this workspace. I am not ChatGPT, Claude or Gemini, and I do not call any API.\n\nMy strengths are narrow and honest: Eltes product help, model selection, arithmetic, units, dates and AI definitions. For open-ended writing or deep reasoning, switch to a hosted model — that is what the model picker is for.`
+        text: `I am **Eltes CAI-1**, a deterministic on-device assistant built into this workspace. I am not ChatGPT, Claude or Gemini, and I do not call any API.\n\nMy strengths are narrow and honest: Eltes product help, model selection, arithmetic, units, dates and AI definitions. For open-ended writing or deep reasoning, switch to a hosted model — that is what the model picker is for.`
       };
     }
 
     if (hasAny(t, /what can you do|help me|capabilit|what do you know|how do you work/)) {
       return {
         intent: 'capabilities',
-        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue\n- arithmetic and percentages, with the working shown\n- unit and temperature conversions\n- the current date and time in your timezone\n- word and character counts\n- short, accurate definitions of AI terms\n\n**Out of range:** live facts, news, browsing and long-form originality. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
+        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue\n- calculator expressions, common math functions and simple linear/quadratic equations\n- unit and temperature conversions\n- the current date and time in your timezone\n- word and character counts\n- short definitions from its built-in AI glossary\n- exact retrieval of relevant messages included in this chat\n\n**Out of range:** arbitrary symbolic math and proofs, live facts, news, browsing and long-form originality. CAI is rule-based and may miss intent or contain outdated product facts; verify important answers. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
       };
     }
 
@@ -480,6 +762,9 @@ window.EltesCAI = (function () {
 
     const units = unitIntent(text);
     if (units) return { intent: 'units', text: units };
+
+    const equation = equationIntent(text);
+    if (equation) return equation;
 
     const math = mathIntent(text);
     if (math) return { intent: 'math', text: math };
@@ -500,11 +785,11 @@ window.EltesCAI = (function () {
       if (!kb.a) {
         return { intent: 'advice', text: modelAdvice(text) + (fast ? '' : docsAnswerHint()) };
       }
+      const reference = kb.source ? `\n\n_Source: \`${kb.source}\`._` : '';
       if (docsOnly && kb.keys[0] === 'pricing') {
-        // docs model prefers the documentation pointer
-        return { intent: 'kb', text: kb.a + '\n\nMore detail: **docs.html#pricing**.' };
+        return { intent: 'kb', text: kb.a + reference };
       }
-      return { intent: 'kb', text: kb.a + (fast ? '' : docsAnswerHint()) };
+      return { intent: 'kb', text: kb.a + reference + (fast ? '' : docsAnswerHint()) };
     }
 
     const gloss = glossaryLookup(text);

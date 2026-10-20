@@ -381,7 +381,7 @@ npm run mail unsuppress you@example.com   <span class="c"># let that address rec
               <tbody>
                 <tr><td>Sign up with email + password</td><td><code>POST /auth/v1/signup</code></td><td>The exact Supabase message — weak password, address in use, rate limit</td></tr>
                 <tr><td>Welcome email</td><td>Edge Function <code>eltes-mail</code> → Resend</td><td><em>Not sent — Supabase has no RESEND_API_KEY yet</em>, or the provider's own error</td></tr>
-                <tr><td>Confirm the address</td><td>The welcome letter carries a single-use confirmation link</td><td>Sign-in says <em>confirm the address first</em></td></tr>
+                <tr><td>Verify the address</td><td>Optional. With confirmation on, the welcome letter's single-use link is the confirmation; with it off, sign-up works immediately</td><td>Sign-in says <em>confirm the address first</em></td></tr>
                 <tr><td>Sign in</td><td><code>POST /auth/v1/token?grant_type=password</code></td><td><em>That email and password do not match an account.</em></td></tr>
                 <tr><td>Magic link</td><td>Function builds the link, Resend delivers it</td><td><em>Sign-in link sent</em> — only after Resend accepted the message</td></tr>
                 <tr><td>Password reset</td><td><code>admin/generate_link</code> type <code>recovery</code></td><td><em>Reset link sent</em>, then a new-password form</td></tr>
@@ -426,6 +426,7 @@ npx supabase secrets set RESEND_API_KEY=<span class="s">re_…</span> \
 <span class="c">#    https://gefrus112.github.io/eltes/**</span></code></pre>
           </div>
           <p>Then put the same URL and key in <code>config.js</code> and submit the sign-up form. There is nothing to build: GitHub Pages serves the files as they are.</p>
+          <p><strong>About confirmation.</strong> The reference project has <em>Confirm email</em> switched off, so an account works the moment it is created — before a Resend key exists. Turn it on at <em>Authentication → Providers → Email</em> and the welcome letter's link becomes the confirmation: it verifies the address, then lands on <code>auth.html</code> signed in. Either way the same letter is the first thing the inbox receives.</p>
 
           <h3>Free, and honest about it</h3>
           <ul class="doc-list">

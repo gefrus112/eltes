@@ -67,8 +67,8 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.14.0</span>
-          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>20 minute read</span>
+          <span class="badge"><span class="dot"></span>v3.15.0</span>
+          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>24 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
         </div>
@@ -104,6 +104,7 @@
         <a href="#workflow"><span data-icon="workflow" data-icon-size="14"></span>Build a website</a>
         <a href="#effects"><span data-icon="sparkles" data-icon-size="14"></span>Images &amp; effects</a>
         <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
+        <a href="#desktop"><span data-icon="monitor-down" data-icon-size="14"></span>Desktop apps</a>
         <a href="#lab"><span data-icon="flask" data-icon-size="14"></span>Lab &amp; training</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#look"><span data-icon="image" data-icon-size="14"></span>Look &amp; feel</a>
@@ -1060,6 +1061,74 @@ find dist -name <span class="s">'*.html'</span>       <span class="c"># dist/ind
           </ul>
         </section>
 
+        <section id="desktop">
+          <h2>Desktop apps: Windows, macOS and Linux <a class="anchor" href="#desktop" aria-label="Link to the desktop section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes ships a desktop harness under <code>desktop/</code>. It is a thin Electron shell around the same site and the same local API the browser build serves, so there is no second product to keep in sync: <code>desktop/main.js</code> starts <code>tools/local-server.mjs</code> on a free loopback port and loads <code>app.html</code> from that origin. A packaged app needs no Node install — it runs the server with its own binary via <code>ELECTRON_RUN_AS_NODE</code>.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>one command per installer</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># Windows: NSIS installer + portable .exe</span>
+npm run desktop:win
+
+<span class="c"># macOS: .dmg + .zip (arm64 and x64)</span>
+npm run desktop:mac
+
+<span class="c"># Linux: AppImage + deb</span>
+npm run desktop:linux
+
+<span class="c"># one platform at a time, without installing anything</span>
+npm run desktop:stage   <span class="c"># assemble desktop/.build</span>
+npm run desktop:dir     <span class="c"># unpacked app, no installer</span></code></pre>
+          </div>
+
+          <h3>What is in the box</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>File</th><th>Platform</th><th>What it is</th></tr></thead>
+              <tbody>
+                <tr><td><code>Eltes-Setup-&lt;v&gt;-x64.exe</code></td><td>Windows</td><td>NSIS installer. Per-user by default, choose the folder, desktop and Start-menu shortcuts, runs after install.</td></tr>
+                <tr><td><code>Eltes-&lt;v&gt;-Portable-x64.exe</code></td><td>Windows</td><td>One executable, no install and no registry entries. Runs from a USB stick.</td></tr>
+                <tr><td><code>Eltes-&lt;v&gt;-arm64.dmg</code></td><td>macOS</td><td>Drag-to-Applications disk image for Apple silicon. An x64 build is produced the same way.</td></tr>
+                <tr><td><code>Eltes-&lt;v&gt;-linux-x86_64.AppImage</code></td><td>Linux</td><td>Single file: <code>chmod +x</code>, then run. No packages to satisfy.</td></tr>
+                <tr><td><code>eltes_&lt;v&gt;_amd64.deb</code></td><td>Debian/Ubuntu</td><td>Installs a menu entry and the icon set; removes cleanly.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>How the shell behaves</h3>
+          <ul>
+            <li><strong>Hardened window.</strong> Context isolation on, node integration off, <code>sandbox: true</code>, no <code>&lt;webview&gt;</code>, and developer tools only with <code>--dev</code>. The page sees five calls through <code>window.EltesDesktop</code> and nothing else.</li>
+            <li><strong>Navigation stays in the app.</strong> Only the app's own origin can navigate the window. Any other <code>https:</code> link opens in your real browser; <code>file:</code>, <code>data:</code> and <code>javascript:</code> are refused.</li>
+            <li><strong>Loopback only.</strong> The bundled server binds <code>127.0.0.1</code> on a port chosen at launch (4173 upward), so a running dev server never collides and nothing is exposed to the network.</li>
+            <li><strong>Nothing silently dies.</strong> If the server cannot start, the window shows a recovery screen with the error, the data folder, the log path and a <strong>Try again</strong> button.</li>
+            <li><strong>Where your data lives.</strong> <code>%APPDATA%\Eltes</code> on Windows, <code>~/Library/Application Support/Eltes</code> on macOS, <code>~/.config/Eltes</code> on Linux. Studio writes to <code>studio/</code> inside it (<code>ELTES_STUDIO_DIR</code> overrides), logs go to <code>logs/desktop.log</code>, and the window position is remembered in <code>window-state.json</code>.</li>
+          </ul>
+
+          <h3>Signing</h3>
+          <p>The harness builds unsigned by default so anyone can reproduce the artifacts. Set the usual electron-builder variables to sign and notarise — no code changes:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>signing is configuration, not code</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># macOS Developer ID + notarisation</span>
+export CSC_LINK=/path/certificate.p12 CSC_KEY_PASSWORD=…
+export APPLE_ID=… APPLE_APP_SPECIFIC_PASSWORD=… APPLE_TEAM_ID=…
+
+<span class="c"># Windows Authenticode</span>
+export CSC_LINK=/path/certificate.pfx CSC_KEY_PASSWORD=…</code></pre>
+          </div>
+          <p>Unsigned builds still work: Windows shows SmartScreen ("More info → Run anyway") and macOS needs a right-click → Open the first time. The macOS build is ad-hoc signed, so Apple silicon will launch it; distribution to other machines should be signed and notarised.</p>
+
+          <h3>Continuous builds</h3>
+          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-14</code> for arm64, <code>macos-13</code> for x64 and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.15.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
+
+          <h3>Testing without a display</h3>
+          <p>The harness core (<code>desktop/shell.js</code>, <code>window-state.js</code>, <code>menu.js</code>) is plain Node, so <code>npm test</code> covers flag parsing, deep links, the navigation policy, window clamping across removed monitors, atomic window state and the menu on each platform. Two tests go further: the real <code>desktop/main.js</code> runs against a mocked Electron module (boot, IPC, navigation guard, quit), and the packaged layout is assembled in a temp folder — site under <code>resources/site</code>, server started through the production code path, health checked, <code>app.html</code> and its assets fetched, Studio session opened, process stopped. Packaging config is validated against electron-builder's own JSON schema, and the shell is packed into an <code>.asar</code> to prove <code>main.js</code> survives the round-trip.</p>
+        </section>
+
         <section id="settings">
           <h2>Settings <a class="anchor" href="#settings" aria-label="Link to settings" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>Open with <code>⌘,</code> or the gear in the top bar. Settings are stored in <code>eltes.settings.v1</code> and apply instantly.</p>
@@ -1399,6 +1468,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#workflow">Build a website</a>
         <a href="#effects">Images &amp; effects</a>
         <a href="#studio">Studio &amp; terminal</a>
+        <a href="#desktop">Desktop apps</a>
         <a href="#lab">Lab &amp; training</a>
         <a href="#settings">Settings</a>
         <a href="#look">Look &amp; feel</a>

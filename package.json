@@ -1,7 +1,7 @@
 {
   "name": "starter-site",
-  "version": "3.14.0",
-  "description": "Eltes AI \u2014 a local-first workspace with live web search, cited sources, a search-thinking trace, 66 models across 14 providers, and Eltes Lab \u2014 a language model you train in the browser, and a built-in Studio with a real terminal and live preview.",
+  "version": "3.15.0",
+  "description": "Eltes AI \u2014 a local-first workspace with live web search, cited sources, a search-thinking trace, 66 models across 14 providers, Eltes Lab (train a language model in the browser), a built-in Studio, and desktop builds for Windows, macOS and Linux.",
   "main": "index.html",
   "scripts": {
     "start": "node tools/local-server.mjs",
@@ -10,7 +10,16 @@
     "validate:html": "html-validate index.html app.html auth.html docs.html news.html studio.html train.html",
     "validate:css": "for file in assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css assets/css/studio.css assets/css/news.css assets/css/galaxy.css assets/css/lab.css; do csstree-validator \"$file\" || exit 1; done",
     "backend": "node tools/local-server.mjs",
-    "test": "node --test test/*.test.cjs"
+    "test": "node --test test/*.test.cjs",
+    "desktop": "electron desktop/main.js",
+    "desktop:dev": "electron desktop/main.js --dev",
+    "desktop:icons": "node desktop/icon.mjs",
+    "desktop:stage": "node desktop/build.mjs --stage-only",
+    "desktop:dir": "node desktop/build.mjs --dir",
+    "desktop:build": "node desktop/build.mjs --all",
+    "desktop:win": "node desktop/build.mjs --target=win --archs=x64,arm64",
+    "desktop:mac": "node desktop/build.mjs --target=mac --archs=x64,arm64",
+    "desktop:linux": "node desktop/build.mjs --target=linux"
   },
   "keywords": [
     "embers",
@@ -36,12 +45,20 @@
     "static",
     "streaming",
     "studio",
-    "terminal"
+    "terminal",
+    "desktop",
+    "electron",
+    "installer",
+    "macos",
+    "windows",
+    "appimage"
   ],
   "author": "Eltes",
   "license": "UNLICENSED",
   "devDependencies": {
     "csstree-validator": "4.0.1",
+    "electron": "^44.9.2",
+    "electron-builder": "^26.15.3",
     "html-validate": "11.16.4"
   },
   "engines": {

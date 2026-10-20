@@ -681,50 +681,61 @@
       <div class="wrap" style="position:relative">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</span>
-          <h2>Run Eltes<br class="desk-br" /> from your desktop.</h2>
-          <p>The app is a static site. The Windows launcher serves the files locally and opens
-            your browser — no installer, no registry, no admin rights, no background service. An optional Node/Vercel backend supports key testing and proxying.</p>
+          <h2>Eltes as a real<br class="desk-br" /> desktop app.</h2>
+          <p>A native window with the workspace, Studio, the terminal and the local API inside it.
+            No server to install, no Node runtime to find, no browser tabs. Windows, macOS and Linux
+            builds come from the same harness and the same site.</p>
         </div>
 
         <div class="download-grid">
           <article class="download-card featured reveal">
             <div class="dl-top">
-              <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Windows</span>
-              <span class="dl-ver">v3.14.0 · portable</span>
+              <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Eltes Desktop</span>
+              <span class="dl-ver">v3.15.0 · signed builds optional</span>
             </div>
-            <h3>Eltes for Windows</h3>
-            <p>Unzip anywhere and double-click <code class="mono">eltes.bat</code>. It finds Python or Node,
-              serves the folder on <code class="mono">127.0.0.1:4173</code> and opens the workspace.</p>
-            <ul class="dl-list">
-              <li><span data-icon="check" data-icon-size="13"></span>Includes the launcher and the full site</li>
-              <li><span data-icon="check" data-icon-size="13"></span>Optional Start-menu shortcut with <code class="mono">--shortcut</code></li>
-              <li><span data-icon="check" data-icon-size="13"></span>Needs Windows 10/11 and Python 3 or Node 18+</li>
-              <li><span data-icon="shield-check" data-icon-size="13"></span>CAI works offline; keys stay in your browser</li>
+            <h3>One app, three platforms</h3>
+            <p>The shell starts the bundled local server on a free loopback port, then opens the
+              workspace in a hardened window. Chats, keys and the Studio folder stay on your machine.</p>
+            <ul class="dl-list dl-os-list">
+              <li>
+                <span class="dl-badge"><span data-icon="monitor-down" data-icon-size="14"></span></span>
+                <span><strong>Windows 10/11</strong><em>Eltes-Setup-3.15.0-x64.exe · also arm64; or the portable .exe with no install</em></span>
+              </li>
+              <li>
+                <span class="dl-badge"><span data-icon="laptop" data-icon-size="14"></span></span>
+                <span><strong>macOS 12+</strong><em>Eltes-3.15.0-arm64.dmg for Apple silicon · x64 .dmg for Intel</em></span>
+              </li>
+              <li>
+                <span class="dl-badge"><span data-icon="terminal" data-icon-size="14"></span></span>
+                <span><strong>Linux</strong><em>Eltes-3.15.0-linux-x86_64.AppImage · eltes_3.15.0_amd64.deb</em></span>
+              </li>
             </ul>
-            <a class="btn btn-primary btn-lg dl-btn" href="downloads/eltes-windows.zip" download>
+            <a class="btn btn-primary btn-lg dl-btn" href="https://github.com/gefrus112/eltes/releases/latest" target="_blank" rel="noreferrer">
               <span data-icon="download" data-icon-size="16"></span>
-              Download eltes-windows.zip
+              Get the installers
             </a>
-            <div class="dl-meta">Zip · includes <span class="mono">eltes.bat</span>, <span class="mono">Start-Eltes.ps1</span> and the site</div>
+            <div class="dl-meta">Built by GitHub Actions on Windows, macOS and Ubuntu · <a href="docs.html#desktop">how the harness works</a></div>
           </article>
 
           <div class="dl-side reveal" style="--d:80ms">
             <article class="download-card small">
-              <span class="dl-os"><span data-icon="terminal" data-icon-size="15"></span>macOS · Linux</span>
-              <h3>Serve the same files</h3>
-              <p>Clone the repository and run <code class="mono">npm install &amp;&amp; npm start</code> to serve the site with the optional local API. A static server such as Python works too, but does not run key checks or the proxy.</p>
-              <div class="cmd-row"><code class="mono">npm start</code></div>
+              <span class="dl-os"><span data-icon="monitor-down" data-icon-size="15"></span>Windows · portable zip</span>
+              <h3>No installer, just files</h3>
+              <p>Unzip and double-click <code class="mono">eltes.bat</code>. It finds Python or Node, serves the folder on <code class="mono">127.0.0.1:4173</code> and opens your browser.</p>
+              <a class="btn btn-ghost btn-sm" href="downloads/eltes-windows.zip" download>
+                <span data-icon="download" data-icon-size="13"></span>Download eltes-windows.zip
+              </a>
             </article>
             <article class="download-card small">
-              <span class="dl-os"><span data-icon="layout-grid" data-icon-size="15"></span>Install as an app</span>
-              <h3>No download needed</h3>
-              <p>Eltes ships a web manifest. Use your browser’s <strong>Install</strong> or <strong>Add to Home Screen</strong>
-                action to get a standalone window with the green-cloud icon.</p>
-              <a class="btn btn-ghost btn-sm" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="12"></span></a>
+              <span class="dl-os"><span data-icon="code-2" data-icon-size="15"></span>Build it yourself</span>
+              <h3>Two commands to an installer</h3>
+              <p>Clone the repository, install once, then build the installers for the platform you are on.</p>
+              <div class="cmd-row"><code class="mono">npm install &amp;&amp; npm run desktop:build</code></div>
+              <a class="btn btn-ghost btn-sm" href="docs.html#desktop">Build and signing steps<span data-icon="arrow-right" data-icon-size="12"></span></a>
             </article>
           </div>
         </div>
-        <p class="dl-note">The launcher is a reviewable text file — read it before you run it. It binds to localhost and only serves files from the folder you unzipped; it does not run the optional API backend.</p>
+        <p class="dl-note">Checksums and build logs live on the release page for each tag. Unsigned Windows builds show SmartScreen’s “More info → Run anyway”; unsigned macOS builds need a right-click → Open the first time. The desktop app adds no telemetry and no update pings.</p>
       </div>
     </section>
 
@@ -791,7 +802,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Desktop build 3.14.0.</span>
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Desktop build 3.15.0.</span>
         <span class="status"><i></i>Local-first workspace</span>
       </div>
     </div>

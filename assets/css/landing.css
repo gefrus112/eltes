@@ -971,6 +971,30 @@
 }
 .dl-list .icon { color: #5ed7ae; flex: none; margin-top: 2px; }
 .dl-btn { width: 100%; justify-content: center; margin-top: auto; }
+.dl-os-list { display: grid; gap: 12px; margin-bottom: 22px; }
+.dl-os-list li { display: flex; align-items: flex-start; gap: 11px; }
+.dl-os-list .dl-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  margin-top: 1px;
+  border-radius: 9px;
+  border: 1px solid rgba(57, 220, 162, 0.24);
+  background: rgba(57, 220, 162, 0.08);
+  color: #8ff0c8;
+}
+.dl-os-list strong { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
+.dl-os-list em {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font: 500 10.5px/1.5 var(--mono);
+  color: #5d7195;
+  word-break: break-word;
+}
+.dl-meta a { color: #9dc0ff; }
 .dl-meta { margin-top: 11px; font-size: 10.5px; color: #4f5e7a; text-align: center; }
 .dl-side { display: flex; flex-direction: column; gap: 18px; }
 .download-card.small { padding: 19px; display: flex; flex-direction: column; }

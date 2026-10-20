@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:;" />
+  <title>Eltes — the local server did not start</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 40px 24px;
+      background:
+        radial-gradient(900px 420px at 50% -10%, rgba(255, 138, 58, 0.14), transparent 70%),
+        radial-gradient(700px 380px at 90% 110%, rgba(57, 220, 162, 0.07), transparent 70%),
+        #04060a;
+      color: #e9effb;
+      font: 14px/1.65 "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: 100%; max-width: 560px; }
+    .mark { display: flex; align-items: center; gap: 10px; }
+    .mark svg { width: 30px; height: 30px; }
+    .mark b { font-size: 15px; letter-spacing: -0.02em; font-weight: 650; }
+    .mark span { color: #6b7b99; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; margin-left: 2px; }
+    h1 { margin: 26px 0 0; font-size: 30px; line-height: 1.1; letter-spacing: -0.04em; font-weight: 620; }
+    p { margin: 12px 0 0; color: #9dadc9; }
+    .panel {
+      margin-top: 24px;
+      border: 1px solid rgba(150, 175, 210, 0.14);
+      border-radius: 14px;
+      background: rgba(7, 11, 17, 0.82);
+      overflow: hidden;
+    }
+    .row { display: flex; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(150, 175, 210, 0.09); }
+    .row:last-child { border-bottom: 0; }
+    .row dt { flex: 0 0 92px; color: #5d697b; font: 500 10.5px/1.9 ui-monospace, "SF Mono", Menlo, monospace; text-transform: uppercase; letter-spacing: 0.12em; }
+    .row dd { margin: 0; min-width: 0; color: #cdd8ea; font: 500 12px/1.7 ui-monospace, "SF Mono", Menlo, monospace; word-break: break-word; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    button {
+      height: 40px; padding: 0 18px; border-radius: 10px; cursor: pointer;
+      font: 600 13px/1 "Inter", sans-serif;
+      border: 1px solid rgba(255, 175, 115, 0.5);
+      background: linear-gradient(135deg, #ffb073, #ff8a3d 58%, #e96a1f);
+      color: #241003;
+    }
+    button.ghost { background: rgba(255, 255, 255, 0.04); border-color: rgba(150, 175, 210, 0.2); color: #cdd8ea; }
+    button[disabled] { opacity: 0.55; cursor: progress; }
+    .hint { margin-top: 18px; color: #47546d; font-size: 11.5px; }
+    code { font: 500 11.5px ui-monospace, Menlo, monospace; color: #ffc38f; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <b>Eltes</b><span>Desktop</span>
+    </div>
+
+    <h1>The local server did not start.</h1>
+    <p>The window opened, but the piece that serves the workspace could not answer. Nothing was lost: chats and keys live in this app's data folder, not in the server.</p>
+
+    <div class="panel">
+      <div class="row"><dt>Error</dt><dd id="error">Reading the details…</dd></div>
+      <div class="row"><dt>Data folder</dt><dd id="userData">…</dd></div>
+      <div class="row"><dt>Log</dt><dd id="logFile">…</dd></div>
+      <div class="row"><dt>Build</dt><dd id="versions">…</dd></div>
+    </div>
+
+    <div class="actions">
+      <button id="retry" type="button">Try again</button>
+      <button class="ghost" id="logs" type="button">Open logs folder</button>
+      <button class="ghost" id="studio" type="button">Open Studio folder</button>
+    </div>
+
+    <p class="hint">If this repeats, quit Eltes and start it again. The last lines of <code>desktop.log</code> name the cause — usually a port that is blocked or a missing site file.</p>
+  </main>
+
+  <script>
+    (function () {
+      const bridge = window.EltesDesktop;
+      const $ = (id) => document.getElementById(id);
+
+      if (!bridge) {
+        $('error').textContent = 'The desktop bridge is not available in this window.';
+        return;
+      }
+
+      bridge.info().then((info) => {
+        $('error').textContent = info.error || 'The server exited without an error message.';
+        $('userData').textContent = info.paths.userData;
+        $('logFile').textContent = info.paths.logs || 'desktop.log';
+        $('versions').textContent = [
+          'Eltes ' + info.version,
+          info.electron ? 'Electron ' + info.electron : null,
+          info.platform + '-' + info.arch
+        ].filter(Boolean).join(' · ');
+      }).catch((error) => {
+        $('error').textContent = String(error && error.message || error);
+      });
+
+      $('retry').addEventListener('click', async () => {
+        $('retry').disabled = true;
+        $('retry').textContent = 'Starting…';
+        try {
+          const result = await bridge.retry();
+          if (!result.ok) {
+            $('error').textContent = result.error || 'Still not starting.';
+            $('retry').disabled = false;
+            $('retry').textContent = 'Try again';
+          }
+        } catch (error) {
+          $('error').textContent = String(error && error.message || error);
+          $('retry').disabled = false;
+          $('retry').textContent = 'Try again';
+        }
+      });
+
+      $('logs').addEventListener('click', () => bridge.openLogs());
+      $('studio').addEventListener('click', () => bridge.openStudio());
+    })();
+  </script>
+</body>
+</html>

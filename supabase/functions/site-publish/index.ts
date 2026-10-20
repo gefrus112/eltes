@@ -100,10 +100,17 @@ async function ensureBucket() {
   throw new Error(`bucket: ${response.status} ${text.slice(0, 200)}`);
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function upload(path, bytes) {
-  const response = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`,
-    {
+  const url = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`;
+  let last = '';
+
+  // Storage serialises writes through Postgres, and a burst of parallel
+  // uploads on the free plan answers 429 too_many_connections. Back off
+  // instead of failing a file that would have gone through a second later.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         apikey: SERVICE_KEY,
@@ -113,12 +120,15 @@ async function upload(path, bytes) {
         'x-upsert': 'true'
       },
       body: bytes
-    }
-  );
-  if (!response.ok) {
+    });
+    if (response.ok) return;
     const text = await response.text();
-    throw new Error(`${path}: ${response.status} ${text.slice(0, 160)}`);
+    last = `${response.status} ${text.slice(0, 160)}`;
+    if (response.status !== 429 && response.status < 500) break;
+    const retryAfter = Number(response.headers.get('retry-after')) || 0;
+    await sleep(retryAfter ? Math.min(retryAfter * 1000, 4000) : 400 * (attempt + 1));
   }
+  throw new Error(`${path}: ${last}`);
 }
 
 const GITHUB_HEADERS = { Accept: 'application/vnd.github+json', 'User-Agent': 'eltes-site-publish' };
@@ -200,7 +210,8 @@ async function handle(req) {
     let uploaded = 0;
     let bytes = 0;
 
-    const workers = Math.min(8, queue.length);
+    // Three at a time keeps the connection pool happy on the free plan.
+    const workers = Math.min(3, queue.length);
     let cursor = 0;
     const run = async () => {
       while (cursor < queue.length) {

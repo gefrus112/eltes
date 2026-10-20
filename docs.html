@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 36 models, on-device CAI, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 38 models, NVIDIA NIM, on-device CAI, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static, local-first agent workspace. No backend, no build step, no demo replies. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.0.0</span>
+          <span class="badge"><span class="dot"></span>v3.1.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -123,7 +123,7 @@
             <tbody>
               <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry. CAI answers locally and labels itself.</td></tr>
               <tr><td>Chat</td><td>Dark-blue theme with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
-              <tr><td>Models</td><td>36 real models across 12 providers, including GPT‑6 Astra, Claude 5.5, DeepSeek V4.1 and three Eltes CAI models.</td></tr>
+              <tr><td>Models</td><td>38 real models across 13 providers, including GPT‑6 Astra, Claude 5.5, DeepSeek V4.1, NVIDIA NIM and three Eltes CAI models.</td></tr>
               <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
               <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
               <tr><td>Downloads</td><td>A portable Windows package with <code>eltes.bat</code>, a Start-Eltes helper and the whole static site.</td></tr>
@@ -269,6 +269,7 @@ https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
               <tr><td>Mistral</td><td>API key</td><td>console.mistral.ai</td></tr>
               <tr><td>Groq</td><td><code>gsk_…</code></td><td>console.groq.com</td></tr>
               <tr><td>OpenRouter</td><td><code>sk-or-v1-…</code></td><td>openrouter.ai/keys</td></tr>
+              <tr><td>NVIDIA NIM</td><td><code>nvapi-…</code></td><td>build.nvidia.com</td></tr>
             </tbody>
           </table>
 
@@ -319,6 +320,7 @@ https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
               <tr><td>Mistral</td><td><code>api.mistral.ai/v1</code></td><td>Varies</td></tr>
               <tr><td>Groq</td><td><code>api.groq.com/openai/v1</code></td><td>Yes</td></tr>
               <tr><td>OpenRouter</td><td><code>openrouter.ai/api/v1</code></td><td>Yes</td></tr>
+              <tr><td>NVIDIA NIM</td><td><code>integrate.api.nvidia.com/v1</code></td><td>Yes</td></tr>
               <tr><td>Eltes CAI</td><td>in this tab</td><td>Not applicable — no network request</td></tr>
               <tr><td>Custom</td><td>your URL</td><td>Depends on your server</td></tr>
             </tbody>
@@ -407,7 +409,9 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="models">
           <h2>Models <a class="anchor" href="#models" aria-label="Link to models" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>The catalogue ships <strong>36 models across 12 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
+          <p>HTML code fences include a sandboxed preview, copy and download actions. Preview scripts run in an isolated frame with network access blocked.</p>
+          <p>NVIDIA NIM uses <code>https://integrate.api.nvidia.com/v1</code> and a key from NVIDIA Build. Catalog access and any free quota depend on NVIDIA's account and model availability; these models are not guaranteed to be free.</p>
+          <p>The catalogue ships <strong>38 models across 13 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Models</th><th>Best at</th></tr></thead>
@@ -422,6 +426,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td>Qwen</td><td>Qwen3 Max, Qwen3 Coder Plus</td><td>Bilingual, repository-scale code</td></tr>
               <tr><td>Mistral</td><td>Mistral Large, Codestral</td><td>Function calling, completion</td></tr>
               <tr><td>Groq</td><td>Llama 3.3 70B, Llama 4 Scout</td><td>Very high tokens per second</td></tr>
+              <tr><td>NVIDIA NIM</td><td>Llama 3.3 70B, Nemotron Ultra</td><td>Open models via NVIDIA-hosted NIM; key and model access required</td></tr>
               <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 5.5, ChatGPT Astra, Gemini 2.5 Pro, GLM-4.6, DeepSeek Flash, Qwen3 Coder</td><td>One key, routing and fallbacks</td></tr>
               <tr><td>Custom</td><td>Whatever your endpoint serves</td><td>Local and private models</td></tr>
             </tbody>

@@ -1652,3 +1652,31 @@ body.compact .msg { padding: 9px 0; }
 @media (prefers-reduced-motion: reduce) {
   .caret { animation: none; opacity: 0.8; }
 }
+
+/* Model availability and sandboxed code preview */
+.picker-tabs { display: flex; gap: 5px; padding: 0 18px 10px; }
+.picker-tabs button { padding: 6px 10px; border: 1px solid transparent; border-radius: 7px; color: var(--text-3); font-size: 11px; }
+.picker-tabs button:hover { color: var(--text); background: rgba(255,255,255,.035); }
+.picker-tabs button.active { color: #c8d9ff; background: rgba(79,126,220,.13); border-color: rgba(112,155,238,.18); }
+.coming-model { display:flex; align-items:center; gap:11px; padding:13px 14px; border-bottom:1px solid var(--line); opacity:.84; }
+.coming-model > span:nth-child(2) { display:flex; min-width:0; flex-direction:column; gap:3px; }
+.coming-model strong { color:var(--text-2); font-size:12px; font-weight:550; }
+.coming-model small { color:var(--text-3); font-size:10.5px; line-height:1.5; }
+.coming-indicator { color:#8497b6; }
+.coming-tag { margin-left:auto; flex:none; color:#93a6c7; font-size:9px; border:1px solid var(--line-2); padding:3px 6px; border-radius:999px; }
+.code-head .cpy { margin-left:0; }
+.code-head .lang + .cpy { margin-left:auto; }
+.html-preview-dialog { width:min(1050px,calc(100vw - 24px)); max-width:none; height:min(780px,calc(100dvh - 32px)); }
+.html-preview-shell { width:100%; height:100%; max-height:none; display:flex; flex-direction:column; }
+.html-preview-shell iframe { width:100%; min-height:0; flex:1; background:#fff; border:0; border-radius:8px; }
+.html-preview-shell .dlg-actions { flex:none; }
+.profile-bio-row .profile-bio-ctl { align-items:flex-end; }
+.profile-bio-ctl textarea { width:min(290px,45vw); min-height:72px; padding:9px 10px; resize:vertical; border:1px solid var(--line-2); border-radius:8px; color:var(--text); background:#050b15; font:inherit; font-size:12px; }
+.profile-bio-ctl textarea:focus { outline:1px solid rgba(94,144,255,.55); }
+.profile-upload-ctl { flex-wrap:wrap; }
+@media (max-width:600px) {
+  .profile-bio-row .ctl { align-items:stretch; flex-direction:column; }
+  .profile-bio-ctl textarea { width:100%; }
+  .coming-model { align-items:flex-start; }
+  .coming-tag { margin-top:1px; }
+}

@@ -225,6 +225,8 @@
         const code = buf.join('\n');
         html.push(
           `<div class="code"><div class="code-head"><span class="lang">${ic('code-2', 11)}${esc(lang || 'text')}</span>` +
+            (/^(html|htm|xhtml)$/i.test(lang) ? `<button class="cpy" data-preview-html type="button">${ic('eye', 11)}<span>Preview</span></button>` : '') +
+            `<button class="cpy" data-download-code type="button">${ic('download', 11)}<span>Download</span></button>` +
             `<button class="cpy" data-copy-code type="button">${ic('copy', 11)}<span>Copy</span></button></div>` +
             `<pre><code>${highlight(code, lang)}</code></pre></div>`
         );
@@ -954,8 +956,19 @@
   });
 
   /* ------------------------------ model picker ---------------------------- */
+  let modelAvailabilityTab = 'available';
   function renderModelList(filter = '') {
     const q = filter.trim().toLowerCase();
+    const comingTab = modelAvailabilityTab === 'coming';
+    if (comingTab) {
+      const rows = [
+        ['More Gemini models', 'Google', 'New model IDs will appear here once verified against the live API.'],
+        ['NVIDIA community models', 'NVIDIA NIM', 'Additional NIM endpoints are being validated; connect a key to use the available catalog.'],
+        ['Open model providers', 'Multiple providers', 'Provider catalog updates are staged here before they become selectable.']
+      ];
+      els.modelList.innerHTML = `<div class="pick-group">Coming soon · not selectable</div>` + rows.map(([name, provider, note]) => `<div class="coming-model" aria-disabled="true"><span class="coming-indicator">${ic('clock', 15)}</span><span><strong>${esc(name)}</strong><small>${esc(provider)} · ${esc(note)}</small></span><span class="coming-tag">Coming soon</span></div>`).join('');
+      return;
+    }
     const current = currentModelId();
     const favs = state.settings.favorites || [];
     const matches = M.MODELS.filter((m) => {
@@ -1000,7 +1013,7 @@
     const hosted = others.filter((m) => !M.isLocal(m));
     els.modelList.innerHTML = group('Starred', favorites) + (q
       ? group('All models', others)
-      : group('On-device · no key', localOnly) + group('Hosted · Anthropic · OpenAI · DeepSeek · Google · Z.ai · xAI · Qwen · Mistral · Groq · OpenRouter', hosted));
+      : group('On-device · no key', localOnly) + group('Hosted · Anthropic · OpenAI · DeepSeek · Google · NVIDIA · Z.ai · xAI · Qwen · Mistral · Groq · OpenRouter', hosted));
     hydrateLogos(els.modelList);
 
     const pc = $('#providerConnect');
@@ -1062,6 +1075,7 @@
 
   const openModelPicker = () => {
     state.modelPickerFor = 'current';
+    setModelAvailability('available');
     renderModelList('');
     els.modelSearch.value = '';
     openDialog(els.modelDialog, '#modelSearch');
@@ -1069,6 +1083,18 @@
   $('#modelBtn').addEventListener('click', openModelPicker);
   $('#composerModel').addEventListener('click', openModelPicker);
   els.modelSearch.addEventListener('input', () => renderModelList(els.modelSearch.value));
+  const availableTab = $('#modelsAvailableTab');
+  const comingTab = $('#modelsComingTab');
+  function setModelAvailability(tab) {
+    modelAvailabilityTab = tab;
+    availableTab.classList.toggle('active', tab === 'available');
+    comingTab.classList.toggle('active', tab === 'coming');
+    availableTab.setAttribute('aria-selected', String(tab === 'available'));
+    comingTab.setAttribute('aria-selected', String(tab === 'coming'));
+    renderModelList(els.modelSearch.value);
+  }
+  availableTab.addEventListener('click', () => setModelAvailability('available'));
+  comingTab.addEventListener('click', () => setModelAvailability('coming'));
   els.modelSearch.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter') return;
     const first = els.modelList.querySelector('.pick-item');
@@ -1239,6 +1265,7 @@
 
   $('#defaultModelBtn').addEventListener('click', () => {
     state.modelPickerFor = 'default';
+    setModelAvailability('available');
     renderModelList('');
     els.modelSearch.value = '';
     openDialog(els.modelDialog, '#modelSearch');
@@ -1410,6 +1437,18 @@
         </div>
       </div>
       <div class="set-row">
+        <div class="lbl"><strong>Profile image</strong><span>PNG, JPEG, WebP or GIF · max 2 MB · stored only in this browser.</span></div>
+        <div class="ctl profile-upload-ctl">
+          <input type="file" id="accountAvatarFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
+          <button class="btn btn-ghost btn-sm" type="button" id="accountAvatarChoose">Upload image</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="accountAvatarRemove"${account.avatarUrl ? '' : ' hidden'}>Remove</button>
+        </div>
+      </div>
+      <div class="set-row profile-bio-row">
+        <div class="lbl"><strong>Bio</strong><span>Up to 240 characters. Private to this browser.</span></div>
+        <div class="ctl profile-bio-ctl"><textarea id="accountBioInput" maxlength="240" aria-label="Profile bio" placeholder="A little about you">${esc(account.bio || '')}</textarea><button class="btn btn-ghost btn-sm" id="accountBioSave">Save bio</button></div>
+      </div>
+      <div class="set-row">
         <div class="lbl"><strong>Email</strong><span>Only used locally. No email is ever sent.</span></div>
         <div class="ctl"><span class="mono" style="font-size:11.5px;color:var(--text-2)">${esc(account.email || '—')}</span></div>
       </div>
@@ -1433,6 +1472,37 @@
       renderAccountSlot();
       renderTopbar();
       toast('Profile updated', 'user-check');
+    });
+    $('#accountAvatarChoose').addEventListener('click', () => $('#accountAvatarFile').click());
+    $('#accountAvatarFile').addEventListener('change', async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (!/^image\/(png|jpeg|webp|gif)$/i.test(file.type) || file.size > 2 * 1024 * 1024) {
+        toast('Choose a PNG, JPEG, WebP or GIF image under 2 MB', 'triangle-alert');
+        event.target.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const avatarUrl = Account.safeAvatar(reader.result);
+        if (!avatarUrl) return toast('That image could not be saved', 'triangle-alert');
+        Account.create(Object.assign({}, account, { avatarUrl }));
+        renderAccountSlot(); renderTopbar(); renderAccountPanel();
+        toast('Profile image updated', 'user-check');
+      };
+      reader.onerror = () => toast('Could not read that image', 'triangle-alert');
+      reader.readAsDataURL(file);
+    });
+    $('#accountAvatarRemove').addEventListener('click', () => {
+      Account.create(Object.assign({}, account, { avatarUrl: '' }));
+      renderAccountSlot(); renderTopbar(); renderAccountPanel();
+      toast('Profile image removed', 'user-check');
+    });
+    $('#accountBioSave').addEventListener('click', () => {
+      const bio = ($('#accountBioInput').value || '').trim().slice(0, 240);
+      Account.create(Object.assign({}, account, { bio }));
+      renderAccountSlot(); renderTopbar(); renderAccountPanel();
+      toast('Bio updated', 'user-check');
     });
     $('#accountSignOut').addEventListener('click', () => {
       Account.signOut();
@@ -2578,7 +2648,39 @@
     else toast('No reply to copy yet', 'triangle-alert');
   }
 
+  let previewHtmlSource = '';
+  function showHtmlPreview(source) {
+    previewHtmlSource = source;
+    const policy = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src data:; connect-src 'none'; object-src 'none'; form-action 'none'; frame-src 'none'; base-uri 'none'">`;
+    const documentHtml = /<head\b[^>]*>/i.test(source)
+      ? source.replace(/<head\b[^>]*>/i, (head) => head + policy)
+      : `<!doctype html><html><head><meta charset="utf-8">${policy}</head><body>${source}</body></html>`;
+    $('#htmlPreviewFrame').srcdoc = documentHtml;
+    openDialog($('#htmlPreviewDialog'));
+  }
+  $('#copyPreviewHtml').addEventListener('click', () => copyText(previewHtmlSource));
+  $('#downloadPreviewHtml').addEventListener('click', () => {
+    if (!previewHtmlSource) return;
+    download('eltes-preview.html', previewHtmlSource, 'text/html');
+    toast('HTML downloaded', 'download');
+  });
+
   els.messages.addEventListener('click', async (e) => {
+    const previewHtml = e.target.closest('[data-preview-html]');
+    if (previewHtml) {
+      const code = previewHtml.closest('.code').querySelector('pre code');
+      showHtmlPreview(code ? code.textContent : '');
+      return;
+    }
+    const downloadCode = e.target.closest('[data-download-code]');
+    if (downloadCode) {
+      const code = downloadCode.closest('.code').querySelector('pre code');
+      const lang = downloadCode.closest('.code').querySelector('.lang').textContent.trim().toLowerCase();
+      const ext = ({ html: 'html', htm: 'html', xhtml: 'html', js: 'js', javascript: 'js', css: 'css', python: 'py', py: 'py', json: 'json', bash: 'sh', sh: 'sh', sql: 'sql', ts: 'ts', typescript: 'ts' })[lang] || 'txt';
+      download(`eltes-code.${ext}`, code ? code.textContent : '', ext === 'html' ? 'text/html' : 'text/plain');
+      toast('Code downloaded', 'download');
+      return;
+    }
     const copyCode = e.target.closest('[data-copy-code]');
     if (copyCode) {
       const pre = copyCode.closest('.code').querySelector('pre');

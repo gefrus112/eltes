@@ -37,13 +37,14 @@ window.EltesAccount = (function () {
     const now = Date.now();
     const name = String(data.name || data.username || 'Eltes user').trim().slice(0, 60);
     const account = {
-      id: 'u_' + Math.random().toString(36).slice(2, 10),
+      id: String(data.id || ('u_' + Math.random().toString(36).slice(2, 10))),
       name,
       email: String(data.email || '').trim().slice(0, 120),
       username: String(data.username || '').replace(/^@/, '').trim().slice(0, 40),
       provider: data.provider || 'local',
-      avatarUrl: data.avatarUrl || '',
-      createdAt: now,
+      avatarUrl: safeAvatar(data.avatarUrl),
+      bio: String(data.bio || '').trim().slice(0, 240),
+      createdAt: Number(data.createdAt) || now,
       plan: 'byok'
     };
     return save(account);
@@ -62,11 +63,18 @@ window.EltesAccount = (function () {
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  function safeAvatar(value) {
+    const url = String(value || '').trim();
+    if (/^https:\/\//i.test(url)) return url.slice(0, 2048);
+    if (/^data:image\/(?:png|jpeg|gif|webp);base64,[A-Za-z0-9+/]+=*$/i.test(url) && url.length <= 2800000) return url;
+    return '';
+  }
+
   function avatarHtml(account, size, extraClass) {
     const a = account || get();
     if (!a) return '';
     const cls = `avatar ${size === 'lg' ? 'lg' : size === 'sm' ? 'sm' : ''} ${extraClass || ''}`.trim();
-    const safeUrl = typeof a.avatarUrl === 'string' && /^https:\/\//i.test(a.avatarUrl.trim()) ? a.avatarUrl.trim() : '';
+    const safeUrl = safeAvatar(a.avatarUrl);
     if (safeUrl) {
       return `<span class="${cls}"><img src="${esc(safeUrl)}" alt="" referrerpolicy="no-referrer" /></span>`;
     }
@@ -77,5 +85,5 @@ window.EltesAccount = (function () {
     return !!get();
   }
 
-  return { get, create, signOut, initials, avatarHtml, isSignedIn, KEY };
+  return { get, create, signOut, initials, avatarHtml, isSignedIn, safeAvatar, KEY };
 })();

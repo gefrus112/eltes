@@ -31,8 +31,8 @@ picked, failures are explicit, and **Eltes CAI** answers locally when you have n
   throttle, a live streaming dot and first-token metrics. Also routed through OpenRouter.
 - **Downloads** — `downloads/eltes-windows.zip` ships `eltes.bat`, `Start-Eltes.ps1`, a Windows README
   and the whole static site. Unzip, double-click, browser opens. macOS/Linux use any static server.
-- **Catalogue refresh** — 36 models across 12 providers, including Claude 5.5, GPT‑6 Sol/Luna,
-  DeepSeek V4.1 Flash / V4 Pro and Eltes CAI.
+- **Catalogue refresh** — 38 models across 13 providers, including Claude 5.5, GPT‑6 Sol/Luna,
+  DeepSeek V4.1 Flash / V4 Pro, NVIDIA NIM and Eltes CAI.
 - **Docs completion** — every section is written; nothing is marked “coming soon”.
 
 ## Features
@@ -46,13 +46,15 @@ picked, failures are explicit, and **Eltes CAI** answers locally when you have n
   feed results back to the model, up to four rounds. Every call renders as a card with arguments,
   result and runtime.
 - **Designed chat surface** — step timeline, model/provider/on-device chips, first-token latency, total
-  time, tokens in/out, tokens per second, copyable code blocks, editable prompts, retry.
+  time, tokens in/out, tokens per second, copyable and downloadable code, sandboxed HTML previews,
+  editable prompts and retry.
 - **Bring your own key** — keys live in `localStorage` and go straight from the tab to the provider.
   Exports exclude them. A custom endpoint covers Ollama, vLLM, LiteLLM and local gateways.
 - **Local history you own** — grouped by date, pin, rename, clear, search with `⌘K`, export Markdown or
   JSON, import a backup. Chats are normalised on load, so stale or malformed data cannot break the app.
-- **Optional accounts** — a local profile plus per-provider connection state, shared across pages via
-  the `eltes:account` event.
+- **Optional accounts** — a local profile with editable bio and PNG/JPEG/WebP/GIF avatar plus per-provider
+  connection state, shared across pages via the `eltes:account` event. GitHub OAuth is intentionally not
+  enabled on the static build; do not paste personal access tokens into the browser.
 - **Honest pricing** — BYOK is free and pay-the-provider. Hosted plans are marked “pricing not
   announced”; nothing can take a payment.
 - **No emoji, no icon fonts** — inline Lucide vectors and real provider marks; Inter and JetBrains Mono
@@ -60,8 +62,8 @@ picked, failures are explicit, and **Eltes CAI** answers locally when you have n
 
 ## Models
 
-36 entries across 12 providers: Anthropic, OpenAI, Google, Z.ai, DeepSeek, xAI, Qwen, Mistral, Groq,
-OpenRouter, Eltes CAI and a custom OpenAI-compatible endpoint. The picker marks every hosted model that
+38 entries across 13 providers: Anthropic, OpenAI, Google, Z.ai, DeepSeek, xAI, Qwen, Mistral, Groq,
+OpenRouter, NVIDIA NIM, Eltes CAI and a custom OpenAI-compatible endpoint. The picker marks every hosted model that
 has a connected account, `realtime` entries with a live dot, and CAI as `on-device`.
 
 ## Run it

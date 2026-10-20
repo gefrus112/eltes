@@ -75,7 +75,7 @@
   letter-spacing: 0.16em;
 }
 .kicker-mark { display: inline-flex; align-items: flex-end; gap: 3px; height: 13px; }
-.kicker-mark span { width: 3px; border-radius: 3px; background: var(--green); box-shadow: 0 0 12px rgba(55, 214, 160, 0.55); }
+.kicker-mark span { width: 3px; border-radius: 3px; background: var(--green); }
 .kicker-mark span:nth-child(1) { height: 7px; opacity: .62; }
 .kicker-mark span:nth-child(2) { height: 12px; }
 .kicker-mark span:nth-child(3) { height: 9px; opacity: .8; }
@@ -167,7 +167,6 @@
 .showcase-brand strong { color: #e7efff; font-size: 12px; font-weight: 600; }
 .showcase-slash { color: #40516c; }
 .showcase-status { color: #a8bad4; font-size: 10px; letter-spacing: .02em; }
-.status-dot { display: inline-block; width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(55, 214, 160, .5); }
 .showcase-layout { display: grid; grid-template-columns: minmax(230px, .73fr) minmax(0, 1.27fr); min-height: 344px; }
 .showcase-picker { display: flex; flex-direction: column; padding: 24px 18px 16px; border-right: 1px solid rgba(141, 174, 232, .1); background: rgba(2, 7, 14, .4); }
 .showcase-label { padding: 0 8px 12px; color: #71819c; font: 600 9px/1.2 var(--mono); letter-spacing: .15em; }
@@ -1135,7 +1134,7 @@ body {
   font-size: 8.5px;
   letter-spacing: 0.04em;
 }
-.kicker-mark span { box-shadow: 0 0 14px rgba(55, 214, 160, 0.75); animation: kicker-bar 1.6s ease-in-out infinite; }
+.kicker-mark span { animation: kicker-bar 1.6s ease-in-out infinite; }
 .kicker-mark span:nth-child(2) { animation-delay: 0.2s; }
 .kicker-mark span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes kicker-bar {
@@ -1557,14 +1556,6 @@ body {
   font-size: 8.5px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-.tw-live i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--v4-mint);
-  box-shadow: 0 0 0 0 rgba(57, 220, 162, 0.6);
-  animation: live-pulse 1.8s ease-out infinite;
 }
 @keyframes live-pulse {
   0% { box-shadow: 0 0 0 0 rgba(57, 220, 162, 0.55); }
@@ -2419,13 +2410,6 @@ body {
   background: rgba(57, 220, 162, 0.05);
   color: #8ff0c8;
 }
-.footer-bottom .status i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--v4-mint);
-  box-shadow: 0 0 8px rgba(57, 220, 162, 0.8);
-}
 
 /* ------------------------------- reveal --------------------------------- */
 
@@ -2497,7 +2481,6 @@ body {
   .showcase-shell::before,
   .price-card.featured::before,
   .kicker-mark span,
-  .tw-live i,
   .tp-spark i,
   .tour-panel.active {
     animation: none !important;
@@ -2832,3 +2815,25 @@ body {
   .ip-col { padding: 13px 13px 12px; }
   .ip-head p { font-size: 12.5px; }
 }
+
+/* v4.1 — status labels read as quiet monospace tags, no glowing indicators */
+.showcase-status,
+.tw-live,
+.footer-bottom .status {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 99px;
+  border: 1px solid rgba(57, 220, 162, 0.16);
+  background: rgba(57, 220, 162, 0.045);
+  color: #97dfc4;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  gap: 0;
+}
+.showcase-status { color: #9ecdb9; border-color: rgba(126, 168, 232, 0.14); background: rgba(255, 255, 255, 0.02); }
+.architecture-foot > span { color: #93a7c5; }

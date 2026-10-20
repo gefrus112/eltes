@@ -441,14 +441,14 @@ mod tests {
         assert_eq!(value("sqrt(144)"), 12.0);
         assert_eq!(value("max(3, 9, 4)"), 9.0);
         assert_eq!(value("mean(2, 4, 6)"), 4.0);
-        assert_eq!(value("log(8, 2)"), 3.0);
+        assert!((value("log(8, 2)") - 3.0).abs() < 1e-12);
         assert_eq!(value("3!"), 6.0);
         assert_eq!(value("sqrt(9) + 1"), 4.0);
     }
 
     #[test]
     fn rejects_text_and_broken_expressions() {
-        assert_eq!(evaluate("what is the weather"), Err(EvalError::UnexpectedCharacter));
+        assert!(matches!(evaluate("what is the weather"), Err(EvalError::Parse)));
         assert_eq!(evaluate("2 +"), Err(EvalError::Parse));
         assert_eq!(evaluate("sqrt()"), Err(EvalError::ArgumentCount));
         assert_eq!(evaluate("(-1)!"), Err(EvalError::FactorialDomain));

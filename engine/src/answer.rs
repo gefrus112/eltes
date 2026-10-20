@@ -251,12 +251,12 @@ fn unit_intent(text: &str) -> Option<String> {
         if !matches!(*connector, "to" | "in" | "into" | "as" | "->" | "→") {
             continue;
         }
-        let Some(target) = words.get(after_from + 1) else {
+        let Some(target) = words.get(after_from + 1).copied() else {
             continue;
         };
 
         if from.len() == 1 && target.len() == 1 {
-            if let Some(converted) = units::temperature(value, from, *target) {
+            if let Some(converted) = units::temperature(value, from, target) {
                 let from_label = from.to_uppercase();
                 let to_label = target.to_uppercase();
                 if from == target {
@@ -274,7 +274,7 @@ fn unit_intent(text: &str) -> Option<String> {
             }
         }
 
-        let Some(conversion) = units::convert(value, from, *target) else {
+        let Some(conversion) = units::convert(value, from, target) else {
             continue;
         };
         let converted = format_number(conversion.value);

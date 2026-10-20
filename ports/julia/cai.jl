@@ -644,7 +644,7 @@ function run_vectors(path::String)
 
         if fields[1] == "eval"
             value = try
-                evaluate(fields[2])
+                evaluate(String(fields[2]))
             catch
                 push!(failures, string("line ", number, ": '", fields[2], "' -> error"))
                 continue
@@ -658,7 +658,7 @@ function run_vectors(path::String)
             continue
         end
 
-        intent, text = answer(fields[2])
+        intent, text = answer(String(fields[2]))
         if intent != fields[3]
             push!(failures, string("line ", number, ": '", fields[2], "' -> intent ", intent,
                 ", wanted ", fields[3]))

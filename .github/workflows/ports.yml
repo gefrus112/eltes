@@ -84,6 +84,11 @@ jobs:
             setup: |
               lua5.4 -v
             test: lua5.4 cai.lua ../vectors.tsv
+          - name: AWK
+            cwd: ports/awk
+            setup: |
+              awk -W version 2>&1 | head -1
+            test: awk -f cai.awk ../vectors.tsv
           - name: Julia
             cwd: ports/julia
             setup: |

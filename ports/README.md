@@ -93,6 +93,7 @@ exits `0` on success, or prints `FAIL …` lines and exits non-zero.
 | Kotlin     | `kotlin/Cai.kt`                     | `kotlinc Cai.kt -include-runtime -d cai.jar && java -jar cai.jar` |
 | C#         | `csharp/cai.csproj`                 | `dotnet run --project csharp/cai.csproj`                        |
 | Lua        | `lua/cai.lua`                       | `lua5.4 lua/cai.lua vectors.tsv`                                 |
+| AWK        | `awk/cai.awk`                     | `awk -f awk/cai.awk vectors.tsv`                                |
 | Julia      | `julia/cai.jl`                      | `julia julia/cai.jl vectors.tsv`                                |
 | Dart       | `dart/cai.dart`                     | `dart dart/cai.dart vectors.tsv`                                |
 

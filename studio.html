@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eltes Studio — write, run, preview</title>
+  <meta name="description" content="A coding workspace inside Eltes: edit HTML, CSS and JavaScript, preview any file live, and run a real terminal in the same window." />
+  <meta name="theme-color" content="#02050a" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="assets/css/studio.css" />
+</head>
+<body class="studio-body">
+  <div class="studio-app">
+    <!-- ================================ top ================================ -->
+    <header class="st-top">
+      <a class="st-brand" href="index.html" aria-label="Eltes home">
+        <span class="brand-mark"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        Eltes <span class="slash">/</span> <span class="sub">Studio</span>
+      </a>
+
+      <span class="st-backend" id="backendBadge" title="Studio backend status"><i></i><span id="backendText">checking…</span></span>
+      <span class="st-backend offline st-offline-pill" id="offlinePill" title="No local backend: files stay in this browser and the terminal is unavailable"><i></i><span>offline mode</span></span>
+
+      <span class="grow"></span>
+
+      <div class="st-mobile-actions">
+        <button class="st-btn ghost" id="btnFilesMobile" type="button" title="Files">Files</button>
+        <button class="st-btn ghost" id="btnPreviewMobile" type="button" title="Preview">Preview</button>
+      </div>
+
+      <div class="st-top-actions">
+        <button class="st-btn hide-sm" id="btnRunBuild" type="button" title="Run the project's build script">
+          <span data-icon="play" data-icon-size="13"></span>Run build
+        </button>
+        <button class="st-btn hide-sm" id="btnDownload" type="button" title="Download the workspace as a .zip">
+          <span data-icon="download" data-icon-size="13"></span>Export
+        </button>
+        <button class="st-btn ghost" id="btnHelp" type="button" aria-label="Studio help" title="Help">
+          <span data-icon="circle-help" data-icon-size="15"></span>
+        </button>
+        <a class="st-btn primary" href="app.html">
+          Chat <span data-icon="arrow-up-right" data-icon-size="13"></span>
+        </a>
+      </div>
+    </header>
+
+    <!-- ================================ main ================================ -->
+    <div class="st-main">
+      <aside class="st-files" id="filesPanel" aria-label="Workspace files">
+        <div class="st-panel-head">
+          <span>Workspace</span>
+          <span class="grow"></span>
+          <button class="st-icon-btn" id="btnRefreshFiles" type="button" aria-label="Refresh file list" title="Refresh">
+            <span data-icon="refresh-cw" data-icon-size="13"></span>
+          </button>
+          <button class="st-icon-btn" id="btnNewFile" type="button" aria-label="New file" title="New file">
+            <span data-icon="plus" data-icon-size="15"></span>
+          </button>
+        </div>
+        <ul class="st-filelist" id="fileList" role="tree" aria-label="Files"></ul>
+        <form class="st-newfile" id="newFileForm">
+          <input id="newFileName" type="text" name="name" placeholder="about.html" aria-label="New file name" autocomplete="off" spellcheck="false" />
+          <button class="st-btn primary" type="submit">Add</button>
+        </form>
+        <div class="st-files-foot" id="workspaceFoot">
+          <span id="workspacePath">.studio/</span> · files are served at <code>/preview/</code>
+        </div>
+      </aside>
+
+      <section class="st-editor" aria-label="Code editor">
+        <div class="st-tabs" id="tabs" role="tablist" aria-label="Open files"></div>
+        <div class="st-code">
+          <div class="st-gutter" id="gutter" aria-hidden="true">1</div>
+          <textarea id="code" aria-label="Code" spellcheck="false" autocomplete="off" autocapitalize="off" disabled></textarea>
+          <div class="st-editor-empty" id="editorEmpty">
+            <div>
+              <strong>Pick a file to start</strong>
+              Choose something in the workspace, or create <kbd>another.html</kbd> — every HTML file can be previewed.
+            </div>
+          </div>
+        </div>
+        <div class="st-status">
+          <span id="statusPath">no file open</span>
+          <span id="statusSaved"></span>
+          <span class="grow"></span>
+          <span id="statusLang"></span>
+          <span id="statusPos">Ln 1, Col 1</span>
+        </div>
+      </section>
+
+      <section class="st-preview" id="previewPanel" aria-label="Live preview">
+        <div class="st-preview-head">
+          <div class="st-address">
+            <span data-icon="globe" data-icon-size="12"></span>
+            <input id="previewPath" type="text" value="/preview/index.html" aria-label="Preview path" spellcheck="false" />
+          </div>
+          <div class="st-devices" role="group" aria-label="Preview width">
+            <button type="button" data-device="desktop" class="on" title="Desktop" aria-label="Desktop width"><span data-icon="monitor" data-icon-size="13"></span></button>
+            <button type="button" data-device="tablet" title="Tablet" aria-label="Tablet width"><span data-icon="layout-grid" data-icon-size="13"></span></button>
+            <button type="button" data-device="phone" title="Phone" aria-label="Phone width"><span data-icon="smartphone" data-icon-size="13"></span></button>
+          </div>
+          <button class="st-icon-btn" id="btnReload" type="button" aria-label="Reload preview" title="Reload">
+            <span data-icon="refresh-cw" data-icon-size="13"></span>
+          </button>
+          <button class="st-icon-btn" id="btnPopout" type="button" aria-label="Open preview in a new tab" title="Open in new tab">
+            <span data-icon="external-link" data-icon-size="13"></span>
+          </button>
+        </div>
+        <span class="st-preview-loading"><i></i>reloading</span>
+        <div class="st-frame-wrap" id="frameWrap" data-device="desktop">
+          <iframe id="previewFrame" title="Live preview" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-presentation"></iframe>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================== terminal ============================== -->
+    <section class="st-term" id="termPanel" aria-label="Terminal">
+      <div class="st-resize" id="termResize" role="separator" aria-label="Resize terminal" aria-orientation="horizontal"></div>
+      <div class="st-term-head">
+        <strong>Terminal</strong>
+        <span class="st-cwd" id="termCwd">~/studio</span>
+        <span class="grow"></span>
+        <span class="st-term-hint"><kbd>↵</kbd> run · <kbd>↑</kbd> history · <kbd>Ctrl</kbd>+<kbd>C</kbd> stop</span>
+        <button class="st-icon-btn" id="btnTermClear" type="button" aria-label="Clear terminal" title="Clear">
+          <span data-icon="trash-2" data-icon-size="12"></span>
+        </button>
+        <button class="st-icon-btn" id="btnTermToggle" type="button" aria-label="Collapse terminal" title="Collapse">
+          <span data-icon="chevron-down" data-icon-size="14"></span>
+        </button>
+      </div>
+      <div class="st-term-body" id="termBody" tabindex="0" role="log" aria-live="polite" aria-label="Terminal output"></div>
+      <div class="st-term-quick">
+        <button type="button" data-cmd="ls -la">ls -la</button>
+        <button type="button" data-cmd="node -v">node -v</button>
+        <button type="button" data-cmd="git status">git status</button>
+        <button type="button" data-cmd="npm install">npm install</button>
+      </div>
+      <div class="st-term-input">
+        <span class="st-prompt" id="termPrompt">~/studio <span>$</span></span>
+        <input id="termInput" type="text" placeholder="type a command…" aria-label="Terminal command" autocomplete="off" spellcheck="false" />
+        <button class="run" id="btnTermRun" type="button">Run</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================================= help ================================ -->
+  <dialog class="st-modal" id="helpDialog" aria-label="Studio help">
+    <div class="m-body">
+      <h3>Eltes Studio</h3>
+      <p>A real workspace next to the app: edit files, preview them live, and run commands in a shell in that folder.</p>
+      <ul>
+        <li><strong>Any HTML file previews.</strong> Click an <code>.html</code> file and the right pane follows it, served from <code>/preview/</code> — relative CSS, JS and images all resolve.</li>
+        <li><strong>Terminal.</strong> <code>ls</code>, <code>git</code>, <code>npm install</code>, <code>npm run build</code> — output streams as it runs. Preview reloads when files change.</li>
+        <li><strong>Shortcuts.</strong> <kbd>⌘/Ctrl</kbd>+<kbd>S</kbd> save · <kbd>Tab</kbd> indent · <kbd>⌘/Ctrl</kbd>+<kbd>P</kbd> quick switch.</li>
+        <li><strong>No backend?</strong> The editor still works and builds a preview in the browser; the terminal needs <code>npm start</code>.</li>
+      </ul>
+      <p class="m-note">The terminal runs on the machine hosting <code>npm start</code>. It is a development tool — keep it on a trusted network. The deployed static site never exposes it.</p>
+      <div class="m-actions"><button class="st-btn primary" id="btnHelpClose" type="button">Got it</button></div>
+    </div>
+  </dialog>
+
+  <script src="assets/js/icons.js"></script>
+  <script src="assets/js/studio.js"></script>
+</body>
+</html>

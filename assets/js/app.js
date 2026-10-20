@@ -1590,6 +1590,7 @@
       { label: 'Switch model', icon: 'layers', hint: '⌘M', run: () => { closeDialog(els.cmdDialog); openModelPicker(); } },
       { label: 'Connect a provider key', icon: 'key-round', run: () => { closeDialog(els.cmdDialog); openSettings('keys'); } },
       { label: 'Open settings', icon: 'settings', hint: '⌘,', run: () => { closeDialog(els.cmdDialog); openSettings('general'); } },
+      { label: 'Open Studio (code, run, preview)', icon: 'terminal', run: () => { window.location.href = 'studio.html'; } },
       { label: 'Toggle sidebar', icon: 'panel-left', hint: '⌘B', run: () => { closeDialog(els.cmdDialog); toggleSidebar(); } },
       { label: 'Export conversation', icon: 'download', run: () => { closeDialog(els.cmdDialog); openShare(); } },
       { label: 'Copy last reply', icon: 'copy', run: () => { closeDialog(els.cmdDialog); copyLastReply(); } },

@@ -1292,3 +1292,23 @@
   transition: background .15s, color .15s;
 }
 .search-demo a.cite:hover { background: rgba(94, 144, 255, .34); color: #fff; }
+
+
+/* ---------------------------- studio feature card ------------------------- */
+
+.span-6 { grid-column: span 6; }
+.studio-card {
+  flex-direction: row;
+  align-items: center;
+  gap: 26px;
+}
+.studio-card-copy { flex: 1; min-width: 0; }
+.studio-card-copy p { max-width: 56ch; }
+.studio-card-copy .btn { margin-top: 4px; align-self: flex-start; }
+.studio-card .card-visual { flex: 1; margin: 0; min-width: 0; max-width: 380px; }
+.studio-card .code-mini { width: 100%; }
+
+@media (max-width: 980px) {
+  .studio-card { flex-direction: column; align-items: stretch; gap: 16px; }
+  .studio-card .card-visual { max-width: none; }
+}

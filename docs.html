@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.7.1</span>
+          <span class="badge"><span class="dot"></span>v3.8.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -93,6 +93,7 @@
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
         <a href="#chat-commands"><span data-icon="command" data-icon-size="14"></span>Chat commands</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
+        <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
 
@@ -570,6 +571,49 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <span data-icon="download" data-icon-size="15"></span>
             <span><strong>Backups never include keys.</strong> Import merges chats and settings into this browser while keeping the keys already there.</span>
           </div>
+        </section>
+
+        <section id="studio">
+          <h2>Studio, files and the terminal <a class="anchor" href="#studio" aria-label="Link to Studio" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p><a href="studio.html">Eltes Studio</a> is a coding workspace served next to the app: a file list, an editor, a live preview and a real shell in one window. It is a normal page — open <code>studio.html</code> — and it works in two modes.</p>
+
+          <h3>The workspace</h3>
+          <p>Files live in <code>.studio/</code> beside the app and are served at <code>/preview/</code>, so the page you are editing loads exactly like a normal site: relative stylesheets, scripts, modules, fonts and images all resolve. The first run creates <code>index.html</code>, <code>styles.css</code>, <code>app.js</code>, <code>notes.md</code> and <code>README.txt</code>.</p>
+          <ul>
+            <li><strong>Any HTML file previews.</strong> Create <code>about.html</code>, open it, and the preview pane follows it. The address bar above the preview accepts any path, including one produced by a build such as <code>dist/index.html</code>.</li>
+            <li><strong>Auto-save and auto-reload.</strong> Edits save about a second after you stop typing, and the preview refreshes. Files changed from the terminal — <code>npm run build</code>, a formatter, a generator — reload the preview too.</li>
+            <li><strong>Export.</strong> <em>Export</em> packages the workspace as a zip, entirely in the browser.</li>
+            <li><strong>Device widths.</strong> The preview switches between desktop, tablet and phone, and can open in its own tab.</li>
+          </ul>
+
+          <h3>The terminal</h3>
+          <p>The bottom panel runs a real shell (<code>/bin/bash</code> when available, otherwise <code>/bin/sh</code>) with the workspace as its working directory. Output streams as it is produced, so a long build is visible while it runs. Commands have a 60-second limit by default, output is capped at 512 KB per command, and <kbd>Ctrl</kbd>+<kbd>C</kbd> stops a running command.</p>
+          <div class="doc-code"><pre><code>ls -la
+npm init -y
+npm install --save-dev vite
+npm run build
+# then preview dist/index.html</code></pre></div>
+          <p><code>cd</code> is tracked in the panel, <kbd>↑</kbd>/<kbd>↓</kbd> walk command history, <kbd>Ctrl</kbd>+<kbd>L</kbd> clears, and the quick buttons run common commands. <em>Run build</em> reads the workspace <code>package.json</code> and runs its <code>build</code> script when one exists.</p>
+
+          <div class="callout warn">
+            <span data-icon="shield" data-icon-size="15"></span>
+            <span><strong>Local only, on purpose.</strong> The terminal is part of <code>npm start</code>, not part of the static site, so a Vercel or GitHub Pages deployment can never run commands. Requests need a per-process token, every path is confined to <code>.studio/</code>, and the shell refuses to start if the workspace cannot be resolved. Keep the local server on a trusted network. <code>ELTES_STUDIO=0</code> disables Studio, <code>ELTES_STUDIO_SHELL=0</code> disables only the shell.</span>
+          </div>
+
+          <h3>Without a backend</h3>
+          <p>Opened as a plain static page, Studio falls back to a browser-only project stored in <code>localStorage</code>. The editor, file creation, preview and zip export still work: the preview is assembled in the browser with local CSS and JavaScript inlined. The terminal explains that commands need <code>npm start</code> instead of pretending to run.</p>
+
+          <h3>Shortcuts</h3>
+          <table class="doc-table">
+            <thead><tr><th>Key</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>Ctrl/⌘</kbd>+<kbd>S</kbd></td><td>Save the open file</td></tr>
+              <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Indent / dedent</td></tr>
+              <tr><td><kbd>Ctrl/⌘</kbd>+<kbd>P</kbd></td><td>Switch to the next file</td></tr>
+              <tr><td><kbd>↑</kbd> in the terminal</td><td>Previous command</td></tr>
+              <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Stop the running command</td></tr>
+            </tbody>
+          </table>
         </section>
 
         <section id="settings">

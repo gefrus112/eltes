@@ -12,6 +12,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 | `app.html` | Chat workspace, streaming, local history, settings, custom endpoints |
 | `auth.html` | Local profile and provider-key utilities; it is not a hosted identity service |
 | `docs.html` | App, local-model, proxy, deployment, privacy, and troubleshooting guide |
+| `studio.html` | Coding workspace: file tree, editor, live preview and a real local terminal |
 
 ## Features
 
@@ -23,6 +24,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Chat slash commands:** `/help`, `/clear`, `/export`, `/model`, `/calc`, `/convert`, `/define`, `/base`, `/web`, `/time`, `/coin`, `/dice`, `/random`, `/uppercase`, `/reverse`, `/sort` — handled on-device with a live autocomplete menu; only `/web` needs a search key.
 - **Live web search with sources:** click the **Web** chip — it always switches on (and reads *Web on*) — and Eltes searches Brave, Tavily, Serper or Exa through the optional backend, then renders a numbered source list with links and excerpts. Hosted models are asked to cite sources inline as `[1]`, `[2]`; CAI formats the same list deterministically. A recency filter (day, week, month, year) is mapped to each provider's own upstream filter. Your search key stays in this browser and is forwarded per request.
 - **Visible search thinking:** while a search runs, the reply shows live steps — the condensed query, provider and recency, the result count and the time each step took. Nothing is pre-scripted; failed searches leave a failed step. Finished traces collapse to a summary and can be reopened; turn them off under Settings → General.
+- **Eltes Studio:** a separate page with a workspace file tree, editor, live preview and a real shell. Any `.html` file previews at `/preview/<path>` with relative assets intact; edits and terminal builds reload it automatically. The terminal runs `/bin/bash` in `.studio/`, streams output, tracks `cd`, and stops on timeout or Ctrl+C. Without the local server the editor still works in browser-only mode with an in-browser preview and zip export.
 - **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
 - **Model catalogue:** 65 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, and custom endpoints.
 - **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
@@ -37,7 +39,7 @@ npm start
 # open http://localhost:4173/app.html
 ```
 
-`npm start` serves the site and local API routes together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, `/api/chat`, and `/api/search`. Stop the server with Ctrl+C. The local server has no user authentication; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`.
+`npm start` serves the site, the local API routes and Studio together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, `/api/chat`, `/api/search`, and the local-only `/api/studio/*` endpoints. Studio lives at `/studio.html`; its workspace is `.studio/` (gitignored) and its preview is `/preview/`. Stop the server with Ctrl+C. The local server has no user authentication and the terminal can run commands as your user; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`. Set `ELTES_STUDIO=0` to disable Studio entirely or `ELTES_STUDIO_SHELL=0` to keep the editor and preview without a shell.
 
 For a static-only preview, Python also works:
 

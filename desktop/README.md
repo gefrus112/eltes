@@ -61,7 +61,7 @@ Artifacts land in `desktop/.build/dist/`:
 | Platform | File | What it is |
 | --- | --- | --- |
 | Windows | `Eltes-Setup-<version>-x64.exe` | NSIS installer: per-user, choose the folder, desktop and Start-menu shortcuts |
-| Windows | `Eltes-<version>-Portable-x64.exe` | one file, no install; runs from a USB stick |
+| Windows | `Eltes-<version>-Portable-x64.exe` | one file, no install; runs from a USB stick (arm64 portable built too) |
 | macOS | `Eltes-<version>-arm64.dmg` / `-x64.dmg` | drag to Applications |
 | macOS | `Eltes-<version>-mac-<arch>.zip` | zipped `.app` for MDM or manual copy |
 | Linux | `Eltes-<version>-linux-x86_64.AppImage` | single executable, `chmod +x` and run |

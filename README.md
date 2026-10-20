@@ -138,9 +138,15 @@ Storage is per browser and origin. Export chats before clearing site data.
 
 ## License and reuse
 
-The **Rust engine in [`engine/`](engine/)** is MIT-licensed and can be reused
-freely — see [`engine/LICENSE`](engine/LICENSE). It is a separate work from the
-site: the landing page, workspace, copy and design remain covered by the
-restrictive terms below.
+The **Rust engine in [`engine/`](engine/)** and the **language ports in
+[`ports/`](ports/)** are MIT-licensed and can be reused freely — see
+[`engine/LICENSE`](engine/LICENSE) and [`ports/README.md`](ports/README.md).
+They are separate works from the site: the landing page, workspace, copy and
+design remain covered by the restrictive terms below.
+
+`ports/` is a shared conformance suite (`ports/vectors.tsv`) plus seventeen
+verified implementations of the same answer engine — Python, JavaScript,
+TypeScript, Perl, C, C++, Go, Ruby, PHP, Java, Kotlin, C#, Lua, AWK, Julia, R
+and Dart. A port is only listed there while its CI job passes every vector.
 
 The site itself is distributed under the restrictive terms in [`LICENSE`](LICENSE), not MIT. The source is publicly viewable because the repository is public; that does not grant permission to copy, redistribute, modify, or publish a clone. The license cannot technically prevent downloading or forking public files. The prior MIT-licensed versions remain subject to the rights granted with those releases; this change is not retroactive. Third-party assets retain their own licenses in [`NOTICE.md`](NOTICE.md). This is a project notice, not legal advice.

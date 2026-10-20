@@ -95,9 +95,11 @@ divergence. The unit tests beside each module cover the edge cases: floating
 point noise, factorial domain, mixed-unit rejection, negative zero.
 
 `tests/parity.rs` runs this crate against [`../ports/vectors.tsv`](../ports/vectors.tsv),
-the same file every port in [`../ports`](../ports) is judged by. If the Rust
-engine and the Python, Go, Java, C or Lua ports disagree about an answer, that
-test names the line.
+the same file every port in [`../ports`](../ports) is judged by. Seventeen ports
+— Python, JavaScript, TypeScript, Perl, C, C++, Go, Ruby, PHP, Java, Kotlin,
+C#, Lua, AWK, Julia, R and Dart — implement the same contract, and each one is
+built and run against those vectors in CI. If the Rust engine and any port
+disagree about an answer, the failing job names the line.
 
 ## Licensing
 

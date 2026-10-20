@@ -93,13 +93,16 @@ exits `0` on success, or prints `FAIL …` lines and exits non-zero.
 | Kotlin     | `kotlin/Cai.kt`                     | `kotlinc Cai.kt -include-runtime -d cai.jar && java -jar cai.jar` |
 | C#         | `csharp/cai.csproj`                 | `dotnet run --project csharp/cai.csproj`                        |
 | Lua        | `lua/cai.lua`                       | `lua5.4 lua/cai.lua vectors.tsv`                                 |
-| AWK        | `awk/cai.awk`                     | `awk -f awk/cai.awk vectors.tsv`                                |
+| AWK        | `awk/cai.awk`                       | `awk -f awk/cai.awk vectors.tsv`                                |
 | Julia      | `julia/cai.jl`                      | `julia julia/cai.jl vectors.tsv`                                |
 | R          | `r/cai.R`                          | `Rscript r/cai.R vectors.tsv`                                   |
 | Dart       | `dart/cai.dart`                     | `dart dart/cai.dart vectors.tsv`                                |
 
-`../.github/workflows/ports.yml` runs a matrix of 15 language jobs on every
-push, so a row only stays in this table while it is green.
+`../.github/workflows/ports.yml` runs a matrix of **17 language jobs** on every
+push (plus the Rust crate), so a row only stays in this table while it is green.
+The one exception is the Rust reference itself: it is checked by
+`../.github/workflows/engine.yml` through `../engine/tests/parity.rs`, which runs
+this exact `vectors.tsv` through the crate.
 
 ## Adding a language
 

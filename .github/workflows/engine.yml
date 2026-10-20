@@ -68,7 +68,17 @@ jobs:
           exit "$status"
 
       - name: Clippy
-        run: cargo clippy --all-targets --locked -- -D warnings
+        run: |
+          set +e
+          cargo clippy --all-targets --locked -- -D warnings 2>&1 | tee /tmp/clippy.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E '^(error|warning)(\[E?[a-z0-9]+\])?|^ *-->' /tmp/clippy.log | paste - - | head -20 |
+              while IFS="$(printf '\t')" read -r head tail; do
+                echo "::error::${head} ${tail}"
+              done
+          fi
+          exit "$status"
 
       - name: Formatting
         continue-on-error: true

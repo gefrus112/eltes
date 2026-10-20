@@ -249,9 +249,9 @@
       // 0 when entering, 0.5 at centre, 1 when leaving
       const t = clamp((vh - rect.top) / (vh + rect.height), 0, 1);
       const assembled = Math.abs(Math.cos(Math.PI * t));
-      const p = 0.03 + 0.97 * Math.pow(assembled, 0.85);
+      const p = 0.16 + 0.84 * Math.pow(assembled, 0.85);
       el.style.setProperty('--p', p.toFixed(3));
-      el.style.setProperty('--label-o', clamp((p - 0.32) / 0.6, 0, 1).toFixed(3));
+      el.style.setProperty('--label-o', (0.74 + 0.26 * p).toFixed(3));
     });
 
     parallaxEls.forEach((el) => {
@@ -405,13 +405,14 @@
     const wall = $('#modelWall');
     if (!wall) return;
     wall.innerHTML = WALL.map(
-      (p) => `<a class="model-tile reveal" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : ACCOUNT_PROVIDERS.includes(p.provider) ? '— connect your account' : 'models'}">
+      (p) => `<a class="model-tile reveal" data-kind="${p.local ? 'local' : 'hosted'}" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : ACCOUNT_PROVIDERS.includes(p.provider) ? '— connect your account' : 'models'}">
         <span class="mt-top">
           <span class="p-logo lg" data-brand="${p.brand}" data-brand-size="22"></span>
-          <span>
+          <span class="mt-copy">
             <span class="mt-name">${escapeHtml(p.name)}</span>
             <span class="mt-meta">${escapeHtml(p.meta)}</span>
           </span>
+          ${p.local ? '<span class="mt-badge">on-device</span>' : ''}
         </span>
         <ul>${p.models.map((m) => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
         <span class="mt-link">${p.local ? 'Run on-device' : ACCOUNT_PROVIDERS.includes(p.provider) ? 'Connect account' : 'Open with a key'} <span data-icon="arrow-right" data-icon-size="11"></span></span>
@@ -423,15 +424,52 @@
       el.style.setProperty('--d', `${Math.min(index * 45, 360)}ms`);
       el.classList.add('in');
     });
+    wireWallFilter();
+  }
+
+  function wireWallFilter() {
+    const filter = $('#wallFilter');
+    const wall = $('#modelWall');
+    if (!filter || !wall) return;
+    const tiles = Array.from(wall.querySelectorAll('.model-tile'));
+    const hosted = tiles.filter((el) => el.dataset.kind === 'hosted').length;
+    const local = tiles.filter((el) => el.dataset.kind === 'local').length;
+    const setCount = (id, value) => { const el = $(id); if (el) el.textContent = String(value); };
+    setCount('#wfAll', tiles.length);
+    setCount('#wfHosted', hosted);
+    setCount('#wfLocal', local);
+
+    const apply = (kind) => {
+      filter.querySelectorAll('.wf').forEach((btn) => {
+        const on = btn.dataset.filter === kind;
+        btn.classList.toggle('active', on);
+        btn.setAttribute('aria-pressed', String(on));
+      });
+      tiles.forEach((tile) => {
+        const show = kind === 'all' || tile.dataset.kind === kind;
+        tile.classList.toggle('filtered-out', !show);
+      });
+    };
+    filter.addEventListener('click', (event) => {
+      const btn = event.target.closest('.wf');
+      if (btn) apply(btn.dataset.filter);
+    });
+    apply('all');
   }
 
   function renderMiniProviders() {
-    const box = $('#miniProviders');
+    const box = $('#logoMarquee');
     if (!box) return;
-    box.innerHTML = WALL.map(
-      (p) => `<span class="mp"><span class="p-logo sm" data-brand="${p.brand}" data-brand-size="14"></span>${escapeHtml(p.name.replace(' · Alibaba', ''))}</span>`
+    const items = WALL.map(
+      (p) => `<span class="mp" role="listitem"><span class="p-logo sm" data-brand="${p.brand}" data-brand-size="14"></span>${escapeHtml(p.name.replace(' · Alibaba', ''))}</span>`
     ).join('');
+    // the second pass only exists to make the loop seamless — hide it from AT
+    const echo = WALL.map(
+      (p) => `<span class="mp" aria-hidden="true"><span class="p-logo sm" data-brand="${p.brand}" data-brand-size="14"></span>${escapeHtml(p.name.replace(' · Alibaba', ''))}</span>`
+    ).join('');
+    box.innerHTML = `<div class="marquee-track">${items}${echo}</div>`;
     hydrateBrands(box);
+    if (window.EltesIcons) window.EltesIcons.hydrate(box);
   }
 
   /* --------------------------------- year --------------------------------- */
@@ -562,7 +600,60 @@
     });
   }
 
-  /* -------------------------------- boot ---------------------------------- */
+  /* ------------------------------- tour tabs ------------------------------ */
+  const tourTabs = $$('.tour-tab');
+  if (tourTabs.length) {
+    const sideItems = $$('.tour-side-item');
+    const activate = (name) => {
+      tourTabs.forEach((tab) => {
+        const on = tab.dataset.tour === name;
+        tab.classList.toggle('active', on);
+        tab.setAttribute('aria-selected', String(on));
+      });
+      $$('.tour-panel').forEach((panel) => {
+        panel.classList.toggle('active', panel.dataset.panel === name);
+      });
+      sideItems.forEach((item) => item.classList.toggle('active', item.dataset.for === name));
+    };
+    tourTabs.forEach((tab) => tab.addEventListener('click', () => activate(tab.dataset.tour)));
+    activate(tourTabs[0].dataset.tour);
+  }
+
+  /* ------------------------------ stat counters --------------------------- */
+  function animateCount(el) {
+    const target = Number(el.dataset.count || 0);
+    if (!target || reduceMotion()) { el.textContent = String(target); return; }
+    const started = performance.now();
+    const duration = 1100;
+    const step = (now) => {
+      const p = clamp((now - started) / duration, 0, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = String(Math.round(target * eased));
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = String(target);
+    };
+    el.textContent = '0';
+    requestAnimationFrame(step);
+  }
+
+  const heroStats = $('#heroStats');
+  if (heroStats) {
+    const counters = $$('[data-count]', heroStats);
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          counters.forEach(animateCount);
+          io.disconnect();
+        });
+      }, { threshold: 0.4 });
+      io.observe(heroStats);
+    } else {
+      counters.forEach((el) => { el.textContent = String(Number(el.dataset.count || 0)); });
+    }
+  }
+
+  /* ------------------------------- boot ---------------------------------- */
   renderAccountNav();
   renderMiniProviders();
   renderModelWall();

@@ -74,7 +74,7 @@
       <span class="aura a3" data-parallax="-0.18"></span>
 
       <div class="wrap hero-inner">
-        <div class="hero-kicker"><span class="kicker-mark"><span></span><span></span><span></span></span>AN OPEN WORKSPACE FOR AI</div>
+        <div class="hero-kicker"><span class="kicker-mark"><span></span><span></span><span></span></span><span>AN OPEN WORKSPACE FOR AI</span><span class="hero-version">v3.3</span></div>
         <h1>
           The right model.
           <span class="line-2">For this moment.</span>
@@ -99,6 +99,13 @@
           <span><span data-icon="key-round" data-icon-size="13"></span>Bring your own provider key</span>
           <span><span data-icon="shield-check" data-icon-size="13"></span>Local history by default</span>
           <span><span data-icon="cpu" data-icon-size="13"></span>Open-model ready</span>
+        </div>
+
+        <div class="hero-stats" id="heroStats">
+          <div class="hs"><strong data-count="36">36</strong><span>model routes</span></div>
+          <div class="hs"><strong data-count="13">13</strong><span>providers</span></div>
+          <div class="hs"><strong data-count="3">3</strong><span>on-device models</span></div>
+          <div class="hs"><strong data-count="0">0</strong><span>telemetry events</span></div>
         </div>
       </div>
 
@@ -155,7 +162,7 @@
 
       <div class="wrap hero-support">
         <p>Real APIs, real keys, no demo mode</p>
-        <div class="mini-providers" id="miniProviders"></div>
+        <div class="logo-marquee" id="logoMarquee" role="list" aria-label="Supported providers"></div>
       </div>
     </section>
 
@@ -170,13 +177,137 @@
       </div>
     </div>
 
+    <!-- ============================ tour ============================== -->
+    <section class="section tour" id="tour">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow"><span data-icon="layout-grid" data-icon-size="14"></span>A look inside</span>
+          <h2>One composed surface.<br class="desk-br" /> <span class="grad">Zero clutter.</span></h2>
+          <p>Composer, tool loop and live metrics live in the same quiet interface. These are static interface previews — nothing is sent.</p>
+        </div>
+
+        <div class="tour-shell reveal" style="--d:80ms">
+          <div class="tour-tabs" role="tablist" aria-label="Workspace previews">
+            <button class="tour-tab active" type="button" role="tab" aria-selected="true" data-tour="compose">
+              <span data-icon="message-square" data-icon-size="14"></span>Compose
+            </button>
+            <button class="tour-tab" type="button" role="tab" aria-selected="false" data-tour="tools">
+              <span data-icon="wrench" data-icon-size="14"></span>Tool loop
+            </button>
+            <button class="tour-tab" type="button" role="tab" aria-selected="false" data-tour="metrics">
+              <span data-icon="activity" data-icon-size="14"></span>Metrics
+            </button>
+            <span class="tour-note"><span data-icon="info" data-icon-size="12"></span>Static preview</span>
+          </div>
+
+          <div class="tour-stage">
+            <div class="tour-window">
+              <div class="tw-bar">
+                <span class="tw-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="tw-url">eltes · workspace</span>
+                <span class="tw-live"><i></i>local</span>
+              </div>
+
+              <div class="tour-panel active" data-panel="compose">
+                <div class="tp-thread">
+                  <div class="tp-user">Compare two caching strategies and pick one for a Next.js app.</div>
+                  <div class="tp-ai">
+                    <span class="tp-avatar" data-icon="cloud" data-icon-size="13"></span>
+                    <div class="tp-body">
+                      <div class="tp-meta"><strong>Eltes</strong><span class="tp-chip">Claude Sonnet 5.5</span><span class="tp-chip live">streaming</span></div>
+                      <p>Stale-while-revalidate wins for read-heavy pages; tag-based invalidation is the cleaner fit when writes are surgical. Here is the trade-off:</p>
+                      <div class="tp-code"><span class="c">// app/products/page.tsx</span><br /><span class="k">export const</span> revalidate = <span class="n">60</span>;<br /><span class="k">export default async function</span> <span class="f">Page</span>() { … }</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="tp-composer">
+                  <span class="tp-placeholder">Message Eltes…</span>
+                  <div class="tp-bar">
+                    <span class="tp-pill"><span class="p-logo sm" data-brand="claude" data-brand-size="12"></span>Claude Sonnet 5.5</span>
+                    <span class="tp-pill"><span data-icon="wrench" data-icon-size="12"></span>Tools</span>
+                    <span class="tp-tokens"><b>128</b> tok</span>
+                    <span class="tp-send" data-icon="arrow-up" data-icon-size="14"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tour-panel" data-panel="tools">
+                <div class="tp-tools">
+                  <div class="tp-tool">
+                    <div class="tp-tool-head"><span class="tp-tool-ico" data-icon="clock" data-icon-size="12"></span><strong>current_time</strong><span class="tp-tool-state done">done · 12 ms</span></div>
+                    <div class="tp-tool-kv"><span>timezone</span><b>America/New_York</b></div>
+                    <div class="tp-tool-result">2026-10-20T01:24:00-04:00 (America/New_York)</div>
+                  </div>
+                  <div class="tp-tool">
+                    <div class="tp-tool-head"><span class="tp-tool-ico" data-icon="calculator" data-icon-size="12"></span><strong>calculate</strong><span class="tp-tool-state done">done · 4 ms</span></div>
+                    <div class="tp-tool-kv"><span>expression</span><b>(17 * 43) / 2</b></div>
+                    <div class="tp-tool-result">365.5</div>
+                  </div>
+                  <div class="tp-tool ghost">
+                    <div class="tp-tool-head"><span class="tp-tool-ico" data-icon="search" data-icon-size="12"></span><strong>search_history</strong><span class="tp-tool-state running"><i></i>running</span></div>
+                    <div class="tp-tool-kv"><span>query</span><b>refresh token rotation</b></div>
+                  </div>
+                </div>
+                <div class="tp-caption"><span data-icon="shield-check" data-icon-size="12"></span>Runs in your browser · no shell, no server-side execution</div>
+              </div>
+
+              <div class="tour-panel" data-panel="metrics">
+                <div class="tp-metrics">
+                  <div class="tp-metric">
+                    <span>First token</span><strong>312<small>ms</small></strong>
+                    <div class="tp-spark"><i style="--h:22%"></i><i style="--h:38%"></i><i style="--h:64%"></i><i style="--h:48%"></i><i style="--h:86%"></i><i style="--h:72%"></i><i style="--h:100%"></i><i style="--h:88%"></i><i style="--h:94%"></i><i style="--h:80%"></i></div>
+                  </div>
+                  <div class="tp-metric">
+                    <span>Total</span><strong>1.4<small>s</small></strong>
+                    <div class="tp-spark soft"><i style="--h:30%"></i><i style="--h:44%"></i><i style="--h:40%"></i><i style="--h:58%"></i><i style="--h:52%"></i><i style="--h:70%"></i><i style="--h:66%"></i><i style="--h:84%"></i><i style="--h:78%"></i><i style="--h:92%"></i></div>
+                  </div>
+                  <div class="tp-metric">
+                    <span>Throughput</span><strong>118<small>tok/s</small></strong>
+                    <div class="tp-spark green"><i style="--h:40%"></i><i style="--h:62%"></i><i style="--h:54%"></i><i style="--h:76%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i style="--h:80%"></i><i style="--h:96%"></i><i style="--h:84%"></i><i style="--h:100%"></i></div>
+                  </div>
+                  <div class="tp-metric wide">
+                    <span>Usage</span><strong>128<small>in</small> · 214<small>out</small></strong>
+                    <div class="tp-usage"><i style="--w:37%"></i><b style="--w:63%"></b></div>
+                  </div>
+                </div>
+                <div class="tp-payload">
+                  <div><span>provider</span><b>Anthropic</b></div>
+                  <div><span>request</span><b>req_8f21c4</b></div>
+                  <div><span>finish</span><b>end_turn</b></div>
+                  <div><span>stream</span><b class="ok">SSE · 42 chunks</b></div>
+                </div>
+                <div class="tp-caption"><span data-icon="gauge" data-icon-size="12"></span>Numbers come from the provider's usage payload — not estimated</div>
+              </div>
+            </div>
+
+            <aside class="tour-side">
+              <div class="tour-side-item" data-for="compose"><span class="tsi-ico" data-icon="message-square" data-icon-size="15"></span><div><strong>Composer that stays out of the way</strong><p>Model chip, tools, attachments and a token count in one bar. Enter sends; Shift+Enter adds a line.</p></div></div>
+              <div class="tour-side-item" data-for="tools"><span class="tsi-ico" data-icon="wrench" data-icon-size="15"></span><div><strong>A tool loop you can watch</strong><p>Every call is timed, expanded and inspectable. Stop mid-loop and keep the tokens already received.</p></div></div>
+              <div class="tour-side-item" data-for="metrics"><span class="tsi-ico" data-icon="activity" data-icon-size="15"></span><div><strong>Receipts for every reply</strong><p>Time to first token, total latency, tokens in and out, and tokens per second under each answer.</p></div></div>
+
+              <a class="tour-side-cta" href="app.html">
+                <span class="tsi-ico" data-icon="arrow-up-right" data-icon-size="15"></span>
+                <div><strong>Open the real workspace</strong><p>These panels are previews. The app streams live with your key.</p></div>
+              </a>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============================ models ============================ -->
     <section class="section" id="models">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="layers" data-icon-size="14"></span>The model wall</span>
-          <h2>One workspace.<br class="desk-br" /> Many ways to think.</h2>
+          <h2>One workspace.<br class="desk-br" /> <span class="grad">Many ways to think.</span></h2>
           <p>Real provider logos, real endpoints, real streaming. Pick a model, paste a key, and the same conversation carries across labs.</p>
+        </div>
+
+        <div class="wall-filter" id="wallFilter" role="group" aria-label="Filter models">
+          <button class="wf active" type="button" data-filter="all" aria-pressed="true">All <span id="wfAll">12</span></button>
+          <button class="wf" type="button" data-filter="hosted" aria-pressed="false">Hosted <span id="wfHosted">11</span></button>
+          <button class="wf" type="button" data-filter="local" aria-pressed="false">On-device <span id="wfLocal">1</span></button>
         </div>
 
         <div class="model-wall stagger" id="modelWall"></div>
@@ -196,7 +327,7 @@
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="sparkles" data-icon-size="14"></span>The workspace</span>
-          <h2>Built for people who<br class="desk-br" /> switch models.</h2>
+          <h2>Built for people who<br class="desk-br" /> <span class="grad">switch models.</span></h2>
           <p>No account walls, no model lock-in, no fake answers. A sharp interface that gets out of the way of the work.</p>
         </div>
 
@@ -238,7 +369,7 @@
             </div>
           </article>
 
-          <article class="card span-2 reveal">
+          <article class="card span-3 reveal">
             <div class="card-icon" data-icon="key-round" data-icon-size="19"></div>
             <h3>Your keys, your browser</h3>
             <p>Each provider key is stored locally and attached at request time. Requests go directly to the provider by default; you may opt into your own Vercel/local proxy. Provider billing remains with the provider.</p>
@@ -254,7 +385,7 @@
             </div>
           </article>
 
-          <article class="card span-2 reveal" style="--d:60ms">
+          <article class="card span-3 reveal" style="--d:60ms">
             <div class="card-icon" data-icon="history" data-icon-size="19"></div>
             <h3>History that stays local</h3>
             <p>Threads, titles and pins live in local storage. Search them from the palette, export them as Markdown, delete them in one click.</p>
@@ -272,10 +403,15 @@
             <h3>Real numbers, not vibes</h3>
             <p>Every reply records time to first token, total latency, input and output tokens, and tokens per second straight from the provider's usage payload.</p>
             <div class="card-visual">
-              <div class="stat-row">
-                <div class="stat"><strong>Live</strong><span>first token</span></div>
-                <div class="stat"><strong>Measured</strong><span>total time</span></div>
-                <div class="stat"><strong>Provider</strong><span>usage data</span></div>
+              <div class="metric-board">
+                <div class="mb-top">
+                  <div class="mb-now"><span>first token</span><strong>312<small>ms</small></strong></div>
+                  <div class="mb-pills"><span>1.4s total</span><span>118 tok/s</span><span class="ok">provider usage</span></div>
+                </div>
+                <div class="mb-spark" aria-hidden="true">
+                  <i style="--h:24%"></i><i style="--h:38%"></i><i style="--h:32%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:66%"></i><i style="--h:58%"></i><i style="--h:74%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i style="--h:78%"></i><i style="--h:94%"></i><i style="--h:86%"></i><i style="--h:100%"></i><i style="--h:90%"></i><i style="--h:96%"></i>
+                </div>
+                <div class="mb-axis"><span>0 s</span><span>streaming</span><span>1.4 s</span></div>
               </div>
             </div>
           </article>
@@ -305,7 +441,7 @@
         <div class="agent">
           <div class="reveal">
             <span class="eyebrow"><span data-icon="bot" data-icon-size="14"></span>Agent mode</span>
-            <h2>It calls tools.<br />It doesn't pretend to.</h2>
+            <h2>It calls tools.<br /><span class="grad">It doesn't pretend to.</span></h2>
             <p>Eltes runs a real tool loop through your provider: the model requests a tool, the browser executes it, the result goes back into the conversation. Every call is timed and visible.</p>
             <ul class="check-list">
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Local tools</strong> — calculate maths, read the clock, search your own chat history.</span></li>
@@ -344,7 +480,7 @@
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="ruler" data-icon-size="14"></span>Why Eltes</span>
-          <h2>One workspace.<br />Your rules.</h2>
+          <h2>One workspace.<br /><span class="grad">Your rules.</span></h2>
           <p>Pick the model, choose how the request is sent, and keep control of your local workspace.</p>
         </div>
 
@@ -378,7 +514,7 @@
       <div class="wrap" style="position:relative">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="gift" data-icon-size="14"></span>Pricing</span>
-          <h2>BYOK is free.<br class="desk-br" /> Hosted plans are next.</h2>
+          <h2>BYOK is free.<br class="desk-br" /> <span class="grad">Hosted plans are next.</span></h2>
           <p>The workspace is free. Hosted model replies require your provider API key and may be billed by that provider. CAI runs locally at no per-token cost. No Eltes hosted plan or free hosted credits are available yet.</p>
           <span class="pricing-banner"><span data-icon="clock" data-icon-size="12"></span>Hosted plans are not announced — join the waitlist below</span>
         </div>
@@ -437,7 +573,7 @@
         <div class="account-split">
           <div class="reveal">
             <span class="eyebrow"><span data-icon="user-plus" data-icon-size="14"></span>Accounts</span>
-            <h2>Sign in with<br />the account you use.</h2>
+            <h2>Sign in with<br /><span class="grad">the account you use.</span></h2>
             <p>Eltes connects OpenAI, Anthropic and DeepSeek directly. Sign up with the provider that already
               pays for your models, or keep a local profile with no account at all. The profile lives in this
               browser. Hosted model requests may optionally use a Vercel/local proxy that you configure; the profile itself remains in this browser.</p>
@@ -493,7 +629,7 @@
       <div class="wrap" style="position:relative">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</span>
-          <h2>Run Eltes<br class="desk-br" /> from your desktop.</h2>
+          <h2>Run Eltes<br class="desk-br" /> <span class="grad">from your desktop.</span></h2>
           <p>The app is a static site. The Windows launcher serves the files locally and opens
             your browser — no installer, no registry, no admin rights, no background service. An optional Node/Vercel backend supports key testing and proxying.</p>
         </div>
@@ -547,7 +683,7 @@
           <div class="cta-inner">
             <div class="grid-bg"></div>
             <span class="eyebrow"><span data-icon="rocket" data-icon-size="14"></span>No demo mode</span>
-            <h2 style="margin-top:16px">Connect an account.<br class="desk-br" /> Get a real answer.</h2>
+            <h2 style="margin-top:16px">Connect an account.<br class="desk-br" /> <span class="grad">Get a real answer.</span></h2>
             <p>Every hosted answer comes from a live provider you connected. Or start with Eltes CAI and get
               a real on-device answer before you add a key — no simulated replies, no fake latency.</p>
             <div class="hero-cta">
@@ -557,6 +693,15 @@
             <div class="hero-note">
               <span><span data-icon="check" data-icon-size="13"></span>Runs in your browser</span>
               <span><span data-icon="clock" data-icon-size="13"></span>Setup takes 30 seconds</span>
+            </div>
+
+            <div class="cta-palette" aria-hidden="true">
+              <div class="cp-field"><span data-icon="search" data-icon-size="14"></span><span class="cp-hint">Search chats, models and commands</span><span class="kbd">⌘K</span></div>
+              <div class="cp-list">
+                <div class="cp-row active"><span data-icon="layers" data-icon-size="14"></span>Switch model<span class="cp-key">⌘M</span></div>
+                <div class="cp-row"><span data-icon="plus" data-icon-size="14"></span>New chat<span class="cp-key">⌘N</span></div>
+                <div class="cp-row"><span data-icon="download" data-icon-size="14"></span>Export conversation<span class="cp-key">⌘E</span></div>
+              </div>
             </div>
           </div>
         </div>

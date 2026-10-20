@@ -408,7 +408,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           </table>
 
           <h3>Eltes CAI — our own models</h3>
-          <p>CAI (<em>conversational agent intelligence</em>) is a small deterministic model implemented in <code>assets/js/cai.js</code>. It runs inside the tab with no key and no network. It is accurate on its domain and explicit about its limits; it never pretends to browse.</p>
+          <p>CAI (<em>conversational agent intelligence</em>) is a deterministic JavaScript rules-and-knowledge system implemented in <code>assets/js/cai.js</code>, not a trained neural network. It runs inside the tab with no key and no network. It can still make mistakes, so treat its scope and fallback as limits—not a guarantee of correctness.</p>
           <table class="doc-table">
             <thead><tr><th>Model</th><th>Strength</th><th>Example</th></tr></thead>
             <tbody>
@@ -417,7 +417,8 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td>Eltes CAI Docs</td><td>Eltes setup, keys, accounts, downloads</td><td>“How do I connect a DeepSeek key?”</td></tr>
             </tbody>
           </table>
-          <p>CAI covers Eltes documentation, model recommendations from the live catalogue, arithmetic and percentages, unit and temperature conversion, the current date and time, word counts and a glossary of AI terms. Anything outside that gets an honest fallback with a suggestion to switch to a hosted model.</p>
+          <p>CAI covers Eltes documentation, model recommendations from the catalogue, arithmetic and percentages, unit and temperature conversion, the current date and time, word counts and a curated glossary of AI terms. For chat understanding, it can retrieve exact matching excerpts and recap user prompts included in the active conversation context; it cannot search every saved chat from this local turn. It has no arbitrary-corpus import or training pipeline. Unsupported or ambiguous questions should receive a fallback, but this is not a guarantee against mistakes.</p>
+          <p>A tokenizer vocabulary is a set of text pieces, not a count of verified facts. Adding four million words would not by itself teach the assistant meanings or make its answers reliable. Knowledge expansion needs vetted source documents, retrieval with traceable references, abstention when evidence is weak, and regression tests.</p>
 
           <h3>Real model streaming, including Claude</h3>
           <p>Eltes streams from provider APIs when <strong>Settings → General → Stream responses</strong> is enabled. Claude uses Anthropic’s native Messages API; OpenAI-compatible providers stream chat-completion events. Replies are never simulated for hosted models.</p>

@@ -362,17 +362,11 @@ impl Parser<'_> {
             left = factorial(left)?;
         }
 
-        loop {
-            let (op, precedence) = match self.peek() {
-                Some(Token::Op(op)) => match op {
-                    '+' => ('+', 1),
-                    '-' => ('-', 1),
-                    '*' => ('*', 2),
-                    '/' => ('/', 2),
-                    '%' => ('%', 2),
-                    '^' => ('^', 3),
-                    _ => break,
-                },
+        while let Some(Token::Op(op)) = self.peek() {
+            let precedence = match op {
+                '+' | '-' => 1,
+                '*' | '/' | '%' => 2,
+                '^' => 3,
                 _ => break,
             };
             if precedence < min_precedence {

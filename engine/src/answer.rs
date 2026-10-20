@@ -100,8 +100,7 @@ pub fn answer(prompt: &str) -> Answer {
 
 fn normalize(text: &str) -> String {
     text.to_lowercase()
-        .replace('\u{2019}', "'")
-        .replace('\u{2018}', "'")
+        .replace(['\u{2019}', '\u{2018}'], "'")
         .replace('\u{2212}', "-")
         .replace('\u{2013}', "-")
         .replace('\u{2014}', "-")

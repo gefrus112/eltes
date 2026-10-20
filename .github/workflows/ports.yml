@@ -116,4 +116,25 @@ jobs:
         run: ${{ matrix.setup }}
 
       - name: Vectors
-        run: ${{ matrix.test }}
+        run: |
+          set +e
+          bash -c "${{ matrix.test }}" > "$RUNNER_TEMP/vectors.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/vectors.log"
+          if [ "$status" -ne 0 ]; then
+            # Logs are not always reachable from outside CI, so republish the
+            # failure text as check-run annotations, a few KB at a time.
+            awk '
+              { buffer = buffer $0 "\n"; count++ }
+              length(buffer) > 3000 { report(); }
+              END { if (buffer != "") report() }
+              function report() {
+                gsub(/%/, "%25", buffer);
+                gsub(/\r/, "%0D", buffer);
+                gsub(/\n/, "%0A", buffer);
+                printf "::error title=vectors-%d::%s\n", chunk++, buffer;
+                buffer = "";
+              }
+            ' "$RUNNER_TEMP/vectors.log"
+          fi
+          exit $status

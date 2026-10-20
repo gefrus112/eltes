@@ -102,7 +102,7 @@
             <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
           </div>
           <h1>What should we <em>build</em>?</h1>
-          <p class="sub" id="emptySub">Connect a provider key and every answer comes live from the model you picked.</p>
+          <p class="sub" id="emptySub">Pick a model, connect a key, and search the live web with cited sources.</p>
 
           <div class="connect-strip" id="connectStrip" hidden>
             <div class="cs-text">
@@ -117,9 +117,9 @@
           <div class="provider-quick" id="providerQuick"></div>
 
           <div class="suggestions">
-            <button class="suggestion" data-prompt="Write a debounce hook in React and explain the cleanup.">
-              <span class="sicon" data-icon="code-2" data-icon-size="15"></span>
-              <span><strong>Write a React hook</strong><span class="txt">debounce with a correct cleanup path</span></span>
+            <button class="suggestion" data-prompt="Search the web for the latest WebGPU browser support and cite the sources.">
+              <span class="sicon" data-icon="globe" data-icon-size="15"></span>
+              <span><strong>Search the web</strong><span class="txt">live answers with source links</span></span>
             </button>
             <button class="suggestion" data-prompt="Compare Claude, GPT, Gemini and GLM for a coding agent. Where does each one win?">
               <span class="sicon" data-icon="layers" data-icon-size="15"></span>
@@ -275,7 +275,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.6 · BYOK<br />Optional proxy. No telemetry.</div>
+          <div class="nav-foot">Eltes v3.7 · BYOK<br />Optional proxy. No telemetry.</div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -308,6 +308,11 @@
               <div class="set-row">
                 <div class="lbl"><strong>Tools by default</strong><span>Let new chats call the local tool set without toggling each time.</span></div>
                 <div class="ctl"><button class="toggle" role="switch" aria-checked="false" id="toggleTools" aria-label="Tools by default"></button></div>
+              </div>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Show search thinking</strong><span>Display the live steps — query, sources read and timing — above answers. Nothing is pre-scripted; failed searches show a failed step.</span></div>
+                <div class="ctl"><button class="toggle" role="switch" aria-checked="true" id="toggleThink" aria-label="Show search thinking"></button></div>
               </div>
             </div>
 
@@ -386,6 +391,12 @@
                   <button class="btn btn-ghost btn-sm" id="searchTest" type="button">Test</button>
                   <button class="icon-btn" id="searchClear" type="button" aria-label="Remove search key" title="Remove key"></button>
                 </div>
+              </div>
+              <div class="search-row">
+                <label class="key-input grow">
+                  <span data-icon="clock" data-icon-size="13"></span>
+                  <select id="searchFreshness" aria-label="Search recency filter"></select>
+                </label>
               </div>
               <div class="key-help" id="searchHint" aria-live="polite"></div>
               <div class="key-help" id="searchProviderHint"></div>
@@ -496,7 +507,7 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.6.0</span></div>
+              <div class="kv"><span>Version</span><span>3.7.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
               <div class="kv"><span>Models</span><span>65 · 14 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>

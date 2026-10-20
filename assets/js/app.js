@@ -55,7 +55,9 @@
     favorites: ['eltes-cai-1', 'claude-sonnet-5-5', 'deepseek-flash'],
     searchProvider: (S && S.DEFAULT) || 'brave',
     searchKeys: {},
-    webSearch: false
+    searchFreshness: 'any',
+    webSearch: false,
+    thinkTrace: true
   };
 
   const savedSettings = readJSON(LS.settings, {});
@@ -232,32 +234,50 @@
     const meta = searchProviderMeta(provider);
     const key = searchKey();
     if (!key) return { error: `Add a ${meta.name} key in Settings → API keys → Web search.` };
+    const count = opts.count || 6;
+    const freshness = opts.freshness || searchFreshness();
+    const cacheKey = [provider, freshness, q, count].join('|');
+    const cached = searchCache.get(cacheKey);
+    if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) {
+      return { ...cached.result, freshness, cached: true };
+    }
     try {
       const response = await fetch(backendPath('/api/search'), {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-eltes-search-key': key },
-        body: JSON.stringify({ provider, query: q, count: opts.count || 6 }),
+        body: JSON.stringify({ provider, query: q, count, freshness }),
         credentials: 'omit'
       });
       let data = {};
       try { data = await response.json(); } catch (e) {}
       if (!response.ok) return { error: data.error || `Search failed (${response.status}).`, status: response.status, provider };
       const results = cleanSources(data.results);
-      return {
+      const result = {
         query: q,
         provider,
+        freshness: data.freshness || freshness,
         answer: String(data.answer || '').slice(0, 900),
         results,
         empty: !results.length && !data.answer
       };
+      searchCache.set(cacheKey, { at: Date.now(), result });
+      if (searchCache.size > 40) searchCache.delete(searchCache.keys().next().value);
+      return result;
     } catch (error) {
       return { error: 'Could not reach the search backend. Is it running and allowing this origin?', provider };
     }
   }
 
+  const searchCache = new Map();
+  const SEARCH_CACHE_MS = 5 * 60 * 1000;
+  const searchFreshness = () => (S && S.FRESHNESS && S.FRESHNESS[state.settings.searchFreshness])
+    ? state.settings.searchFreshness : 'any';
+  const freshnessLabel = () => (S && S.freshnessLabel ? S.freshnessLabel(searchFreshness()) : 'Any time');
+
   function searchAnswer(result) {
     const meta = searchProviderMeta(result.provider);
-    const lines = [`**Web results for “${result.query}”** — live search from ${meta.name}.`, ''];
+    const windowLabel = S && S.freshnessLabel ? S.freshnessLabel(result.freshness || searchFreshness()) : freshnessLabel();
+    const lines = [`**Web results for “${result.query}”** — live search from ${meta.name} · ${windowLabel.toLowerCase()}.`, ''];
     if (result.answer) lines.push(`> ${result.answer}`, '');
     result.results.forEach((r, i) => {
       lines.push(`${i + 1}. **[${r.title}](${r.url})**${r.snippet ? ` — ${r.snippet}` : ''}`);
@@ -276,10 +296,11 @@
     const sources = cleanSources(msg.sources);
     if (!sources.length) return '';
     const meta = msg.searchProvider ? searchProviderMeta(msg.searchProvider) : null;
+    const windowLabel = msg.searchFreshness && S && S.freshnessLabel ? S.freshnessLabel(msg.searchFreshness) : '';
     return `<div class="sources-card">
       <div class="sources-head">
         <span>${ic('globe', 12)} Web sources</span>
-        <span class="sources-meta">${meta ? `${esc(meta.name)} · ` : ''}${sources.length} result${sources.length === 1 ? '' : 's'}</span>
+        <span class="sources-meta">${meta ? `${esc(meta.name)} · ` : ''}${sources.length} result${sources.length === 1 ? '' : 's'}${windowLabel ? ` · ${esc(windowLabel)}` : ''}</span>
       </div>
       <ol>${sources.map((src, i) => `<li>
         <a href="${esc(src.url)}" target="_blank" rel="noreferrer noopener">
@@ -292,6 +313,78 @@
         </a>
       </li>`).join('')}</ol>
     </div>`;
+  }
+
+  /* ----------------------- search / thinking trace ------------------------ */
+  /* Steps are recorded as they actually happen: question analysis, the search
+     request, how many results came back and when the answer started. Nothing
+     is pre-scripted — a failed search leaves a failed step. */
+
+  function tracePush(msg, label, detail) {
+    if (!msg || state.settings.thinkTrace === false) return null;
+    if (!Array.isArray(msg.trace)) msg.trace = [];
+    const step = { id: uid(), label, detail: detail || '', status: 'running', at: Date.now(), ms: null };
+    msg.trace.push(step);
+    return step;
+  }
+
+  function traceFinish(step, patch) {
+    if (!step) return;
+    step.status = 'done';
+    step.ms = Math.max(0, Date.now() - step.at);
+    if (patch) Object.assign(step, patch);
+  }
+
+  function traceFail(step, detail) {
+    if (!step) return;
+    step.status = 'error';
+    step.ms = Math.max(0, Date.now() - step.at);
+    if (detail) step.detail = detail;
+  }
+
+  let thinkTicker = null;
+  function syncThinkTicker() {
+    const live = $$('[data-think-clock]');
+    if (!live.length) {
+      if (thinkTicker) { clearInterval(thinkTicker); thinkTicker = null; }
+      return;
+    }
+    if (thinkTicker) return;
+    thinkTicker = setInterval(() => {
+      $$('[data-think-clock]').forEach((el) => {
+        const start = Number(el.dataset.thinkStart || 0);
+        if (start) el.textContent = `${((Date.now() - start) / 1000).toFixed(1)}s`;
+      });
+    }, 120);
+  }
+
+  function traceHtml(msg) {
+    const steps = Array.isArray(msg.trace) ? msg.trace : [];
+    if (!steps.length) return '';
+    const running = steps.some((s) => s.status === 'running');
+    const failed = steps.some((s) => s.status === 'error');
+    const searched = steps.some((s) => /search/i.test(s.label));
+    const sources = cleanSources(msg.sources).length;
+    const total = steps.reduce((n, s) => n + (s.ms || 0), 0);
+    const start = steps[0] && steps[0].at ? steps[0].at : Date.now();
+    const title = running ? (searched ? 'Searching the web' : 'Thinking') : (searched ? 'Web search' : 'Thinking');
+    const summary = running
+      ? `<span class="trace-wave" aria-hidden="true"><i></i><i></i><i></i></span><span class="trace-live">live</span> <span class="trace-clock" data-think-clock="1" data-think-start="${start}">0.0s</span>`
+      : `${failed ? 'stopped · ' : ''}${sources ? `${sources} source${sources === 1 ? '' : 's'} · ` : ''}${fmtMs(total)}`;
+    const open = running || msg.traceOpen;
+    return `<details class="think-panel${running ? ' running' : ''}${failed ? ' failed' : ''}" ${open ? 'open' : ''} data-trace="${esc(msg.id)}">
+      <summary class="think-head">
+        <span class="think-orb">${running ? '<span class="think-spinner" aria-hidden="true"></span>' : ic(searched ? 'globe' : 'sparkles', 12)}</span>
+        <span class="think-title">${esc(title)}</span>
+        <span class="think-sub">${summary}</span>
+        <span class="think-chev">${ic('chevron-down', 12)}</span>
+      </summary>
+      <ol class="think-steps">${steps.map((step) => `<li class="${esc(step.status || 'done')}">
+          <span class="think-dot" aria-hidden="true"></span>
+          <span class="think-body"><span class="think-label">${esc(step.label)}</span>${step.detail ? `<small>${esc(step.detail)}</small>` : ''}</span>
+          <span class="think-ms">${step.status === 'running' ? '…' : fmtMs(step.ms)}</span>
+        </li>`).join('')}</ol>
+    </details>`;
   }
 
   const fmtMs = (ms) => (ms == null ? '—' : ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`);
@@ -774,11 +867,12 @@
 
     const emptySub = $('#emptySub');
     if (emptySub) {
-      emptySub.textContent = local
+      const webHint = webSearchActive() ? ' Web search is on, so replies can cite live sources.' : '';
+      emptySub.textContent = (local
         ? `On-device ${model.name} is ready — no key, no network. Connect a provider any time for frontier models.`
         : anyKeyConnected()
           ? `Connected to ${n} provider${n === 1 ? '' : 's'}. Every answer streams live from ${model.name}.`
-          : 'Connect a provider key and every answer comes live from the model you picked.';
+          : 'Connect a provider key and every answer comes live from the model you picked.') + webHint;
     }
   }
 
@@ -1019,8 +1113,9 @@
           ${streaming && msg.content && model.realtime ? `<span class="rt-inline live-count"><i></i><b>${estimateTokens(msg.content)}</b> tok</span>` : ''}
           ${streaming ? `<span class="streaming-dot"><i></i>${msg.phase === 'tools' ? 'tool loop' : 'streaming'}</span>` : time}
         </div>
+        ${traceHtml(msg)}
         ${toolCardsHtml(msg)}
-        ${streaming && !msg.content ? `<div class="thinking"><span class="dots"><i></i><i></i><i></i></span><span class="shimmer">${esc(thinkingLabel)}</span></div>` : ''}
+        ${streaming && !msg.content && !(msg.trace || []).length ? `<div class="thinking"><span class="dots"><i></i><i></i><i></i></span><span class="shimmer">${esc(thinkingLabel)}</span></div>` : ''}
         <div class="prose">${renderMarkdown(msg.content, msg.sources)}${streaming && msg.content ? '<span class="caret"></span>' : ''}</div>
         ${sourcesHtml(msg)}
         ${connectCardHtml(msg)}
@@ -1049,7 +1144,17 @@
     els.messages.hidden = false;
     els.messages.innerHTML = chat.messages.map((m, i) => messageHtml(m, i, chat)).join('');
     hydrateLogos(els.messages);
+    syncThinkTicker();
   }
+
+  /* Remember whether a trace panel was opened so re-renders don't collapse it. */
+  els.messages.addEventListener('toggle', (e) => {
+    const panel = e.target && e.target.closest ? e.target.closest('details.think-panel') : null;
+    if (!panel) return;
+    const chat = activeChat();
+    const msg = chat && chat.messages.find((m) => m.id === panel.dataset.trace);
+    if (msg) msg.traceOpen = panel.open;
+  }, true);
 
   function hydrateLogos(root) {
     $$('[data-brand]', root).forEach((el) => {
@@ -1530,7 +1635,10 @@
     setToggle('#toggleMotion', s.reduceMotion);
     setToggle('#toggleTime', s.showTime);
     setToggle('#toggleMetrics', s.showMetrics);
+    setToggle('#toggleThink', s.thinkTrace !== false);
     const sendKey = $('#sendKeySelect'); if (sendKey) sendKey.value = s.sendKey;
+    const freshness = $('#searchFreshness');
+    if (freshness) freshness.value = s.searchFreshness || 'any';
     const density = $('#densitySelect'); if (density) density.value = s.density;
     const customUrl = $('#customBaseUrl'); if (customUrl) customUrl.value = s.customBaseUrl || '';
     const customKey = $('#customKey'); if (customKey) customKey.value = s.customKey || '';
@@ -1571,6 +1679,7 @@
   bindToggle('#toggleMotion', 'reduceMotion', applySettingsToUI);
   bindToggle('#toggleTime', 'showTime', renderMessages);
   bindToggle('#toggleMetrics', 'showMetrics', renderMessages);
+  bindToggle('#toggleThink', 'thinkTrace', renderMessages);
   $('#sendKeySelect').addEventListener('change', (e) => { state.settings.sendKey = e.target.value; persist(); renderComposerHint(); });
   $('#densitySelect').addEventListener('change', (e) => { state.settings.density = e.target.value; persist(); applySettingsToUI(); });
 
@@ -1712,6 +1821,15 @@
     const current = searchProviderId();
     select.value = current;
     const meta = searchProviderMeta(current);
+    const freshness = $('#searchFreshness');
+    if (freshness) {
+      if (!freshness.options.length && S.FRESHNESS) {
+        freshness.innerHTML = Object.entries(S.FRESHNESS)
+          .map(([id, f]) => `<option value="${id}">${esc(f.label)}</option>`)
+          .join('');
+      }
+      freshness.value = state.settings.searchFreshness || S.DEFAULT_FRESHNESS || 'any';
+    }
     const input = $('#searchKey');
     if (input) {
       input.value = (state.settings.searchKeys || {})[current] || '';
@@ -1741,6 +1859,15 @@
     persistNow();
     renderSearchSettings();
   });
+
+  const freshnessSelect = $('#searchFreshness');
+  if (freshnessSelect) {
+    freshnessSelect.addEventListener('change', (e) => {
+      state.settings.searchFreshness = e.target.value;
+      persistNow();
+      toast(`Search recency: ${freshnessLabel()}`, 'clock');
+    });
+  }
 
   $('#searchReveal').addEventListener('click', () => {
     const input = $('#searchKey');
@@ -2567,7 +2694,7 @@
         if (res && (res.intent === 'units' || res.intent === 'base')) return { text: res.text, intent: res.intent };
       }
       // also try convert_units tool
-      const m = rest.match(/^(-?\\d+(?:\\.\\d+)?)\\s*([a-z/]+)\\s*(?:to|in|into|as)\\s*([a-z/]+)$/i);
+      const m = rest.match(/^(-?\d+(?:\.\d+)?)\s*([a-z/]+)\s*(?:to|in|into|as)\s*([a-z/]+)$/i);
       if (m) {
         const toolRes = toolConvertUnits({ value: Number(m[1]), from: m[2], to: m[3] });
         if (!toolRes.error) return { text: toolRes.result, intent: 'slash-convert' };
@@ -2622,7 +2749,7 @@
         return { text: `**${roll}**\n\nRolled d${sides}.`, intent: 'random' };
       }
       if (cmd === 'random' && rest) {
-        const m = rest.match(/(-?\\d+)\\s+(-?\\d+)/);
+        const m = rest.match(/(-?\d+)\s+(-?\d+)/);
         if (m) {
           let a = Number(m[1]), b = Number(m[2]);
           if (a > b) [a, b] = [b, a];
@@ -2645,6 +2772,62 @@
     const text = els.input.value.trim();
     if (!text || state.sending) return;
     state.pendingRetry = null;
+
+    // /web and /search stream their own progress: the pending reply is created
+    // first so the search steps can appear while the request is in flight.
+    if (/^\/(?:web|search)\s+\S/i.test(text)) {
+      let chat = activeChat();
+      if (!chat) chat = createChat();
+      if (!chat.model) chat.model = state.settings.model;
+      const query = extractSearchQuery(text);
+      const userMsg = { id: uid(), role: 'user', content: text, ts: Date.now() };
+      chat.messages.push(userMsg);
+      titleOrKeep(chat, text);
+      chat.updatedAt = Date.now();
+      const assistant = {
+        id: uid(), role: 'assistant', content: '', model: chat.model, ts: Date.now(),
+        streaming: true, tools: [], trace: [], usage: null, latency: null, phase: 'searching', intent: 'web-search'
+      };
+      chat.messages.push(assistant);
+      els.input.value = '';
+      autoGrow();
+      updateSendState();
+      persist();
+      renderSidebar();
+      renderMessages();
+      scrollToBottom(true);
+      setSending(true);
+
+      const meta = searchProviderMeta(searchProviderId());
+      const started = performance.now();
+      const step = tracePush(assistant, 'Searching the web', `“${query}” · ${meta.name} · ${freshnessLabel()}`);
+      renderMessages();
+      const found = await runWebSearch(query, { count: 6 });
+      if (found.error) {
+        traceFail(step, found.error);
+        assistant.content = `**Web search unavailable** — ${found.error}`;
+      } else if (!found.results.length && !found.answer) {
+        traceFinish(step, { detail: 'No results returned' });
+        assistant.content = `No web results for “${found.query}”. Try different words.`;
+      } else {
+        traceFinish(step, { detail: `${found.results.length} result${found.results.length === 1 ? '' : 's'}${found.cached ? ' · cached' : ''} · ${meta.name}` });
+        const domains = Array.from(new Set(found.results.map((r) => r.domain).filter(Boolean))).slice(0, 3).join(' · ');
+        const readStep = tracePush(assistant, `Read ${found.results.length} source${found.results.length === 1 ? '' : 's'}`, domains || 'Summary only');
+        const writeStep = tracePush(assistant, 'Writing an answer with citations', `Freshness: ${freshnessLabel().toLowerCase()}`);
+        assistant.content = searchAnswer(found);
+        assistant.sources = found.results;
+        assistant.searchProvider = found.provider;
+        assistant.searchFreshness = found.freshness || searchFreshness();
+        renderMessages();
+        traceFinish(readStep);
+        traceFinish(writeStep);
+      }
+      assistant.streaming = false;
+      assistant.phase = null;
+      assistant.latency = { ttft: null, total: Math.round(performance.now() - started) };
+      saveAndRender(chat, assistant);
+      return;
+    }
 
     // slash-command fast path — handle locally without a model turn
     if (text === '/' || /^\/[a-z]/i.test(text)) {
@@ -2845,11 +3028,25 @@
           assistant.tools.push(toolMsg);
           toolsUsed.push(toolMsg);
           assistant.phase = 'tools';
+          const traceStep = call.name === 'web_search'
+            ? tracePush(assistant, 'Searching the web', `${searchProviderMeta(searchProviderId()).name} · ${freshnessLabel()}`)
+            : null;
+          if (traceStep && call.args && call.args.query) traceStep.detail = `“${String(call.args.query).slice(0, 120)}” · ${traceStep.detail}`;
           renderMessages();
           scrollToBottom(false);
 
           await sleep(90);
+          // Start timing after the paint delay so the step shows real tool time.
+          if (traceStep) traceStep.at = Date.now();
           const out = await runTool(call.name, call.args);
+          if (traceStep) {
+            if (out.error) traceFail(traceStep, out.error);
+            else traceFinish(traceStep, {
+              detail: out.sources && out.sources.length
+                ? `${out.sources.length} result${out.sources.length === 1 ? '' : 's'} · ${searchProviderMeta(searchProviderId()).name}`
+                : 'No results'
+            });
+          }
           toolMsg.status = 'done';
           toolMsg.result = out.result;
           toolMsg.runtime = out.runtime;
@@ -2893,6 +3090,10 @@
         }
       }
 
+      if (toolsUsed.some((t) => t.name === 'web_search') && !assistant.error) {
+        const writeStep = tracePush(assistant, 'Writing the answer with citations', `${cleanSources(assistant.sources).length} sources`);
+        traceFinish(writeStep);
+      }
       if (!assistant.content && !state.stopped && toolsUsed.length) {
         assistant.content = '_The model finished without a text answer. Try rephrasing or disabling tools._';
       }
@@ -2974,18 +3175,40 @@
     if (wantsWeb) {
       const query = extractSearchQuery(prompt) || prompt.trim().slice(0, 400);
       if (webSearchActive()) {
-        assistant.phase = 'tools';
-        assistant.content = '_Searching the web…_';
+        const meta = searchProviderMeta(searchProviderId());
+        assistant.phase = 'searching';
+        assistant.content = '';
+        const qStep = tracePush(assistant, 'Understanding the question', `“${query}”`);
         renderMessages();
+        scrollToBottom(false);
+        await sleep(16);
+        traceFinish(qStep);
+
+        const sStep = tracePush(assistant, 'Searching the web', `${meta.name} · ${freshnessLabel()}`);
+        renderMessages();
+        scrollToBottom(false);
         const found = await runWebSearch(query, { count: 6 });
-        if (!found.error && (found.results.length || found.answer)) {
+
+        if (found.error) {
+          traceFail(sStep, found.error);
+          assistant.content = searchAnswerUnavailable(found, query);
+        } else {
+          traceFinish(sStep, { detail: `${found.results.length} result${found.results.length === 1 ? '' : 's'}${found.cached ? ' · cached' : ''} · ${meta.name}` });
+          const domains = Array.from(new Set(found.results.map((r) => r.domain).filter(Boolean))).slice(0, 3).join(' · ');
+          const rStep = tracePush(assistant, `Read ${found.results.length} source${found.results.length === 1 ? '' : 's'}`, domains || 'No results returned');
+          traceFinish(rStep);
+          const wStep = tracePush(assistant, 'Writing an answer with citations', `Freshness: ${freshnessLabel().toLowerCase()}`);
           assistant.content = searchAnswer(found);
           assistant.sources = found.results;
           assistant.searchProvider = found.provider;
+          assistant.searchFreshness = found.freshness || searchFreshness();
           assistant.localIntent = 'web-search';
-        } else {
-          assistant.content = searchAnswerUnavailable(found, query);
+          renderMessages();
+          scrollToBottom(false);
+          traceFinish(wStep);
         }
+        renderMessages();
+        scrollToBottom(false);
       } else if (state.settings.webSearch) {
         assistant.content = `${result.text}\n\n_Web search is available: turn on the **Web** chip and add a search key in Settings → API keys → Web search._`;
       }

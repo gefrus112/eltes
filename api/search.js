@@ -1,9 +1,9 @@
 'use strict';
-const { PROVIDERS, normalizeQuery, normalizeCount, buildRequest, normalize } = require('../lib/search.cjs');
+const { PROVIDERS, normalizeQuery, normalizeCount, normalizeFreshness, buildRequest, normalize } = require('../lib/search.cjs');
 const { setCors, json, bodyJson, endOptions } = require('../lib/http.cjs');
 
 /* POST /api/search
-   Body:    { provider: "brave"|"tavily"|"serper"|"exa", query: string, count?: number }
+   Body:    { provider: "brave"|"tavily"|"serper"|"exa", query: string, count?: number, freshness?: "any"|"day"|"week"|"month"|"year" }
    Header:  x-eltes-search-key: <user's own search API key>
    Returns: { provider, query, answer, results: [{ title, url, snippet, domain }] }
 
@@ -31,8 +31,9 @@ module.exports = async function search(req, res) {
   const query = normalizeQuery(payload && payload.query);
   if (!query) return json(res, 400, { error: 'Query must be 1–400 characters of plain text.' });
   const count = normalizeCount(payload && payload.count);
+  const freshness = normalizeFreshness(payload && payload.freshness);
 
-  const request = buildRequest(providerId, query, count, key);
+  const request = buildRequest(providerId, query, count, key, freshness);
   if (!request) return json(res, 400, { error: 'Search provider is not supported.' });
 
   const controller = new AbortController();
@@ -68,9 +69,9 @@ module.exports = async function search(req, res) {
 
     const { results, answer } = normalize(providerId, data, count);
     if (!results.length && !answer) {
-      return json(res, 200, { provider: providerId, query, answer: '', results: [], empty: true });
+      return json(res, 200, { provider: providerId, query, freshness, answer: '', results: [], empty: true });
     }
-    return json(res, 200, { provider: providerId, query, answer, results });
+    return json(res, 200, { provider: providerId, query, freshness, answer, results });
   } catch (error) {
     const timedOut = error && error.name === 'AbortError';
     return json(res, timedOut ? 504 : 502, {

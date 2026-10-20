@@ -5,7 +5,7 @@ const { EventEmitter } = require('node:events');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const search = require('../api/search.js');
-const { PROVIDERS, buildRequest, normalize, safeUrl, normalizeQuery, normalizeCount } = require('../lib/search.cjs');
+const { PROVIDERS, FRESHNESS, normalizeFreshness, buildRequest, normalize, safeUrl, normalizeQuery, normalizeCount } = require('../lib/search.cjs');
 
 class MockResponse extends EventEmitter {
   constructor() {
@@ -211,4 +211,42 @@ test('helper guards clamp input and refuse non-http links', () => {
     web: { results: [{ title: '', url: 'https://ok.example/', description: '' }] }
   }, 5);
   assert.equal(normalized.results[0].title, 'ok.example');
+});
+
+test('freshness filters map to each provider and unknown values fall back to any time', () => {
+  assert.deepEqual(Object.keys(FRESHNESS), ['any', 'day', 'week', 'month', 'year']);
+  assert.equal(normalizeFreshness('week'), 'week');
+  assert.equal(normalizeFreshness('decade'), 'any');
+
+  const brave = buildRequest('brave', 'q', 5, 'k', 'day');
+  assert.match(brave.url, /freshness=pd/);
+  assert.doesNotMatch(buildRequest('brave', 'q', 5, 'k', 'any').url, /freshness=/);
+
+  const serper = JSON.parse(buildRequest('serper', 'q', 5, 'k', 'month').init.body);
+  assert.equal(serper.tbs, 'qdr:m');
+
+  const tavily = JSON.parse(buildRequest('tavily', 'q', 5, 'k', 'week').init.body);
+  assert.equal(tavily.days, 7);
+  assert.equal(JSON.parse(buildRequest('tavily', 'q', 5, 'k', 'any').init.body).days, undefined);
+
+  const exa = JSON.parse(buildRequest('exa', 'q', 5, 'k', 'year', Date.parse('2026-10-20T00:00:00Z')).init.body);
+  assert.equal(exa.startPublishedDate, '2025-10-20');
+  assert.equal(JSON.parse(buildRequest('exa', 'q', 5, 'k', 'any').init.body).startPublishedDate, undefined);
+});
+
+test('the search route forwards a clamped freshness filter and echoes it back', async () => {
+  let sent = null;
+  const res = new MockResponse();
+  await withFetch(async (url, options) => {
+    sent = JSON.parse(options.body);
+    return new Response(JSON.stringify({ organic: [{ title: 'One', link: 'https://example.com/a', snippet: 'A' }] }), {
+      status: 200, headers: { 'content-type': 'application/json' }
+    });
+  }, async () => {
+    await search(request({ body: { provider: 'serper', query: 'releases', freshness: 'week' }, headers: { [KEY_HEADER]: 'k' } }), res);
+  });
+  assert.equal(res.statusCode, 200);
+  assert.equal(sent.tbs, 'qdr:w');
+  assert.equal(res.json.freshness, 'week');
+  assert.equal(res.json.results.length, 1);
 });

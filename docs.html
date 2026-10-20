@@ -358,7 +358,7 @@ npm run mail unsuppress you@example.com   <span class="c"># let that address rec
           </div>
 
           <h3>On the static site</h3>
-          <p><a class="inline-link" href="https://gefrus112.github.io/eltes/auth.html">The hosted copy</a> is served by GitHub Pages, which has no application server, so its sign-up form finds no <code>/api/email/welcome</code> and the panel says <em>No mail server on this host</em>. Sending works wherever the Node server runs: <code>npm start</code>, the Docker image, or the <a class="inline-link" href="#desktop">desktop app</a>, which keeps its mail folder at <code>%APPDATA%\Eltes\mail</code> (macOS: <code>~/Library/Application Support/Eltes/mail</code>).</p>
+          <p><a class="inline-link" href="https://gefrus112.github.io/eltes/auth.html">The hosted copy</a> is served by GitHub Pages, which has no application server, so its sign-up form finds no <code>/api/email/welcome</code> and the panel says <em>No mail server on this host</em>. Sending works wherever the Node server runs: <code>npm start</code>, or the <a class="inline-link" href="#desktop">desktop app</a>, which keeps its mail folder at <code>%APPDATA%\Eltes\mail</code> (macOS: <code>~/Library/Application Support/Eltes/mail</code>).</p>
           <p>Addresses are stored only where they are needed: the profile in this browser's <code>localStorage</code>, the address and timestamps in the events file next to the outbox. There is no analytics, no open tracking and no shared list.</p>
         </section>
 

@@ -1,37 +1,43 @@
-//! Arithmetic evaluator.
+//! A small, forgiving arithmetic parser.
 //!
-//! A Pratt parser over a small hand-written tokenizer: no `eval`, no scripting
-//! runtime, no allocation-heavy AST. It accepts the notation people actually
-//! type into a calculator (`2(3+4)`, `2pi`, `3!`, `sqrt 9`) and rejects
-//! everything else with an error rather than a best guess.
+//! It accepts the notation people actually type into a calculator:
+//!
+//! ```text
+//! 2 + 3 * 4      2(3+4)      2pi      3!      2^10      -2^2
+//! sqrt(144)      max(3, 9)   log(8, 2)        12 km -> handled elsewhere
+//! ```
+//!
+//! Implicit multiplication is inserted between a value and a following value,
+//! `^` is right-associative, and unary minus binds tighter than `^` (so
+//! `-2^2` is `-4`, matching the browser engine).
 
 use std::fmt;
 
 /// Why an expression could not be evaluated.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EvalError {
-    /// A character that is not part of the supported notation.
+    /// A character outside the calculator alphabet.
     UnexpectedCharacter,
-    /// A numeric literal that could not be represented as a finite `f64`.
+    /// A numeric literal that does not parse into a finite number.
     BadNumber,
-    /// The token stream did not form a complete expression.
+    /// A structurally incomplete expression.
     Parse,
-    /// A function was called with the wrong number of arguments.
+    /// A function called with the wrong number of arguments.
     ArgumentCount,
-    /// Factorial of a negative, fractional or very large value.
+    /// A factorial of something that is not a whole number from 0 to 170.
     FactorialDomain,
 }
 
 impl fmt::Display for EvalError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         let text = match self {
             EvalError::UnexpectedCharacter => "unexpected character",
-            EvalError::BadNumber => "number out of range",
-            EvalError::Parse => "could not parse expression",
+            EvalError::BadNumber => "bad number",
+            EvalError::Parse => "could not parse the expression",
             EvalError::ArgumentCount => "wrong number of arguments",
-            EvalError::FactorialDomain => "factorial is defined here only for 0..=170",
+            EvalError::FactorialDomain => "factorial needs a whole number from 0 to 170",
         };
-        f.write_str(text)
+        formatter.write_str(text)
     }
 }
 
@@ -39,153 +45,165 @@ impl std::error::Error for EvalError {}
 
 #[derive(Debug, Clone, PartialEq)]
 enum Token {
-    Num(f64),
+    Number(f64),
     Ident(String),
     Op(char),
-    LParen,
-    RParen,
+    Open,
+    Close,
     Comma,
 }
 
-/// Evaluate an arithmetic expression.
-///
-/// ```
-/// assert_eq!(eltes_cai::evaluate("2 + 3 * 4").unwrap(), 14.0);
-/// assert_eq!(eltes_cai::evaluate("2(3+4)").unwrap(), 14.0);
-/// assert!(eltes_cai::evaluate("rm -rf /").is_err());
-/// ```
+const FUNCTIONS: &[&str] = &[
+    "sqrt", "cbrt", "abs", "sin", "cos", "tan", "asin", "acos", "atan", "ln", "log", "log10",
+    "log2", "exp", "floor", "ceil", "round", "min", "max", "sum", "mean", "product", "pow",
+];
+
+/// Is `name` one of the functions the engine knows?
+pub fn is_function(name: &str) -> bool {
+    FUNCTIONS.contains(&name)
+}
+
+/// Evaluate a bare arithmetic expression.
 pub fn evaluate(source: &str) -> Result<f64, EvalError> {
     let tokens = tokenize(source)?;
     if tokens.is_empty() {
         return Err(EvalError::Parse);
     }
-    let mut parser = Parser { tokens: &tokens, pos: 0 };
+    let mut parser = Parser {
+        tokens: &tokens,
+        position: 0,
+    };
     let value = parser.expression(0)?;
-    if parser.pos != tokens.len() {
+    if parser.position != tokens.len() {
         return Err(EvalError::Parse);
     }
     Ok(value)
 }
 
+/// Rewrite calculator notation into plain arithmetic:
+/// `×`, `÷`, typographic minus signs, superscripts, and the `2 x 3` spelling
+/// of multiplication (only between digits, so `x` stays an unknown name).
 fn prepare(source: &str) -> String {
+    let characters: Vec<char> = source.chars().collect();
     let mut out = String::with_capacity(source.len());
-    for ch in source.chars() {
-        match ch {
-            '\u{00d7}' | '\u{2715}' | '\u{2716}' => out.push('*'),
-            '\u{00f7}' => out.push('/'),
-            '\u{2212}' | '\u{2013}' | '\u{2014}' => out.push('-'),
-            '\u{00b2}' => out.push_str("^2"),
-            '\u{00b3}' => out.push_str("^3"),
-            ',' => out.push(','),
-            _ => out.push(ch),
-        }
-    }
-    // `2 x 3` is a common calculator spelling of `2 * 3`; rewrite it only when
-    // digits sit on both sides (spaces allowed), so words stay untouched.
-    let chars: Vec<char> = out.chars().collect();
-    let mut rewritten = String::with_capacity(out.len());
-    for (index, ch) in chars.iter().enumerate() {
-        if (*ch == 'x' || *ch == 'X') && digit_before(&chars, index) && digit_after(&chars, index) {
-            rewritten.push('*');
-        } else {
-            rewritten.push(*ch);
-        }
-    }
-    rewritten
-}
+    let mut index = 0;
 
-fn digit_before(chars: &[char], index: usize) -> bool {
-    let mut cursor = index;
-    while cursor > 0 {
-        cursor -= 1;
-        if chars[cursor].is_whitespace() {
-            continue;
+    while index < characters.len() {
+        match characters[index] {
+            '×' | '✕' | '✖' => {
+                out.push('*');
+                index += 1;
+            }
+            '÷' => {
+                out.push('/');
+                index += 1;
+            }
+            '−' | '–' | '—' => {
+                out.push('-');
+                index += 1;
+            }
+            '²' => {
+                out.push_str("^2");
+                index += 1;
+            }
+            '³' => {
+                out.push_str("^3");
+                index += 1;
+            }
+            'x' | 'X' => {
+                let trimmed: Vec<char> = out.chars().collect();
+                let digit_before = trimmed
+                    .iter()
+                    .rev()
+                    .find(|character| !character.is_whitespace())
+                    .is_some_and(|character| character.is_ascii_digit());
+                let mut probe = index + 1;
+                while probe < characters.len() && characters[probe].is_whitespace() {
+                    probe += 1;
+                }
+                let digit_after = probe < characters.len() && characters[probe].is_ascii_digit();
+                out.push(if digit_before && digit_after { '*' } else { characters[index] });
+                index += 1;
+            }
+            other => {
+                out.push(other);
+                index += 1;
+            }
         }
-        return chars[cursor].is_ascii_digit();
     }
-    false
-}
 
-fn digit_after(chars: &[char], index: usize) -> bool {
-    let mut cursor = index + 1;
-    while cursor < chars.len() {
-        if chars[cursor].is_whitespace() {
-            cursor += 1;
-            continue;
-        }
-        return chars[cursor].is_ascii_digit();
-    }
-    false
+    out
 }
 
 fn tokenize(source: &str) -> Result<Vec<Token>, EvalError> {
     let prepared = prepare(source);
-    let chars: Vec<char> = prepared.chars().collect();
+    let characters: Vec<char> = prepared.chars().collect();
     let mut tokens = Vec::new();
     let mut index = 0;
 
-    while index < chars.len() {
-        let ch = chars[index];
-        if ch.is_whitespace() {
+    while index < characters.len() {
+        let character = characters[index];
+
+        if character.is_whitespace() {
             index += 1;
             continue;
         }
 
-        let starts_number = ch.is_ascii_digit()
-            || (ch == '.' && index + 1 < chars.len() && chars[index + 1].is_ascii_digit());
-        if starts_number {
+        if character.is_ascii_digit()
+            || (character == '.' && index + 1 < characters.len() && characters[index + 1].is_ascii_digit())
+        {
             let start = index;
-            while index < chars.len() && chars[index].is_ascii_digit() {
+            while index < characters.len() && characters[index].is_ascii_digit() {
                 index += 1;
             }
-            if index < chars.len() && chars[index] == '.' {
+            if index < characters.len() && characters[index] == '.' {
                 index += 1;
-                while index < chars.len() && chars[index].is_ascii_digit() {
+                while index < characters.len() && characters[index].is_ascii_digit() {
                     index += 1;
                 }
             }
-            if index < chars.len() && (chars[index] == 'e' || chars[index] == 'E') {
+            if index < characters.len() && (characters[index] == 'e' || characters[index] == 'E') {
                 let mut probe = index + 1;
-                if probe < chars.len() && (chars[probe] == '+' || chars[probe] == '-') {
+                if probe < characters.len() && (characters[probe] == '+' || characters[probe] == '-') {
                     probe += 1;
                 }
-                if probe < chars.len() && chars[probe].is_ascii_digit() {
-                    while probe < chars.len() && chars[probe].is_ascii_digit() {
+                if probe < characters.len() && characters[probe].is_ascii_digit() {
+                    while probe < characters.len() && characters[probe].is_ascii_digit() {
                         probe += 1;
                     }
                     index = probe;
                 }
             }
-            let literal: String = chars[start..index].iter().collect();
+            let literal: String = characters[start..index].iter().collect();
             let value: f64 = literal.parse().map_err(|_| EvalError::BadNumber)?;
             if !value.is_finite() {
                 return Err(EvalError::BadNumber);
             }
-            tokens.push(Token::Num(value));
+            tokens.push(Token::Number(value));
             continue;
         }
 
-        if ch.is_ascii_alphabetic() {
+        if character.is_ascii_alphabetic() {
             let start = index;
-            while index < chars.len() && chars[index].is_ascii_alphabetic() {
+            while index < characters.len() && characters[index].is_ascii_alphabetic() {
                 index += 1;
             }
-            let name: String = chars[start..index].iter().collect();
+            let name: String = characters[start..index].iter().collect();
             tokens.push(Token::Ident(name.to_ascii_lowercase()));
             continue;
         }
 
-        match ch {
+        match character {
             '+' | '-' | '*' | '/' | '^' | '%' | '!' => {
-                tokens.push(Token::Op(ch));
+                tokens.push(Token::Op(character));
                 index += 1;
             }
             '(' => {
-                tokens.push(Token::LParen);
+                tokens.push(Token::Open);
                 index += 1;
             }
             ')' => {
-                tokens.push(Token::RParen);
+                tokens.push(Token::Close);
                 index += 1;
             }
             ',' => {
@@ -201,169 +219,52 @@ fn tokenize(source: &str) -> Result<Vec<Token>, EvalError> {
 
 fn ends_value(token: &Token) -> bool {
     match token {
-        Token::Num(_) | Token::RParen => true,
-        Token::Ident(name) => name == "pi" || name == "e",
+        Token::Number(_) | Token::Close => true,
+        Token::Ident(name) => name.as_str() == "pi" || name.as_str() == "e",
         _ => false,
     }
 }
 
 fn starts_value(token: &Token) -> bool {
-    matches!(token, Token::Num(_) | Token::Ident(_) | Token::LParen)
+    matches!(token, Token::Number(_) | Token::Ident(_) | Token::Open)
 }
 
 fn insert_implicit_products(tokens: Vec<Token>) -> Vec<Token> {
-    let mut out = Vec::with_capacity(tokens.len() + 4);
+    let mut expanded = Vec::with_capacity(tokens.len() + 4);
     for token in tokens {
-        if let Some(previous) = out.last() {
-            let is_call = matches!(previous, Token::Ident(name) if is_function(name))
-                && token == Token::LParen;
-            if ends_value(previous) && starts_value(&token) && !is_call {
-                out.push(Token::Op('*'));
+        let previous = expanded.last().cloned();
+        if let Some(previous) = previous {
+            let is_call = matches!(&previous, Token::Ident(name) if is_function(name))
+                && matches!(token, Token::Open);
+            if ends_value(&previous) && starts_value(&token) && !is_call {
+                expanded.push(Token::Op('*'));
             }
         }
-        out.push(token);
+        expanded.push(token);
     }
-    out
-}
-
-fn is_function(name: &str) -> bool {
-    matches!(
-        name,
-        "sqrt"
-            | "cbrt"
-            | "abs"
-            | "sin"
-            | "cos"
-            | "tan"
-            | "asin"
-            | "acos"
-            | "atan"
-            | "ln"
-            | "log"
-            | "log10"
-            | "log2"
-            | "exp"
-            | "floor"
-            | "ceil"
-            | "round"
-            | "min"
-            | "max"
-            | "sum"
-            | "mean"
-            | "product"
-            | "pow"
-    )
-}
-
-fn single(args: &[f64]) -> Result<f64, EvalError> {
-    match args {
-        [value] => Ok(*value),
-        _ => Err(EvalError::ArgumentCount),
-    }
-}
-
-fn call_function(name: &str, args: &[f64]) -> Result<f64, EvalError> {
-    match name {
-        "sqrt" => Ok(single(args)?.sqrt()),
-        "cbrt" => Ok(single(args)?.cbrt()),
-        "abs" => Ok(single(args)?.abs()),
-        "sin" => Ok(single(args)?.sin()),
-        "cos" => Ok(single(args)?.cos()),
-        "tan" => Ok(single(args)?.tan()),
-        "asin" => Ok(single(args)?.asin()),
-        "acos" => Ok(single(args)?.acos()),
-        "atan" => Ok(single(args)?.atan()),
-        "ln" => Ok(single(args)?.ln()),
-        "log10" => Ok(single(args)?.log10()),
-        "log2" => Ok(single(args)?.log2()),
-        "exp" => Ok(single(args)?.exp()),
-        "floor" => Ok(single(args)?.floor()),
-        "ceil" => Ok(single(args)?.ceil()),
-        "round" => Ok(single(args)?.round()),
-        "log" => match args.len() {
-            1 => Ok(args[0].ln()),
-            2 => Ok(args[0].ln() / args[1].ln()),
-            _ => Err(EvalError::ArgumentCount),
-        },
-        "pow" => {
-            if args.len() == 2 {
-                Ok(args[0].powf(args[1]))
-            } else {
-                Err(EvalError::ArgumentCount)
-            }
-        }
-        "min" => aggregate(args, f64::min),
-        "max" => aggregate(args, f64::max),
-        "sum" => {
-            if args.is_empty() {
-                return Err(EvalError::ArgumentCount);
-            }
-            Ok(args.iter().sum())
-        }
-        "mean" => {
-            if args.is_empty() {
-                return Err(EvalError::ArgumentCount);
-            }
-            Ok(args.iter().sum::<f64>() / args.len() as f64)
-        }
-        "product" => {
-            if args.is_empty() {
-                return Err(EvalError::ArgumentCount);
-            }
-            Ok(args.iter().product())
-        }
-        _ => Err(EvalError::Parse),
-    }
-}
-
-fn aggregate(args: &[f64], combine: fn(f64, f64) -> f64) -> Result<f64, EvalError> {
-    let mut iter = args.iter().copied();
-    let first = iter.next().ok_or(EvalError::ArgumentCount)?;
-    Ok(iter.fold(first, combine))
-}
-
-fn factorial(value: f64) -> Result<f64, EvalError> {
-    if value < 0.0 || value.fract() != 0.0 || value > 170.0 {
-        return Err(EvalError::FactorialDomain);
-    }
-    let mut result = 1.0_f64;
-    let mut step = 2.0_f64;
-    while step <= value {
-        result *= step;
-        step += 1.0;
-    }
-    Ok(result)
+    expanded
 }
 
 struct Parser<'a> {
     tokens: &'a [Token],
-    pos: usize,
+    position: usize,
 }
 
 impl Parser<'_> {
-    fn peek(&self) -> Option<Token> {
-        self.tokens.get(self.pos).cloned()
-    }
-
-    fn eat(&mut self, token: Token) -> Result<(), EvalError> {
-        if self.peek().as_ref() == Some(&token) {
-            self.pos += 1;
-            Ok(())
-        } else {
-            Err(EvalError::Parse)
-        }
+    fn peek(&self) -> Option<&Token> {
+        self.tokens.get(self.position)
     }
 
     fn expression(&mut self, min_precedence: u8) -> Result<f64, EvalError> {
         let mut left = self.primary()?;
 
-        while let Some(Token::Op('!')) = self.peek() {
-            self.pos += 1;
+        while matches!(self.peek(), Some(Token::Op('!'))) {
+            self.position += 1;
             left = factorial(left)?;
         }
 
-        while let Some(Token::Op(op)) = self.peek() {
-            let precedence = match op {
+        while let Some(Token::Op(operator)) = self.peek().cloned() {
+            let precedence = match operator {
                 '+' | '-' => 1,
                 '*' | '/' | '%' => 2,
                 '^' => 3,
@@ -372,10 +273,14 @@ impl Parser<'_> {
             if precedence < min_precedence {
                 break;
             }
-            self.pos += 1;
-            let next_min = if op == '^' { precedence } else { precedence + 1 };
-            let right = self.expression(next_min)?;
-            left = match op {
+            self.position += 1;
+            let next = if operator == '^' {
+                precedence
+            } else {
+                precedence + 1
+            };
+            let right = self.expression(next)?;
+            left = match operator {
                 '+' => left + right,
                 '-' => left - right,
                 '*' => left * right,
@@ -390,37 +295,39 @@ impl Parser<'_> {
     }
 
     fn primary(&mut self) -> Result<f64, EvalError> {
-        let token = self.peek().ok_or(EvalError::Parse)?;
+        let token = self.peek().cloned().ok_or(EvalError::Parse)?;
+        self.position += 1;
+
         match token {
-            Token::Num(value) => {
-                self.pos += 1;
-                Ok(value)
-            }
+            Token::Number(value) => Ok(value),
             Token::Op(sign @ ('-' | '+')) => {
-                self.pos += 1;
                 let value = self.expression(3)?;
                 Ok(if sign == '-' { -value } else { value })
             }
-            Token::LParen => {
-                self.pos += 1;
+            Token::Open => {
                 let value = self.expression(0)?;
-                self.eat(Token::RParen)?;
+                if !matches!(self.peek(), Some(Token::Close)) {
+                    return Err(EvalError::Parse);
+                }
+                self.position += 1;
                 Ok(value)
             }
             Token::Ident(name) => {
-                self.pos += 1;
-                if matches!(self.peek(), Some(Token::LParen)) && is_function(&name) {
-                    self.pos += 1;
-                    let mut args = Vec::new();
-                    if !matches!(self.peek(), Some(Token::RParen)) {
-                        args.push(self.expression(0)?);
+                if matches!(self.peek(), Some(Token::Open)) && is_function(&name) {
+                    self.position += 1;
+                    let mut arguments = Vec::new();
+                    if !matches!(self.peek(), Some(Token::Close)) {
+                        arguments.push(self.expression(0)?);
                         while matches!(self.peek(), Some(Token::Comma)) {
-                            self.pos += 1;
-                            args.push(self.expression(0)?);
+                            self.position += 1;
+                            arguments.push(self.expression(0)?);
                         }
                     }
-                    self.eat(Token::RParen)?;
-                    return call_function(&name, &args);
+                    if !matches!(self.peek(), Some(Token::Close)) {
+                        return Err(EvalError::Parse);
+                    }
+                    self.position += 1;
+                    return call_function(&name, &arguments);
                 }
                 if name == "pi" {
                     return Ok(std::f64::consts::PI);
@@ -435,47 +342,115 @@ impl Parser<'_> {
     }
 }
 
+fn factorial(value: f64) -> Result<f64, EvalError> {
+    if value < 0.0 || value.fract() != 0.0 || value > 170.0 {
+        return Err(EvalError::FactorialDomain);
+    }
+    let mut result = 1.0;
+    let mut step = 2.0;
+    while step <= value {
+        result *= step;
+        step += 1.0;
+    }
+    Ok(result)
+}
+
+fn unary(arguments: &[f64]) -> Result<f64, EvalError> {
+    match arguments {
+        [value] => Ok(*value),
+        _ => Err(EvalError::ArgumentCount),
+    }
+}
+
+fn aggregate(arguments: &[f64], start: f64, combine: fn(f64, f64) -> f64) -> Result<f64, EvalError> {
+    if arguments.is_empty() {
+        return Err(EvalError::ArgumentCount);
+    }
+    Ok(arguments.iter().copied().fold(start, combine))
+}
+
+fn call_function(name: &str, arguments: &[f64]) -> Result<f64, EvalError> {
+    let value = match name {
+        "sqrt" => unary(arguments)?.sqrt(),
+        "cbrt" => unary(arguments)?.cbrt(),
+        "abs" => unary(arguments)?.abs(),
+        "sin" => unary(arguments)?.sin(),
+        "cos" => unary(arguments)?.cos(),
+        "tan" => unary(arguments)?.tan(),
+        "asin" => unary(arguments)?.asin(),
+        "acos" => unary(arguments)?.acos(),
+        "atan" => unary(arguments)?.atan(),
+        "ln" => unary(arguments)?.ln(),
+        "log10" => unary(arguments)?.log10(),
+        "log2" => unary(arguments)?.log2(),
+        "exp" => unary(arguments)?.exp(),
+        "floor" => unary(arguments)?.floor(),
+        "ceil" => unary(arguments)?.ceil(),
+        "round" => unary(arguments)?.round(),
+        "log" => match arguments {
+            [value] => value.ln(),
+            [value, base] => value.ln() / base.ln(),
+            _ => return Err(EvalError::ArgumentCount),
+        },
+        "pow" => match arguments {
+            [base, exponent] => base.powf(*exponent),
+            _ => return Err(EvalError::ArgumentCount),
+        },
+        "min" => aggregate(arguments, f64::INFINITY, f64::min)?,
+        "max" => aggregate(arguments, f64::NEG_INFINITY, f64::max)?,
+        "sum" => aggregate(arguments, 0.0, |total, next| total + next)?,
+        "product" => aggregate(arguments, 1.0, |total, next| total * next)?,
+        "mean" => aggregate(arguments, 0.0, |total, next| total + next)? / arguments.len() as f64,
+        _ => return Err(EvalError::Parse),
+    };
+    Ok(value)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{evaluate, EvalError};
 
-    fn close(left: f64, right: f64) -> bool {
-        (left - right).abs() < 1e-9
+    fn value(source: &str) -> f64 {
+        evaluate(source).expect("expression should evaluate")
     }
 
     #[test]
-    fn respects_precedence() {
-        assert_eq!(evaluate("2 + 3 * 4").unwrap(), 14.0);
-        assert_eq!(evaluate("(2 + 3) * 4").unwrap(), 20.0);
-        assert_eq!(evaluate("2 ^ 3 ^ 2").unwrap(), 512.0);
-        assert_eq!(evaluate("-2 ^ 2").unwrap(), -4.0);
-        assert_eq!(evaluate("10 % 3").unwrap(), 1.0);
+    fn respects_precedence_and_parentheses() {
+        assert_eq!(value("2 + 3 * 4"), 14.0);
+        assert_eq!(value("(2 + 3) * 4"), 20.0);
+        assert_eq!(value("10 / 4"), 2.5);
+        assert_eq!(value("10 % 3"), 1.0);
     }
 
     #[test]
-    fn handles_implicit_multiplication() {
-        assert_eq!(evaluate("2(3+4)").unwrap(), 14.0);
-        assert_eq!(evaluate("(1+1)(2+2)").unwrap(), 8.0);
-        assert!(close(evaluate("2pi").unwrap(), std::f64::consts::TAU));
-        assert_eq!(evaluate("2 x 3").unwrap(), 6.0);
+    fn power_is_right_associative_and_binds_below_unary_minus() {
+        assert_eq!(value("2^3^2"), 512.0);
+        assert_eq!(value("-2^2"), -4.0);
+        assert_eq!(value("(-2)^2"), 4.0);
     }
 
     #[test]
-    fn supports_functions_and_factorial() {
-        assert_eq!(evaluate("sqrt(144)").unwrap(), 12.0);
-        assert_eq!(evaluate("3!").unwrap(), 6.0);
-        assert_eq!(evaluate("max(3, 9, 4)").unwrap(), 9.0);
-        assert_eq!(evaluate("mean(2, 4, 6)").unwrap(), 4.0);
-        // ln(8)/ln(2) lands a hair under 3 in binary floating point.
-        assert!(close(evaluate("log(8, 2)").unwrap(), 3.0));
-        assert!(matches!(evaluate("sqrt(1, 2)"), Err(EvalError::ArgumentCount)));
-        assert!(matches!(evaluate("(-1)!"), Err(EvalError::FactorialDomain)));
+    fn inserts_implicit_multiplication() {
+        assert_eq!(value("2(3+4)"), 14.0);
+        assert_eq!(value("(1+1)(2+2)"), 8.0);
+        assert!((value("2pi") - std::f64::consts::TAU).abs() < 1e-12);
     }
 
     #[test]
-    fn rejects_text() {
-        assert!(evaluate("rm -rf /").is_err());
-        assert!(evaluate("2 +").is_err());
-        assert!(evaluate("").is_err());
+    fn understands_functions() {
+        assert_eq!(value("sqrt(144)"), 12.0);
+        assert_eq!(value("max(3, 9, 4)"), 9.0);
+        assert_eq!(value("mean(2, 4, 6)"), 4.0);
+        assert_eq!(value("log(8, 2)"), 3.0);
+        assert_eq!(value("3!"), 6.0);
+        assert_eq!(value("sqrt(9) + 1"), 4.0);
+    }
+
+    #[test]
+    fn rejects_text_and_broken_expressions() {
+        assert_eq!(evaluate("what is the weather"), Err(EvalError::UnexpectedCharacter));
+        assert_eq!(evaluate("2 +"), Err(EvalError::Parse));
+        assert_eq!(evaluate("sqrt()"), Err(EvalError::ArgumentCount));
+        assert_eq!(evaluate("(-1)!"), Err(EvalError::FactorialDomain));
     }
 }

@@ -1,115 +1,133 @@
-//! `cai` — ask the engine from a terminal.
+//! `cai` — a command-line front end for the engine.
 //!
 //! ```text
-//! $ cai "12 km to miles"
-//! **7.4564543068 miles**
-//!
-//! `12 km = 7.4564543068 miles`
-//!
-//! Exact conversion factors.
-//!
-//! $ cai --eval "2 + 3 * 4"
-//! 14
+//! cai "12 km to miles"
+//! cai --eval "2 + 3 * 4"
+//! cai --intent "what is the weather in Boston"
+//! cai --json "15% of 240"
 //! ```
+//!
+//! With no arguments it reads prompts from standard input, one per line.
 
-use std::io::{self, Read};
+use std::env;
+use std::io::{self, BufRead, IsTerminal};
+use std::process::ExitCode;
 
-use eltes_cai::{answer, evaluate, format_number};
+use eltes_cai::{answer, evaluate, format_number, Intent};
 
-fn main() {
-    let args: Vec<String> = std::env::args().skip(1).collect();
+const HELP: &str = "\
+cai — the Eltes CAI engine, on your device
 
-    if args.is_empty() {
-        let mut buffer = String::new();
-        if io::stdin().read_to_string(&mut buffer).is_ok() && !buffer.trim().is_empty() {
-            run(&buffer, false, false);
-            return;
+USAGE:
+    cai <question>          answer a question
+    cai --eval <expr>       print just the number
+    cai --intent <question> print just the route (empty, math, units, date, live, fallback)
+    cai --json <question>   print {\"intent\":…,\"text\":…}
+    cai --help              this text
+    cai --version           engine version
+
+EXAMPLES:
+    cai \"12 km to miles\"
+    cai --eval \"2 + 3 * 4\"
+    cai \"days between 2026-01-01 and 2026-10-20\"
+
+No network, no model weights, no telemetry. Questions outside arithmetic,
+percentages, units, temperatures and dates are refused in plain language.";
+
+fn main() -> ExitCode {
+    let arguments: Vec<String> = env::args().skip(1).collect();
+
+    if arguments.is_empty() {
+        if io::stdin().is_terminal() {
+            println!("{HELP}");
+            return ExitCode::SUCCESS;
         }
-        usage();
-        return;
+        return answer_stream();
     }
 
-    if args.iter().any(|arg| arg == "-h" || arg == "--help") {
-        usage();
-        return;
-    }
-
-    let mut json = false;
-    let mut show_intent = false;
-    let mut eval = false;
-    let mut words: Vec<String> = Vec::new();
-
-    for arg in args {
-        match arg.as_str() {
-            "--json" => json = true,
-            "--intent" => show_intent = true,
-            "--eval" => eval = true,
-            _ => words.push(arg),
+    match arguments[0].as_str() {
+        "-h" | "--help" => {
+            println!("{HELP}");
+            ExitCode::SUCCESS
         }
-    }
-
-    let prompt = words.join(" ");
-    if prompt.trim().is_empty() {
-        usage();
-        return;
-    }
-
-    if eval {
-        match evaluate(&prompt) {
-            Ok(value) => println!("{}", format_number(value)),
-            Err(error) => {
-                eprintln!("error: {error}");
-                std::process::exit(1);
+        "-V" | "--version" => {
+            println!("cai {}", env!("CARGO_PKG_VERSION"));
+            ExitCode::SUCCESS
+        }
+        "--eval" => {
+            let expression = arguments[1..].join(" ");
+            match evaluate(&expression) {
+                Ok(value) => {
+                    println!("{}", format_number(value));
+                    ExitCode::SUCCESS
+                }
+                Err(error) => {
+                    eprintln!("cai: {error}");
+                    ExitCode::FAILURE
+                }
             }
         }
-        return;
-    }
-
-    run(&prompt, json, show_intent);
-}
-
-fn run(prompt: &str, json: bool, show_intent: bool) {
-    let result = answer(prompt);
-    if json {
-        println!(
-            "{{\"intent\":\"{}\",\"text\":\"{}\"}}",
-            result.intent.as_str(),
-            escape(&result.text)
-        );
-    } else if show_intent {
-        println!("{}", result.intent.as_str());
-    } else {
-        println!("{}", result.text);
-    }
-}
-
-fn escape(text: &str) -> String {
-    let mut out = String::with_capacity(text.len());
-    for ch in text.chars() {
-        match ch {
-            '"' => out.push_str("\\\""),
-            '\\' => out.push_str("\\\\"),
-            '\n' => out.push_str("\\n"),
-            '\r' => out.push_str("\\r"),
-            '\t' => out.push_str("\\t"),
-            other => out.push(other),
+        "--intent" => {
+            let prompt = arguments[1..].join(" ");
+            println!("{}", answer(&prompt).intent.as_str());
+            ExitCode::SUCCESS
+        }
+        "--json" => {
+            let prompt = arguments[1..].join(" ");
+            let result = answer(&prompt);
+            println!(
+                "{{\"intent\":\"{}\",\"text\":\"{}\"}}",
+                result.intent.as_str(),
+                escape_json(&result.text)
+            );
+            ExitCode::SUCCESS
+        }
+        _ => {
+            print_answer(&arguments.join(" "));
+            ExitCode::SUCCESS
         }
     }
-    out
 }
 
-fn usage() {
-    println!(
-        "cai — the Eltes on-device answer engine\n\
-         \n\
-         USAGE:\n\
-         \x20   cai \"12 km to miles\"\n\
-         \x20   cai --eval \"2 + 3 * 4\"       print just the number\n\
-         \x20   cai --intent \"15% of 240\"      show which rule matched\n\
-         \x20   cai --json \"100 f to c\"       machine-readable output\n\
-         \x20   echo \"sqrt(144)\" | cai        read the prompt from stdin\n\
-         \n\
-         No key, no network, no model weights. Anything outside arithmetic,\n\
-         percentages and unit conversion is refused rather than guessed."
-    );
+fn print_answer(prompt: &str) {
+    let result = answer(prompt);
+    println!("{}", result.text);
+    if result.intent != Intent::Empty {
+        println!("\n— {}", result.intent.as_str());
+    }
+}
+
+fn answer_stream() -> ExitCode {
+    let stdin = io::stdin();
+    for line in stdin.lock().lines() {
+        match line {
+            Ok(prompt) => {
+                if prompt.trim().is_empty() {
+                    continue;
+                }
+                println!("{}", answer(&prompt).text);
+            }
+            Err(error) => {
+                eprintln!("cai: {error}");
+                return ExitCode::FAILURE;
+            }
+        }
+    }
+    ExitCode::SUCCESS
+}
+
+fn escape_json(text: &str) -> String {
+    let mut escaped = String::with_capacity(text.len());
+    for character in text.chars() {
+        match character {
+            '"' => escaped.push_str("\\\""),
+            '\\' => escaped.push_str("\\\\"),
+            '\n' => escaped.push_str("\\n"),
+            '\r' => escaped.push_str("\\r"),
+            '\t' => escaped.push_str("\\t"),
+            other if (other as u32) < 0x20 => escaped.push_str(&format!("\\u{:04x}", other as u32)),
+            other => escaped.push(other),
+        }
+    }
+    escaped
 }

@@ -5,10 +5,12 @@ on:
     branches: [main, 'arena/**']
     paths:
       - 'engine/**'
+      - 'ports/vectors.tsv'
       - '.github/workflows/engine.yml'
   pull_request:
     paths:
       - 'engine/**'
+      - 'ports/vectors.tsv'
       - '.github/workflows/engine.yml'
   workflow_dispatch:
 

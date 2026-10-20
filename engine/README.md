@@ -16,15 +16,13 @@ $ cargo run --quiet -- "12 km to miles"
 
 Exact conversion factors.
 
+— units
+
 $ cargo run --quiet -- --eval "2 + 3 * 4"
 14
 
 $ cargo run --quiet -- --intent "15% of 240"
 percent
-
-**36** — 15% of 240.
-
-240 × 15 / 100 = 36
 ```
 
 ## What this crate does
@@ -38,6 +36,7 @@ percent
 | Percentages | Ported | `15% of 240`, `20% off 80`, change between two values |
 | Unit conversion | Ported | Length, mass, volume, data, speed, area |
 | Temperatures | Ported | Celsius, Fahrenheit, Kelvin |
+| Calendar arithmetic | Ported | `days between 2026-01-01 and 2026-10-20`, weekday of a date |
 | Abstention | Ported | Out-of-scope questions get an explicit refusal |
 | Live-data refusal | Ported | Weather, news, scores and prices are named as unsupported |
 | One-variable equations | Not yet | Linear/quadratic solver is still JavaScript-only |
@@ -53,10 +52,11 @@ answer comes from a rule you can read.
 - **No dependencies.** `std` only, so the crate builds anywhere and the supply
   chain is one line long.
 - **No `unsafe`.** Enforced with `#![forbid(unsafe_code)]`.
-- **No network, no filesystem, no clock.** `answer()` is a pure function of its
-  input, which makes it trivial to test and safe to embed.
+- **No network, no filesystem.** `answer()` is a pure function of its input,
+  apart from `days until <date>`, which reads the system clock to know what
+  "today" is.
 - **Refuse rather than guess.** Anything outside the table above returns
-  `Intent::Fallback`.
+  `Intent::Fallback` or `Intent::Live`.
 
 ## Library use
 
@@ -68,6 +68,10 @@ assert!(result.text.contains("11.0231131092"));
 let value = eltes_cai::evaluate("sqrt(144) + 2^3").unwrap();
 assert_eq!(value, 20.0);
 ```
+
+`Intent` values are stable strings: `empty`, `percent`, `units`, `date`,
+`math`, `math-limit`, `live`, `fallback`. The same names appear in the shared
+conformance suite and in every port.
 
 ## CLI
 
@@ -89,6 +93,11 @@ cargo test --all
 a change on either side shows up as a failing test instead of a quiet
 divergence. The unit tests beside each module cover the edge cases: floating
 point noise, factorial domain, mixed-unit rejection, negative zero.
+
+`tests/parity.rs` runs this crate against [`../ports/vectors.tsv`](../ports/vectors.tsv),
+the same file every port in [`../ports`](../ports) is judged by. If the Rust
+engine and the Python, Go, Java, C or Lua ports disagree about an answer, that
+test names the line.
 
 ## Licensing
 

@@ -3,12 +3,12 @@ name = "eltes-cai"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.74"
-description = "The deterministic answer engine behind Eltes CAI — arithmetic, percentages and unit conversion, with an explicit abstention instead of a guess. No network, no model weights, no API key."
+description = "The deterministic on-device answer engine behind Eltes CAI: arithmetic, units, dates, and an explicit abstention. No network, no model weights."
 license = "MIT"
 repository = "https://github.com/gefrus112/eltes"
 readme = "README.md"
-keywords = ["offline", "deterministic", "calculator", "units", "assistant"]
-categories = ["command-line-utilities", "parser-implementations"]
+keywords = ["deterministic", "offline", "calculator", "units", "no-ai"]
+categories = ["parser-implementations", "science"]
 
 [lib]
 name = "eltes_cai"
@@ -18,6 +18,4 @@ path = "src/lib.rs"
 name = "cai"
 path = "src/main.rs"
 
-[profile.release]
-lto = true
-codegen-units = 1
+[dependencies]

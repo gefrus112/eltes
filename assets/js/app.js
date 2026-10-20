@@ -1449,7 +1449,7 @@
                 : `<span class="needs-key">needs key</span>`}
             ${m.realtime ? `<span class="tag rt"><span class="rt-dot"></span>realtime</span>` : ''}
           </strong>
-          <span>${esc(p.name)} · ${esc(m.context)} context · ${esc(m.blurb)}</span>
+          <span>${esc(m.providerLabel || p.name)} · ${esc(m.context)} context · ${esc(m.blurb)}</span>
         </span>
         <span class="right">
           ${isCurrent ? `<span class="check">${ic('check', 14)}</span>` : ''}
@@ -3218,6 +3218,39 @@
     saveAndRender(chat, assistant);
   }
 
+  /* Eltes Lab-1: the character model trained in train.html. It cannot answer a
+     question, so it continues the user's text and says what wrote it. The reply
+     is revealed in slices to match the on-device streaming of CAI. */
+  async function streamLabTurn({ messages, onToken, signal }) {
+    const payload = window.EltesLab.chat(messages);
+    const text = String(payload.text || '');
+    const started = performance.now();
+    let firstTokenAt = null;
+    const slice = Math.max(1, Math.ceil(text.length / 80));
+    for (let i = 0; i < text.length; i += slice) {
+      if (signal && signal.aborted) {
+        const error = new Error('Aborted');
+        error.name = 'AbortError';
+        throw error;
+      }
+      const shown = text.slice(0, Math.min(text.length, i + slice));
+      if (firstTokenAt == null) firstTokenAt = performance.now();
+      onToken(shown.slice(-slice), shown);
+      await sleep(10);
+    }
+    return {
+      intent: payload.intent,
+      text,
+      usage: {
+        input: estimateTokens(messages.map((m) => m.content).join(' ')),
+        output: estimateTokens(text)
+      },
+      firstTokenAt,
+      totalAt: performance.now(),
+      started
+    };
+  }
+
   async function runLocalTurn(chat, assistant, prompt, model) {
     assistant.needsKey = false;
     assistant.error = null;
@@ -3235,17 +3268,30 @@
     let result = null;
 
     try {
-      result = await CAI.stream({
-        modelId: model.id,
-        messages: history,
-        signal: controller.signal,
-        onMeta: (meta) => { assistant.localIntent = meta.intent; },
-        onToken: (_chunk, full) => {
-          assistant.content = full;
-          assistant.phase = 'streaming';
-          paint();
-        }
-      });
+      if (model.id === 'eltes-lab-1' && window.EltesLab) {
+        result = await streamLabTurn({
+          messages: history,
+          signal: controller.signal,
+          onToken: (_chunk, full) => {
+            assistant.content = full;
+            assistant.phase = 'streaming';
+            paint();
+          }
+        });
+        if (result && result.intent) assistant.localIntent = result.intent;
+      } else {
+        result = await CAI.stream({
+          modelId: model.id,
+          messages: history,
+          signal: controller.signal,
+          onMeta: (meta) => { assistant.localIntent = meta.intent; },
+          onToken: (_chunk, full) => {
+            assistant.content = full;
+            assistant.phase = 'streaming';
+            paint();
+          }
+        });
+      }
     } catch (err) {
       if (!(err && err.name === 'AbortError')) {
         assistant.error = {
@@ -3261,7 +3307,7 @@
 
     // CAI is offline by design. When web search is enabled, live questions get
     // real results with links instead of the "I cannot check live information" line.
-    const wantsWeb = !assistant.error && result && (
+    const wantsWeb = !assistant.error && result && result.intent !== 'lab' && result.intent !== 'lab-empty' && (
       result.intent === 'live' ||
       /^(?:please\s+)?(?:search(?:\s+the\s+(?:web|internet))?|look\s+up|google|web\s+search)\b/i.test(prompt)
     );

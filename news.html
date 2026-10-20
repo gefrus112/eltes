@@ -22,7 +22,7 @@
     <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
   </div>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
-  <a class="skip" href="#r313">Skip to the latest release</a>
+  <a class="skip" href="#r314">Skip to the latest release</a>
 
   <header class="nav" id="nav">
     <div class="wrap">
@@ -37,6 +37,7 @@
           <a href="index.html#features">Features</a>
           <a href="index.html#models">Models</a>
           <a href="studio.html">Studio</a>
+          <a href="train.html">Lab</a>
           <a href="docs.html">Docs</a>
           <a href="news.html" class="active" aria-current="page">News</a>
           <a href="index.html#pricing">Pricing</a>
@@ -57,6 +58,7 @@
     <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="studio.html">Studio <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="train.html">Lab <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="news.html">News <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
@@ -68,15 +70,16 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
         <h1>Every release, with the screen to prove it.</h1>
-        <p class="lede">Notes from the Eltes build: the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <p class="lede">Notes from the Eltes build: the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.13.0</span>
+          <span class="badge"><span class="dot"></span>v3.14.0</span>
           <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
-          <span class="badge"><span data-icon="image" data-icon-size="12"></span>6 screenshots</span>
+          <span class="badge"><span data-icon="image" data-icon-size="12"></span>7 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r313" class="active">v3.13 · Embers</a>
+          <a href="#r314" class="active">v3.14 · Lab</a>
+          <a href="#r313">v3.13 · Embers</a>
           <a href="#r312">v3.12 · Deeper sky</a>
           <a href="#r311">v3.11 · Living galaxy</a>
           <a href="#r310">v3.10 · Effects from code</a>
@@ -88,6 +91,44 @@
     </section>
 
     <!-- =========================== latest =============================== -->
+    <section class="news-feed" id="r314" aria-labelledby="h-r314">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <figure class="shot">
+            <a href="assets/img/news/lab.jpg" target="_blank" rel="noreferrer" aria-label="Open the Lab figure at full size">
+              <img src="assets/img/news/lab.jpg" alt="A real Lab training run: orange cross-entropy loss falling from 3.9 towards zero over 1,500 steps, a dashed blue validation line bottoming out at 2.70 around step 200 and then climbing, six readouts and a sampled continuation below." width="1280" height="760" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>A real 1,500-step run of the shipped model, drawn by the page's own chart code. The dashed validation line bottoms out at 2.70 and then climbs: that is overfitting, shown rather than hidden. The text at the bottom is the model's own sample.</span>
+              <span class="tag">lab.jpg · real run</span>
+            </figcaption>
+          </figure>
+
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver latest">v3.14.0</span>
+              <span class="news-kind">Latest release</span>
+            </div>
+            <h2 id="h-r314">Train the model yourself, then read the curve.</h2>
+            <p class="news-sum">Lab is a real neural network you train in the tab: 51,245 weights, hand-written backpropagation, Adam, live training and validation curves, and a checkpoint in <code>localStorage</code>. It is a character-level model, and the page is honest about what that means.</p>
+            <ul class="news-points">
+              <li><strong>It actually learns</strong> — the loss falls because the weights change, not because a script prints a nicer number. A seeded run is reproducible; the same setup draws the same curve.</li>
+              <li><strong>The honest curve</strong> — validation loss on held-out text is drawn next to training loss, with the best point marked. On a corpus this small it turns up, and the page says why.</li>
+              <li><strong>A pass-mark test</strong> — the memorisation demo trains on one paragraph until the loss reaches zero, then recites it back; match is measured character by character, usually above 90%.</li>
+              <li><strong>Yours, on-device</strong> — save the model and <strong>Eltes Lab-1</strong> appears in the workspace picker. It quotes a continuation and states its limits; no key, no upload, no network request.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="train.html"><span data-icon="flask" data-icon-size="14"></span>Train a model</a>
+              <a href="docs.html#lab">How it works<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="app.html"><span data-icon="message-square" data-icon-size="14"></span>Try it in chat</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
     <section class="news-feed" id="r313" aria-labelledby="h-r313">
       <div class="wrap">
         <article class="news-feature reveal">
@@ -104,8 +145,8 @@
 
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.13.0</span>
-              <span class="news-kind">Latest release</span>
+              <span class="news-ver">v3.13.0</span>
+              <span class="news-kind">Embers · pointer</span>
             </div>
             <h2 id="h-r313">The empty chat now answers your pointer.</h2>
             <p class="news-sum">Move the mouse across the new-chat screen and a hearth of orange embers follows it: a warm glow, eight orbiting sparks, wispy updraughts and a slow rain of embers rising from the composer. It is drawn on one canvas — no libraries, no images.</p>
@@ -319,6 +360,7 @@
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="docs.html">Documentation</a>
+          <a href="train.html">Lab &amp; training</a>
           <a href="news.html">Release notes</a>
           <a href="docs.html#workflow">Website workflow</a>
           <a href="docs.html#effects">Images &amp; effects</a>

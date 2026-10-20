@@ -122,7 +122,7 @@ window.EltesModels = (function () {
       keyUrl: '',
       baseUrl: '',
       local: true,
-      blurb: 'Our own on-device conversational models. No key, no network, no waiting.'
+      blurb: 'Our own on-device models: the CAI engine and the Lab model you train in this browser. No key, no network.'
     },
     custom: {
       name: 'Custom endpoint',
@@ -154,6 +154,12 @@ window.EltesModels = (function () {
       provider: 'eltes', context: 'on-device', tier: 'On-device', tools: false, vision: false,
       local: true, tags: ['local', 'docs', 'no-key'],
       blurb: 'A local specialist for Eltes itself: setup, keys, models, accounts and downloads.'
+    },
+    {
+      id: 'eltes-lab-1', apiId: 'eltes-lab-1', name: 'Eltes Lab-1', providerLabel: 'Eltes Lab',
+      provider: 'eltes', context: 'on-device', tier: 'Lab', tools: false, vision: false,
+      local: true, tags: ['local', 'lab', 'trained', 'no-key'],
+      blurb: 'The character model you train in Lab. It continues text; it cannot follow instructions.'
     },
     /* ------------------------------- Anthropic ------------------------------ */
     {

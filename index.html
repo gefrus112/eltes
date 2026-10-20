@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eltes AI — one workspace for the models you choose</title>
-  <meta name="description" content="A focused AI workspace with live web search, cited sources and 65 models across 14 providers. Bring your own key, switch models, and keep your history on your device." />
+  <meta name="description" content="A focused AI workspace with live web search, cited sources and 66 models across 14 providers. Bring your own key, switch models, and keep your history on your device." />
   <meta name="theme-color" content="#000003" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <meta property="og:title" content="Eltes AI — one workspace for the models you choose" />
-  <meta property="og:description" content="Live web search with numbered citations, 65 models and one local-first workspace." />
+  <meta property="og:description" content="Live web search with numbered citations, 66 models and one local-first workspace." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/img/icon-512.png" />
   <meta property="og:image:alt" content="Eltes — a green cloud with one eye closed and one open" />
@@ -145,7 +145,7 @@
                   <span class="p-logo sm" data-brand="eltes" data-brand-size="15"></span><span class="tab-copy"><strong>Eltes CAI-1</strong><small>On-device · no key</small></span><span class="tab-check" data-icon="check" data-icon-size="13"></span>
                 </button>
               </div>
-              <div class="picker-foot"><span data-icon="layers" data-icon-size="12"></span><span>65 models · 14 providers</span><a href="#models">Browse all<span data-icon="arrow-right" data-icon-size="11"></span></a></div>
+              <div class="picker-foot"><span data-icon="layers" data-icon-size="12"></span><span>66 models · 14 providers</span><a href="#models">Browse all<span data-icon="arrow-right" data-icon-size="11"></span></a></div>
             </div>
             <div class="preview-panel" id="previewPanel" role="tabpanel" aria-labelledby="preview-tab-claude" aria-live="polite">
               <div class="preview-panel-head">
@@ -307,7 +307,46 @@
           <span class="sep"></span>
           <span><span data-icon="shuffle" data-icon-size="12"></span> Switch mid-conversation</span>
           <span class="sep"></span>
-          <a href="docs.html#models">See all 65 models<span data-icon="arrow-right" data-icon-size="12"></span></a>
+          <a href="docs.html#models">See all 66 models<span data-icon="arrow-right" data-icon-size="12"></span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= lab ============================== -->
+    <section class="section tight" id="lab">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow"><span data-icon="flask" data-icon-size="14"></span>Eltes Lab</span>
+          <h2>A model you train<br class="desk-br" /> in your own tab.</h2>
+          <p>Not a demo script. A real character-level network — embeddings, a hidden layer, softmax — trained by backpropagation and Adam in plain JavaScript, then saved to this browser.</p>
+        </div>
+
+        <div class="bento stagger">
+          <article class="card span-2 reveal">
+            <div class="card-icon" data-icon="brain" data-icon-size="19"></div>
+            <h3>Real gradients</h3>
+            <p>51,245 weights, hand-written backprop, dropout, weight decay, gradient clipping and Adam with bias correction. The loss falls because the maths ran.</p>
+          </article>
+          <article class="card span-2 reveal">
+            <div class="card-icon" data-icon="trending-up" data-icon-size="19"></div>
+            <h3>Curves, not claims</h3>
+            <p>Training and held-out validation loss are drawn live, with the best validation point marked. On a corpus this small the dashed line turns up — overfitting, shown rather than hidden.</p>
+          </article>
+          <article class="card span-2 reveal">
+            <div class="card-icon" data-icon="hard-drive" data-icon-size="19"></div>
+            <h3>Yours after one save</h3>
+            <p>The checkpoint lives in <code>localStorage</code>. <strong>Eltes Lab-1</strong> then appears in the workspace picker and continues your text — honestly labelled, no key, no upload.</p>
+          </article>
+        </div>
+
+        <div class="wall-foot reveal">
+          <span><span data-icon="timer" data-icon-size="12"></span> ~9 s for 1,500 steps</span>
+          <span class="sep"></span>
+          <span><span data-icon="wifi-off" data-icon-size="12"></span> zero network requests</span>
+          <span class="sep"></span>
+          <a href="train.html">Open Lab<span data-icon="arrow-right" data-icon-size="12"></span></a>
+          <span class="sep"></span>
+          <a href="docs.html#lab">Read the guide</a>
         </div>
       </div>
     </section>
@@ -539,7 +578,7 @@
             <div class="price"><strong>$0</strong><span>forever</span></div>
             <p>Connect your provider key for real streamed replies. Eltes checks for a saved key before sending; without one, use CAI locally for free.</p>
             <ul class="price-feats">
-              <li><span data-icon="check" data-icon-size="13"></span>All 65 models, 14 providers</li>
+              <li><span data-icon="check" data-icon-size="13"></span>All 66 models, 14 providers</li>
               <li><span data-icon="check" data-icon-size="13"></span>Agent tools and streaming</li>
               <li><span data-icon="check" data-icon-size="13"></span>Local history and exports</li>
               <li><span data-icon="check" data-icon-size="13"></span>No Eltes account required</li>
@@ -651,7 +690,7 @@
           <article class="download-card featured reveal">
             <div class="dl-top">
               <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Windows</span>
-              <span class="dl-ver">v3.13.0 · portable</span>
+              <span class="dl-ver">v3.14.0 · portable</span>
             </div>
             <h3>Eltes for Windows</h3>
             <p>Unzip anywhere and double-click <code class="mono">eltes.bat</code>. It finds Python or Node,
@@ -735,6 +774,7 @@
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="docs.html">Documentation</a>
+          <a href="train.html">Lab &amp; training</a>
           <a href="news.html">Release notes</a>
           <a href="studio.html">Studio &amp; terminal</a>
           <a href="docs.html#quickstart">Quickstart</a>
@@ -751,7 +791,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Desktop build 3.13.0.</span>
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Desktop build 3.14.0.</span>
         <span class="status"><i></i>Local-first workspace</span>
       </div>
     </div>

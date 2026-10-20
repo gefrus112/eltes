@@ -2731,3 +2731,104 @@ body {
     color: #4f6284;
   }
 }
+
+/* v4 — install permissions panel (what a PWA/Chromebook install can and cannot reach) */
+.install-panel {
+  margin-top: 22px;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(128, 166, 232, 0.13);
+  background:
+    radial-gradient(ellipse 70% 60% at 12% 0%, rgba(56, 118, 255, 0.1), transparent 70%),
+    linear-gradient(180deg, rgba(8, 16, 30, 0.72), rgba(4, 9, 17, 0.82));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.035) inset, 0 30px 70px -60px #000;
+}
+.ip-head { max-width: 720px; }
+.ip-head p {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.68;
+  color: #93a6c2;
+}
+.ip-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+.ip-col {
+  padding: 15px 16px 14px;
+  border-radius: 13px;
+  border: 1px solid rgba(128, 166, 232, 0.11);
+  background: rgba(255, 255, 255, 0.014);
+}
+.ip-col.can {
+  border-color: rgba(57, 220, 162, 0.16);
+  background: linear-gradient(180deg, rgba(57, 220, 162, 0.06), rgba(255, 255, 255, 0.008));
+}
+.ip-col.cannot {
+  border-color: rgba(255, 194, 102, 0.14);
+  background: linear-gradient(180deg, rgba(255, 194, 102, 0.05), rgba(255, 255, 255, 0.008));
+}
+.ip-col h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #cfdff2;
+}
+.ip-col.can h3 .icon { color: #6fe3ba; }
+.ip-col.cannot h3 .icon { color: #f0c07a; }
+.ip-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 12px;
+}
+.ip-col li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #8ea2c0;
+}
+.ip-col li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(120, 160, 220, 0.5);
+}
+.ip-col.can li::before { background: rgba(57, 220, 162, 0.7); }
+.ip-col.cannot li::before { background: rgba(255, 194, 102, 0.6); }
+.ip-foot {
+  display: flex;
+  gap: 9px;
+  margin-top: 16px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(128, 166, 232, 0.1);
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: #7c8fad;
+}
+.ip-foot .icon { flex: none; margin-top: 2px; color: #7fa0cc; }
+.ip-foot code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  border: 1px solid rgba(128, 166, 232, 0.16);
+  background: rgba(2, 7, 14, 0.7);
+  font-size: 10.5px;
+  color: #b9cbe4;
+}
+@media (max-width: 760px) {
+  .install-panel { padding: 16px; }
+  .ip-cols { grid-template-columns: minmax(0, 1fr); gap: 9px; }
+  .ip-col { padding: 13px 13px 12px; }
+  .ip-head p { font-size: 12.5px; }
+}

@@ -664,14 +664,46 @@
               <div class="cmd-row"><code class="mono">npm start</code></div>
             </article>
             <article class="download-card small">
-              <span class="dl-os"><span data-icon="layout-grid" data-icon-size="15"></span>Install as an app</span>
-              <h3>No download needed</h3>
-              <p>Eltes ships a web manifest. Use your browser’s <strong>Install</strong> or <strong>Add to Home Screen</strong>
-                action to get a standalone window with the green-cloud icon.</p>
+              <span class="dl-os"><span data-icon="layout-grid" data-icon-size="15"></span>Chromebook · any browser</span>
+              <h3>Install as an app</h3>
+              <p>Eltes ships a web manifest. On ChromeOS, pick <strong>Install</strong> from the address-bar icon —
+                you get a launcher shortcut that opens the same sandboxed page in its own window. No package, no service.</p>
               <a class="btn btn-ghost btn-sm" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="12"></span></a>
             </article>
           </div>
         </div>
+
+        <div class="install-panel reveal">
+          <div class="ip-head">
+            <span class="eyebrow"><span data-icon="shield-check" data-icon-size="14"></span>What an install actually grants</span>
+            <p>Installing Eltes in Chrome or on a Chromebook makes a shortcut around the same sandboxed page. It is not a native program, and a web page has no API that can run commands on your machine.</p>
+          </div>
+          <div class="ip-cols">
+            <div class="ip-col can">
+              <h3><span data-icon="check" data-icon-size="15"></span>It can</h3>
+              <ul>
+                <li>Open in its own window and load from cache once visited</li>
+                <li>Read its own chats, settings and saved keys in this browser profile</li>
+                <li>Send requests to the provider or proxy you configure</li>
+                <li>Write an export to your Downloads folder when you ask</li>
+              </ul>
+            </div>
+            <div class="ip-col cannot">
+              <h3><span data-icon="x" data-icon-size="15"></span>It cannot</h3>
+              <ul>
+                <li>Run shell commands or start processes — no page gets that API</li>
+                <li>Open the Linux terminal or read ChromeOS system files</li>
+                <li>Read files from your disk unless you pick them in a dialog</li>
+                <li>See other tabs, other sites, or anything outside its origin</li>
+              </ul>
+            </div>
+          </div>
+          <p class="ip-foot">
+            <span data-icon="info" data-icon-size="13"></span>
+            <span><code class="mono">eltes.bat</code> is Windows-only and separate: it is a readable text file that starts a local static server as your own user — it does not run on a Chromebook, and it never asks for admin rights. Keys still live in this browser profile, which is why anyone with access to that profile can read them.</span>
+          </p>
+        </div>
+
         <p class="dl-note">The launcher is a reviewable text file — read it before you run it. It binds to localhost and only serves files from the folder you unzipped; it does not run the optional API backend.</p>
       </div>
     </section>

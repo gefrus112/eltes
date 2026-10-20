@@ -595,6 +595,16 @@ eltes.bat --port 8080</code></pre>
           <h3>Install as an app</h3>
           <p><code>site.webmanifest</code> declares standalone display, a dark theme colour and maskable icons at 192 and 512 px. Chrome, Edge and Safari can install the page as a window with the green-cloud icon; there is no Electron wrapper and no auto-updater.</p>
 
+          <div class="callout warn">
+            <span data-icon="shield-check" data-icon-size="15"></span>
+            <span><strong>An install is still a web page.</strong> The shortcut opens the same sandboxed origin in its own window. It cannot run shell commands, start processes, reach the ChromeOS Linux terminal or read files you have not picked in a dialog — browsers expose no such API to a web app, installed or not. What it can reach is its own <code>localStorage</code>, which means saved provider keys are readable by anyone using that browser profile.</span>
+          </div>
+
+          <div class="callout tip">
+            <span data-icon="terminal" data-icon-size="15"></span>
+            <span><strong>Only the Windows launcher starts a server.</strong> <code>eltes.bat</code> is a readable script that runs a local static server as your own user. It is not part of the installed web app and does not exist on a Chromebook.</span>
+          </div>
+
           <div class="callout tip">
             <span data-icon="download" data-icon-size="15"></span>
             <span><strong>Update by replacing files.</strong> Copy a new build over the old folder and keep <code>localStorage</code>. Chats, keys and your profile live in the browser, not in the download.</span>

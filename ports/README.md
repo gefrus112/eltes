@@ -79,18 +79,25 @@ exits `0` on success, or prints `FAIL …` lines and exits non-zero.
 
 | Language   | Port                                | Run                                                            |
 | ---------- | ----------------------------------- | -------------------------------------------------------------- |
-| Rust       | `../engine` (reference)             | `cargo test --manifest-path engine/Cargo.toml`                   |
+| Rust       | `../engine` (reference)             | `cargo test --manifest-path engine/Cargo.toml`                  |
 | Python     | `python/cai.py`                     | `python3 python/cai.py vectors.tsv`                             |
 | JavaScript | `javascript/cai.js`                 | `node javascript/cai.js vectors.tsv`                            |
-| TypeScript | `typescript/cai.ts`                 | `npx tsc … && node dist/cai.js vectors.tsv`                     |
+| TypeScript | `typescript/cai.ts`                 | `npx tsc -p typescript && node typescript/dist/cai.js vectors.tsv` |
+| Perl       | `perl/cai.pl`                       | `perl perl/cai.pl vectors.tsv`                                  |
 | C          | `c/cai.c`                           | `cc -std=c99 -O2 cai.c -lm -o cai && ./cai ../vectors.tsv`      |
 | C++        | `cpp/cai.cpp`                       | `g++ -std=c++17 -O2 cai.cpp -o cai && ./cai ../vectors.tsv`     |
-| Perl       | `perl/cai.pl`                       | `perl perl/cai.pl vectors.tsv`                                  |
 | Go         | `go/main.go`                        | `go run go/main.go vectors.tsv`                                 |
 | Ruby       | `ruby/cai.rb`                       | `ruby ruby/cai.rb vectors.tsv`                                  |
 | PHP        | `php/cai.php`                       | `php php/cai.php vectors.tsv`                                   |
+| Java       | `java/Cai.java`                     | `javac -d out java/Cai.java && java -cp out Cai`                |
+| Kotlin     | `kotlin/Cai.kt`                     | `kotlinc Cai.kt -include-runtime -d cai.jar && java -jar cai.jar` |
+| C#         | `csharp/cai.csproj`                 | `dotnet run --project csharp/cai.csproj`                        |
+| Lua        | `lua/cai.lua`                       | `lua5.4 lua/cai.lua vectors.tsv`                                 |
+| Julia      | `julia/cai.jl`                      | `julia julia/cai.jl vectors.tsv`                                |
+| Dart       | `dart/cai.dart`                     | `dart dart/cai.dart vectors.tsv`                                |
 
-`../.github/workflows/ports.yml` runs every row of that table on each push.
+`../.github/workflows/ports.yml` runs a matrix of 15 language jobs on every
+push, so a row only stays in this table while it is green.
 
 ## Adding a language
 

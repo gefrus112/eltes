@@ -1,6 +1,6 @@
 {
   "name": "eltes-ai",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "description": "Eltes AI — live web search with cited sources and a thinking trace, 65 models across 14 providers, slash commands, and an on-device CAI helper.",
   "main": "index.html",
   "scripts": {

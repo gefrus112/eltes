@@ -1199,13 +1199,57 @@
     applyPlatformKeys();
   }
 
+  /* Web search is a plain switch: clicking the chip always flips it, and any
+     setup gap (no backend, no key) surfaces as an inline notice instead of a
+     blocked toggle. */
+  let webNoticeDismissed = false;
+
+  function webSetupIssue() {
+    if (!state.settings.webSearch) return null;
+    if (!backendBase()) {
+      return {
+        text: 'Web search is on, but this build has no search backend. Run npm start or set a backend URL.',
+        action: 'Set backend',
+        target: '#backendUrl'
+      };
+    }
+    if (!searchKey()) {
+      const meta = searchProviderMeta(searchProviderId());
+      return {
+        text: `Web search is on — add a ${meta.name} key to start searching.`,
+        action: 'Add key',
+        target: '#searchKey'
+      };
+    }
+    return null;
+  }
+
+  function renderWebNotice() {
+    const el = $('#webNotice');
+    if (!el) return;
+    const issue = webNoticeDismissed ? null : webSetupIssue();
+    el.hidden = !issue;
+    if (!issue) return;
+    el.dataset.target = issue.target;
+    const text = $('#webNoticeText');
+    if (text) text.textContent = issue.text;
+    const action = $('#webNoticeAction');
+    if (action) action.textContent = issue.action;
+  }
+
   function renderComposerHint() {
     const hint = $('.composer-hint');
     if (!hint) return;
-    hint.innerHTML =
-      state.settings.sendKey === 'enter'
-        ? '<span class="kbd">↵</span> send <span class="kbd">⇧↵</span> newline'
-        : '<span class="kbd">⌘</span><span class="kbd">↵</span> send';
+    let web = '';
+    if (state.settings.webSearch) {
+      const issue = webSetupIssue();
+      web = issue
+        ? '<span class="hint-web warn"><i></i>Web on · setup needed</span>'
+        : `<span class="hint-web"><i></i>Web on · ${esc(searchProviderMeta(searchProviderId()).name)}</span>`;
+    }
+    hint.innerHTML = web + (state.settings.sendKey === 'enter'
+      ? '<span class="kbd">↵</span> send <span class="kbd">⇧↵</span> newline'
+      : '<span class="kbd">⌘</span><span class="kbd">↵</span> send');
   }
 
   const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || '');
@@ -1659,7 +1703,10 @@
       webChip.title = s.webSearch
         ? 'Web search is on — replies can cite live sources. Click to turn off.'
         : 'Search the live web and cite sources';
+      const label = $('#webChipLabel');
+      if (label) label.textContent = s.webSearch ? 'Web on' : 'Web';
     }
+    renderWebNotice();
     renderComposerHint();
     applyPlatformKeys();
   }
@@ -1858,6 +1905,8 @@
     state.settings.searchProvider = e.target.value;
     persistNow();
     renderSearchSettings();
+    renderWebNotice();
+    renderComposerHint();
   });
 
   const freshnessSelect = $('#searchFreshness');
@@ -1882,17 +1931,21 @@
     state.settings.searchKeys = state.settings.searchKeys || {};
     if (value) state.settings.searchKeys[id] = value;
     else delete state.settings.searchKeys[id];
-    if (value && !state.settings.webSearch) state.settings.webSearch = true;
+    if (value) {
+      state.settings.webSearch = true;
+      webNoticeDismissed = false;
+    }
     persistNow();
     renderSearchSettings();
     applySettingsToUI();
-    toast(value ? `${searchProviderMeta(id).name} search key saved locally` : 'Search key removed', value ? 'check' : 'trash-2');
+    toast(value ? `${searchProviderMeta(id).name} search key saved · web search on` : 'Search key removed', value ? 'check' : 'trash-2');
   });
 
   $('#searchClear').addEventListener('click', () => {
     const id = searchProviderId();
     if (state.settings.searchKeys) delete state.settings.searchKeys[id];
     state.settings.webSearch = false;
+    webNoticeDismissed = false;
     persistNow();
     renderSearchSettings();
     applySettingsToUI();
@@ -2461,24 +2514,40 @@
   els.send.addEventListener('click', () => { if (state.sending) stopGeneration(); else send(); });
   $('#agentChip').addEventListener('click', toggleTools);
   $('#webChip').addEventListener('click', () => {
-    if (!state.settings.webSearch) {
-      if (!backendBase()) {
-        toast('Web search needs the optional backend — run npm start or set a backend URL', 'triangle-alert');
-        openSettings('keys');
-        return;
-      }
-      if (!searchKey()) {
-        toast(`Add a ${searchProviderMeta(searchProviderId()).name} key to turn on web search`, 'key-round');
-        openSettings('keys');
-        setTimeout(() => { const el = $('#searchKey'); if (el) el.focus(); }, 260);
-        return;
-      }
-    }
     state.settings.webSearch = !state.settings.webSearch;
+    if (state.settings.webSearch) webNoticeDismissed = false;
     persistNow();
     applySettingsToUI();
-    toast(state.settings.webSearch ? 'Web search on — answers can cite live sources' : 'Web search off', 'globe');
+    if (!state.settings.webSearch) {
+      toast('Web search off', 'globe');
+      return;
+    }
+    const issue = webSetupIssue();
+    toast(issue ? issue.text : `Web search on · ${searchProviderMeta(searchProviderId()).name}`, issue ? 'triangle-alert' : 'globe');
   });
+
+  const webNoticeAction = $('#webNoticeAction');
+  if (webNoticeAction) {
+    webNoticeAction.addEventListener('click', () => {
+      const box = $('#webNotice');
+      const target = box && box.dataset.target === '#backendUrl' ? '#backendUrl' : '#searchKey';
+      openSettings('keys');
+      setTimeout(() => {
+        const input = $(target);
+        if (!input) return;
+        const group = input.closest('.set-group');
+        if (group && group.scrollIntoView) group.scrollIntoView({ block: 'center' });
+        input.focus();
+      }, 280);
+    });
+  }
+  const webNoticeClose = $('#webNoticeClose');
+  if (webNoticeClose) {
+    webNoticeClose.addEventListener('click', () => {
+      webNoticeDismissed = true;
+      renderWebNotice();
+    });
+  }
   $('#connectNow').addEventListener('click', () => openConnect(''));
   $('#connectAdvanced').addEventListener('click', () => { closeDialog(els.connectDialog); openSettings('keys'); });
 

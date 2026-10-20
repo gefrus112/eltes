@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.7.0</span>
+          <span class="badge"><span class="dot"></span>v3.7.1</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -456,7 +456,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <li>Get a key from <a href="https://api.search.brave.com/app/keys" target="_blank" rel="noreferrer">Brave</a>, <a href="https://app.tavily.com/home" target="_blank" rel="noreferrer">Tavily</a>, <a href="https://serper.dev/api-key" target="_blank" rel="noreferrer">Serper</a> or <a href="https://dashboard.exa.ai/api-keys" target="_blank" rel="noreferrer">Exa</a>.</li>
             <li>Open <strong>Settings → API keys → Web search</strong>, choose the provider, paste the key and press <strong>Save</strong>. The key is stored in this browser only.</li>
             <li>Pick a <strong>recency</strong> filter — any time, past 24 hours, week, month or year. It is mapped to each provider's own filter, so the results are actually filtered upstream rather than trimmed after the fact.</li>
-            <li>Turn on the <strong>Web</strong> chip in the composer. The toggle also governs the <code>web_search</code> tool offered to hosted models.</li>
+            <li>Turn on the <strong>Web</strong> chip in the composer — it is a plain switch: clicking it always turns web search on (the chip then reads <strong>Web on</strong>), and if a key or backend is missing an inline notice links straight to it instead of blocking the click. The toggle also governs the <code>web_search</code> tool offered to hosted models.</li>
             <li>Ask a live question, or type <code>/web &lt;query&gt;</code> for an explicit search.</li>
           </ol>
 

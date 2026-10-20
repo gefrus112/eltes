@@ -162,7 +162,7 @@
               <span data-icon="wrench" data-icon-size="14"></span>Tools
             </button>
             <button class="chip" id="webChip" aria-pressed="false" title="Search the live web and cite sources">
-              <span data-icon="globe" data-icon-size="14"></span>Web
+              <span data-icon="globe" data-icon-size="14"></span><span id="webChipLabel">Web</span>
             </button>
             <button class="chip" id="attachBtn" title="Attach a text file" aria-label="Attach a text file">
               <span data-icon="paperclip" data-icon-size="14"></span>
@@ -173,6 +173,12 @@
               <span data-icon="arrow-up" data-icon-size="17"></span>
             </button>
           </div>
+        </div>
+        <div class="web-notice" id="webNotice" role="status" hidden>
+          <span class="wn-icon" data-icon="globe" data-icon-size="13"></span>
+          <span class="wn-text" id="webNoticeText">Web search is on</span>
+          <button class="wn-action" id="webNoticeAction" type="button">Add a key</button>
+          <button class="wn-close" id="webNoticeClose" type="button" aria-label="Dismiss search setup notice" data-icon="x" data-icon-size="12"></button>
         </div>
         <div class="composer-foot" id="composerFoot">
           <span data-icon="lock" data-icon-size="11"></span>
@@ -275,7 +281,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.7 · BYOK<br />Optional proxy. No telemetry.</div>
+          <div class="nav-foot">Eltes v3.7.1 · BYOK<br />Optional proxy. No telemetry.</div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -507,7 +513,7 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.7.0</span></div>
+              <div class="kv"><span>Version</span><span>3.7.1</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
               <div class="kv"><span>Models</span><span>65 · 14 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>

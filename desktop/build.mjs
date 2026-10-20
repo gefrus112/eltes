@@ -41,6 +41,7 @@ export const ROOT = resolve(here, '..');
 export const BUILD_DIR = join(here, '.build');
 export const APP_DIR = join(BUILD_DIR, 'app');
 export const SITE_OUT = join(BUILD_DIR, 'site');
+export const BRAND_DIR = join(BUILD_DIR, 'brand');
 
 /* The shell itself, exactly the files Electron needs in the asar. */
 export const SHELL_FILES = [
@@ -95,7 +96,8 @@ export function stage(options = {}) {
   rmSync(BUILD_DIR, { recursive: true, force: true });
   mkdirSync(APP_DIR, { recursive: true });
   mkdirSync(SITE_OUT, { recursive: true });
-  mkdirSync(join(APP_DIR, 'resources'), { recursive: true });
+  mkdirSync(join(APP_DIR, 'assets'), { recursive: true });
+  mkdirSync(BRAND_DIR, { recursive: true });
 
   /* 1. the shell */
   for (const file of SHELL_FILES) {
@@ -103,8 +105,13 @@ export function stage(options = {}) {
     if (!existsSync(from)) throw new Error(`Shell file missing: ${file}`);
     cpSync(from, join(APP_DIR, file));
   }
-  cpSync(join(here, 'resources', 'icon.png'), join(APP_DIR, 'resources', 'icon.png'));
-  cpSync(join(here, 'resources', 'icons'), join(APP_DIR, 'resources', 'icons'), { recursive: true });
+  /* The window needs one icon inside the asar; the packager's icons live in
+     their own folder so electron-builder's buildResources exclusion cannot
+     strip them from the runtime bundle. */
+  cpSync(join(here, 'resources', 'icon.png'), join(APP_DIR, 'assets', 'icon.png'));
+  cpSync(join(here, 'resources', 'icon.ico'), join(BRAND_DIR, 'icon.ico'));
+  cpSync(join(here, 'resources', 'icon.icns'), join(BRAND_DIR, 'icon.icns'));
+  cpSync(join(here, 'resources', 'icons'), join(BRAND_DIR, 'icons'), { recursive: true });
 
   /* 2. the site */
   const copied = [];
@@ -152,7 +159,7 @@ export function stage(options = {}) {
   const files = countFiles(SITE_OUT);
   log(`staged ${copied.length} site entries · ${files} files · ${(bytes / 1048576).toFixed(1)} MB`);
 
-  return { version, appDir: APP_DIR, siteDir: SITE_OUT, entries: copied, bytes, files };
+  return { version, appDir: APP_DIR, siteDir: SITE_OUT, brandDir: BRAND_DIR, entries: copied, bytes, files };
 }
 
 function walk(dir, onFile) {
@@ -201,14 +208,14 @@ const TARGETS = {
         { target: 'nsis', arch: opts.archs.win || ['x64', 'arm64'] },
         { target: 'portable', arch: opts.archs.win || ['x64'] }
       ],
-      icon: join(APP_DIR, 'resources', 'icon.ico')
+      icon: join(BRAND_DIR, 'icon.ico')
     })
   },
   mac: {
     label: 'macOS',
     build: () => ({
       target: ['dmg', 'zip'],
-      icon: join(APP_DIR, 'resources', 'icon.icns'),
+      icon: join(BRAND_DIR, 'icon.icns'),
       category: 'public.app-category.productivity',
       darkModeSupport: true,
       /* unsigned by default; set CSC_LINK / CSC_NAME to sign and notarise */
@@ -226,7 +233,7 @@ const TARGETS = {
     label: 'Linux',
     build: () => ({
       target: ['AppImage', 'deb'],
-      icon: join(APP_DIR, 'resources', 'icons'),
+      icon: join(BRAND_DIR, 'icons'),
       category: 'Utility',
       executableName: 'eltes',
       synopsis: 'Local-first AI workspace',
@@ -253,14 +260,14 @@ export function electronBuilderConfig(options = {}) {
     directories: {
       app: APP_DIR,
       output: opts.output,
-      buildResources: join(APP_DIR, 'resources')
+      buildResources: BRAND_DIR
     },
     files: [
       'main.js', 'preload.js', 'shell.js', 'menu.js', 'window-state.js',
-      'fallback.html', 'package.json',
-      { from: 'resources/icon.png', to: 'resources/icon.png' }
+      'fallback.html', 'assets/icon.png', 'package.json'
     ],
-    extraResources: [{ from: 'site', to: 'site', filter: ['**/*'] }],
+    /* absolute: FileSet sources are otherwise resolved against the app dir */
+    extraResources: [{ from: SITE_OUT, to: 'site', filter: ['**/*'] }],
     asar: true,
     compression: options.fast ? 'normal' : 'maximum',
     npmRebuild: false,
@@ -287,9 +294,9 @@ export function electronBuilderConfig(options = {}) {
       runAfterFinish: true,
       deleteAppDataOnUninstall: false,
       artifactName: 'Eltes-Setup-${version}-${arch}.${ext}',
-      installerIcon: join(APP_DIR, 'resources', 'icon.ico'),
-      uninstallerIcon: join(APP_DIR, 'resources', 'icon.ico'),
-      installerHeaderIcon: join(APP_DIR, 'resources', 'icon.ico')
+      installerIcon: join(BRAND_DIR, 'icon.ico'),
+      uninstallerIcon: join(BRAND_DIR, 'icon.ico'),
+      installerHeaderIcon: join(BRAND_DIR, 'icon.ico')
     };
     config.portable = {
       artifactName: 'Eltes-${version}-Portable-${arch}.${ext}',
@@ -305,7 +312,7 @@ export function electronBuilderConfig(options = {}) {
     config.mac.artifactName = 'Eltes-${version}-${arch}.${ext}';
     config.dmg = {
       title: 'Eltes ${version}',
-      icon: join(APP_DIR, 'resources', 'icon.icns'),
+      icon: join(BRAND_DIR, 'icon.icns'),
       artifactName: 'Eltes-${version}-${arch}.${ext}',
       contents: [
         { x: 140, y: 220, type: 'file' },

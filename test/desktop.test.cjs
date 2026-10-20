@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
 const { readFile, mkdtemp, rm, readdir, mkdir, writeFile } = require('node:fs/promises');
 const { existsSync } = require('node:fs');
 const { tmpdir } = require('node:os');
-const { join } = require('node:path');
+const { join, resolve } = require('node:path');
 const { get } = require('node:http');
 const { pathToFileURL } = require('node:url');
 
@@ -103,11 +103,11 @@ test('the site directory resolves for a checkout and for a packaged app', () => 
   );
   assert.equal(
     core.resolveSiteDir({ packaged: true, resourcesPath: '/opt/Eltes/resources', appDir: '/opt/Eltes/resources/app.asar' }),
-    '/opt/Eltes/resources/site'
+    resolve('/opt/Eltes/resources/site')
   );
   assert.equal(
     core.resolveSiteDir({ packaged: true, resourcesPath: '/x', override: '/tmp/site' }),
-    '/tmp/site'
+    resolve('/tmp/site')
   );
   assert.throws(() => core.resolveSiteDir({ packaged: false }), /appDir/);
 
@@ -242,7 +242,7 @@ test('packaging stages the shell and the site, and the config is complete', asyn
   assert.equal(config.productName, 'Eltes');
   assert.equal(config.asar, true);
   assert.equal(config.npmRebuild, false);
-  assert.deepEqual(config.extraResources, [{ from: 'site', to: 'site', filter: ['**/*'] }]);
+  assert.deepEqual(config.extraResources, [{ from: build.SITE_OUT, to: 'site', filter: ['**/*'] }]);
   assert.deepEqual(config.protocols, [{ name: 'Eltes link', schemes: ['eltes'] }]);
 
   assert.deepEqual(config.win.target.map((t) => t.target), ['nsis', 'portable']);
@@ -251,7 +251,11 @@ test('packaging stages the shell and the site, and the config is complete', asyn
   assert.match(config.portable.artifactName, /Portable/);
   assert.equal(config.nsis.oneClick, false);
   assert.equal(config.nsis.createDesktopShortcut, true);
-  assert.equal(config.win.signAndEditExecutable, false, 'cross-built Windows binaries skip rcedit');
+  if (process.platform === 'win32') {
+    assert.equal(config.win.signAndEditExecutable, undefined, 'Windows builds edit their own metadata');
+  } else {
+    assert.equal(config.win.signAndEditExecutable, false, 'cross-built Windows binaries skip rcedit');
+  }
 
   assert.deepEqual(config.mac.target, ['dmg', 'zip']);
   assert.equal(config.mac.identity, null, 'unsigned unless a certificate is configured');
@@ -289,6 +293,10 @@ test('packaging stages the shell and the site, and the config is complete', asyn
   for (const icon of ['icon.png', 'icon.ico', 'icon.icns', 'icons/256x256.png']) {
     assert.ok(existsSync(join(desktop, 'resources', icon)), icon);
   }
+  const stagedIcons = build.stage({ version });
+  assert.ok(existsSync(join(stagedIcons.appDir, 'assets', 'icon.png')), 'the window icon is inside the asar');
+  assert.ok(existsSync(join(stagedIcons.brandDir, 'icon.ico')), 'the installer icon is outside it');
+  assert.equal(config.directories.buildResources, stagedIcons.brandDir);
 });
 
 /* --------------------------- packaged boot test ---------------------------- */
@@ -379,7 +387,7 @@ test('the shell is wired into the app: fallback, preload and docs', async () => 
   assert.match(readme, /AppImage/);
 
   const workflow = await read('.github/workflows/desktop.yml');
-  for (const runner of ['windows-latest', 'macos-14', 'macos-13', 'ubuntu-latest']) {
+  for (const runner of ['windows-latest', 'macos-latest', 'macos-15-intel', 'ubuntu-latest']) {
     assert.ok(workflow.includes(runner), `CI builds on ${runner}`);
   }
   assert.match(workflow, /desktop:build|build\.mjs/);
@@ -534,7 +542,9 @@ test('the shell packs into an asar with main.js as its entry', async (t) => {
     assert.ok(entries.includes('/main.js'), 'main.js is packed');
     for (const file of build.SHELL_FILES) assert.ok(entries.includes(`/${file}`), `${file} is packed`);
     assert.ok(entries.includes('/package.json'));
+    assert.ok(entries.includes('/assets/icon.png'), 'the window icon is packed');
     assert.ok(!entries.some((entry) => entry.startsWith('/site/')), 'the site ships as extraResources, not in the asar');
+    assert.ok(!entries.some((entry) => entry.startsWith('/icons/')), 'packager icons stay out of the asar');
 
     const packed = JSON.parse(asar.extractFile(out, 'package.json').toString('utf8'));
     assert.equal(packed.main, 'main.js');

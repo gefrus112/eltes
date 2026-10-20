@@ -66,7 +66,7 @@ npm run desktop:stage          # just assemble desktop/.build
 
 The window is hardened (context isolation, no node integration, sandboxed renderer, five bridge calls) and navigation is locked to the app's own origin; everything else opens in your real browser. Permissions are denied except clipboard. The bundled server binds `127.0.0.1` only, and data lives in the platform's app-data folder (`studio/`, `logs/desktop.log`, `window-state.json` inside it). If the server cannot start, a recovery screen shows the error and log path instead of a blank window. Signing is configuration only: set `CSC_LINK`/`CSC_KEY_PASSWORD` (Windows) or a Developer ID certificate plus `APPLE_ID`/`APPLE_APP_SPECIFIC_PASSWORD`/`APPLE_TEAM_ID` (macOS).
 
-`.github/workflows/desktop.yml` builds each platform on its own runner — Windows on `windows-latest`, macOS on `macos-14` (arm64) and `macos-13` (Intel), Linux on `ubuntu-latest` — and attaches every installer to the GitHub release when you push a `v*` tag. Build Windows on Windows: cross-building skips `rcedit`, so icon and version metadata stay Electron's defaults. Details and troubleshooting: [desktop/README.md](desktop/README.md) and [docs.html#desktop](docs.html#desktop).
+`.github/workflows/desktop.yml` builds each platform on its own runner — Windows on `windows-latest`, macOS on `macos-latest` (arm64) and `macos-15-intel` (Intel), Linux on `ubuntu-latest` — and attaches every installer to the GitHub release when you push a `v*` tag. Build Windows on Windows: cross-building skips `rcedit`, so icon and version metadata stay Electron's defaults. Details and troubleshooting: [desktop/README.md](desktop/README.md) and [docs.html#desktop](docs.html#desktop).
 
 If you only need the website, skip the Electron download:
 

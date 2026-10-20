@@ -117,7 +117,7 @@ silently.
 ## CI
 
 `.github/workflows/desktop.yml` builds all three platforms on their own runners
-(`windows-latest`, `macos-14` arm64, `macos-13` x64, `ubuntu-latest`) on a tag or
+(`windows-latest`, `macos-latest` arm64, `macos-15-intel` x64, `ubuntu-latest`) on a tag or
 from the Actions tab, and attaches the installers to the GitHub release for that
 tag. Nothing is published anywhere else.
 

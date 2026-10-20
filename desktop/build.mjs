@@ -204,10 +204,10 @@ const TARGETS = {
   win: {
     label: 'Windows',
     build: (version, opts) => ({
-      target: [
-        { target: 'nsis', arch: opts.archs.win || ['x64', 'arm64'] },
-        { target: 'portable', arch: opts.archs.win || ['x64'] }
-      ],
+      /* No per-target arch list: electron-builder then builds exactly the
+         single arch the CLI asks for, instead of additionally emitting a
+         combined multi-arch installer whose name has no ${arch}. */
+      target: ['nsis', 'portable'],
       icon: join(BRAND_DIR, 'icon.ico')
     })
   },

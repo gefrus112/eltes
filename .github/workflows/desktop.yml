@@ -231,3 +231,10 @@ jobs:
             gh release create "$TAG" --title "Eltes $TAG" --generate-notes
           fi
           gh release upload "$TAG" artifacts/* --clobber
+          # rebuilds must not leave stale asset names behind
+          for asset in $(gh release view "$TAG" --json assets --jq '.assets[].name'); do
+            if [ ! -e "artifacts/$asset" ]; then
+              echo "removing stale $asset"
+              gh release delete-asset "$TAG" "$asset" --yes
+            fi
+          done

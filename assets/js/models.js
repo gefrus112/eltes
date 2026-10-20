@@ -1,4 +1,4 @@
-/* Eltes — provider catalogue (v3.2, October 2026)
+/* Eltes — provider catalogue (v3.5, October 2026)
    OpenAI-compatible endpoints plus native Anthropic and the on-device Eltes CAI family.
    No demo models: every hosted entry is a real API target that needs a key (or a custom
    base URL pointed at your own server). CAI models run locally in this tab and say so. */
@@ -105,6 +105,15 @@ window.EltesModels = (function () {
       baseUrl: 'https://openrouter.ai/api/v1',
       blurb: 'One key for hundreds of models, with automatic routing and fallbacks.'
     },
+    cohere: {
+      name: 'Cohere',
+      brand: 'cohere',
+      api: 'openai',
+      keyHint: '…',
+      keyUrl: 'https://dashboard.cohere.com/api-keys',
+      baseUrl: 'https://api.cohere.ai/compatibility/v1',
+      blurb: 'Command R+ and Command A — retrieval-focused models with strong tool use and multilingual support.'
+    },
     eltes: {
       name: 'Eltes CAI',
       brand: 'eltes',
@@ -173,6 +182,16 @@ window.EltesModels = (function () {
       provider: 'anthropic', context: '200K', tier: 'Frontier', tools: true, vision: true,
       tags: ['reasoning'], blurb: 'The previous Opus generation, still strong and widely available.'
     },
+    {
+      id: 'claude-sonnet-4', apiId: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4',
+      provider: 'anthropic', context: '200K', tier: 'Balanced', tools: true, vision: true,
+      tags: ['coding', 'tools'], blurb: 'Sonnet 4 — excellent balance of speed and reasoning.'
+    },
+    {
+      id: 'claude-haiku-4', apiId: 'claude-haiku-4-20250514', name: 'Claude Haiku 4',
+      provider: 'anthropic', context: '200K', tier: 'Fast', tools: true, vision: true,
+      tags: ['fast'], blurb: 'Haiku 4 — sub-second latency for classification and extraction.'
+    },
     /* --------------------------------- OpenAI ------------------------------- */
     {
       id: 'gpt-6-sol', apiId: 'gpt-6-sol', name: 'GPT‑6 Sol',
@@ -194,6 +213,31 @@ window.EltesModels = (function () {
       provider: 'openai', context: '1M', tier: 'Balanced', tools: true, vision: true,
       tags: ['coding', 'tools'], blurb: 'Legacy but reliable: very long context, steady instruction following.'
     },
+    {
+      id: 'gpt-4o', apiId: 'gpt-4o', name: 'GPT‑4o',
+      provider: 'openai', context: '128K', tier: 'Frontier', tools: true, vision: true,
+      tags: ['vision', 'coding', 'tools'], blurb: 'Flagship multimodal GPT‑4o with vision and tool calling.'
+    },
+    {
+      id: 'gpt-4o-mini', apiId: 'gpt-4o-mini', name: 'GPT‑4o mini',
+      provider: 'openai', context: '128K', tier: 'Fast', tools: true, vision: true,
+      tags: ['fast', 'vision'], blurb: 'Small, fast GPT‑4o variant for high-volume tasks.'
+    },
+    {
+      id: 'o1', apiId: 'o1', name: 'o1',
+      provider: 'openai', context: '200K', tier: 'Reasoning', tools: true, vision: true,
+      tags: ['reasoning', 'coding'], blurb: 'OpenAI reasoning model with extended thinking.'
+    },
+    {
+      id: 'o1-mini', apiId: 'o1-mini', name: 'o1-mini',
+      provider: 'openai', context: '128K', tier: 'Reasoning', tools: true, vision: false,
+      tags: ['reasoning', 'fast'], blurb: 'Faster reasoning model for math and code.'
+    },
+    {
+      id: 'o3-mini', apiId: 'o3-mini', name: 'o3-mini',
+      provider: 'openai', context: '200K', tier: 'Reasoning', tools: true, vision: false,
+      tags: ['reasoning', 'coding'], blurb: 'Latest mini reasoning model with strong STEM performance.'
+    },
     /* --------------------------------- Google ------------------------------- */
     {
       id: 'gemini-2-5-pro', apiId: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro',
@@ -204,6 +248,16 @@ window.EltesModels = (function () {
       id: 'gemini-2-5-flash', apiId: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash',
       provider: 'google', context: '1M', tier: 'Fast', tools: true, vision: true,
       tags: ['fast', 'vision'], blurb: 'Latency-first workhorse with a million-token window.'
+    },
+    {
+      id: 'gemini-2-0-flash', apiId: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash',
+      provider: 'google', context: '1M', tier: 'Fast', tools: true, vision: true,
+      tags: ['fast', 'vision'], blurb: 'Gemini 2.0 Flash — next-gen speed and efficiency.'
+    },
+    {
+      id: 'gemini-1-5-pro', apiId: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro',
+      provider: 'google', context: '2M', tier: 'Balanced', tools: true, vision: true,
+      tags: ['vision', 'reasoning'], blurb: '2M context, excellent long-document understanding.'
     },
     /* -------------------------------- Z.ai GLM ------------------------------ */
     {
@@ -221,6 +275,11 @@ window.EltesModels = (function () {
       provider: 'zai', context: '128K', tier: 'Fast', tools: true, vision: false,
       tags: ['fast'], blurb: 'Lightweight GLM for high-volume and latency-sensitive work.'
     },
+    {
+      id: 'glm-4-7', apiId: 'glm-4.7', name: 'GLM-4.7',
+      provider: 'zai', context: '200K', tier: 'Frontier', tools: true, vision: false,
+      tags: ['coding', 'reasoning'], blurb: 'Newest GLM with improved reasoning and longer context.'
+    },
     /* -------------------------------- DeepSeek ------------------------------ */
     {
       id: 'deepseek-flash', apiId: 'deepseek-flash', name: 'DeepSeek V4.1 Flash',
@@ -231,6 +290,16 @@ window.EltesModels = (function () {
       id: 'deepseek-v4-pro', apiId: 'deepseek-v4-pro', name: 'DeepSeek V4 Pro',
       provider: 'deepseek', context: '1M', tier: 'Frontier', tools: true, vision: true,
       tags: ['reasoning', 'coding'], blurb: 'The heavy DeepSeek tier for reasoning, code and long documents.'
+    },
+    {
+      id: 'deepseek-chat', apiId: 'deepseek-chat', name: 'DeepSeek Chat',
+      provider: 'deepseek', context: '128K', tier: 'Balanced', tools: true, vision: false,
+      tags: ['coding', 'tools'], blurb: 'General-purpose chat model with strong instruction following.'
+    },
+    {
+      id: 'deepseek-reasoner', apiId: 'deepseek-reasoner', name: 'DeepSeek Reasoner',
+      provider: 'deepseek', context: '128K', tier: 'Reasoning', tools: true, vision: false,
+      tags: ['reasoning', 'coding'], blurb: 'Reasoning-focused DeepSeek with chain-of-thought.'
     },
     /* ---------------------------------- xAI --------------------------------- */
     {
@@ -243,6 +312,16 @@ window.EltesModels = (function () {
       provider: 'xai', context: '131K', tier: 'Balanced', tools: true, vision: false,
       tags: ['reasoning'], blurb: 'Lower-cost Grok for everyday drafting and analysis.'
     },
+    {
+      id: 'grok-4-fast', apiId: 'grok-4-fast-reasoning', name: 'Grok 4 Fast',
+      provider: 'xai', context: '256K', tier: 'Fast', tools: true, vision: false,
+      tags: ['reasoning', 'fast'], blurb: 'Fast reasoning Grok with reduced latency.'
+    },
+    {
+      id: 'grok-3-mini', apiId: 'grok-3-mini', name: 'Grok 3 Mini',
+      provider: 'xai', context: '131K', tier: 'Fast', tools: true, vision: false,
+      tags: ['fast'], blurb: 'Compact Grok for quick chat and classification.'
+    },
     /* ---------------------------------- Qwen -------------------------------- */
     {
       id: 'qwen3-max', apiId: 'qwen3-max', name: 'Qwen3 Max',
@@ -253,6 +332,16 @@ window.EltesModels = (function () {
       id: 'qwen3-coder', apiId: 'qwen3-coder-plus', name: 'Qwen3 Coder Plus',
       provider: 'qwen', context: '256K', tier: 'Balanced', tools: true, vision: false,
       tags: ['coding'], blurb: 'Code-focused Qwen with repository-scale context.'
+    },
+    {
+      id: 'qwen2-5-32b', apiId: 'qwen2.5-32b-instruct', name: 'Qwen2.5 32B',
+      provider: 'qwen', context: '128K', tier: 'Balanced', tools: true, vision: false,
+      tags: ['coding', 'tools'], blurb: 'Popular 32B Qwen with strong coding and math.'
+    },
+    {
+      id: 'qwen3-30b-a3b', apiId: 'qwen3-30b-a3b', name: 'Qwen3 30B A3B',
+      provider: 'qwen', context: '128K', tier: 'Fast', tools: true, vision: false,
+      tags: ['fast', 'coding'], blurb: 'MoE Qwen3 — 30B total, 3B active per token.'
     },
     /* --------------------------------- Mistral ------------------------------ */
     {
@@ -265,6 +354,16 @@ window.EltesModels = (function () {
       provider: 'mistral', context: '256K', tier: 'Fast', tools: false, vision: false,
       tags: ['coding', 'fast'], blurb: 'Completion and code-editing specialist.'
     },
+    {
+      id: 'mistral-small', apiId: 'mistral-small-latest', name: 'Mistral Small',
+      provider: 'mistral', context: '128K', tier: 'Fast', tools: true, vision: false,
+      tags: ['fast'], blurb: 'Efficient Mistral for high-volume inference.'
+    },
+    {
+      id: 'pixtral-large', apiId: 'pixtral-large-latest', name: 'Pixtral Large',
+      provider: 'mistral', context: '128K', tier: 'Balanced', tools: true, vision: true,
+      tags: ['vision'], blurb: 'Mistral vision model for image understanding.'
+    },
     /* ---------------------------------- Groq -------------------------------- */
     {
       id: 'llama-3-3-70b', apiId: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B',
@@ -276,6 +375,16 @@ window.EltesModels = (function () {
       provider: 'groq', context: '128K', tier: 'Open', tools: true, vision: true,
       tags: ['open', 'vision'], blurb: 'Llama 4 with vision, fast on Groq.'
     },
+    {
+      id: 'llama-3-1-8b', apiId: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant',
+      provider: 'groq', context: '128K', tier: 'Fast', tools: true, vision: false,
+      tags: ['fast', 'open'], blurb: 'Ultra-fast 8B Llama for instant responses.'
+    },
+    {
+      id: 'groq-qwen3-32b', apiId: 'qwen/qwen3-32b', name: 'Qwen3 32B · Groq',
+      provider: 'groq', context: '128K', tier: 'Open', tools: true, vision: false,
+      tags: ['open', 'coding'], blurb: 'Qwen3 32B at Groq speed for coding and multilingual.'
+    },
     /* -------------------------------- NVIDIA NIM --------------------------- */
     {
       id: 'nvidia-llama-3-3', apiId: 'meta/llama-3.3-70b-instruct', name: 'Llama 3.3 70B · NVIDIA',
@@ -286,6 +395,27 @@ window.EltesModels = (function () {
       id: 'nvidia-nemotron-ultra', apiId: 'nvidia/llama-3.1-nemotron-ultra-253b-v1', name: 'Nemotron Ultra · NVIDIA',
       provider: 'nvidia', context: '128K', tier: 'Open', tools: true, vision: false,
       tags: ['open', 'reasoning', 'nvidia'], blurb: 'NVIDIA Nemotron via NIM. Requires your NVIDIA API key; endpoint access may vary by account.'
+    },
+    {
+      id: 'nvidia-deepseek-r1', apiId: 'deepseek-ai/deepseek-r1', name: 'DeepSeek R1 · NVIDIA',
+      provider: 'nvidia', context: '128K', tier: 'Reasoning', tools: true, vision: false,
+      tags: ['reasoning', 'nvidia'], blurb: 'DeepSeek R1 reasoning model via NVIDIA NIM.'
+    },
+    {
+      id: 'nvidia-mixtral', apiId: 'mistralai/mixtral-8x22b-instruct-v0.1', name: 'Mixtral 8×22B · NVIDIA',
+      provider: 'nvidia', context: '64K', tier: 'Open', tools: true, vision: false,
+      tags: ['open', 'nvidia'], blurb: 'Mixtral MoE via NVIDIA NIM for balanced performance.'
+    },
+    /* -------------------------------- Cohere -------------------------------- */
+    {
+      id: 'command-r-plus', apiId: 'command-r-plus', name: 'Command R+',
+      provider: 'cohere', context: '128K', tier: 'Balanced', tools: true, vision: false,
+      tags: ['tools', 'reasoning'], blurb: 'Cohere Command R+ — strong RAG and tool use, multilingual.'
+    },
+    {
+      id: 'command-a', apiId: 'command-a-03-2025', name: 'Command A',
+      provider: 'cohere', context: '256K', tier: 'Frontier', tools: true, vision: false,
+      tags: ['reasoning', 'coding'], blurb: 'Cohere flagship Command A with 256K context and agents.'
     },
     /* ------------------------------- OpenRouter ----------------------------- */
     {
@@ -317,6 +447,31 @@ window.EltesModels = (function () {
       id: 'or-qwen-coder', apiId: 'qwen/qwen3-coder', name: 'Qwen3 Coder',
       provider: 'openrouter', context: '256K', tier: 'Open', tools: true, vision: false,
       tags: ['coding', 'open'], blurb: 'Open code model with a large context window.'
+    },
+    {
+      id: 'or-llama-maverick', apiId: 'meta-llama/llama-4-maverick', name: 'Llama 4 Maverick',
+      provider: 'openrouter', context: '1M', tier: 'Balanced', tools: true, vision: true,
+      tags: ['open', 'vision'], blurb: 'Llama 4 Maverick via OpenRouter with huge context.'
+    },
+    {
+      id: 'or-gemini-flash', apiId: 'google/gemini-2.0-flash', name: 'Gemini 2.0 Flash',
+      provider: 'openrouter', context: '1M', tier: 'Fast', tools: true, vision: true,
+      tags: ['fast', 'vision'], blurb: 'Gemini 2.0 Flash via OpenRouter.'
+    },
+    {
+      id: 'or-deepseek-r1', apiId: 'deepseek/deepseek-r1', name: 'DeepSeek R1',
+      provider: 'openrouter', context: '128K', tier: 'Reasoning', tools: true, vision: false,
+      tags: ['reasoning'], blurb: 'DeepSeek R1 reasoning through OpenRouter.'
+    },
+    {
+      id: 'or-claude-35', apiId: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet',
+      provider: 'openrouter', context: '200K', tier: 'Balanced', tools: true, vision: true,
+      tags: ['coding'], blurb: 'Claude 3.5 Sonnet via OpenRouter.'
+    },
+    {
+      id: 'or-qwen72b', apiId: 'qwen/qwen-2.5-72b-instruct', name: 'Qwen 2.5 72B',
+      provider: 'openrouter', context: '128K', tier: 'Balanced', tools: true, vision: false,
+      tags: ['coding'], blurb: 'Qwen 2.5 72B via OpenRouter.'
     },
     /* --------------------------------- Custom ------------------------------- */
     {

@@ -420,7 +420,7 @@
       const res = window.EltesCAI.build('eltes-cai-1', 'what is ' + src, [], now);
       if (res && res.intent === 'math' && /\*\*/.test(res.text)) {
         const m = res.text.match(/\*\*([^*]+)\*\*/);
-        if (m) return m[1] + ' — ' + res.text.replace(/\n/g, ' ').slice(0, 180);
+        if (m) return m[1].trim();
       }
     } catch (e) {}
     return null;
@@ -773,7 +773,7 @@
       ${l.ttft ? `<span>${ic('zap', 10)} first token <b>${fmtMs(l.ttft)}</b></span>` : ''}
       ${l.total ? `<span>${ic('clock', 10)} total <b>${fmtMs(l.total)}</b></span>` : ''}
       ${tps ? `<span>${ic('activity', 10)} <b>${tps}</b> tok/s</span>` : ''}
-      <span>${ic('arrow-down-up', 10)} in <b>${fmtNum(u.input)}</b> · out <b>${fmtNum(u.output)}</b></span>
+      ${msg.usage ? `<span>${ic('arrow-down-up', 10)} in <b>${fmtNum(u.input)}</b> · out <b>${fmtNum(u.output)}</b></span>` : ''}
       <span class="ok">${ic('check-check', 10)} ${esc(M.byId(msg.model).provider === 'anthropic' ? 'Anthropic' : M.providerOf(M.byId(msg.model)).name)}</span>
     </div>`;
   }
@@ -1936,7 +1936,83 @@
     toast(state.settings.tools ? 'Tools enabled for new messages' : 'Tools disabled', 'wrench');
   }
 
-  els.input.addEventListener('input', () => { autoGrow(); updateSendState(); });
+  els.input.addEventListener('input', () => { autoGrow(); updateSendState(); updateSlashMenu(); });
+
+  /* ------------------------- slash autocomplete ---------------------- */
+  const SLASH_COMMANDS = [
+    { cmd: '/help', desc: 'Show all slash commands', hint: 'slash commands' },
+    { cmd: '/clear', desc: 'Clear current conversation', hint: 'clear chat' },
+    { cmd: '/export', desc: 'Download chat as Markdown', hint: 'export' },
+    { cmd: '/model', desc: 'Switch model — e.g. /model gpt-4o', hint: 'model id' },
+    { cmd: '/calc', desc: 'Calculate — e.g. /calc sqrt(81) + 2^8', hint: 'expression' },
+    { cmd: '/convert', desc: 'Convert units — e.g. /convert 5 mi to km', hint: 'value from to to' },
+    { cmd: '/define', desc: 'Define a term — e.g. /define RAG', hint: 'term' },
+    { cmd: '/base', desc: 'Base convert — e.g. /base 255 to hex', hint: 'value to base' },
+    { cmd: '/time', desc: 'Show current time', hint: '' },
+    { cmd: '/coin', desc: 'Flip a coin', hint: '' },
+    { cmd: '/dice', desc: 'Roll dice — e.g. /dice 20', hint: 'sides' },
+    { cmd: '/random', desc: 'Random number — e.g. /random 1 100', hint: 'min max' },
+    { cmd: '/uppercase', desc: 'Uppercase text — e.g. /uppercase \"hello\"', hint: 'text' },
+    { cmd: '/reverse', desc: 'Reverse text', hint: 'text' },
+    { cmd: '/sort', desc: 'Sort words alphabetically', hint: 'words' }
+  ];
+  let slashIndex = 0;
+  function updateSlashMenu() {
+    const menu = $('#slashMenu');
+    if (!menu) return;
+    const val = els.input.value;
+    if (!val.startsWith('/') || val.includes('\n')) { menu.hidden = true; return; }
+    const q = val.toLowerCase().trim().split(/\s+/)[0];
+    const matches = SLASH_COMMANDS.filter(c => c.cmd.startsWith(q) || q === '/');
+    if (!matches.length) { menu.hidden = true; return; }
+    slashIndex = 0;
+    menu.innerHTML = matches.slice(0, 12).map((c, i) => `<button class="slash-item${i === 0 ? ' active' : ''}" data-slash="${esc(c.cmd)}" role="option"><kbd>${esc(c.cmd)}</kbd><span>${esc(c.desc)}</span><small>${esc(c.hint)}</small></button>`).join('');
+    menu.hidden = false;
+  }
+  function hideSlashMenu() { const m = $('#slashMenu'); if (m) m.hidden = true; }
+  function pickSlash(cmd) {
+    els.input.value = cmd + ' ';
+    hideSlashMenu();
+    autoGrow();
+    updateSendState();
+    els.input.focus();
+  }
+  els.input.addEventListener('keydown', (e) => {
+    const menu = $('#slashMenu');
+    if (menu && !menu.hidden) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const items = $$('.slash-item', menu);
+        if (!items.length) return;
+        items[slashIndex]?.classList.remove('active');
+        slashIndex = e.key === 'ArrowDown' ? (slashIndex + 1) % items.length : (slashIndex - 1 + items.length) % items.length;
+        items[slashIndex]?.classList.add('active');
+        items[slashIndex]?.scrollIntoView({ block: 'nearest' });
+        return;
+      }
+      if (e.key === 'Tab' || e.key === 'Enter') {
+        const items = $$('.slash-item', menu);
+        const target = items[slashIndex];
+        if (target) {
+          // Enter on an exact command should send it, not just autocomplete.
+          const exact = els.input.value.trim() === target.dataset.slash;
+          if (e.key === 'Tab' || (e.key === 'Enter' && !exact)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            pickSlash(target.dataset.slash);
+            return;
+          }
+          if (e.key === 'Enter' && exact) hideSlashMenu();
+        }
+      }
+      if (e.key === 'Escape') { hideSlashMenu(); return; }
+    }
+  });
+  $('#slashMenu')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-slash]');
+    if (btn) pickSlash(btn.dataset.slash);
+  });
+  els.input.addEventListener('blur', () => setTimeout(hideSlashMenu, 140));
 
   /* ------------------------- block field / scroll FX ---------------------- */
   (function initBlockField() {
@@ -2142,10 +2218,172 @@
     if (!chat.messages.some((m) => m.role === 'user')) chat.title = titleFrom(text);
   }
 
+  function handleSlash(text, chat) {
+    // A lone "/" opens help; real commands start with "/" + a letter.
+    if (text !== '/' && !/^\/[a-z]/i.test(text)) return null;
+    const parts = text.slice(1).trim().split(/\s+/);
+    const cmd = (parts[0] || '').toLowerCase();
+    const rest = parts.slice(1).join(' ').trim();
+
+    const slashHelpText = `## Slash commands\n\n- \`/help\` — show this list\n- \`/clear\` — clear current conversation\n- \`/export\` — download chat as Markdown\n- \`/model <id>\` — switch model (e.g. \`/model gpt-4o\`, \`/model deepseek-reasoner\`)\n- \`/calc <expr>\` — calculate (e.g. \`/calc sqrt(81) + 2^8\`)\n- \`/convert <value> <from> to <to>\` — units (e.g. \`/convert 5 mi to km\`, \`/convert 32 f to c\`)\n- \`/define <term>\` — glossary (e.g. \`/define RAG\`)\n- \`/base <value> to <base>\` — bases (e.g. \`/base 255 to hex\`, \`/base 0xFF to decimal\`)\n- \`/time\` — current device time\n- \`/coin\` / \`/dice 20\` / \`/random 1 100\` — random utilities\n- \`/uppercase \"hello\"\" / \`/reverse \"hello\"\` / \`/sort apple banana\` — text transforms\n\nTip: type any of these without \`/ \` and CAI will still understand them (e.g. “255 to hex”, “flip a coin”).`;
+
+    if (cmd === '' || cmd === 'help' || cmd === 'h' || cmd === '?') {
+      return { text: slashHelpText, intent: 'slash-help' };
+    }
+    if (cmd === 'clear' || cmd === 'cls') {
+      if (chat) {
+        chat.messages = [];
+        chat.updatedAt = Date.now();
+        persistNow();
+        renderAll();
+        toast('Conversation cleared', 'check');
+      }
+      return { handled: true };
+    }
+    if (cmd === 'export' || cmd === 'download') {
+      if (chat && chat.messages.length) {
+        openShare();
+      } else {
+        toast('Nothing to export yet', 'triangle-alert');
+      }
+      return { handled: true };
+    }
+    if (cmd === 'model' && !rest) {
+      return { text: 'Usage: `/model gpt-4o` or open the picker with ⌘M.', intent: 'slash-error' };
+    }
+    if (cmd === 'model' && rest) {
+      const wanted = rest.split(/\s+/)[0];
+      if (M.MODELS.some((m) => m.id === wanted)) {
+        selectModel(wanted);
+        return { text: `Switched to **${M.byId(wanted).name}** via slash command.`, intent: 'slash-model' };
+      }
+      const match = M.MODELS.find((m) => m.id.toLowerCase().includes(wanted.toLowerCase()) || m.name.toLowerCase().includes(wanted.toLowerCase()));
+      if (match) {
+        selectModel(match.id);
+        return { text: `Switched to **${match.name}** (\`${match.id}\`).`, intent: 'slash-model' };
+      }
+      return { text: `Model “${wanted}” not found. Try \`/model gpt-4o\` or open the model picker (⌘M).`, intent: 'slash-error' };
+    }
+    if (cmd === 'calc' && rest) {
+      const out = safeCalculate(rest);
+      if (out.error) return { text: `**Calc error:** ${out.error}`, intent: 'slash-calc' };
+      return { text: `**${out.result}**\n\n\`${rest} = ${out.result}\``, intent: 'slash-calc' };
+    }
+    if (cmd === 'convert' && rest) {
+      // try CAI unit pipeline
+      if (window.EltesCAI) {
+        const res = window.EltesCAI.build('eltes-cai-1', rest, [], new Date());
+        if (res && (res.intent === 'units' || res.intent === 'base')) return { text: res.text, intent: res.intent };
+      }
+      // also try convert_units tool
+      const m = rest.match(/^(-?\\d+(?:\\.\\d+)?)\\s*([a-z/]+)\\s*(?:to|in|into|as)\\s*([a-z/]+)$/i);
+      if (m) {
+        const toolRes = toolConvertUnits({ value: Number(m[1]), from: m[2], to: m[3] });
+        if (!toolRes.error) return { text: toolRes.result, intent: 'slash-convert' };
+        return { text: toolRes.result, intent: 'slash-convert' };
+      }
+      return { text: `Usage: \`/convert 5 mi to km\` or \`/convert 32 f to c\``, intent: 'slash-error' };
+    }
+    if (cmd === 'define' && rest) {
+      if (window.EltesCAI) {
+        const res = window.EltesCAI.build('eltes-cai-1', 'what is ' + rest, [], new Date());
+        if (res && res.intent === 'glossary') return { text: res.text, intent: 'glossary' };
+      }
+      return { text: `No definition for “${rest}”. Try “token”, “RAG”, “embedding”, “transformer”.`, intent: 'slash-define' };
+    }
+    if (cmd === 'base' && rest) {
+      if (window.EltesCAI) {
+        const res = window.EltesCAI.build('eltes-cai-1', rest, [], new Date());
+        if (res && res.intent === 'base') return { text: res.text, intent: 'base' };
+      }
+      return { text: `Usage: \`/base 255 to hex\` or \`/base 0xFF to decimal\``, intent: 'slash-error' };
+    }
+    if (cmd === 'time' || cmd === 'clock' || cmd === 'now') {
+      const now = new Date();
+      const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'local';
+      return { text: `**${now.toLocaleString()}**\n\nTimezone: \`${zone}\` — device clock.`, intent: 'time' };
+    }
+    if (cmd === 'coin' || cmd === 'flip' || cmd === 'dice' || cmd === 'random') {
+      const nums = rest.match(/-?\d+/g) || [];
+      let full = '';
+      if (cmd === 'coin' || cmd === 'flip') full = 'flip a coin';
+      else if (cmd === 'dice') full = `roll a d${nums[0] || 6}`;
+      else if (nums.length >= 2) full = `random number between ${nums[0]} and ${nums[1]}`;
+      else full = 'random number between 1 and 100';
+      if (window.EltesCAI) {
+        const res = window.EltesCAI.build('eltes-cai-1', full, [], new Date());
+        if (res && res.intent === 'random') return { text: res.text, intent: 'random' };
+      }
+      // fallback
+      if (cmd === 'coin') return { text: `**${Math.random() < 0.5 ? 'Heads' : 'Tails'}**\n\nCoin flip — device RNG.`, intent: 'random' };
+      if (cmd === 'dice') {
+        const sides = Number(rest) || 6;
+        const roll = Math.floor(Math.random() * sides) + 1;
+        return { text: `**${roll}**\n\nRolled d${sides}.`, intent: 'random' };
+      }
+      if (cmd === 'random' && rest) {
+        const m = rest.match(/(-?\\d+)\\s+(-?\\d+)/);
+        if (m) {
+          let a = Number(m[1]), b = Number(m[2]);
+          if (a > b) [a, b] = [b, a];
+          const n = Math.floor(Math.random() * (b - a + 1)) + a;
+          return { text: `**${n}**\n\nRandom between ${a} and ${b}.`, intent: 'random' };
+        }
+      }
+    }
+    // unknown slash
+    if (['uppercase', 'lowercase', 'reverse', 'sort', 'titlecase'].includes(cmd) && rest) {
+      if (window.EltesCAI) {
+        const res = window.EltesCAI.build('eltes-cai-1', `${cmd} "${rest}"`, [], new Date());
+        if (res && res.intent === 'text-transform') return { text: res.text, intent: res.intent };
+      }
+    }
+    return { text: `Unknown slash command “/${cmd}”. Try \`/help\` for a list.`, intent: 'slash-error' };
+  }
+
   async function send() {
     const text = els.input.value.trim();
     if (!text || state.sending) return;
     state.pendingRetry = null;
+
+    // slash-command fast path — handle locally without a model turn
+    if (text === '/' || /^\/[a-z]/i.test(text)) {
+      let chat = activeChat();
+      if (!chat) chat = createChat();
+      if (!chat.model) chat.model = state.settings.model;
+      const slashStarted = performance.now();
+      const slash = handleSlash(text, chat);
+      const slashMs = Math.max(1, Math.round(performance.now() - slashStarted));
+      if (slash && slash.handled) {
+        // handled actions like /clear, /export already did work
+        els.input.value = '';
+        autoGrow();
+        updateSendState();
+        return;
+      }
+      if (slash && slash.text) {
+        const userMsg = { id: uid(), role: 'user', content: text, ts: Date.now() };
+        chat.messages.push(userMsg);
+        titleOrKeep(chat, text);
+        chat.updatedAt = Date.now();
+        const assistant = {
+          id: uid(), role: 'assistant', content: slash.text, model: chat.model, ts: Date.now(),
+          streaming: false, tools: [], usage: null,
+          latency: { ttft: null, total: slashMs }, intent: slash.intent
+        };
+        chat.messages.push(assistant);
+        els.input.value = '';
+        autoGrow();
+        updateSendState();
+        persist();
+        renderSidebar();
+        renderMessages();
+        scrollToBottom(true);
+        return;
+      }
+      // fall through to normal turn if slash not recognised (treat as normal prompt)
+    }
+
     let chat = activeChat();
     if (!chat) chat = createChat();
     if (!chat.model) chat.model = state.settings.model;

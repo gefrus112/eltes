@@ -121,17 +121,17 @@
               <span class="sicon" data-icon="code-2" data-icon-size="15"></span>
               <span><strong>Write a React hook</strong><span class="txt">debounce with a correct cleanup path</span></span>
             </button>
-            <button class="suggestion" data-prompt="Explain how rotating refresh tokens should work, then show a small implementation.">
-              <span class="sicon" data-icon="shield-check" data-icon-size="15"></span>
-              <span><strong>Design auth</strong><span class="txt">rotating refresh tokens, done safely</span></span>
-            </button>
             <button class="suggestion" data-prompt="Compare Claude, GPT, Gemini and GLM for a coding agent. Where does each one win?">
               <span class="sicon" data-icon="layers" data-icon-size="15"></span>
               <span><strong>Compare models</strong><span class="txt">Claude vs GPT vs Gemini vs GLM</span></span>
             </button>
-            <button class="suggestion" data-prompt="Plan an index strategy for a slow orders query on Postgres.">
-              <span class="sicon" data-icon="database" data-icon-size="15"></span>
-              <span><strong>Fix a slow query</strong><span class="txt">Postgres indexes that actually help</span></span>
+            <button class="suggestion" data-prompt="Try CAI on-device: convert 5 miles to km, 32 F to C, 255 to hex.">
+              <span class="sicon" data-icon="calculator" data-icon-size="15"></span>
+              <span><strong>Try CAI instantly</strong><span class="txt">units, bases, date math — no key</span></span>
+            </button>
+            <button class="suggestion" data-prompt="/help">
+              <span class="sicon" data-icon="command" data-icon-size="15"></span>
+              <span><strong>Slash commands</strong><span class="txt">/calc, /convert, /define, /dice</span></span>
             </button>
           </div>
 
@@ -148,8 +148,9 @@
       </main>
 
       <div class="composer-dock">
+        <div class="slash-menu" id="slashMenu" hidden role="listbox" aria-label="Slash commands"></div>
         <div class="composer" id="composer">
-          <textarea id="input" rows="1" placeholder="Message Eltes…" aria-label="Message Eltes" autocomplete="off" spellcheck="true"></textarea>
+          <textarea id="input" rows="1" placeholder="Message Eltes…  (try /help for slash commands)" aria-label="Message Eltes" autocomplete="off" spellcheck="true"></textarea>
           <div class="composer-bar">
             <button class="chip model-chip-btn" id="composerModel" title="Switch model (⌘M)">
               <span class="p-logo sm" id="composerLogo" data-brand="eltes" data-brand-size="13"></span>
@@ -271,7 +272,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.4 · BYOK<br />Optional proxy. No telemetry.</div>
+          <div class="nav-foot">Eltes v3.5 · BYOK<br />Optional proxy. No telemetry.</div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -467,9 +468,9 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.4.0</span></div>
+              <div class="kv"><span>Version</span><span>3.5.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
-              <div class="kv"><span>Models</span><span>36 · 13 providers</span></div>
+              <div class="kv"><span>Models</span><span>65 · 14 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>
               <div class="kv"><span>Requests to Eltes</span><span>0</span></div>
             </div>

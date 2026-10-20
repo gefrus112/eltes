@@ -544,6 +544,115 @@ window.EltesCAI = (function () {
     return `That text has **${words} word${words === 1 ? '' : 's'}**, **${chars} characters** (including spaces) and **${noSpaces}** without spaces.`;
   }
 
+  /* -------------------------- base conversion ------------------------- */
+  function baseIntent(text) {
+    const t = norm(text);
+    // hex/bin/octal conversion: "255 to hex", "0xFF to decimal", "0b1010 in decimal", "convert 42 to binary"
+    let m = t.match(/^(?:convert\s+)?(0x[0-9a-f]+|0b[01]+|0o[0-7]+|-?\d+)\s*(?:to|in|into|as)\s*(hex|hexadecimal|binary|bin|octal|oct|decimal|dec|base\s*16|base\s*2|base\s*10|base\s*8)\b/);
+    if (!m) {
+      // also handle "255 in hex" without 0x prefix detection already covered
+      m = t.match(/^(?:what is\s+)?(0x[0-9a-f]+|0b[01]+|-?\d+)\s+in\s+(hex|hexadecimal|binary|bin|octal|oct|decimal|dec)\b/);
+    }
+    if (!m) return null;
+    const src = m[1];
+    let target = m[2].replace(/\s+/g, '');
+    if (target === 'hexadecimal') target = 'hex';
+    if (target === 'bin') target = 'binary';
+    if (target === 'oct') target = 'octal';
+    if (target === 'dec') target = 'decimal';
+    if (target === 'base16') target = 'hex';
+    if (target === 'base2') target = 'binary';
+    if (target === 'base8') target = 'octal';
+    if (target === 'base10') target = 'decimal';
+    let value;
+    try {
+      if (/^0x/i.test(src)) value = parseInt(src, 16);
+      else if (/^0b/i.test(src)) value = parseInt(src.slice(2), 2);
+      else if (/^0o/i.test(src)) value = parseInt(src.slice(2), 8);
+      else value = parseInt(src, 10);
+      if (!Number.isFinite(value) || Math.abs(value) > 0x7fffffff) return null;
+    } catch (e) { return null; }
+    let out, label;
+    if (target === 'hex') { out = (value < 0 ? '-' : '') + '0x' + Math.abs(value).toString(16).toUpperCase(); label = 'hexadecimal'; }
+    else if (target === 'binary') { out = (value < 0 ? '-' : '') + '0b' + Math.abs(value).toString(2); label = 'binary'; }
+    else if (target === 'octal') { out = (value < 0 ? '-' : '') + '0o' + Math.abs(value).toString(8); label = 'octal'; }
+    else { out = String(value); label = 'decimal'; }
+    const srcLabel = /^0x/i.test(src) ? 'hex' : /^0b/i.test(src) ? 'binary' : /^0o/i.test(src) ? 'octal' : 'decimal';
+    return { intent: 'base', text: `**${out}** (${label})\n\n\`${src} (${srcLabel}) → ${out} (${label})\`` };
+  }
+
+  function textTransformIntent(text) {
+    // text transforms on quoted strings: uppercase, lowercase, reverse, titlecase, sort
+    const t = String(text || '');
+    let m = t.match(/^\s*(uppercase|lowercase|titlecase|title case|reverse|sort|alphabetize)\s*[: ]\s*[\"“']([\s\S]+)[\"”']\s*$/i);
+    if (!m) m = t.match(/^\s*(uppercase|lowercase|reverse)\s+[\"“']([\s\S]+)[\"”']\s*$/i);
+    if (!m) {
+      // without quotes: uppercase hello world
+      const mq = t.match(/^\s*(uppercase|lowercase|reverse)\s+(.+)$/i);
+      if (mq && mq[2].length < 200 && !/[?]$/.test(mq[2].trim())) {
+        m = mq;
+      }
+    }
+    if (!m) {
+      // sort words: apple banana cherry
+      const ms = t.match(/^\s*(?:sort|alphabetize)\s+(?:words:?)?\s*(.+)$/i);
+      if (ms && ms[1].split(/\s+/).length >= 2 && ms[1].length < 300) {
+        const words = ms[1].trim().split(/\s+/).filter(Boolean);
+        if (words.length >= 2 && words.length <= 30) {
+          const sorted = [...words].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+          return { intent: 'text-transform', text: `**${sorted.join(' ')}**\n\nSorted ${words.length} words alphabetically.` };
+        }
+      }
+      return null;
+    }
+    const op = m[1].toLowerCase().replace(/\s+/g, '');
+    const body = m[2];
+    if (body.length > 800) return null;
+    let out;
+    if (op === 'uppercase') out = body.toUpperCase();
+    else if (op === 'lowercase') out = body.toLowerCase();
+    else if (op === 'titlecase' || op === 'title case') out = body.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+    else if (op === 'reverse') out = body.split('').reverse().join('');
+    else if (op === 'sort' || op === 'alphabetize') {
+      const words = body.trim().split(/\s+/).filter(Boolean);
+      out = [...words].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).join(' ');
+    } else return null;
+    return { intent: 'text-transform', text: `**${out}**\n\n\`${op}: \"${body.slice(0, 80)}\" → \"${out.slice(0, 80)}\"\`` };
+  }
+
+  function randomIntent(text) {
+    const t = norm(text);
+    if (/^(flip a coin|coin flip|flip coin)$/.test(t)) {
+      const side = Math.random() < 0.5 ? 'Heads' : 'Tails';
+      return { intent: 'random', text: `**${side}**\n\nCoin flip — random from your device (not cryptographic).` };
+    }
+    let m = t.match(/^(?:roll a dice|roll dice|roll a d(\d+)|roll d(\d+))$/);
+    if (m) {
+      const sides = Number(m[1] || m[2] || 6);
+      if (sides < 2 || sides > 100) return { intent: 'random', text: 'Use a dice with 2–100 sides, e.g. “roll a d20”.' };
+      const roll = Math.floor(Math.random() * sides) + 1;
+      return { intent: 'random', text: `**${roll}**\n\nRolled a d${sides} (1–${sides}) — device RNG.` };
+    }
+    m = t.match(/^(?:random number between|random between|pick a number between)\s+(-?\d+)\s+and\s+(-?\d+)$/);
+    if (!m) m = t.match(/^random (-?\d+)\s+(-?\d+)$/);
+    if (m) {
+      let a = Number(m[1]); let b = Number(m[2]);
+      if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+      if (a > b) [a, b] = [b, a];
+      if (b - a > 1000000) return { intent: 'random', text: 'Range too large — keep it within 1,000,000 numbers.' };
+      const n = Math.floor(Math.random() * (b - a + 1)) + a;
+      return { intent: 'random', text: `**${n}**\n\nRandom integer between ${a} and ${b} (inclusive).` };
+    }
+    if (/^pick (?:a )?random (?:item|word|choice) from/i.test(t)) {
+      const items = text.split(/[,]/).map(s => s.trim()).filter(Boolean);
+      if (items.length >= 2) {
+        const pick = items[Math.floor(Math.random() * items.length)];
+        return { intent: 'random', text: `**${pick}**\n\nPicked randomly from ${items.length} options.` };
+      }
+    }
+    return null;
+  }
+
   /* -------------------------- Eltes knowledge base ------------------------- */
 
   const KB = [
@@ -622,6 +731,10 @@ window.EltesCAI = (function () {
     {
       keys: ['troubleshoot', 'not working', 'not responding', 'bug', 'issue', 'fix'],
       a: `## Troubleshooting\n\n- **No reply?** Check you picked a model that matches a connected key, or switch to **Eltes CAI-1** (no key needed). For hosted models, verify the key in **Settings → API keys** and that streaming is enabled.\n- **Network/CORS error?** The provider may block browser calls. Try another provider or configure the optional proxy in **Settings → API keys → Optional Vercel/local backend**.\n- **Rate limit 429?** Wait briefly, check provider billing/quota, then retry or switch models.\n- **Custom endpoint not connecting?** Confirm the base URL ends with \`/v1\`, the model id matches the runner, and CORS allows your Eltes origin.\n- **Still stuck?** Open \`docs.html\` and search for your error message.`
+    },
+    {
+      keys: ['slash', 'slash command', 'chat features', 'chat command', '/help', 'chat help', 'commands'],
+      a: `## Chat features & slash commands\n\nEltes chat has built-in slash commands — no key needed:\n\n- \`/help\` — show all commands\n- \`/clear\` — clear current conversation\n- \`/export\` — download chat as Markdown\n- \`/model <id>\` — switch model (e.g. \`/model gpt-4o\`)\n- \`/calc <expr>\` — calculate (e.g. \`/calc sqrt(81) + 2*3\`)\n- \`/convert <value> <from> to <to>\` — units (e.g. \`/convert 5 mi to km\`)\n- \`/define <term>\` — glossary (e.g. \`/define RAG\`)\n- \`/time\` — current device time\n- \`/coin\` / \`/dice\` / \`/random 1 100\` — quick random utilities\n\nCAI also handles **base conversion** (\`255 to hex\`, \`0xFF to decimal\`, \`42 to binary\`), **text transforms** (\`uppercase \"hello\"\`, \`reverse \"eltes\"\`, \`sort apple banana\`) and **date math** (\`days between 2024-01-01 and 2024-02-01\`). Type \`/help\` in the composer to see them.`
     }
   ];
 
@@ -903,10 +1016,10 @@ window.EltesCAI = (function () {
       };
     }
 
-    if (hasAny(t, /what can you do|help me|capabilit|what do you know|how do you work/)) {
+    if (hasAny(t, /what can you do|help me|capabilit|what do you know|how do you work|slash commands|chat features/)) {
       return {
         intent: 'capabilities',
-        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue\n- calculator expressions, common math functions (sqrt, log, trig, median, sum…) and simple linear/quadratic equations\n- unit and temperature conversions (including Kelvin and time: seconds → years)\n- date arithmetic: days between dates, date plus N days, days until a date\n- the current date and time in your timezone\n- word and character counts\n- short definitions from its built-in AI glossary (${Object.keys(GLOSSARY).length} terms, including RAG, embeddings, attention)\n- exact retrieval of relevant messages included in this chat\n\n**Out of range:** arbitrary symbolic math and proofs, live facts, news, browsing and long-form originality. CAI is rule-based and may miss intent or contain outdated product facts; verify important answers. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
+        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue (${M.MODELS.length} models, ${Object.keys(M.PROVIDERS).length} providers)\n- calculator expressions, common math functions (sqrt, log, trig, median, sum…) and simple linear/quadratic equations\n- unit and temperature conversions (including Kelvin and time: seconds → years)\n- **base conversion** (hex/binary/octal/decimal: “255 to hex”, “0b1010 to decimal”)\n- **date arithmetic**: days between dates, date plus N days, days until a date\n- **text tools**: uppercase/lowercase/reverse/sort, word counts, base transforms\n- **random utilities**: flip a coin, roll a dice, random number between X and Y\n- **slash commands** in chat: \`/help\`, \`/calc\`, \`/convert\`, \`/define\`, \`/model\`, \`/time\`, \`/export\`\n- the current date and time in your timezone\n- short definitions from its built-in AI glossary (${Object.keys(GLOSSARY).length} terms, including RAG, embeddings, attention)\n- exact retrieval of relevant messages included in this chat\n\n**Out of range:** arbitrary symbolic math and proofs, live facts, news, browsing and long-form originality. CAI is rule-based and may miss intent or contain outdated product facts; verify important answers. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
       };
     }
 
@@ -926,6 +1039,15 @@ window.EltesCAI = (function () {
 
     const units = unitIntent(text);
     if (units) return { intent: 'units', text: units };
+
+    const base = baseIntent(text);
+    if (base) return base;
+
+    const tform = textTransformIntent(text);
+    if (tform) return tform;
+
+    const rand = randomIntent(text);
+    if (rand) return rand;
 
     const equation = equationIntent(text);
     if (equation) return equation;
@@ -958,7 +1080,11 @@ window.EltesCAI = (function () {
 
     const gloss = glossaryLookup(text);
     if (gloss) {
-      return { intent: 'glossary', text: `**${gloss.term.replace(/\b\w/g, (c) => c.toUpperCase())}**\n\n${gloss.text}` };
+      // Many entries already open with the canonical term in bold (e.g. **RAG …**).
+      // Only add a heading when the entry does not, so acronyms keep their casing.
+      const alreadyTitled = /^\*\*/.test(gloss.text);
+      const heading = gloss.term.replace(/\b\w/g, (c) => c.toUpperCase());
+      return { intent: 'glossary', text: alreadyTitled ? gloss.text : `**${heading}**\n\n${gloss.text}` };
     }
 
     if (docsOnly) {

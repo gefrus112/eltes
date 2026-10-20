@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 36 models, NVIDIA NIM, on-device CAI, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 65 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.4.0</span>
+          <span class="badge"><span class="dot"></span>v3.5.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -90,6 +90,7 @@
         <h5>Using Eltes</h5>
         <a href="#models"><span data-icon="layers" data-icon-size="14"></span>Models</a>
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
+        <a href="#chat-commands"><span data-icon="command" data-icon-size="14"></span>Chat commands</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
@@ -113,7 +114,7 @@
           <ol>
             <li><strong>Local-first.</strong> Chats, settings, keys and profiles live in <code>localStorage</code>. Clearing site data is the nuclear option, and it is yours to press.</li>
             <li><strong>Bring your own key.</strong> By default, requests go from your tab to the provider. An optional trusted backend can relay a key for each request without persisting or logging it in the function code.</li>
-            <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
+            <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>convert_units</code>, <code>define_term</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
             <li><strong>On-device when you need it.</strong> Eltes CAI-1 answers chat, Eltes questions, model choice, arithmetic, units and dates in this tab. No key, no network, and it is explicit about what it does not know.</li>
           </ol>
 
@@ -123,7 +124,7 @@
             <tbody>
               <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry. CAI answers locally and labels itself.</td></tr>
               <tr><td>Chat</td><td>Dark-blue theme with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
-              <tr><td>Models</td><td>36 real models across 13 providers, including Claude Sonnet 5.5, DeepSeek V4.1, NVIDIA NIM and three Eltes CAI models.</td></tr>
+              <tr><td>Models</td><td>65 real models across 14 providers, including Claude Sonnet 5.5, DeepSeek V4.1, GPT-4o, Gemini, NVIDIA NIM, Cohere and three Eltes CAI models.</td></tr>
               <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
               <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
               <tr><td>Downloads</td><td>A portable Windows package with <code>eltes.bat</code>, a Start-Eltes helper and the whole static site.</td></tr>
@@ -386,23 +387,24 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <h2>Models <a class="anchor" href="#models" aria-label="Link to models" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>HTML code fences include a sandboxed preview, copy and download actions. Preview scripts run in an isolated frame with network access blocked.</p>
           <p>NVIDIA NIM uses <code>https://integrate.api.nvidia.com/v1</code> and a key from NVIDIA Build. Catalog access and any free quota depend on NVIDIA's account and model availability; these models are not guaranteed to be free.</p>
-          <p>The catalogue ships <strong>36 models across 13 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
+          <p>The catalogue ships <strong>65 models across 14 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Models</th><th>Best at</th></tr></thead>
             <tbody>
-              <tr><td>Eltes CAI</td><td>CAI-1, CAI-1 Fast, CAI Docs</td><td>On-device chat, Eltes help, maths, units, dates</td></tr>
-              <tr><td>OpenAI</td><td>GPT‑6 Sol, GPT‑6.1 Sol, GPT‑6 Luna, GPT‑4.1</td><td>Reasoning, coding and vision</td></tr>
-              <tr><td>Anthropic</td><td>Claude Sonnet 5.5, Opus 5.5, Haiku 5.5, Fable 5.1, Opus 4.5</td><td>Code, long context, careful writing</td></tr>
-              <tr><td>DeepSeek</td><td>V4.1 Flash, V4 Pro</td><td>Cost, 1M context, multimodal</td></tr>
-              <tr><td>Google</td><td>Gemini 2.5 Pro, 2.5 Flash</td><td>1M context, multimodal</td></tr>
-              <tr><td>Z.ai</td><td>GLM-4.6, GLM-4.5, GLM-4.5 Air</td><td>Agentic coding, low cost</td></tr>
-              <tr><td>xAI</td><td>Grok 4, Grok 3</td><td>Direct answers, reasoning</td></tr>
-              <tr><td>Qwen</td><td>Qwen3 Max, Qwen3 Coder Plus</td><td>Bilingual, repository-scale code</td></tr>
-              <tr><td>Mistral</td><td>Mistral Large, Codestral</td><td>Function calling, completion</td></tr>
-              <tr><td>Groq</td><td>Llama 3.3 70B, Llama 4 Scout</td><td>Very high tokens per second</td></tr>
-              <tr><td>NVIDIA NIM</td><td>Llama 3.3 70B, Nemotron Ultra</td><td>Open models via NVIDIA-hosted NIM; key and model access required</td></tr>
-              <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 5.5, Gemini 2.5 Pro, GLM-4.6, DeepSeek Flash, Qwen3 Coder</td><td>One key, routing and fallbacks</td></tr>
+              <tr><td>Eltes CAI</td><td>CAI-1, CAI-1 Fast, CAI Docs</td><td>On-device chat, maths, units, bases, dates, random and text tools</td></tr>
+              <tr><td>OpenAI</td><td>GPT‑6 Sol/Luna, GPT‑4.1, GPT‑4o/mini, o1/mini, o3-mini</td><td>Reasoning, coding and vision</td></tr>
+              <tr><td>Anthropic</td><td>Claude 5.5, 4.5, Sonnet 4, Haiku 4, Fable 5.1</td><td>Code, long context, careful writing</td></tr>
+              <tr><td>DeepSeek</td><td>V4.1 Flash, V4 Pro, Chat, Reasoner</td><td>Cost, 1M context, multimodal and reasoning</td></tr>
+              <tr><td>Google</td><td>Gemini 2.5 Pro/Flash, 2.0 Flash, 1.5 Pro</td><td>1M–2M context, multimodal</td></tr>
+              <tr><td>Z.ai</td><td>GLM-4.7, 4.6, 4.5, 4.5 Air</td><td>Agentic coding, low cost</td></tr>
+              <tr><td>xAI</td><td>Grok 4/3, 4 Fast, 3 Mini</td><td>Direct answers, reasoning</td></tr>
+              <tr><td>Qwen</td><td>Qwen3 Max/Coder, Qwen2.5 32B, Qwen3 30B A3B</td><td>Bilingual, repository-scale code</td></tr>
+              <tr><td>Mistral</td><td>Mistral Large/Small, Codestral, Pixtral Large</td><td>Function calling, vision, completion</td></tr>
+              <tr><td>Groq</td><td>Llama 3.3 70B, 4 Scout, 3.1 8B, Qwen3 32B</td><td>Very high tokens per second</td></tr>
+              <tr><td>NVIDIA NIM</td><td>Llama 3.3, Nemotron Ultra, DeepSeek R1, Mixtral 8×22B</td><td>Open models via NVIDIA NIM; key and model access required</td></tr>
+              <tr><td>Cohere</td><td>Command R+, Command A</td><td>RAG, tool use, multilingual</td></tr>
+              <tr><td>OpenRouter</td><td>Auto, Claude 5.5/3.5, Gemini 2.5/2.0, GLM-4.6, DeepSeek, Qwen, Llama 4</td><td>One key, routing and fallbacks</td></tr>
               <tr><td>Custom</td><td>Whatever your endpoint serves</td><td>Local and private models</td></tr>
             </tbody>
           </table>
@@ -468,6 +470,29 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <span data-icon="wrench" data-icon-size="15"></span>
             <span><strong>Nothing leaves the page for tools.</strong> Arithmetic, time and history search run locally in JavaScript. Only the model request and its tool results go to the provider.</span>
           </div>
+        </section>
+
+        <section id="chat-commands">
+          <h2>Chat commands <a class="anchor" href="#chat-commands" aria-label="Link to chat commands" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Type <code>/</code> in the composer to open the autocomplete menu. Commands run on-device, need no API key, and work with any selected model. Arrow keys move through suggestions, <code>Tab</code> or <code>Enter</code> completes, and <code>Esc</code> closes the menu.</p>
+          <table class="doc-table">
+            <thead><tr><th>Command</th><th>What it does</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td><code>/help</code></td><td>Lists every command</td><td><code>/help</code></td></tr>
+              <tr><td><code>/clear</code></td><td>Clears the current conversation</td><td><code>/clear</code></td></tr>
+              <tr><td><code>/export</code></td><td>Opens the Markdown/JSON export dialog</td><td><code>/export</code></td></tr>
+              <tr><td><code>/model</code></td><td>Switches model by id or name</td><td><code>/model gpt-4o</code></td></tr>
+              <tr><td><code>/calc</code></td><td>Evaluates an expression with the safe parser</td><td><code>/calc sqrt(81) + 2*3</code></td></tr>
+              <tr><td><code>/convert</code></td><td>Converts units and temperatures</td><td><code>/convert 5 mi to km</code></td></tr>
+              <tr><td><code>/define</code></td><td>Looks up the on-device AI glossary</td><td><code>/define RAG</code></td></tr>
+              <tr><td><code>/base</code></td><td>Converts hex, binary, octal and decimal</td><td><code>/base 255 to hex</code></td></tr>
+              <tr><td><code>/time</code></td><td>Shows device date, time and timezone</td><td><code>/time</code></td></tr>
+              <tr><td><code>/coin</code>, <code>/dice</code></td><td>Random utilities using the device RNG</td><td><code>/dice 20</code></td></tr>
+              <tr><td><code>/random</code></td><td>Random integer in a range</td><td><code>/random 1 100</code></td></tr>
+              <tr><td><code>/uppercase</code>, <code>/reverse</code>, <code>/sort</code></td><td>Text transforms</td><td><code>/reverse &quot;eltes&quot;</code></td></tr>
+            </tbody>
+          </table>
+          <p>CAI also understands the same jobs in plain language — “255 to hex”, “convert 60 minutes to hours”, “flip a coin”, “uppercase &quot;hello&quot;” or “sort banana apple cherry” — so the slash menu is a shortcut, not a separate mode.</p>
         </section>
 
         <section id="chat">

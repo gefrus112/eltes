@@ -53,7 +53,7 @@ export const SHELL_FILES = [
 export const SITE_ENTRIES = [
   'index.html', 'app.html', 'auth.html', 'docs.html', 'news.html',
   'studio.html', 'train.html', '404.html', 'site.webmanifest',
-  'LICENSE', 'NOTICE.md',
+  'LICENSE', 'NOTICE.md', 'config.js',
   'assets', 'api', 'lib'
 ];
 

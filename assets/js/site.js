@@ -561,6 +561,20 @@
         toast('Enter a valid email address', 'triangle-alert');
         return;
       }
+      /* With a Supabase project configured, the landing form is a shortcut to
+         the real sign-up page: an account needs a password, and that page is
+         where the honest state of the welcome email is shown. */
+      const Cloud = window.EltesCloud;
+      if (Cloud && Cloud.enabled) {
+        const url = new URL('auth.html', location.href);
+        url.searchParams.set('mode', 'signup');
+        url.searchParams.set('next', 'app.html');
+        url.searchParams.set('email', email);
+        if (name) url.searchParams.set('name', name);
+        window.location.href = url.href;
+        return;
+      }
+
       const account = window.EltesAccount.create({ name, email, provider: 'local' });
       toast(`Welcome, ${name.split(' ')[0]} — profile saved locally`, 'user-check');
 

@@ -447,6 +447,49 @@ body.auth-page::before {
 }
 .terms a { color: #8bb6ff; text-decoration: underline; text-underline-offset: 2px; }
 
+/* ------------------------------ cloud accounts --------------------------- */
+
+.cloud-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 11px;
+  font-size: 11.5px;
+  color: var(--text-4);
+}
+.cloud-links[hidden] { display: none; }
+.link-btn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 2px 1px;
+  font: inherit;
+  color: var(--text-3);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(255, 122, 24, 0.35);
+}
+.link-btn:hover { color: #ffb37a; text-decoration-color: rgba(255, 122, 24, 0.8); }
+.link-btn:disabled { opacity: 0.5; cursor: progress; }
+.cloud-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 11px;
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 122, 24, 0.24);
+  border-radius: 10px;
+  background: rgba(255, 122, 24, 0.06);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #f0c9a8;
+}
+.cloud-status[hidden] { display: none; }
+.cloud-status svg { flex: none; margin-top: 1px; color: #ff8a3d; }
+
 /* ------------------------------ provider flow ---------------------------- */
 
 .provider-flow[hidden] { display: none; }

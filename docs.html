@@ -67,7 +67,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.16.0</span>
+          <span class="badge"><span class="dot"></span>v3.17.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>25 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -88,6 +88,7 @@
         <a href="#quickstart"><span data-icon="rocket" data-icon-size="14"></span>Quickstart</a>
         <a href="#accounts"><span data-icon="user-check" data-icon-size="14"></span>Accounts</a>
         <a href="#email"><span data-icon="mail" data-icon-size="14"></span>Welcome email</a>
+        <a href="#supabase"><span data-icon="cloud" data-icon-size="14"></span>Cloud accounts</a>
 
         <div class="nav-sep"></div>
         <h5>Keys &amp; providers</h5>
@@ -208,7 +209,8 @@ python3 -m http.server 4173
 
         <section id="accounts">
           <h2>Accounts <a class="anchor" href="#accounts" aria-label="Link to accounts" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>An Eltes account is a <strong>profile</strong> plus a set of provider connections. It stores a name, an email, the provider that created it and — when you connect one — a provider key. There is no password and no session cookie, and no Eltes account server. The profile is written to <code>eltes.account.v1</code>; provider keys live in <code>eltes.settings.v1</code>. The one email this flow produces is the welcome message, sent by your own server — see <a class="inline-link" href="#email">Welcome email</a>.</p>
+          <p>An Eltes account is a <strong>profile</strong> plus a set of provider connections. It stores a name, an email, the provider that created it and — when you connect one — a provider key. By default there is no password and no session cookie: the profile is written to <code>eltes.account.v1</code> and provider keys live in <code>eltes.settings.v1</code>. The one email this flow produces is the welcome message, sent by your own server — see <a class="inline-link" href="#email">Welcome email</a>.</p>
+          <p>Set <code>config.js</code> to a Supabase project and the form grows an email-and-password path: the account lives in that project, a session survives reloads, and the welcome letter arrives through your own Resend account. It is optional, additive, and the local profile stays one click away — see <a class="inline-link" href="#supabase">Cloud accounts</a>.</p>
 
           <h3>Create or sign in</h3>
           <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Sign up with <strong>OpenAI</strong>, <strong>Anthropic</strong> or <strong>DeepSeek</strong>, or create a local profile with a display name and email. Signing in restores the profile already in this browser. Because there is no Eltes server, the email is a label, not a credential — it can receive a welcome message from your own server, nothing else.</p>
@@ -358,8 +360,83 @@ npm run mail unsuppress you@example.com   <span class="c"># let that address rec
           </div>
 
           <h3>On the static site</h3>
-          <p><a class="inline-link" href="https://gefrus112.github.io/eltes/auth.html">The hosted copy</a> is served by GitHub Pages, which has no application server, so its sign-up form finds no <code>/api/email/welcome</code> and the panel says <em>No mail server on this host</em>. Sending works wherever the Node server runs: <code>npm start</code>, or the <a class="inline-link" href="#desktop">desktop app</a>, which keeps its mail folder at <code>%APPDATA%\Eltes\mail</code> (macOS: <code>~/Library/Application Support/Eltes/mail</code>).</p>
-          <p>Addresses are stored only where they are needed: the profile in this browser's <code>localStorage</code>, the address and timestamps in the events file next to the outbox. There is no analytics, no open tracking and no shared list.</p>
+          <p>The hosted copy on GitHub Pages has no Node server of its own, so it takes the other route: a <a class="inline-link" href="#supabase">Supabase account</a> plus an Edge Function that calls Resend. That is the path used when <code>config.js</code> names a project — the same <em>Welcome to Eltes AI Workspace</em> letter, the same honesty about failures.</p>
+          <p>Where the Node server does run — <code>npm start</code>, or the <a class="inline-link" href="#desktop">desktop app</a>, which keeps its mail folder at <code>%APPDATA%\Eltes\mail</code> (macOS: <code>~/Library/Application Support/Eltes/mail</code>) — the local route is used and no Supabase project is needed. Click <em>Use a local profile instead</em> on the auth page to stay offline even when a project is configured.</p>
+          <p>Addresses are stored only where they are needed: the profile in this browser's <code>localStorage</code>, the address and timestamps in the events file next to the outbox, or <code>public.email_events</code> in your own Postgres. There is no analytics, no open tracking and no shared list.</p>
+        </section>
+
+        <section id="supabase">
+          <h2>Cloud accounts <a class="anchor" href="#supabase" aria-label="Link to the cloud accounts section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>The sign-up form can create a real account in <strong>your own Supabase project</strong> and keep working on a static host. There is no Eltes account server in the middle: the browser talks to your project's Auth API, the project stores the profile, and an Edge Function in the same project sends the welcome email through Resend. The publishable key in <code>config.js</code> is the only credential the site ships — row-level security decides what it may touch.</p>
+
+          <div class="doc-callout">
+            <span data-icon="info" data-icon-size="15"></span>
+            <p><strong>Local still works.</strong> With no <code>config.js</code>, or after clicking <em>Use a local profile instead</em>, everything falls back to the browser profile and the Node/desktop mail route. The desktop app is unchanged and never needs a network account.</p>
+          </div>
+
+          <h3>What the account does</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Feature</th><th>How</th><th>What you see if it fails</th></tr></thead>
+              <tbody>
+                <tr><td>Sign up with email + password</td><td><code>POST /auth/v1/signup</code></td><td>The exact Supabase message — weak password, address in use, rate limit</td></tr>
+                <tr><td>Welcome email</td><td>Edge Function <code>eltes-mail</code> → Resend</td><td><em>Not sent — Supabase has no RESEND_API_KEY yet</em>, or the provider's own error</td></tr>
+                <tr><td>Confirm the address</td><td>The welcome letter carries a single-use confirmation link</td><td>Sign-in says <em>confirm the address first</em></td></tr>
+                <tr><td>Sign in</td><td><code>POST /auth/v1/token?grant_type=password</code></td><td><em>That email and password do not match an account.</em></td></tr>
+                <tr><td>Magic link</td><td>Function builds the link, Resend delivers it</td><td><em>Sign-in link sent</em> — only after Resend accepted the message</td></tr>
+                <tr><td>Password reset</td><td><code>admin/generate_link</code> type <code>recovery</code></td><td><em>Reset link sent</em>, then a new-password form</td></tr>
+                <tr><td>Session restore</td><td>Refresh token in <code>eltes.cloud.v1</code></td><td>Signed out silently when the refresh token is gone</td></tr>
+                <tr><td>Sign out</td><td><code>POST /auth/v1/logout</code></td><td>Local mirror cleared even when the call fails</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The pieces</h3>
+          <ul class="doc-list">
+            <li><code>config.js</code> — project URL, publishable key, function name. Public by design; delete it to disable cloud accounts.</li>
+            <li><code>assets/js/supabase.js</code> — the client. Plain <code>fetch</code>, no SDK, no build step; ~400 lines.</li>
+            <li><code>supabase/migrations/0001_eltes_accounts.sql</code> — <code>profiles</code>, <code>email_events</code>, <code>suppressed_emails</code>, the <code>auth.users</code> trigger, RLS policies and the mail rate-limit function.</li>
+            <li><code>supabase/functions/eltes-mail/index.ts</code> — one endpoint for welcome, magic link and reset. Builds the link with the service role, sends with Resend, records the outcome.</li>
+            <li><code>supabase/functions/email-webhook/index.ts</code> — Resend's Svix-signed webhook; hard bounces and complaints land in <code>suppressed_emails</code>.</li>
+          </ul>
+
+          <h3>Wire it up</h3>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>Supabase CLI — five commands</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># 1. point the folder at your project</span>
+npx supabase link --project-ref <span class="s">your-project-ref</span>
+
+<span class="c"># 2. tables, trigger, policies, rate limits</span>
+npx supabase db push
+
+<span class="c"># 3. the two functions (they check their own auth)</span>
+npx supabase functions deploy eltes-mail --no-verify-jwt
+npx supabase functions deploy email-webhook --no-verify-jwt
+
+<span class="c"># 4. the only two secrets that matter</span>
+npx supabase secrets set RESEND_API_KEY=<span class="s">re_…</span> \
+  ELTES_MAIL_FROM=<span class="s">"Eltes &lt;hello@yourdomain.com&gt;"</span> \
+  ELTES_SITE_URL=<span class="s">https://gefrus112.github.io/eltes/</span>
+
+<span class="c"># 5. tell Auth where links may land</span>
+<span class="c">#    Authentication → URL Configuration → Site URL + Redirect URLs</span>
+<span class="c">#    https://gefrus112.github.io/eltes/**</span></code></pre>
+          </div>
+          <p>Then put the same URL and key in <code>config.js</code> and submit the sign-up form. There is nothing to build: GitHub Pages serves the files as they are.</p>
+
+          <h3>Free, and honest about it</h3>
+          <ul class="doc-list">
+            <li><strong>Supabase free plan</strong> — two active projects, 500,000 Edge Function invocations a month, 50,000 monthly active users. A project that stays idle for about a week is paused; one click in the dashboard resumes it.</li>
+            <li><strong>Resend free plan</strong> — 3,000 messages a month, 100 a day, no card. Without a verified domain the sandbox sender <code>onboarding@resend.dev</code> only delivers to the address that owns the Resend account; verify a domain (or use Brevo's 300/day for any recipient) before inviting other people.</li>
+            <li><strong>Supabase's own mailer is not used.</strong> It is limited to a couple of messages an hour project-wide, and its default sender only reaches project members. Every letter here goes through your Resend account instead.</li>
+            <li><strong>Nothing is faked.</strong> No key means no send, and the panel says exactly that. The database refuses a second welcome for the same account (a partial unique index), the function refuses more than six messages per network or three per address every ten minutes, and a bounced address is skipped before any provider call.</li>
+          </ul>
+
+          <h3>What stays private</h3>
+          <p>The <code>service_role</code> key and the Resend key exist only as Edge Function secrets inside your project. They are never in <code>config.js</code>, never in the HTML, never in this repository — the test suite fails if either ever appears. The browser holds a publishable key that can only read and update the signed-in user's own profile row after RLS has had its say.</p>
         </section>
 
         <section id="api-keys">
@@ -1216,7 +1293,7 @@ export CSC_LINK=/path/certificate.pfx CSC_KEY_PASSWORD=…</code></pre>
           <p>Unsigned builds still work: Windows shows SmartScreen ("More info → Run anyway") and macOS needs a right-click → Open the first time. The macOS build is ad-hoc signed, so Apple silicon will launch it; distribution to other machines should be signed and notarised.</p>
 
           <h3>Continuous builds</h3>
-          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-latest</code> for Apple silicon, <code>macos-15-intel</code> for Intel and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.16.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
+          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-latest</code> for Apple silicon, <code>macos-15-intel</code> for Intel and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.17.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
 
           <h3>Testing without a display</h3>
           <p>The harness core (<code>desktop/shell.js</code>, <code>window-state.js</code>, <code>menu.js</code>) is plain Node, so <code>npm test</code> covers flag parsing, deep links, the navigation policy, window clamping across removed monitors, atomic window state and the menu on each platform. Two tests go further: the real <code>desktop/main.js</code> runs against a mocked Electron module (boot, IPC, navigation guard, quit), and the packaged layout is assembled in a temp folder — site under <code>resources/site</code>, server started through the production code path, health checked, <code>app.html</code> and its assets fetched, Studio session opened, process stopped. Packaging config is validated against electron-builder's own JSON schema, and the shell is packed into an <code>.asar</code> to prove <code>main.js</code> survives the round-trip.</p>
@@ -1482,6 +1559,7 @@ eltes.bat --port 8080</code></pre>
             <div class="krow"><span><code>eltes.chats.v1</code> — conversations and per-message metadata</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.settings.v1</code> — provider keys, backend URL, model default, preferences</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.account.v1</code> — optional profile</span><span class="keys mono">local</span></div>
+            <div class="krow"><span><code>eltes.cloud.v1</code> — Supabase session, if cloud accounts are on</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.waitlist.v1</code> — pricing waitlist entries, if you join</span><span class="keys mono">local</span></div>
             <div class="krow"><span>No cookies, no fingerprinting, no session replay</span><span class="keys mono">none</span></div>
           </div>
@@ -1552,6 +1630,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#quickstart">Quickstart</a>
         <a href="#accounts">Accounts</a>
         <a href="#email">Welcome email</a>
+        <a href="#supabase">Cloud accounts</a>
         <a href="#api-keys">API keys</a>
         <a href="#providers">Providers &amp; CORS</a>
         <a href="#custom-endpoint">Custom endpoints</a>
@@ -1616,6 +1695,8 @@ eltes.bat --port 8080</code></pre>
     </div>
   </footer>
 
+  <script src="config.js"></script>
+  <script src="assets/js/supabase.js"></script>
   <script src="assets/js/galaxy.js"></script>
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/account.js"></script>

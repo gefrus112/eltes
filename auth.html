@@ -134,13 +134,24 @@
           </div>
 
           <div class="fld">
-            <label for="emailInput">Email <span class="opt">stays on this device</span></label>
+            <label for="emailInput">Email <span class="opt" id="emailHint">stays on this device</span></label>
             <div class="fld-in">
               <span data-icon="mail" data-icon-size="15"></span>
               <input id="emailInput" name="email" type="email" placeholder="ada@example.com" autocomplete="email" maxlength="120" inputmode="email" />
               <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
             </div>
             <em class="fld-err" id="emailErr" role="alert"></em>
+          </div>
+
+          <div class="fld" id="passwordField" hidden>
+            <label for="passwordInput">Password <span class="opt" id="passwordHint">at least 6 characters</span></label>
+            <div class="fld-in">
+              <span data-icon="key-round" data-icon-size="15"></span>
+              <input id="passwordInput" name="password" type="password" placeholder="••••••••" autocomplete="new-password" minlength="6" maxlength="200" />
+              <button class="pf-reveal" id="passwordReveal" type="button" aria-label="Show password" data-icon="eye" data-icon-size="14"></button>
+              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
+            </div>
+            <em class="fld-err" id="passwordErr" role="alert"></em>
           </div>
 
           <div class="auth-error" id="authError" role="alert" hidden>
@@ -153,7 +164,24 @@
             <span data-icon="arrow-right" data-icon-size="16"></span>
           </button>
 
-          <p class="terms">
+          <div class="cloud-links" id="cloudLinks" hidden>
+            <button type="button" class="link-btn" id="magicLinkBtn">Email me a sign-in link</button>
+            <span aria-hidden="true">·</span>
+            <button type="button" class="link-btn" id="forgotBtn">Forgot password</button>
+            <span aria-hidden="true">·</span>
+            <button type="button" class="link-btn" id="localModeBtn">Use a local profile instead</button>
+          </div>
+
+          <div class="cloud-links" id="localLinks" hidden>
+            <button type="button" class="link-btn" id="cloudModeBtn">Use an Eltes cloud account instead</button>
+          </div>
+
+          <div class="cloud-status" id="cloudStatus" hidden>
+            <span data-icon="cloud" data-icon-size="13"></span>
+            <span id="cloudStatusText">Cloud account</span>
+          </div>
+
+          <p class="terms" id="authTerms">
             No password. This profile stays in local storage; the welcome email is sent by
             <em>your own</em> Eltes server when one is running — never by Eltes.
             <a href="docs.html#email">How email works</a>
@@ -229,7 +257,7 @@
           <div class="si-row"><span>Profile ID</span><span class="mono" id="siId">u_…</span></div>
           <div class="si-row"><span>Created</span><span id="siCreated">Today</span></div>
           <div class="si-row"><span>Plan</span><span>BYOK · free</span></div>
-          <div class="si-row"><span>Storage</span><span>This browser</span></div>
+          <div class="si-row"><span>Storage</span><span id="siStorage">This browser</span></div>
           <div class="si-row"><span>Welcome email</span><span id="siMail">—</span></div>
         </div>
 
@@ -250,11 +278,13 @@
 
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
+  <script src="config.js"></script>
   <script src="assets/js/galaxy.js"></script>
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/brands.js"></script>
   <script src="assets/js/models.js"></script>
   <script src="assets/js/account.js"></script>
+  <script src="assets/js/supabase.js"></script>
   <script src="assets/js/auth.js"></script>
 </body>
 </html>

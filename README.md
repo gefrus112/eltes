@@ -174,7 +174,7 @@ npm start
 | `ELTES_MAIL_WEBHOOK_SECRET` | Needed for a webhook reachable beyond loopback. |
 | `ELTES_MAIL_REPLY_TO` | Optional `Reply-To`. |
 
-Without a provider, `/api/email/welcome` still does the whole job except the network call: it writes a real `.eml` file to `.mail/outbox/` and answers `delivered: false, outbox: true`. The auth page shows *Saved to the local outbox*; on the static GitHub Pages copy, where no API exists, it shows *No mail server on this host*.
+Without a provider, `/api/email/welcome` still does the whole job except the network call: it writes a real `.eml` file to `.mail/outbox/` and answers `delivered: false, outbox: true`. The auth page shows *Saved to the local outbox*. On the static GitHub Pages copy there is no local API, so that page uses the Supabase route below instead (or says *No mail server on this host* when `config.js` is empty and the hosted function is unreachable).
 
 Bounces are handled where they are observable. SMTP `5xx` replies at `RCPT TO`/`DATA` are detected in the same request, provider `4xx` rejections of the address are treated the same, and `POST /api/email/webhook` normalises Brevo (`hard_bounce`, `spam`) and Resend (`email.bounced`, `email.complained`) events. Hard bounces and complaints are written to `.mail/suppressed.json`; later sends to that address never open a connection.
 
@@ -187,6 +187,43 @@ npm run mail unsuppress you@example.com   # allow the address again
 ```
 
 Tests: `test/mail.test.cjs` covers the wire format, config detection, both provider payloads against a stub, an SMTP delivery over a real socket, a `550` at `RCPT TO`, suppression, webhook normalisation and the HTTP routes against a spawned server.
+
+## Cloud accounts (Supabase, optional)
+
+The static site can create real accounts. Point `config.js` at a Supabase project and `auth.html` grows an email-and-password path: sign up, confirmation, sign in, magic link, password reset, sign out, and a session that survives a reload. The welcome email is then sent by an Edge Function in that same project through Resend — no server of your own, no cost.
+
+```js
+// config.js — public identifiers only
+window.ELTES_CONFIG = {
+  supabaseUrl: 'https://<ref>.supabase.co',
+  supabaseAnonKey: 'sb_publishable_…',
+  siteUrl: 'https://<user>.github.io/eltes/',
+  functionsPath: '/functions/v1',
+  mailFunction: 'eltes-mail'
+};
+```
+
+```bash
+npx supabase link --project-ref <ref>
+npx supabase db push                                             # tables, trigger, RLS, rate limits
+npx supabase functions deploy eltes-mail --no-verify-jwt
+npx supabase functions deploy email-webhook --no-verify-jwt
+npx supabase secrets set RESEND_API_KEY=re_… ELTES_MAIL_FROM="Eltes <hello@yourdomain.com>" \
+  ELTES_SITE_URL=https://<user>.github.io/eltes/
+```
+
+Set **Authentication → URL Configuration** to the Pages URL and its wildcard, so confirmation and reset links land on `auth.html`.
+
+| Piece | What it is |
+| --- | --- |
+| `assets/js/supabase.js` | The browser client: plain `fetch`, no SDK, no build step. |
+| `supabase/migrations/0001_eltes_accounts.sql` | `profiles`, `email_events`, `suppressed_emails`, the `auth.users` trigger, RLS and `mail_consume()`. |
+| `supabase/functions/eltes-mail` | Welcome, magic link and reset letters through Resend, with the link built by the Auth admin API. |
+| `supabase/functions/email-webhook` | Svix-signed Resend webhook; bounces and complaints land on the suppression list. |
+
+The **service_role** and **Resend** keys live only in Edge Function secrets. `config.js` ships the publishable key, which is designed to be public; RLS limits it to the signed-in user's own row. Without `RESEND_API_KEY` the function sends nothing and the panel says *Not sent — Supabase has no RESEND_API_KEY yet*. See `supabase/README.md` and `docs.html#supabase`.
+
+Local profiles are untouched: no `config.js`, a desktop build, or one click on *Use a local profile instead* and Eltes behaves exactly as before.
 
 ## Validate and rebuild
 
@@ -208,6 +245,7 @@ The Windows ZIP is generated from the current source/docs and includes the curre
 | `eltes.settings.v1` | Model, provider keys, proxy URL, preferences |
 | `eltes.active.v1` | Open conversation |
 | `eltes.account.v1` | Optional local profile |
+| `eltes.cloud.v1` | Supabase session (access + refresh token), when cloud accounts are configured |
 
 Storage is per browser and origin. Export chats before clearing site data.
 

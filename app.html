@@ -104,6 +104,13 @@
           <h1>What should we <em>build</em>?</h1>
           <p class="sub" id="emptySub">Connect a provider key and every answer comes live from the model you picked.</p>
 
+          <div class="hero-facts" id="heroFacts" role="group" aria-label="Workspace at a glance">
+            <span class="fact"><i class="fact-dot"></i>Local-first</span>
+            <span class="fact" id="factModels">36 models</span>
+            <span class="fact" id="factProviders">12 providers</span>
+            <span class="fact"><span data-icon="shield-check" data-icon-size="12"></span>Keys stay in this browser</span>
+          </div>
+
           <div class="connect-strip" id="connectStrip" hidden>
             <div class="cs-text">
               <strong>No API key connected</strong>
@@ -119,19 +126,23 @@
           <div class="suggestions">
             <button class="suggestion" data-prompt="Write a debounce hook in React and explain the cleanup.">
               <span class="sicon" data-icon="code-2" data-icon-size="15"></span>
-              <span><strong>Write a React hook</strong><span class="txt">debounce with a correct cleanup path</span></span>
+              <span><strong>Write a React hook</strong><span class="txt">a debounce hook that cleans up</span></span>
+              <span class="go" data-icon="arrow-up-right" data-icon-size="14"></span>
             </button>
             <button class="suggestion" data-prompt="Explain how rotating refresh tokens should work, then show a small implementation.">
               <span class="sicon" data-icon="shield-check" data-icon-size="15"></span>
               <span><strong>Design auth</strong><span class="txt">rotating refresh tokens, done safely</span></span>
+              <span class="go" data-icon="arrow-up-right" data-icon-size="14"></span>
             </button>
             <button class="suggestion" data-prompt="Compare Claude, GPT, Gemini and GLM for a coding agent. Where does each one win?">
               <span class="sicon" data-icon="layers" data-icon-size="15"></span>
               <span><strong>Compare models</strong><span class="txt">Claude vs GPT vs Gemini vs GLM</span></span>
+              <span class="go" data-icon="arrow-up-right" data-icon-size="14"></span>
             </button>
             <button class="suggestion" data-prompt="Plan an index strategy for a slow orders query on Postgres.">
               <span class="sicon" data-icon="database" data-icon-size="15"></span>
               <span><strong>Fix a slow query</strong><span class="txt">Postgres indexes that actually help</span></span>
+              <span class="go" data-icon="arrow-up-right" data-icon-size="14"></span>
             </button>
           </div>
 
@@ -147,8 +158,32 @@
         <div class="thread-inner" id="messages" hidden aria-live="polite"></div>
       </main>
 
+      <div class="thread-fade-top" id="threadFadeTop" aria-hidden="true"></div>
+
+      <div class="read-progress" id="readProgress" aria-hidden="true"><i></i></div>
+
+      <button class="jump-latest" id="jumpLatest" type="button" hidden>
+        <span data-icon="arrow-down" data-icon-size="15"></span>
+        <span id="jumpLabel">Jump to latest</span>
+      </button>
+
       <div class="composer-dock">
         <div class="composer" id="composer">
+          <div class="slash-menu" id="slashMenu" hidden role="listbox" aria-label="Slash commands">
+            <div class="slash-title">Commands</div>
+            <div id="slashList"></div>
+            <div class="slash-foot">
+              <span><span class="kbd">↑</span><span class="kbd">↓</span> navigate</span>
+              <span><span class="kbd">↵</span> run</span>
+              <span class="grow"></span>
+              <span><span class="kbd">esc</span> close</span>
+            </div>
+          </div>
+          <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+            <span class="drop-ico" data-icon="paperclip" data-icon-size="20"></span>
+            <strong>Drop to attach</strong>
+            <span>text and code files · 400 KB each</span>
+          </div>
           <textarea id="input" rows="1" placeholder="Message Eltes…" aria-label="Message Eltes" autocomplete="off" spellcheck="true"></textarea>
           <div class="composer-bar">
             <button class="chip model-chip-btn" id="composerModel" title="Switch model (⌘M)">
@@ -164,6 +199,7 @@
               <span data-icon="paperclip" data-icon-size="14"></span>
             </button>
             <span class="grow"></span>
+            <span class="composer-count" id="composerCount" hidden><b>0</b> tok</span>
             <span class="composer-hint"><span class="kbd">↵</span> send</span>
             <button class="send-btn" id="sendBtn" aria-label="Send message" disabled>
               <span data-icon="arrow-up" data-icon-size="17"></span>
@@ -488,6 +524,7 @@
               <div class="set-row"><div class="lbl"><strong>Switch model</strong><span>Open the model picker from anywhere.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">M</span></div></div>
               <div class="set-row"><div class="lbl"><strong>Toggle sidebar</strong><span>More room for long answers.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">B</span></div></div>
               <div class="set-row"><div class="lbl"><strong>New chat</strong><span>Start with the current model.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">N</span></div></div>
+              <div class="set-row"><div class="lbl"><strong>Slash commands</strong><span>Type / in an empty composer for chat actions.</span></div><div class="ctl"><span class="kbd">/</span></div></div>
               <div class="set-row"><div class="lbl"><strong>Settings</strong><span>Open this dialog.</span></div><div class="ctl"><span class="kbd">⌘</span><span class="kbd">,</span></div></div>
             </div>
           </section>

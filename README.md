@@ -21,7 +21,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Eltes CAI:** a deterministic, on-device JavaScript rules-and-knowledge helper for Eltes guidance, arithmetic, common math functions, one-variable linear/quadratic equations, conversions, dates, a curated AI glossary, and exact retrieval from messages included in the active chat. It is not a trained neural network or a general-purpose LLM, and it cannot solve every kind of math.
 - **Local-first workspace:** chat history, profiles, settings, and exports are controlled in your browser. No analytics or telemetry are included.
 - **Agent tools:** local calculation, clock, and chat-history search can be offered to compatible hosted models. Tool results are sent back as part of the model request.
-- **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
+- **Interface:** dark-blue aurora theme with animated depth that respects reduced motion, a reading-progress rail, jump-to-latest control, day divider, live streaming waveform and token counter, one-tap copy feedback, drag-to-attach overlay, and a `/` command menu for chat actions. Keyboard navigation, model picker, and local exports included.
 
 ## Run the app and local API
 

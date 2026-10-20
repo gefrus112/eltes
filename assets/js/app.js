@@ -457,7 +457,13 @@
     storageBar: $('#storageBar'),
     accountSlot: $('#accountSlot'),
     connectStrip: $('#connectStrip'),
-    providerQuick: $('#providerQuick')
+    providerQuick: $('#providerQuick'),
+    jumpLatest: $('#jumpLatest'),
+    jumpLabel: $('#jumpLabel'),
+    readProgress: $('#readProgress'),
+    composerCount: $('#composerCount'),
+    slashMenu: $('#slashMenu'),
+    slashList: $('#slashList')
   };
 
   function renderTopbar() {
@@ -747,16 +753,16 @@
     const time = state.settings.showTime ? `<span class="time">${fmtTime(msg.ts)}</span>` : '';
     const streaming = msg.streaming || msg.phase === 'tools';
     const thinkingLabel = msg.phase === 'tools' ? 'Running tools…' : `Thinking with ${model.name}…`;
-    return `<div class="msg ai" data-msg="${msg.id}">
+    return `<div class="msg ai${streaming ? ' is-streaming' : ''}" data-msg="${msg.id}">
       <span class="avatar-ai">${ic('cloud', 15)}</span>
       <div class="msg-body">
         <div class="msg-head">
           <span class="who">Eltes</span>
-          <span class="model-chip">${brand(model, 12)}${esc(model.name)}<span style="opacity:.6">· ${esc(M.providerOf(model).name)}</span></span>
+          <span class="model-chip">${brand(model, 12)}${esc(model.name)}${M.isLocal(model) ? '' : `<span style="opacity:.6">· ${esc(M.providerOf(model).name)}</span>`}</span>
           ${M.isLocal(model) ? '<span class="local-chip"><i></i>on-device</span>' : ''}
           ${model.realtime ? '<span class="rt-inline"><i></i>real-time</span>' : ''}
-          ${streaming && msg.content && model.realtime ? `<span class="rt-inline live-count"><i></i><b>${estimateTokens(msg.content)}</b> tok</span>` : ''}
-          ${streaming ? `<span class="streaming-dot"><i></i>${msg.phase === 'tools' ? 'tool loop' : 'streaming'}</span>` : time}
+          ${streaming && msg.content ? `<span class="rt-inline live-count"><i></i><b>${estimateTokens(msg.content)}</b> tok</span>` : ''}
+          ${streaming ? `<span class="streaming-dot"><span class="wave"><i></i><i></i><i></i><i></i></span>${msg.phase === 'tools' ? 'tool loop' : 'streaming'}</span>` : time}
         </div>
         ${toolCardsHtml(msg)}
         ${streaming && !msg.content ? `<div class="thinking"><span class="dots"><i></i><i></i><i></i></span><span class="shimmer">${esc(thinkingLabel)}</span></div>` : ''}
@@ -774,6 +780,21 @@
     return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
+  function fmtDay(ts) {
+    if (!ts) return 'Today';
+    const date = new Date(ts);
+    const now = new Date();
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const isSameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    if (isSameDay(date, now)) return 'Today';
+    if (isSameDay(date, yesterday)) return 'Yesterday';
+    return date.toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric',
+      year: date.getFullYear() === now.getFullYear() ? undefined : 'numeric'
+    });
+  }
+
   function renderMessages() {
     const chat = activeChat();
     if (!chat || !chat.messages.length) {
@@ -785,8 +806,11 @@
     }
     els.empty.hidden = true;
     els.messages.hidden = false;
-    els.messages.innerHTML = chat.messages.map((m, i) => messageHtml(m, i, chat)).join('');
+    const day = fmtDay(chat.messages[0] && chat.messages[0].ts);
+    els.messages.innerHTML = `<div class="thread-day"><span>${esc(day)}</span></div>` +
+      chat.messages.map((m, i) => messageHtml(m, i, chat)).join('');
     hydrateLogos(els.messages);
+    updateThreadChrome();
   }
 
   function hydrateLogos(root) {
@@ -820,6 +844,10 @@
       })
       .join('');
     hydrateLogos(box);
+    const factModels = $('#factModels');
+    if (factModels) factModels.textContent = `${M.MODELS.length} models`;
+    const factProviders = $('#factProviders');
+    if (factProviders) factProviders.textContent = `${Object.keys(M.PROVIDERS).filter((id) => id !== 'custom').length} providers`;
     if (els.connectStrip) els.connectStrip.hidden = anyKeyConnected() || M.isLocal(currentModel());
   }
 
@@ -854,6 +882,41 @@
     if (!t) return;
     const nearBottom = t.scrollHeight - t.scrollTop - t.clientHeight < 180;
     if (force || nearBottom) t.scrollTop = t.scrollHeight + 220;
+    updateThreadChrome();
+  }
+
+  let chromeFrame = 0;
+  function updateThreadChrome() {
+    const t = els.thread;
+    if (!t) return;
+    if (chromeFrame) cancelAnimationFrame(chromeFrame);
+    chromeFrame = requestAnimationFrame(() => {
+      chromeFrame = 0;
+      const max = t.scrollHeight - t.clientHeight;
+      const progress = max > 8 ? clamp(t.scrollTop / max, 0, 1) : 0;
+      if (els.readProgress) {
+        els.readProgress.style.setProperty('--p', progress.toFixed(4));
+        els.readProgress.classList.toggle('show', max > 180 && progress > 0.004 && progress < 0.996);
+      }
+      const fadeTop = document.getElementById('threadFadeTop');
+      if (fadeTop) fadeTop.classList.toggle('show', t.scrollTop > 16);
+      const away = max - t.scrollTop > 200;
+      if (els.jumpLatest) {
+        els.jumpLatest.hidden = !away;
+        els.jumpLatest.classList.toggle('hot', away && state.sending);
+        if (els.jumpLabel) els.jumpLabel.textContent = state.sending ? 'New reply' : 'Jump to latest';
+      }
+    });
+  }
+
+  if (els.thread) {
+    els.thread.addEventListener('scroll', updateThreadChrome, { passive: true });
+    window.addEventListener('resize', updateThreadChrome);
+  }
+  if (els.jumpLatest) {
+    els.jumpLatest.addEventListener('click', () => {
+      els.thread.scrollTo({ top: els.thread.scrollHeight, behavior: 'smooth' });
+    });
   }
 
   /* ---------------------------- chat lifecycle ---------------------------- */
@@ -1822,7 +1885,16 @@
   }
   function updateSendState() {
     if (!els.send) return;
-    els.send.disabled = !state.sending && !els.input.value.trim();
+    const text = els.input.value.trim();
+    els.send.disabled = !state.sending && !text;
+    if (els.composerCount) {
+      els.composerCount.hidden = !text;
+      const count = els.composerCount.querySelector('b');
+      if (count) {
+        const tokens = text ? estimateTokens(text) : 0;
+        count.textContent = tokens >= 1000 ? `${(tokens / 1000).toFixed(1)}k` : String(tokens);
+      }
+    }
   }
   function setSending(on) {
     state.sending = on;
@@ -1830,6 +1902,7 @@
     els.send.innerHTML = on ? '<span class="stop-square"></span>' : ic('arrow-up', 17);
     els.send.setAttribute('aria-label', on ? 'Stop generating' : 'Send message');
     updateSendState();
+    updateThreadChrome();
   }
   function stopGeneration() {
     state.stopped = true;
@@ -1843,7 +1916,8 @@
     toast(state.settings.tools ? 'Tools enabled for new messages' : 'Tools disabled', 'wrench');
   }
 
-  els.input.addEventListener('input', () => { autoGrow(); updateSendState(); });
+  els.input.addEventListener('input', () => { autoGrow(); updateSendState(); renderSlashMenu(); });
+  els.input.addEventListener('blur', () => setTimeout(closeSlashMenu, 110));
 
   /* ------------------------- block field / scroll FX ---------------------- */
   (function initBlockField() {
@@ -1925,6 +1999,100 @@
     });
   }
 
+  /* ---------------------------- slash commands ---------------------------- */
+  const slashState = { open: false, index: 0, items: [] };
+
+  function slashCommandList() {
+    return [
+      { id: 'new', label: 'New chat', desc: 'Start a fresh thread with the current model', icon: 'plus', run: () => newChat() },
+      { id: 'model', label: 'Switch model', desc: 'Open the model picker', icon: 'layers', run: () => openModelPicker() },
+      { id: 'tools', label: 'Toggle tools', desc: 'Enable or disable tool calling', icon: 'wrench', run: () => toggleTools() },
+      { id: 'export', label: 'Export conversation', desc: 'Markdown, JSON or a clipboard copy', icon: 'download', run: () => openShare() },
+      { id: 'clear', label: 'Clear this chat', desc: 'Remove every message from this thread', icon: 'rotate-ccw', run: () => { const chat = activeChat(); if (chat) clearChat(chat.id); } },
+      { id: 'keys', label: 'Connect a provider', desc: 'Add or manage API keys', icon: 'key-round', run: () => openSettings('keys') },
+      { id: 'settings', label: 'Settings', desc: 'Keys, models and appearance', icon: 'settings', run: () => openSettings('general') }
+    ];
+  }
+
+  function slashQuery() {
+    if (state.sending) return null;
+    const value = els.input.value;
+    if (!value || value.includes('\n')) return null;
+    const match = /^\/([a-z-]*)$/i.exec(value);
+    return match ? match[1].toLowerCase() : null;
+  }
+
+  function closeSlashMenu() {
+    slashState.open = false;
+    slashState.index = 0;
+    slashState.items = [];
+    if (els.slashMenu) els.slashMenu.hidden = true;
+  }
+
+  function renderSlashMenu() {
+    if (!els.slashMenu || !els.slashList) return;
+    const query = slashQuery();
+    if (query === null) { closeSlashMenu(); return; }
+    const items = slashCommandList().filter((command) =>
+      command.id.startsWith(query) || command.label.toLowerCase().includes(query));
+    if (!items.length) { closeSlashMenu(); return; }
+    slashState.items = items;
+    slashState.open = true;
+    if (slashState.index >= items.length) slashState.index = 0;
+    els.slashMenu.hidden = false;
+    els.slashList.innerHTML = items.map((command, index) => `
+      <button type="button" class="slash-item${index === slashState.index ? ' active' : ''}" data-slash="${command.id}" role="option" aria-selected="${index === slashState.index}">
+        <span class="si-ico">${ic(command.icon, 14)}</span>
+        <span class="si-text"><strong>${esc(command.label)}</strong><span class="si-desc">${esc(command.desc)}</span></span>
+        <span class="si-cmd">/${command.id}</span>
+        <span class="si-key"><span class="kbd">↵</span></span>
+      </button>`).join('');
+    const active = els.slashList.querySelector('.slash-item.active');
+    if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
+  }
+
+  function runSlashCommand(id) {
+    const command = slashCommandList().find((item) => item.id === id);
+    if (!command) return;
+    closeSlashMenu();
+    els.input.value = '';
+    autoGrow();
+    updateSendState();
+    command.run();
+    setTimeout(() => els.input.focus(), 30);
+  }
+
+  els.input.addEventListener('keydown', (e) => {
+    if (!slashState.open) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      e.stopPropagation();
+      const step = e.key === 'ArrowDown' ? 1 : -1;
+      slashState.index = (slashState.index + step + slashState.items.length) % slashState.items.length;
+      renderSlashMenu();
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      e.stopPropagation();
+      const command = slashState.items[slashState.index];
+      if (command) runSlashCommand(command.id);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      closeSlashMenu();
+    }
+  }, true);
+
+  els.slashList.addEventListener('mousedown', (e) => {
+    const item = e.target.closest('[data-slash]');
+    if (!item) return;
+    e.preventDefault();
+    runSlashCommand(item.dataset.slash);
+  });
+
   /* -------------------------------- attach -------------------------------- */
   const LANG_BY_EXT = {
     js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx', ts: 'ts', tsx: 'tsx', json: 'json',
@@ -1974,6 +2142,8 @@
     composerEl.classList.remove('dragging');
     attachFiles(e.dataTransfer.files);
   });
+  window.addEventListener('dragend', () => composerEl.classList.remove('dragging'));
+  window.addEventListener('drop', () => composerEl.classList.remove('dragging'));
 
   /* ------------------------------ connect UI ------------------------------ */
   function openConnect(providerId) {
@@ -2052,6 +2222,7 @@
   async function send() {
     const text = els.input.value.trim();
     if (!text || state.sending) return;
+    closeSlashMenu();
     state.pendingRetry = null;
     let chat = activeChat();
     if (!chat) chat = createChat();
@@ -2814,7 +2985,19 @@
     const { chat, msg, index } = findMsg(id);
     if (!chat || !msg) return;
 
-    if (act === 'copy') { copyText(msg.content); return; }
+    if (act === 'copy') {
+      copyText(msg.content);
+      if (btn.dataset.act === 'copy') {
+        const previous = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = `${ic('check', 12)}<span>Copied</span>`;
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = previous;
+        }, 1500);
+      }
+      return;
+    }
 
     if (act === 'good' || act === 'bad') {
       msg.rating = msg.rating === (act === 'good' ? 'up' : 'down') ? null : act === 'good' ? 'up' : 'down';

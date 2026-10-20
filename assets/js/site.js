@@ -548,7 +548,7 @@
   /* ----------------------------- quick signup ----------------------------- */
   const quick = $('#quickSignup');
   if (quick) {
-    quick.addEventListener('submit', (e) => {
+    quick.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = new FormData(quick);
       const name = (data.get('name') || '').toString().trim();
@@ -561,9 +561,17 @@
         toast('Enter a valid email address', 'triangle-alert');
         return;
       }
-      window.EltesAccount.create({ name, email, provider: 'local' });
+      const account = window.EltesAccount.create({ name, email, provider: 'local' });
       toast(`Welcome, ${name.split(' ')[0]} — profile saved locally`, 'user-check');
-      setTimeout(() => { window.location.href = 'app.html'; }, 700);
+
+      /* The welcome email is sent by the server on this machine; on a static
+         host there is none, and the toast says that instead of guessing. */
+      const mail = await window.EltesAccount.welcome(account, { timeout: 2500 });
+      if (mail.status === 'sent') toast(`Welcome email sent to ${email}`, 'mail');
+      else if (mail.status === 'outbox') toast('Welcome email saved to the local outbox', 'mail');
+      else if (mail.status === 'suppressed') toast('Welcome email skipped — that address bounced before', 'mail');
+
+      setTimeout(() => { window.location.href = 'app.html'; }, mail.status === 'unavailable' ? 700 : 400);
     });
   }
 

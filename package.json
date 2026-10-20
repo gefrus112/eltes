@@ -1,6 +1,6 @@
 {
   "name": "starter-site",
-  "version": "3.15.0",
+  "version": "3.16.0",
   "description": "Eltes AI — a local-first workspace with live web search, cited sources, a search-thinking trace, 66 models across 14 providers, Eltes Lab (train a language model in the browser), a built-in Studio, and desktop builds for Windows, macOS and Linux.",
   "main": "index.html",
   "scripts": {
@@ -20,7 +20,8 @@
     "desktop:build": "node desktop/build.mjs --all",
     "desktop:win": "node desktop/build.mjs --target=win --archs=x64,arm64",
     "desktop:mac": "node desktop/build.mjs --target=mac --archs=x64,arm64",
-    "desktop:linux": "node desktop/build.mjs --target=linux"
+    "desktop:linux": "node desktop/build.mjs --target=linux",
+    "mail": "node tools/mail.mjs"
   },
   "keywords": [
     "embers",

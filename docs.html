@@ -67,8 +67,8 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.15.0</span>
-          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>24 minute read</span>
+          <span class="badge"><span class="dot"></span>v3.16.0</span>
+          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>25 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
         </div>
@@ -87,6 +87,7 @@
         <a href="#overview" class="active"><span data-icon="compass" data-icon-size="14"></span>Overview</a>
         <a href="#quickstart"><span data-icon="rocket" data-icon-size="14"></span>Quickstart</a>
         <a href="#accounts"><span data-icon="user-check" data-icon-size="14"></span>Accounts</a>
+        <a href="#email"><span data-icon="mail" data-icon-size="14"></span>Welcome email</a>
 
         <div class="nav-sep"></div>
         <h5>Keys &amp; providers</h5>
@@ -207,10 +208,10 @@ python3 -m http.server 4173
 
         <section id="accounts">
           <h2>Accounts <a class="anchor" href="#accounts" aria-label="Link to accounts" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>An Eltes account is a <strong>profile</strong> plus a set of provider connections. It stores a name, an email, the provider that created it and — when you connect one — a provider key. There is no password, no session cookie and no email delivery. The profile is written to <code>eltes.account.v1</code>; provider keys live in <code>eltes.settings.v1</code>.</p>
+          <p>An Eltes account is a <strong>profile</strong> plus a set of provider connections. It stores a name, an email, the provider that created it and — when you connect one — a provider key. There is no password and no session cookie, and no Eltes account server. The profile is written to <code>eltes.account.v1</code>; provider keys live in <code>eltes.settings.v1</code>. The one email this flow produces is the welcome message, sent by your own server — see <a class="inline-link" href="#email">Welcome email</a>.</p>
 
           <h3>Create or sign in</h3>
-          <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Sign up with <strong>OpenAI</strong>, <strong>Anthropic</strong> or <strong>DeepSeek</strong>, or create a local profile with a display name and email. Signing in restores the profile already in this browser. Because there is no Eltes server, a local email is a label, not a credential.</p>
+          <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Sign up with <strong>OpenAI</strong>, <strong>Anthropic</strong> or <strong>DeepSeek</strong>, or create a local profile with a display name and email. Signing in restores the profile already in this browser. Because there is no Eltes server, the email is a label, not a credential — it can receive a welcome message from your own server, nothing else.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>What “connect” does on a static copy</th><th>What it does with a host</th></tr></thead>
@@ -267,6 +268,98 @@ https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
             <span data-icon="triangle-alert" data-icon-size="15"></span>
             <span><strong>Never put a client secret in this page.</strong> Anything shipped to the browser is public. Without an endpoint, the connect panel asks for a real key and stores it locally — it does not claim an OAuth session.</span>
           </div>
+        </section>
+
+        <section id="email">
+          <h2>Welcome email <a class="anchor" href="#email" aria-label="Link to the email section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>When a local profile is created — on the <a class="inline-link" href="auth.html">auth page</a> or in the quick sign-up on the landing page — Eltes sends a real welcome email — <em>Welcome to Eltes AI Workspace</em>. It is sent by the server on your own machine, through your own free provider account, at the moment you sign up. Eltes itself has no mail server and never sees your address.</p>
+
+          <div class="doc-callout">
+            <span data-icon="info" data-icon-size="15"></span>
+            <p><strong>Nothing is faked.</strong> With no provider configured, the message is written to <code>.mail/outbox/</code> as a real <code>.eml</code> file and the panel says <em>Saved to the local outbox</em>. If a provider refuses the address, you see the refusal — not a green tick.</p>
+          </div>
+
+          <h3>Free, no card</h3>
+          <p>Three ways to deliver it, all with a free tier that is enough for personal use:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Provider</th><th>Free allowance</th><th>What you need</th></tr></thead>
+              <tbody>
+                <tr><td><a class="inline-link" href="https://resend.com" target="_blank" rel="noreferrer">Resend</a></td><td>3,000 emails/month · 100/day</td><td>An API key and one verified domain. Fastest to wire up.</td></tr>
+                <tr><td><a class="inline-link" href="https://www.brevo.com" target="_blank" rel="noreferrer">Brevo</a></td><td>300 emails/day</td><td>An API key and a verified sender address — no domain needed. Free mail carries a small Brevo footer.</td></tr>
+                <tr><td>Any SMTP mailbox</td><td>Whatever your mailbox allows</td><td><code>ELTES_SMTP_URL</code>. Gmail needs an app password; most hosts give you an <code>smtps://</code> endpoint.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Turn it on</h3>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>one provider is enough</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># Resend (recommended: 3,000/month free)</span>
+<span class="k">export</span> ELTES_MAIL_FROM=<span class="s">"Eltes &lt;hello@yourdomain.com&gt;"</span>
+<span class="k">export</span> RESEND_API_KEY=<span class="s">re_…</span>
+
+<span class="c"># or Brevo (300/day free, no domain required)</span>
+<span class="k">export</span> ELTES_MAIL_FROM=<span class="s">"Eltes &lt;you@gmail.com&gt;"</span>
+<span class="k">export</span> BREVO_API_KEY=<span class="s">xkeysib-…</span>
+
+<span class="c"># or your own SMTP mailbox</span>
+<span class="k">export</span> ELTES_MAIL_FROM=<span class="s">"Eltes &lt;you@example.com&gt;"</span>
+<span class="k">export</span> ELTES_SMTP_URL=<span class="s">"smtps://you@app-password@smtp.example.com:465"</span>
+
+npm start   <span class="c"># the welcome email now leaves the machine</span></code></pre>
+          </div>
+
+          <table class="doc-table">
+            <thead><tr><th>Variable</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>ELTES_MAIL_FROM</code></td><td>Required for delivery. <code>Name &lt;address&gt;</code> or a bare address; the address must be verified by the provider.</td></tr>
+              <tr><td><code>RESEND_API_KEY</code> · <code>BREVO_API_KEY</code></td><td>Pick one provider. Resend wins if both are set.</td></tr>
+              <tr><td><code>ELTES_SMTP_URL</code></td><td><code>smtps://user:pass@host:465</code> for implicit TLS, <code>smtp://…:587</code> upgrades with STARTTLS when the server offers it. Add <code>?tls=off</code> only for a local relay.</td></tr>
+              <tr><td><code>ELTES_MAIL_PROVIDER</code></td><td><code>resend</code>, <code>brevo</code>, <code>smtp</code> or <code>none</code> to force one and ignore the rest.</td></tr>
+              <tr><td><code>ELTES_MAIL_DIR</code></td><td>Where the outbox, events and suppression list live. Defaults to <code>.mail/</code>; the desktop app uses <code>mail/</code> inside its data folder.</td></tr>
+              <tr><td><code>ELTES_MAIL_WEBHOOK_SECRET</code></td><td>Required when the webhook is reachable from another machine. Without it, only loopback calls are accepted.</td></tr>
+              <tr><td><code>ELTES_MAIL_REPLY_TO</code></td><td>Optional <code>Reply-To</code> for the welcome email.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>What actually happens</h3>
+          <ol class="doc-list">
+            <li>The form posts to <code>POST /api/email/welcome</code> on the same origin, with the address and display name.</li>
+            <li>The server validates the address, checks the suppression list, and renders the multipart message — plain text and HTML, no tracking pixel.</li>
+            <li>It calls your provider: <code>api.resend.com/emails</code>, <code>api.brevo.com/v3/smtp/email</code>, or the SMTP server. The response carries the provider's own id, or its error.</li>
+            <li>Everything is recorded in <code>.mail/events.jsonl</code> and shown by <code>GET /api/email/status</code>.</li>
+          </ol>
+
+          <h3>Bounces, honestly</h3>
+          <p>A bounce is handled where it is visible, and a hard bounce is remembered:</p>
+          <ul class="doc-list">
+            <li><strong>SMTP:</strong> a <code>5xx</code> reply to <code>RCPT TO</code> or <code>DATA</code> is a hard bounce in the same request. The address goes on the suppression list immediately.</li>
+            <li><strong>Provider APIs:</strong> a <code>4xx</code> that names the recipient is treated the same way; anything else is an error, not a bounce.</li>
+            <li><strong>Webhooks:</strong> point Brevo at <code>POST /api/email/webhook?provider=brevo</code>, or Resend at the same URL. Both payload shapes are normalised — <code>hard_bounce</code> and <code>email.bounced</code> become one event.</li>
+            <li><strong>Suppression:</strong> hard bounces and complaints are written to <code>.mail/suppressed.json</code>. Later sends to that address short-circuit before any network call. <code>node tools/mail.mjs unsuppress you@example.com</code> lifts it.</li>
+          </ul>
+          <p>Delivery of the webhook needs a public URL. Locally, the SMTP and API paths already report bounces synchronously; the webhook is for a deployment that faces the internet.</p>
+
+          <h3>The command line</h3>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>node tools/mail.mjs</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>npm run mail status                       <span class="c"># provider, folder, counts, recent events</span>
+npm run mail welcome you@example.com      <span class="c"># the real welcome email</span>
+npm run mail test you@example.com         <span class="c"># prove a provider works</span>
+npm run mail bounce you@example.com       <span class="c"># record a hard bounce (same event a webhook writes)</span>
+npm run mail unsuppress you@example.com   <span class="c"># let that address receive mail again</span></code></pre>
+          </div>
+
+          <h3>On the static site</h3>
+          <p><a class="inline-link" href="https://gefrus112.github.io/eltes/auth.html">The hosted copy</a> is served by GitHub Pages, which has no application server, so its sign-up form finds no <code>/api/email/welcome</code> and the panel says <em>No mail server on this host</em>. Sending works wherever the Node server runs: <code>npm start</code>, the Docker image, or the <a class="inline-link" href="#desktop">desktop app</a>, which keeps its mail folder at <code>%APPDATA%\Eltes\mail</code> (macOS: <code>~/Library/Application Support/Eltes/mail</code>).</p>
+          <p>Addresses are stored only where they are needed: the profile in this browser's <code>localStorage</code>, the address and timestamps in the events file next to the outbox. There is no analytics, no open tracking and no shared list.</p>
         </section>
 
         <section id="api-keys">
@@ -1123,7 +1216,7 @@ export CSC_LINK=/path/certificate.pfx CSC_KEY_PASSWORD=…</code></pre>
           <p>Unsigned builds still work: Windows shows SmartScreen ("More info → Run anyway") and macOS needs a right-click → Open the first time. The macOS build is ad-hoc signed, so Apple silicon will launch it; distribution to other machines should be signed and notarised.</p>
 
           <h3>Continuous builds</h3>
-          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-latest</code> for Apple silicon, <code>macos-15-intel</code> for Intel and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.15.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
+          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-latest</code> for Apple silicon, <code>macos-15-intel</code> for Intel and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.16.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
 
           <h3>Testing without a display</h3>
           <p>The harness core (<code>desktop/shell.js</code>, <code>window-state.js</code>, <code>menu.js</code>) is plain Node, so <code>npm test</code> covers flag parsing, deep links, the navigation policy, window clamping across removed monitors, atomic window state and the menu on each platform. Two tests go further: the real <code>desktop/main.js</code> runs against a mocked Electron module (boot, IPC, navigation guard, quit), and the packaged layout is assembled in a temp folder — site under <code>resources/site</code>, server started through the production code path, health checked, <code>app.html</code> and its assets fetched, Studio session opened, process stopped. Packaging config is validated against electron-builder's own JSON schema, and the shell is packed into an <code>.asar</code> to prove <code>main.js</code> survives the round-trip.</p>
@@ -1458,6 +1551,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#overview" class="active">Overview</a>
         <a href="#quickstart">Quickstart</a>
         <a href="#accounts">Accounts</a>
+        <a href="#email">Welcome email</a>
         <a href="#api-keys">API keys</a>
         <a href="#providers">Providers &amp; CORS</a>
         <a href="#custom-endpoint">Custom endpoints</a>

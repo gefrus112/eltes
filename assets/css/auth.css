@@ -624,6 +624,7 @@ body.auth-page::before {
   color: var(--text-3);
 }
 .si-row .mono { color: #a9c2ea; font-size: 10.5px; }
+.si-row #siMail { text-align: right; max-width: 62%; color: #a9c2ea; }
 .si-actions {
   display: flex;
   align-items: center;

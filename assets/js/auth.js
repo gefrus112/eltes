@@ -58,6 +58,7 @@
     siConnections: $('#siConnections'),
     siId: $('#siId'),
     siCreated: $('#siCreated'),
+    siMail: $('#siMail'),
     siContinue: $('#siContinue'),
     toastStack: $('#toastStack'),
     blocks: $('#authBlocks')
@@ -466,7 +467,42 @@
     });
     toast(mode === 'signup' ? 'Profile created in this browser' : 'Local profile created', 'check');
     renderSignedIn(account);
+    if (mode === 'signup') sendWelcomeEmail(account);
   });
+
+  /* The welcome email is sent by the server that serves this page — the one on
+     your own machine. A static host has no such server, and the panel says so
+     rather than faking a delivery. */
+  async function sendWelcomeEmail(account) {
+    const cell = els.siMail;
+    if (!account.email) {
+      if (cell) cell.textContent = 'No address on this profile';
+      return;
+    }
+    if (cell) cell.textContent = 'Sending…';
+
+    const result = await Account.welcome(account, { timeout: 8000 });
+    if (result.status === 'sent') {
+      if (cell) cell.textContent = `Sent via ${result.provider}`;
+      toast(`Welcome email sent to ${account.email}`, 'mail');
+      return;
+    }
+    if (result.status === 'outbox') {
+      if (cell) cell.textContent = 'Saved to the local outbox';
+      toast('Welcome email saved to the outbox — set a mail provider to deliver it', 'mail');
+      return;
+    }
+    if (result.status === 'suppressed') {
+      if (cell) cell.textContent = 'Skipped — address bounced before';
+      return;
+    }
+    if (result.status === 'unavailable') {
+      if (cell) cell.textContent = 'No mail server on this host';
+      return;
+    }
+    if (cell) cell.textContent = 'Not sent';
+    if (result.error) toast(`Welcome email not sent: ${result.error}`, 'circle-alert');
+  }
 
   /* ------------------------------ signed in ------------------------------- */
 
@@ -507,6 +543,7 @@
       : a.provider === 'local' || !M.PROVIDERS[a.provider] ? 'Local profile' : escapeHtml(providerMeta(a.provider).name)}`;
     els.siId.textContent = a.id;
     els.siCreated.textContent = new Date(a.createdAt).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+    if (els.siMail) els.siMail.textContent = '—';
     els.siContinue.setAttribute('href', nextUrl);
 
     els.siConnections.innerHTML = PROVIDERS.map(connectionHtml).join('') + `

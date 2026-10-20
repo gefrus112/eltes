@@ -7,6 +7,7 @@ import chat from '../api/chat.js';
 import keyCheck from '../api/key-check.js';
 import health from '../api/health.js';
 import search from '../api/search.js';
+import email from '../api/email.js';
 import {
   WORKSPACE_DIR, createStudio, ensureWorkspace, previewMime, resolvePreviewFile, seedWorkspace
 } from './studio.mjs';
@@ -96,6 +97,19 @@ const server = createServer(async (req, res) => {
     }
   }
 
+  if (pathname === '/api/email' || pathname.startsWith('/api/email/')) {
+    try { await email(req, res, url); }
+    catch (error) {
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-store');
+        res.end(JSON.stringify({ ok: false, error: 'The mail backend failed. Check the server log.' }));
+      }
+    }
+    return;
+  }
+
   if (routes[pathname]) {
     try { await routes[pathname](req, res); }
     catch (error) {
@@ -141,7 +155,13 @@ const server = createServer(async (req, res) => {
 server.requestTimeout = 65000;
 server.listen(port, host, async () => {
   console.log(`Eltes local server listening at http://localhost:${port}`);
-  console.log('Local API routes: /api/health, /api/key-check, /api/chat, /api/search');
+  console.log('Local API routes: /api/health, /api/key-check, /api/chat, /api/search, /api/email');
+  try {
+    const mailStatus = email.mailer.status();
+    console.log(mailStatus.configured
+      ? `Mail: ${mailStatus.provider} configured · from ${mailStatus.from}`
+      : `Mail: outbox only (${mailStatus.problems[0] || 'no provider'}) · ${mailStatus.outboxDir}`);
+  } catch { /* the status line is a nicety, never fatal */ }
   console.log('API keys are used per request and are not persisted by this server.');
   if (!studio) {
     console.log('Studio disabled (ELTES_STUDIO=0).');

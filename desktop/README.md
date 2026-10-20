@@ -104,9 +104,16 @@ ad-hoc signed by default so Apple silicon will launch it.
   - Linux `~/.config/Eltes`
 
   `studio/` is the Studio workspace (redirected with `ELTES_STUDIO_DIR`),
-  `logs/desktop.log` is the shell + server log (rotated once at 1.5 MB), and
-  `window-state.json` remembers the window. Chats, settings and keys stay in
-  Chromium's profile inside that folder, exactly like the browser build.
+  `mail/` holds the welcome-email outbox, its event log and the bounce
+  suppression list (`ELTES_MAIL_DIR`), `logs/desktop.log` is the shell + server
+  log (rotated once at 1.5 MB), and `window-state.json` remembers the window.
+  Chats, settings and keys stay in Chromium's profile inside that folder,
+  exactly like the browser build.
+
+  Mail works exactly as it does under `npm start`: set `ELTES_MAIL_FROM` and a
+  provider key in the environment before launching the app and `auth.html`
+  sends the real welcome email; with nothing set the message is written to
+  `mail/outbox/` as a `.eml` file. See [docs.html#email](../docs.html#email).
 - **No new network surface.** The shell adds no telemetry and no update pings;
   the only requests are the ones the app already makes to providers you connect.
 

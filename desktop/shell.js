@@ -186,6 +186,7 @@ async function startServer(options = {}) {
     HOST: host,
     NODE_ENV: 'production',
     ...(options.studioDir ? { ELTES_STUDIO_DIR: options.studioDir } : {}),
+    ...(options.mailDir ? { ELTES_MAIL_DIR: options.mailDir } : {}),
     ...(options.studioToken ? { ELTES_STUDIO_TOKEN: options.studioToken } : {}),
     ...(options.studio === false ? { ELTES_STUDIO: '0' } : {}),
     ...(options.env || {})

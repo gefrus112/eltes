@@ -70,15 +70,16 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
         <h1>Every release, with the screen to prove it.</h1>
-        <p class="lede">Notes from the Eltes build: the desktop apps for Windows, macOS and Linux, the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <p class="lede">Notes from the Eltes build: the welcome email your own server sends, the desktop apps for Windows, macOS and Linux, the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.15.0</span>
+          <span class="badge"><span class="dot"></span>v3.16.0</span>
           <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
           <span class="badge"><span data-icon="image" data-icon-size="12"></span>7 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r315" class="active">v3.15 · Desktop</a>
+          <a href="#r316" class="active">v3.16 · Welcome email</a>
+          <a href="#r315">v3.15 · Desktop</a>
           <a href="#r314">v3.14 · Lab</a>
           <a href="#r313">v3.13 · Embers</a>
           <a href="#r312">v3.12 · Deeper sky</a>
@@ -92,13 +93,40 @@
     </section>
 
     <!-- =========================== latest =============================== -->
+    <section class="news-feed" id="r316" aria-labelledby="h-r316">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver latest">v3.16.0</span>
+              <span class="news-kind">Latest release</span>
+            </div>
+            <h2 id="h-r316">The welcome email is real, and it is yours.</h2>
+            <p class="news-sum">Create a profile and <em>Welcome to Eltes AI Workspace</em> arrives in the inbox — sent by the server on your own machine through your own free provider account. Resend, Brevo and any SMTP mailbox are supported. With nothing configured, the message is written to a real <code>.eml</code> outbox instead of pretending to send.</p>
+            <ul class="news-points">
+              <li><strong>Free, no card</strong> — Resend gives 3,000 messages a month, Brevo 300 a day, and an SMTP mailbox costs whatever your host already charges. One environment variable each.</li>
+              <li><strong>No middle man</strong> — the browser posts to <code>/api/email/welcome</code> on the same origin. Eltes has no mail server, no list and no tracking pixel; the address never leaves your provider call.</li>
+              <li><strong>Bounces count</strong> — a <code>5xx</code> at <code>RCPT TO</code> is a hard bounce in the same request, provider webhooks are normalised, and hard bounces are remembered so the next send never touches the network.</li>
+              <li><strong>Honest states</strong> — <em>Sent via resend</em>, <em>Saved to the local outbox</em>, <em>No mail server on this host</em> on the static site, and the provider's own error text when it refuses.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="docs.html#email"><span data-icon="mail" data-icon-size="14"></span>Set it up</a>
+              <a href="auth.html">Create a profile<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="https://github.com/gefrus112/eltes/blob/main/lib/mail.cjs" target="_blank" rel="noreferrer">Read the mail core</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
     <section class="news-feed" id="r315" aria-labelledby="h-r315">
       <div class="wrap">
         <article class="news-feature reveal">
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.15.0</span>
-              <span class="news-kind">Latest release</span>
+              <span class="news-ver">v3.16.0</span>
+              <span class="news-kind">Desktop · harness</span>
             </div>
             <h2 id="h-r315">Eltes becomes a desktop app.</h2>
             <p class="news-sum">A real harness in <code>desktop/</code> builds a Windows installer and a portable <code>.exe</code>, macOS disk images for Apple silicon and Intel, and a Linux AppImage and <code>.deb</code>. Each one is the same site in a native window, with the local server, Studio, the terminal and Eltes Lab already inside — no Node installed, no tabs, no second app to keep in sync.</p>

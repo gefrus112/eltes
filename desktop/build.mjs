@@ -274,7 +274,6 @@ export function electronBuilderConfig(options = {}) {
     buildDependenciesFromSource: false,
     removePackageScripts: true,
     publish: null,
-    npmRebuild: false,
     protocols: [{ name: 'Eltes link', schemes: ['eltes'] }],
     artifactName: 'Eltes-${version}-${os}-${arch}.${ext}'
   };
@@ -426,33 +425,41 @@ async function run() {
   const configFile = join(BUILD_DIR, 'electron-builder.json');
   writeFileSync(configFile, `${JSON.stringify(config, null, 2)}\n`);
 
-  const flags = ['--config', configFile, '--publish', 'never'];
-  if (args.dir) flags.push('--dir');
-  for (const platform of platforms) {
-    flags.push(`--${platform}`);
-    const archs = args.archs[platform];
-    if (archs && archs.length) flags.push(...archs.map((arch) => `--${arch}`));
-  }
+  /* One arch per invocation: electron-builder merges `--x64 --arm64` into a
+     single "universal" artifact whose name has no ${arch}, which is not what
+     the release page should list. */
+  const defaultArchs = (platform) => {
+    if (args.dir) return [process.arch === 'arm64' ? 'arm64' : 'x64'];
+    if (platform === 'linux') return [process.arch === 'arm64' ? 'arm64' : 'x64'];
+    return ['x64', 'arm64'];
+  };
 
-  console.log(`  ${join(ROOT, 'node_modules', '.bin', 'electron-builder')} ${flags.join(' ')}`);
-  const code = await new Promise((resolveCode) => {
-    const child = spawn(process.execPath, [cli, ...flags], {
-      /* electron-builder reads the project package.json from its working
-         directory; the app itself lives in BUILD_DIR/app via directories.app. */
-      cwd: ROOT,
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        /* Electron and the helper binaries are cached by electron-builder's own
-           defaults (or ELECTRON_CACHE / ELECTRON_BUILDER_CACHE in CI), so a
-           rebuild does not download them again. */
-        CSC_IDENTITY_AUTO_DISCOVERY: process.env.CSC_LINK ? 'true' : 'false'
-      }
-    });
-    child.on('exit', (exitCode) => resolveCode(exitCode || 0));
-    child.on('error', (error) => { console.error(error); resolveCode(1); });
-  });
-  if (code !== 0) process.exit(code);
+  for (const platform of platforms) {
+    const archList = args.archs[platform] || defaultArchs(platform);
+    for (const arch of archList) {
+      const flags = ['--config', configFile, '--publish', 'never', `--${platform}`, `--${arch}`];
+      if (args.dir) flags.push('--dir');
+      console.log(`\n> electron-builder ${flags.join(' ')}`);
+      const code = await new Promise((resolveCode) => {
+        const child = spawn(process.execPath, [cli, ...flags], {
+          /* electron-builder reads the project package.json from its working
+             directory; the app itself lives in BUILD_DIR/app via directories.app. */
+          cwd: ROOT,
+          stdio: 'inherit',
+          env: {
+            ...process.env,
+            /* Electron and the helper binaries are cached by electron-builder's own
+               defaults (or ELECTRON_CACHE / ELECTRON_BUILDER_CACHE in CI), so a
+               rebuild does not download them again. */
+            CSC_IDENTITY_AUTO_DISCOVERY: process.env.CSC_LINK ? 'true' : 'false'
+          }
+        });
+        child.on('exit', (exitCode) => resolveCode(exitCode || 0));
+        child.on('error', (error) => { console.error(error); resolveCode(1); });
+      });
+      if (code !== 0) process.exit(code);
+    }
+  }
 
   const outDir = config.directories.output;
   if (existsSync(outDir)) {

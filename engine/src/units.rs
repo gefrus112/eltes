@@ -73,7 +73,7 @@ pub fn lookup(name: &str) -> Option<Unit> {
         "kg" => (Kind::Mass, 1000.0),
         "oz" => (Kind::Mass, 28.349_523_125),
         "lb" | "lbs" | "pound" | "pounds" => (Kind::Mass, 453.592_37),
-        "stone" | "st" => (Kind::Mass, 6350.293_18),
+        "stone" | "st" => (Kind::Mass, 6_350.293_18),
         // volume → litres
         "ml" => (Kind::Volume, 0.001),
         "l" | "litre" | "litres" | "liter" | "liters" => (Kind::Volume, 1.0),
@@ -100,7 +100,7 @@ pub fn lookup(name: &str) -> Option<Unit> {
         "m2" => (Kind::Area, 1.0),
         "km2" => (Kind::Area, 1e6),
         "ft2" | "sqft" => (Kind::Area, 0.092_903_04),
-        "acre" => (Kind::Area, 4046.856_422_4),
+        "acre" => (Kind::Area, 4_046.856_422_4),
         "hectare" | "ha" => (Kind::Area, 10_000.0),
         _ => return None,
     };

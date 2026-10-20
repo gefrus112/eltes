@@ -98,6 +98,7 @@
       </header>
 
       <main class="thread" id="thread" tabindex="-1">
+        <canvas class="ember-field" data-embers aria-hidden="true"></canvas>
         <div class="empty" id="emptyState">
           <div class="empty-mark">
             <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -282,7 +283,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.12.0 · BYOK<br />Optional proxy. No telemetry.<br /><a href="news.html">What’s new →</a></div>
+          <div class="nav-foot">Eltes v3.13.0 · BYOK<br />Optional proxy. No telemetry.<br /><a href="news.html">What’s new →</a></div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -529,7 +530,7 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.12.0</span></div>
+              <div class="kv"><span>Version</span><span>3.13.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
               <div class="kv"><span>Models</span><span>65 · 14 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>
@@ -620,6 +621,7 @@
   <script src="assets/js/search.js"></script>
   <script src="assets/js/cai.js"></script>
   <script src="assets/js/account.js"></script>
+  <script src="assets/js/chat-embers.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

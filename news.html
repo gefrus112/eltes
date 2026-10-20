@@ -22,7 +22,7 @@
     <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
   </div>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
-  <a class="skip" href="#r312">Skip to the latest release</a>
+  <a class="skip" href="#r313">Skip to the latest release</a>
 
   <header class="nav" id="nav">
     <div class="wrap">
@@ -68,15 +68,16 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
         <h1>Every release, with the screen to prove it.</h1>
-        <p class="lede">Notes from the Eltes build: the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <p class="lede">Notes from the Eltes build: the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.12.0</span>
+          <span class="badge"><span class="dot"></span>v3.13.0</span>
           <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
-          <span class="badge"><span data-icon="image" data-icon-size="12"></span>5 screenshots</span>
+          <span class="badge"><span data-icon="image" data-icon-size="12"></span>6 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r312" class="active">v3.12 · Deeper sky</a>
+          <a href="#r313" class="active">v3.13 · Embers</a>
+          <a href="#r312">v3.12 · Deeper sky</a>
           <a href="#r311">v3.11 · Living galaxy</a>
           <a href="#r310">v3.10 · Effects from code</a>
           <a href="#r39">v3.9 · Website workflow</a>
@@ -87,36 +88,35 @@
     </section>
 
     <!-- =========================== latest =============================== -->
-    <section class="news-feed" id="r312" aria-labelledby="h-r312">
+    <section class="news-feed" id="r313" aria-labelledby="h-r313">
       <div class="wrap">
         <article class="news-feature reveal">
           <figure class="shot">
-            <a href="assets/img/news/galaxy.jpg" target="_blank" rel="noreferrer" aria-label="Open the new galaxy still at full size">
-              <img src="assets/img/news/galaxy.jpg" alt="The rebuilt Eltes sky: a diagonal river of stars with a bright cream core and dark dust lanes, a spiral galaxy in the upper right, a globular cluster upper left, an edge-on galaxy lower left and coloured stars throughout." width="1280" height="760" />
+            <a href="assets/img/news/embers.jpg" target="_blank" rel="noreferrer" aria-label="Open the embers still at full size">
+              <img src="assets/img/news/embers.jpg" alt="The Eltes new-chat screen: orange embers and a soft warm glow around the pointer over the black workspace." width="1280" height="760" />
               <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
             </a>
             <figcaption>
-              <span>A still from the live canvas: band, spiral, cluster, dust and coloured stars, all painted in the browser.</span>
-              <span class="tag">galaxy.jpg · canvas capture</span>
+              <span>A still from the live effect: the pointer was swept across the pane, and the embers followed. No video, no image files.</span>
+              <span class="tag">embers.jpg · canvas capture</span>
             </figcaption>
           </figure>
 
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.12.0</span>
+              <span class="news-ver latest">v3.13.0</span>
               <span class="news-kind">Latest release</span>
             </div>
-            <h2 id="h-r312">A deeper sky. A blacker chat.</h2>
-            <p class="news-sum">The backdrop was rebuilt from the ground up — a spiral galaxy, a globular cluster, an edge-on galaxy, coloured nebulae and diffraction spikes around the brightest stars. The chat shell went the other way: blue is gone, and Obsidian is true black from the sidebar to the composer.</p>
+            <h2 id="h-r313">The empty chat now answers your pointer.</h2>
+            <p class="news-sum">Move the mouse across the new-chat screen and a hearth of orange embers follows it: a warm glow, eight orbiting sparks, wispy updraughts and a slow rain of embers rising from the composer. It is drawn on one canvas — no libraries, no images.</p>
             <ul class="news-points">
-              <li><strong>More universe</strong> — a tilted Milky Way with a hot cream core and a dark rift, plus a spiral, a cluster and a distant lens.</li>
-              <li><strong>Real light</strong> — stars in six temperatures, emission nebulae in rose, teal and amber, meteors trailing sparks.</li>
-              <li><strong>Obsidian chat</strong> — <code>#000</code> surfaces, silver accents, no dark blue anywhere. Graphite stays for anyone who wants grey.</li>
-              <li><strong>Still cheap</strong> — the sky is painted once at 1.4× DPR, stars run at 30 fps, and the drift stops under reduced motion.</li>
+              <li><strong>Speed is heat</strong> — move faster and the glow brightens, sparks fly and the trails lengthen; stop and it settles to a gentle burn.</li>
+              <li><strong>Click to stoke it</strong> — a click throws a burst of sparks and embers.</li>
+              <li><strong>Only where it belongs</strong> — the effect fades out the moment a conversation starts, and pauses with the tab.</li>
+              <li><strong>Cheap and respectful</strong> — 30 fps, DPR capped at 1.75, a still frame under reduced motion (system or Settings → Reduce motion).</li>
             </ul>
             <div class="news-links">
-              <a class="primary" href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See the new sky</a>
-              <a href="app.html">Chat in black<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a class="primary" href="app.html"><span data-icon="sparkles" data-icon-size="14"></span>Try it on a new chat</a>
               <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
             </div>
           </div>
@@ -127,6 +127,33 @@
     <!-- ============================= feed =============================== -->
     <div class="news-feed">
       <div class="wrap">
+        <article class="news-item reveal" id="r312" aria-labelledby="h-r312">
+          <div class="news-item-head">
+            <span class="news-ver">v3.12.0</span>
+            <span class="news-kind">Galaxy v2 · Obsidian chat</span>
+          </div>
+          <h2 id="h-r312">A deeper sky. A blacker chat.</h2>
+          <p class="news-sum">The backdrop was rebuilt from the ground up — a spiral galaxy, a globular cluster, an edge-on galaxy, coloured nebulae and diffraction spikes around the brightest stars. The chat shell went the other way: blue is gone, and Obsidian is true black from the sidebar to the composer.</p>
+          <figure class="shot">
+            <a href="assets/img/news/galaxy.jpg" target="_blank" rel="noreferrer" aria-label="Open the galaxy still at full size">
+              <img src="assets/img/news/galaxy.jpg" alt="The rebuilt Eltes sky: a diagonal river of stars with a bright cream core and dark dust lanes, a spiral galaxy in the upper right, a globular cluster upper left, an edge-on galaxy lower left and coloured stars throughout." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>The band, the spiral, the cluster, the dust and the coloured stars — all painted in the browser.</span>
+              <span class="tag">galaxy.jpg · canvas capture</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>More universe</strong> — a tilted Milky Way with a hot cream core and a dark rift, plus a spiral, a cluster and a distant lens.</li>
+            <li><strong>Obsidian chat</strong> — <code>#000</code> surfaces, silver accents, no dark blue anywhere. Graphite stays for anyone who wants grey.</li>
+          </ul>
+          <div class="news-links">
+            <a href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See the sky</a>
+            <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          </div>
+        </article>
+
         <article class="news-item reveal" id="r311" aria-labelledby="h-r311">
           <div class="news-item-head">
             <span class="news-ver">v3.11.0</span>

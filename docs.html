@@ -67,7 +67,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.12.0</span>
+          <span class="badge"><span class="dot"></span>v3.13.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>17 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -1047,6 +1047,21 @@ find dist -name <span class="s">'*.html'</span>       <span class="c"># dist/ind
 &lt;<span class="k">canvas</span> class=<span class="s">"galaxy-canvas"</span> data-galaxy=<span class="s">"0.72"</span>&gt;&lt;/<span class="k">canvas</span>&gt;</code></pre>
           </div>
           <p>The sky is decoration, not content: the container is <code>aria-hidden="true"</code>, it never receives pointer events, and every piece of real information sits on an opaque-enough surface above it. The chat workspace and Studio deliberately do not use it — a moving background behind code and terminal output is noise.</p>
+
+          <h3>Embers on the empty chat</h3>
+          <p>The workspace stays quiet while you work, but the new-chat screen has a pulse. Move the pointer across it and a hearth of orange embers follows: a warm glow, eight sparks orbiting at different radii, wispy updraughts and embers rising from the composer. Speed is heat — move faster and it flares; stop and it settles. A click throws a burst.</p>
+          <p>It is one canvas (<code>assets/js/chat-embers.js</code>) under the thread, blending with <code>screen</code> so it only ever adds light. It starts when the empty screen is visible, fades out the moment a conversation begins, pauses in a hidden tab and paints a single still frame under reduced motion — the system setting or Settings → Conversation → <em>Reduce motion</em>, which the effect watches on <code>&lt;body&gt;</code>.</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Pointer</th><th>What happens</th></tr></thead>
+              <tbody>
+                <tr><td>Still</td><td>Four embers a second drift up from the lower pane against a faint hearth glow.</td></tr>
+                <tr><td>Moving</td><td>Up to nine a second near the pointer, an orbiting halo and wavy heat wisps; the glow brightens with speed.</td></tr>
+                <tr><td>Click</td><td>A burst of eight sparks and five embers, plus four extra wisps.</td></tr>
+                <tr><td>Leaving the pane</td><td>The glow fades back to the ambient burn instead of snapping off.</td></tr>
+              </tbody>
+            </table>
+          </div>
 
           <h3>The chat is black, not blue</h3>
           <p>The workspace ships as <strong>Obsidian</strong>: <code>#000</code> surfaces, silver accents and no blue anywhere in the shell, bubbles or composer. <strong>Graphite</strong> stays available under Settings → General for a softer grey. Both themes are tokens on <code>body.app</code> in <code>assets/css/app.css</code>, so the whole shell swaps from one block; there is no blue theme left to fall back to.</p>

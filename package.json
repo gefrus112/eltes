@@ -1,7 +1,7 @@
 {
   "name": "starter-site",
-  "version": "3.12.0",
-  "description": "Eltes AI \u2014 a local-first workspace with live web search, cited sources, a search-thinking trace, 65 models across 14 providers, and a built-in Studio with a real terminal and live preview.",
+  "version": "3.13.0",
+  "description": "Eltes AI — a local-first workspace with live web search, cited sources, a search-thinking trace, 65 models across 14 providers, and a built-in Studio with a real terminal and live preview.",
   "main": "index.html",
   "scripts": {
     "start": "node tools/local-server.mjs",
@@ -13,9 +13,11 @@
     "test": "node --test test/*.test.cjs"
   },
   "keywords": [
+    "embers",
+    "pointer",
+    "canvas",
     "galaxy",
     "background",
-    "canvas",
     "agent",
     "ai",
     "anthropic",
@@ -25,7 +27,6 @@
     "editor",
     "effects",
     "live-preview",
-    "canvas",
     "svg",
     "llm",
     "local-first",

@@ -176,8 +176,10 @@ test('the news page shows screenshots of the current project', async () => {
   const news = await read('news.html');
 
   const shots = [...news.matchAll(/<img src="(assets\/img\/news\/[^"]+)"/g)].map((m) => m[1]);
-  assert.equal(shots.length, 4, 'four screenshots');
-  for (const src of shots) {
+  assert.equal(shots.length, 5, 'five screenshots');
+  const svgShots = shots.filter((src) => src.endsWith('.svg'));
+  assert.equal(svgShots.length, 4, 'four drawn screenshots');
+  for (const src of svgShots) {
     const info = await stat(join(root, src));
     assert.ok(info.size > 4000, `${src} is a real drawing`);
     const svg = await read(src);
@@ -185,10 +187,16 @@ test('the news page shows screenshots of the current project', async () => {
     assert.match(svg, /aria-label="[^"]{20,}"/, `${src} has a description`);
   }
 
+  // the galaxy capture is a real image too
+  const galaxy = await stat(join(root, 'assets/img/news/galaxy.jpg'));
+  assert.ok(galaxy.size > 15000, 'galaxy.jpg is a real capture');
+  assert.match(news, /<img src="assets\/img\/news\/galaxy\.jpg"/);
+
   // each release entry is present and linked to a page that exists
-  for (const id of ['r310', 'r39', 'r38', 'r371']) {
+  for (const id of ['r311', 'r310', 'r39', 'r38', 'r371']) {
     assert.match(news, new RegExp(`id="${id}"`), `${id} entry`);
   }
+  assert.match(news, /docs\.html#look/);
   assert.match(news, /docs\.html#effects/);
   assert.match(news, /docs\.html#workflow/);
   assert.match(news, /docs\.html#studio/);
@@ -207,11 +215,11 @@ test('the news page shows screenshots of the current project', async () => {
 
 test('version is bumped and the new stylesheet is validated', async () => {
   const pkg = JSON.parse(await read('package.json'));
-  assert.equal(pkg.version, '3.10.0');
+  assert.equal(pkg.version, '3.11.0');
   assert.match(pkg.scripts['validate:html'], /news\.html/);
   assert.match(pkg.scripts['validate:css'], /news\.css/);
   await read('assets/css/news.css');
 
   const docs = await read('docs.html');
-  assert.match(docs, /v3\.10\.0/);
+  assert.match(docs, /v3\.11\.0/);
 });

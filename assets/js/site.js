@@ -55,6 +55,7 @@
     const progress = clamp(window.scrollY / range, 0, 1);
     doc.style.setProperty('--scroll-progress', progress.toFixed(4));
   }
+  // The galaxy script follows the scroll itself; this only feeds the rail.
   updateScrollProgress();
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
   window.addEventListener('resize', updateScrollProgress);

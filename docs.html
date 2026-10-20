@@ -14,8 +14,14 @@
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
   <link rel="stylesheet" href="assets/css/docs.css" />
+  <link rel="stylesheet" href="assets/css/galaxy.css" />
 </head>
-<body>
+<body class="galaxy-page">
+  <div class="galaxy" aria-hidden="true">
+    <canvas class="galaxy-backdrop" data-galaxy-backdrop aria-hidden="true"></canvas>
+    <canvas class="galaxy-canvas" data-galaxy="0.72"></canvas>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
   <a class="skip" href="#overview">Skip to documentation</a>
 
   <header class="nav scrolled" id="nav">
@@ -61,7 +67,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.10.0</span>
+          <span class="badge"><span class="dot"></span>v3.11.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>17 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -99,6 +105,7 @@
         <a href="#effects"><span data-icon="sparkles" data-icon-size="14"></span>Images &amp; effects</a>
         <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
+        <a href="#look"><span data-icon="image" data-icon-size="14"></span>Look &amp; feel</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
 
         <div class="nav-sep"></div>
@@ -996,6 +1003,58 @@ find dist -name <span class="s">'*.html'</span>       <span class="c"># dist/ind
           <p>The sidebar footer shows how much of the browser's local storage the app is using. The meter is deliberately conservative: browsers commonly allow about 5 MB per origin, and large attachments or very long threads consume it fastest.</p>
         </section>
 
+        <section id="look">
+          <h2>Look and feel: the galaxy <a class="anchor" href="#look" aria-label="Link to the visual design" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>The landing page, documentation, release notes and sign-in screen sit in front of a moving galaxy. It is a single <code>&lt;canvas&gt;</code> element fixed behind the page, painted by <code>assets/js/galaxy.js</code> — no video, no image files, no libraries. The band, the dust lanes, the star field and the meteors are all computed in the browser, so the scene is sharp at any size and costs one small script.</p>
+
+          <h3>What is on screen</h3>
+          <ul>
+            <li><strong>The backdrop</strong> — a tilted galactic band with a warm core, star clouds and dark dust lanes, painte once into a separate canvas.</li>
+            <li><strong>Three star layers</strong> — hundreds of stars at different depths drift, twinkle and lean a little toward the pointer.</li>
+            <li><strong>Travel</strong> — fast scrolling stretches the nearest stars into short warp trails, so the page feels like it is moving through space.</li>
+            <li><strong>Meteors</strong> — one every few seconds, drawn as a fading gradient with a small bloom.</li>
+          </ul>
+
+          <h3>Keeping it cheap</h3>
+          <p>A background this rich is only acceptable if it stays out of the way. The renderer follows a few rules:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Guard</th><th>What it does</th></tr></thead>
+              <tbody>
+                <tr><td>Static layer</td><td>The nebula and dust are painted once into <code>canvas[data-galaxy-backdrop]</code>; only stars redraw.</td></tr>
+                <tr><td>Frame budget</td><td>30 fps on desktop, 24 on touch devices — smooth motion, half the work.</td></tr>
+                <tr><td>Pixel ratio cap</td><td><code>1.75</code> on desktop, <code>1.4</code> on phones, whatever the screen claims.</td></tr>
+                <tr><td>Hidden tab</td><td>The loop stops on <code>visibilitychange</code> and resumes when the page is visible again.</td></tr>
+                <tr><td>Reduced motion</td><td>One still frame is painted, then nothing more.</td></tr>
+                <tr><td>Resize</td><td>Repaints are debounced to 180 ms.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Tuning it per page</h3>
+          <p>The canvas reads its density from a data attribute. Lower numbers mean fewer, dimmer stars — useful on text-heavy pages:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>markup — one attribute per page</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c">&lt;!-- index.html: the full scene --&gt;</span>
+&lt;<span class="k">canvas</span> class=<span class="s">"galaxy-canvas"</span> data-galaxy=<span class="s">"1.1"</span>&gt;&lt;/<span class="k">canvas</span>&gt;
+
+<span class="c">&lt;!-- docs.html: quieter, so long text stays readable --&gt;</span>
+&lt;<span class="k">canvas</span> class=<span class="s">"galaxy-canvas"</span> data-galaxy=<span class="s">"0.72"</span>&gt;&lt;/<span class="k">canvas</span>&gt;</code></pre>
+          </div>
+          <p>The sky is decoration, not content: the container is <code>aria-hidden="true"</code>, it never receives pointer events, and every piece of real information sits on an opaque-enough surface above it. The chat workspace and Studio deliberately do not use it — a moving background behind code and terminal output is noise.</p>
+
+          <h3>When it does not show</h3>
+          <ul>
+            <li><strong>Nothing but a flat colour.</strong> JavaScript is off or the canvas failed to start. The container has a painted CSS fallback, so the page still looks intentional.</li>
+            <li><strong>It is static.</strong> The system asks for reduced motion. That is deliberate; the still frame is the design, not a bug.</li>
+            <li><strong>It is too busy.</strong> Lower <code>data-galaxy</code> on that page, or wrap the content in a panel with a solid background.</li>
+            <li><strong>Battery drain on a laptop.</strong> The loop pauses in a hidden tab; if you want it gone entirely, remove <code>galaxy.js</code> and the two canvas elements — the CSS fallback remains.</li>
+          </ul>
+        </section>
+
         <section id="shortcuts">
           <h2>Keyboard shortcuts <a class="anchor" href="#shortcuts" aria-label="Link to shortcuts" data-icon="link-2" data-icon-size="16"></a></h2>
           <div class="keys-table">
@@ -1236,6 +1295,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#effects">Images &amp; effects</a>
         <a href="#studio">Studio &amp; terminal</a>
         <a href="#settings">Settings</a>
+        <a href="#look">Look &amp; feel</a>
         <a href="#shortcuts">Shortcuts</a>
         <a href="#downloads">Downloads</a>
         <a href="#pricing">Pricing</a>
@@ -1285,6 +1345,7 @@ eltes.bat --port 8080</code></pre>
     </div>
   </footer>
 
+  <script src="assets/js/galaxy.js"></script>
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/site.js"></script>

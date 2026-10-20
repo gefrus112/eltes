@@ -21,9 +21,14 @@
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
+  <link rel="stylesheet" href="assets/css/galaxy.css" />
   <noscript><style>.reveal{opacity:1;transform:none;filter:none}</style></noscript>
 </head>
-<body>
+<body class="galaxy-page">
+  <div class="galaxy" aria-hidden="true">
+    <canvas class="galaxy-backdrop" data-galaxy-backdrop aria-hidden="true"></canvas>
+    <canvas class="galaxy-canvas" data-galaxy="1.1"></canvas>
+  </div>
   <a class="skip" href="#main">Skip to content</a>
   <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
 
@@ -646,7 +651,7 @@
           <article class="download-card featured reveal">
             <div class="dl-top">
               <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Windows</span>
-              <span class="dl-ver">v3.10.0 · portable</span>
+              <span class="dl-ver">v3.11.0 · portable</span>
             </div>
             <h3>Eltes for Windows</h3>
             <p>Unzip anywhere and double-click <code class="mono">eltes.bat</code>. It finds Python or Node,
@@ -746,12 +751,13 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Desktop build 3.10.0.</span>
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Desktop build 3.11.0.</span>
         <span class="status"><i></i>Local-first workspace</span>
       </div>
     </div>
   </footer>
 
+  <script src="assets/js/galaxy.js"></script>
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/brands.js"></script>
   <script src="assets/js/models.js"></script>

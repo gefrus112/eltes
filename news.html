@@ -70,15 +70,16 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
         <h1>Every release, with the screen to prove it.</h1>
-        <p class="lede">Notes from the Eltes build: real accounts on the static site, the welcome email your own Supabase project sends through Resend, the desktop apps for Windows, macOS and Linux, the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <p class="lede">Notes from the Eltes build: the site served from Supabase Storage as well as GitHub Pages, real accounts on the static site, the welcome email your own Supabase project sends through Resend, the desktop apps for Windows, macOS and Linux, the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.17.0</span>
+          <span class="badge"><span class="dot"></span>v3.18.0</span>
           <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
           <span class="badge"><span data-icon="image" data-icon-size="12"></span>7 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r317" class="active">v3.17 · Cloud accounts</a>
+          <a href="#r318" class="active">v3.18 · Supabase mirror</a>
+          <a href="#r317">v3.17 · Cloud accounts</a>
           <a href="#r316">v3.16 · Welcome email</a>
           <a href="#r315">v3.15 · Desktop</a>
           <a href="#r314">v3.14 · Lab</a>
@@ -94,13 +95,40 @@
     </section>
 
     <!-- =========================== latest =============================== -->
+    <section class="news-feed" id="r318" aria-labelledby="h-r318">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver latest">v3.18.0</span>
+              <span class="news-kind">Latest release</span>
+            </div>
+            <h2 id="h-r318">The same site, in two places.</h2>
+            <p class="news-sum">Eltes is now published from <strong>GitHub Pages</strong> and from <strong>Supabase Storage</strong> — the same files, the same look, the same sign-up and the same welcome email. The Supabase copy lives in the very project that holds the accounts, so the site, its database and its mail are one deployment.</p>
+            <ul class="news-points">
+              <li><strong>Real URLs, no build step</strong> — <code>…/storage/v1/object/public/eltes/index.html</code> serves the pages over Supabase's CDN with proper content types, and relative <code>assets/…</code> links resolve exactly as they do on Pages.</li>
+              <li><strong>Honest about what it is</strong> — Supabase has no static-site product, so this is a public Storage bucket, not a custom domain. The docs say so, and the mirror is labelled a mirror.</li>
+              <li><strong>One command to refresh</strong> — <code>site-publish</code> copies the published files out of the repository, upserts them, and reports every failure. It refuses to run without <code>ELTES_PUBLISH_TOKEN</code>, and it never publishes the SQL, the tests or the desktop harness.</li>
+              <li><strong>The welcome email is unchanged</strong> — signing up on either address creates the account in Supabase and sends <em>Welcome to Eltes AI Workspace</em> through Resend, as long as <code>RESEND_API_KEY</code> is set. Until then every surface says so.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html" target="_blank" rel="noreferrer"><span data-icon="cloud" data-icon-size="14"></span>Open the Supabase copy</a>
+              <a href="docs.html#mirror">How the mirror works<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="https://gefrus112.github.io/eltes/" target="_blank" rel="noreferrer">GitHub Pages</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
     <section class="news-feed" id="r317" aria-labelledby="h-r317">
       <div class="wrap">
         <article class="news-feature reveal">
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.17.0</span>
-              <span class="news-kind">Latest release</span>
+              <span class="news-ver">v3.17.0</span>
+              <span class="news-kind">Accounts · mail</span>
             </div>
             <h2 id="h-r317">Sign up on the static site. Get a real email.</h2>
             <p class="news-sum">The GitHub Pages copy now creates real accounts in <strong>your own Supabase project</strong> — email and password, confirmation, magic link, password reset, sign-out and a session that survives a reload. The moment an account exists, <em>Welcome to Eltes AI Workspace</em> leaves through <strong>your own Resend account</strong>, free, usually within a second.</p>

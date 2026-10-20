@@ -29,6 +29,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Effects from code:** the **Effects** button in Studio writes one of six dependency-free recipes — gradient mesh, canvas particles, aurora, halftone, glowing orb, generative poster — into `effects/<name>.html`, opens it in the editor and loads it in the preview. Every recipe is CSS, SVG or canvas, so there is no bitmap to export or download; the guide is in [docs.html#effects](docs.html#effects). The starter `build.mjs` walks subfolders, so the effects ship with the site. Release notes with screenshots: [news.html](news.html).
 - **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
 - **Model catalogue:** 66 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, a Lab model you train in the browser, and custom endpoints.
+- **Desktop apps:** a Windows installer and portable `.exe`, macOS `.dmg` and Linux AppImage/`.deb`, built from the same site by `desktop/` (Electron shell + the bundled local server), with a hardened window, loopback-only server, recovery screen and CI builds per platform. See [Desktop apps](#desktop-apps).
 - **Eltes Lab — a model you train:** [train.html](train.html) builds a real character-level neural network in the tab: a 14-character context, 24-wide embeddings, 128 tanh units and a softmax over the corpus vocabulary (51,245 weights on the default corpus). Hand-written backpropagation, Adam with bias correction, dropout, weight decay and gradient clipping; training and held-out validation curves drawn live with the best validation point marked. Seeded and reproducible, ~6 ms per step. **Memorise it** trains on one paragraph until the loss reaches zero and reports the character-level match of the recital. **Save model** writes the checkpoint to `localStorage` (`eltes.lab.model.v1`), and **Eltes Lab-1** then answers in the workspace chat by quoting a continuation — with its parameter count, corpus and validation loss stated, because a character model cannot follow instructions. No server, no key, no network requests. Details: [docs.html#lab](docs.html#lab).
 - **Chat welcome:** an orange ember field follows the pointer across the new-chat screen (`assets/js/chat-embers.js`) — speed is heat, a click stokes it, and it fades out as soon as a conversation starts.
 - **Interface:** Obsidian (true black, no blue) by default with Graphite grey as an option under Settings → General, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports. Both themes are tokenised in `assets/css/app.css` and stored in `eltes.settings.v1`.
@@ -42,6 +43,36 @@ The model is small on purpose. On corpora of 40–90 KB it overfits: validation 
 ## The galaxy backdrop
 
 The marketing and documentation pages sit in front of a live galaxy drawn by `assets/js/galaxy.js`: a tilted band with a dust lane and a warm core, three parallax star layers, pointer lean, warp trails when you scroll fast, and the occasional meteor. It is one `<canvas>` with no libraries and no image files; the static backdrop is painted once, stars run at 30 fps with a capped pixel ratio, the loop stops in a hidden tab, and `prefers-reduced-motion` gets a single still frame. The chat workspace and Studio keep their clean surfaces on purpose. `node tools/capture-galaxy.mjs` re-captures the still shown in the release notes (requires `npm install --no-save @napi-rs/canvas`). Details: [docs.html#look](docs.html#look).
+
+## Desktop apps
+
+`desktop/` is a thin Electron harness around the same site and the same local server. There is no second app: the shell starts `tools/local-server.mjs` with its own binary (`ELECTRON_RUN_AS_NODE`) on a free loopback port and loads `app.html` from it, so a packaged build needs no Node install and adds no second codebase to maintain.
+
+```bash
+npm install                    # electron + electron-builder
+npm run desktop                # run the harness against this checkout
+
+npm run desktop:win            # Windows: NSIS installer + portable .exe
+npm run desktop:mac            # macOS: .dmg + .zip (arm64 and x64)
+npm run desktop:linux          # Linux: AppImage + deb
+npm run desktop:stage          # just assemble desktop/.build
+```
+
+| Platform | Artifact |
+| --- | --- |
+| Windows | `Eltes-Setup-<v>-x64.exe` (per-user installer) · `Eltes-<v>-Portable-x64.exe` |
+| macOS | `Eltes-<v>-arm64.dmg` · `Eltes-<v>-x64.dmg` · zipped `.app` |
+| Linux | `Eltes-<v>-linux-x86_64.AppImage` · `eltes_<v>_amd64.deb` |
+
+The window is hardened (context isolation, no node integration, sandboxed renderer, five bridge calls) and navigation is locked to the app's own origin; everything else opens in your real browser. Permissions are denied except clipboard. The bundled server binds `127.0.0.1` only, and data lives in the platform's app-data folder (`studio/`, `logs/desktop.log`, `window-state.json` inside it). If the server cannot start, a recovery screen shows the error and log path instead of a blank window. Signing is configuration only: set `CSC_LINK`/`CSC_KEY_PASSWORD` (Windows) or a Developer ID certificate plus `APPLE_ID`/`APPLE_APP_SPECIFIC_PASSWORD`/`APPLE_TEAM_ID` (macOS).
+
+`.github/workflows/desktop.yml` builds each platform on its own runner — Windows on `windows-latest`, macOS on `macos-14` (arm64) and `macos-13` (Intel), Linux on `ubuntu-latest` — and attaches every installer to the GitHub release when you push a `v*` tag. Build Windows on Windows: cross-building skips `rcedit`, so icon and version metadata stay Electron's defaults. Details and troubleshooting: [desktop/README.md](desktop/README.md) and [docs.html#desktop](docs.html#desktop).
+
+If you only need the website, skip the Electron download:
+
+```bash
+ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install
+```
 
 ## Run the app and local API
 

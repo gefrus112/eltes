@@ -27,7 +27,9 @@ const mime = {
 const studioEnabled = process.env.ELTES_STUDIO !== '0';
 const studioAllowShell = process.env.ELTES_STUDIO_SHELL !== '0';
 const studioToken = process.env.ELTES_STUDIO_TOKEN || randomBytes(16).toString('hex');
-const workspace = resolve(root, WORKSPACE_DIR);
+/* A packaged desktop app keeps its Studio workspace in the user's data folder
+   (resources/ may be read-only), so the path can be redirected. */
+const workspace = process.env.ELTES_STUDIO_DIR ? resolve(process.env.ELTES_STUDIO_DIR) : resolve(root, WORKSPACE_DIR);
 const studio = studioEnabled
   ? createStudio({
     workspace,

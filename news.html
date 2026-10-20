@@ -22,7 +22,7 @@
     <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
   </div>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
-  <a class="skip" href="#r314">Skip to the latest release</a>
+  <a class="skip" href="#r315">Skip to the latest release</a>
 
   <header class="nav" id="nav">
     <div class="wrap">
@@ -70,15 +70,16 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
         <h1>Every release, with the screen to prove it.</h1>
-        <p class="lede">Notes from the Eltes build: the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <p class="lede">Notes from the Eltes build: the desktop apps for Windows, macOS and Linux, the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.14.0</span>
+          <span class="badge"><span class="dot"></span>v3.15.0</span>
           <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
           <span class="badge"><span data-icon="image" data-icon-size="12"></span>7 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r314" class="active">v3.14 · Lab</a>
+          <a href="#r315" class="active">v3.15 · Desktop</a>
+          <a href="#r314">v3.14 · Lab</a>
           <a href="#r313">v3.13 · Embers</a>
           <a href="#r312">v3.12 · Deeper sky</a>
           <a href="#r311">v3.11 · Living galaxy</a>
@@ -91,6 +92,33 @@
     </section>
 
     <!-- =========================== latest =============================== -->
+    <section class="news-feed" id="r315" aria-labelledby="h-r315">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver latest">v3.15.0</span>
+              <span class="news-kind">Latest release</span>
+            </div>
+            <h2 id="h-r315">Eltes becomes a desktop app.</h2>
+            <p class="news-sum">A real harness in <code>desktop/</code> builds a Windows installer and a portable <code>.exe</code>, macOS disk images for Apple silicon and Intel, and a Linux AppImage and <code>.deb</code>. Each one is the same site in a native window, with the local server, Studio, the terminal and Eltes Lab already inside — no Node installed, no tabs, no second app to keep in sync.</p>
+            <ul class="news-points">
+              <li><strong>Self-contained</strong> — the shell starts the bundled server with its own binary (<code>ELECTRON_RUN_AS_NODE</code>) on a free loopback port, then loads the workspace from it. Nothing to install first.</li>
+              <li><strong>Hardened window</strong> — context isolation, no node integration, sandboxed renderer, five bridge calls, and navigation locked to the app's origin. Other links open in your browser.</li>
+              <li><strong>Fails loudly</strong> — if the server will not start, a recovery screen names the error, the data folder and the log, with a <strong>Try again</strong> button instead of a blank window.</li>
+              <li><strong>Built where it runs</strong> — GitHub Actions builds Windows on Windows, macOS on both Apple silicon and Intel runners, Linux on Ubuntu, and attaches every installer to the tagged release.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="https://github.com/gefrus112/eltes/releases/latest" target="_blank" rel="noreferrer"><span data-icon="download" data-icon-size="14"></span>Get the installers</a>
+              <a href="docs.html#desktop">How the harness works<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="index.html#downloads">All downloads</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
     <section class="news-feed" id="r314" aria-labelledby="h-r314">
       <div class="wrap">
         <article class="news-feature reveal">
@@ -107,8 +135,8 @@
 
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.14.0</span>
-              <span class="news-kind">Latest release</span>
+              <span class="news-ver">v3.14.0</span>
+              <span class="news-kind">Lab · training</span>
             </div>
             <h2 id="h-r314">Train the model yourself, then read the curve.</h2>
             <p class="news-sum">Lab is a real neural network you train in the tab: 51,245 weights, hand-written backpropagation, Adam, live training and validation curves, and a checkpoint in <code>localStorage</code>. It is a character-level model, and the page is honest about what that means.</p>

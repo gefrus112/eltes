@@ -32,7 +32,39 @@ export const DEFAULT_RUN_MS = 60_000;
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.cache', '.next', 'dist', 'build', 'coverage']);
 const BINARY_EXT = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.mp4', '.webm', '.mp3', '.zip', '.pdf']);
 
-export const SHELL = existsSync('/bin/bash') ? '/bin/bash' : '/bin/sh';
+/* The Studio terminal is a real shell. On macOS and Linux that is bash (or
+   sh). On Windows there is no /bin/bash, so it is cmd.exe unless
+   ELTES_SHELL points at Git Bash, WSL or another shell. */
+function pickShell() {
+  const override = String(process.env.ELTES_SHELL || '').trim();
+  if (override) return override;
+  if (process.platform === 'win32') return process.env.ComSpec || 'cmd.exe';
+  return existsSync('/bin/bash') ? '/bin/bash' : '/bin/sh';
+}
+
+export const SHELL = pickShell();
+
+/** Arguments that run one command string in that shell. */
+export function shellArgs(command) {
+  const cmd = String(command);
+  if (/cmd(\.exe)?$/i.test(SHELL)) return ['/d', '/s', '/c', cmd];
+  if (/powershell(\.exe)?$/i.test(SHELL) || /pwsh(\.exe)?$/i.test(SHELL)) {
+    return ['-NoProfile', '-NonInteractive', '-Command', cmd];
+  }
+  return ['-c', cmd];
+}
+
+/* Windows has no POSIX process groups: kill the whole tree with taskkill. */
+function killTree(child, signal = 'SIGKILL') {
+  if (process.platform === 'win32') {
+    try {
+      spawn('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
+      return;
+    } catch { /* fall through */ }
+  }
+  try { process.kill(-child.pid, signal); } catch { /* already gone */ }
+  try { child.kill(signal); } catch { /* already gone */ }
+}
 
 /* --------------------------------- paths --------------------------------- */
 
@@ -258,7 +290,7 @@ export function runCommand({ root, cmd, cwd = '', timeoutMs = DEFAULT_RUN_MS, on
   let killed = false;
   let child;
   try {
-    child = spawn(SHELL, ['-c', cmd], {
+    child = spawn(SHELL, shellArgs(cmd), {
       cwd: dir,
       env: {
         ...process.env,
@@ -269,7 +301,8 @@ export function runCommand({ root, cmd, cwd = '', timeoutMs = DEFAULT_RUN_MS, on
         NO_COLOR: '1',
         ELTES_STUDIO: '1'
       },
-      detached: true,
+      detached: process.platform !== 'win32',
+      windowsHide: true,
       stdio: ['ignore', 'pipe', 'pipe']
     });
   } catch (error) {
@@ -279,8 +312,7 @@ export function runCommand({ root, cmd, cwd = '', timeoutMs = DEFAULT_RUN_MS, on
   const kill = (signal = 'SIGKILL') => {
     if (killed) return;
     killed = true;
-    try { process.kill(-child.pid, signal); } catch { /* already gone */ }
-    try { child.kill(signal); } catch { /* already gone */ }
+    killTree(child, signal);
   };
 
   const timer = timeoutMs > 0 ? setTimeout(() => {

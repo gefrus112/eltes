@@ -95,6 +95,7 @@ exits `0` on success, or prints `FAIL …` lines and exits non-zero.
 | Lua        | `lua/cai.lua`                       | `lua5.4 lua/cai.lua vectors.tsv`                                 |
 | AWK        | `awk/cai.awk`                     | `awk -f awk/cai.awk vectors.tsv`                                |
 | Julia      | `julia/cai.jl`                      | `julia julia/cai.jl vectors.tsv`                                |
+| R          | `r/cai.R`                          | `Rscript r/cai.R vectors.tsv`                                   |
 | Dart       | `dart/cai.dart`                     | `dart dart/cai.dart vectors.tsv`                                |
 
 `../.github/workflows/ports.yml` runs a matrix of 15 language jobs on every

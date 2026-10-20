@@ -94,6 +94,11 @@ jobs:
             setup: |
               julia --version
             test: julia --startup-file=no cai.jl ../vectors.tsv
+          - name: R
+            cwd: ports/r
+            setup: |
+              Rscript --version
+            test: Rscript cai.R ../vectors.tsv
           - name: Dart
             cwd: ports/dart
             setup: |
@@ -131,6 +136,12 @@ jobs:
         uses: julia-actions/setup-julia@v2
         with:
           version: '1.11'
+
+      - name: Set up R
+        if: matrix.name == 'R'
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
 
       - name: Set up Dart
         if: matrix.name == 'Dart'

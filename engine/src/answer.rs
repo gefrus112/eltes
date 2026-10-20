@@ -213,22 +213,39 @@ fn percent_intent(text: &str) -> Option<String> {
     None
 }
 
+
+/// Apply a list of literal replacements in order.
+///
+/// One helper rather than a chain of `str::replace` calls keeps the
+/// normalisation tables readable and easy to extend.
+fn replace_many(input: &str, pairs: &[(&str, &str)]) -> String {
+    let mut out = input.to_string();
+    for (from, to) in pairs {
+        out = out.replace(from, to);
+    }
+    out
+}
+
 // --------------------------------------------------------------------------
 // units
 // --------------------------------------------------------------------------
 
 fn unit_intent(text: &str) -> Option<String> {
-    let prepared = text
-        .replace('°', " ")
-        .replace("degrees", " ")
-        .replace("degree", " ")
-        .replace("fahrenheit", " f ")
-        .replace("celsius", " c ")
-        .replace("centigrade", " c ")
-        .replace("kelvin", " k ")
-        .replace("miles per hour", " mph ")
-        .replace("kilometers per hour", " km/h ")
-        .replace("kilometres per hour", " km/h ");
+    let prepared = replace_many(
+        text,
+        &[
+            ("°", " "),
+            ("degrees", " "),
+            ("degree", " "),
+            ("fahrenheit", " f "),
+            ("celsius", " c "),
+            ("centigrade", " c "),
+            ("kelvin", " k "),
+            ("miles per hour", " mph "),
+            ("kilometers per hour", " km/h "),
+            ("kilometres per hour", " km/h "),
+        ],
+    );
     let words: Vec<&str> = prepared.split_whitespace().collect();
 
     for (index, word) in words.iter().enumerate() {
@@ -410,12 +427,16 @@ fn math_intent(text: &str) -> Option<Answer> {
     if let Some(rest) = candidate.strip_prefix("the ") {
         candidate = rest.trim().to_string();
     }
-    candidate = candidate
-        .replace('−', "-")
-        .replace('–', "-")
-        .replace('—', "-")
-        .replace('²', "^2")
-        .replace('³', "^3");
+    candidate = replace_many(
+        &candidate,
+        &[
+            ("−", "-"),
+            ("–", "-"),
+            ("—", "-"),
+            ("²", "^2"),
+            ("³", "^3"),
+        ],
+    );
 
     if let Some(rest) = candidate.strip_prefix("square root of ") {
         candidate = format!("sqrt({})", rest.trim());
@@ -430,15 +451,19 @@ fn math_intent(text: &str) -> Option<Answer> {
     }
 
     let padded = format!(" {candidate} ");
-    candidate = padded
-        .replace(" to the power of ", "^")
-        .replace(" divided by ", "/")
-        .replace(" multiplied by ", "*")
-        .replace(" times ", "*")
-        .replace(" plus ", "+")
-        .replace(" minus ", "-")
-        .trim()
-        .to_string();
+    candidate = replace_many(
+        &padded,
+        &[
+            (" to the power of ", "^"),
+            (" divided by ", "/"),
+            (" multiplied by ", "*"),
+            (" times ", "*"),
+            (" plus ", "+"),
+            (" minus ", "-"),
+        ],
+    )
+    .trim()
+    .to_string();
 
     if candidate.is_empty() {
         return None;

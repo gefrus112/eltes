@@ -1,0 +1,80 @@
+name: Ports
+
+# Every language implements the same contract in ports/vectors.tsv. If a port
+# stops answering like the reference engine, the job for that language fails.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ports-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vectors:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Python
+            cwd: ports/python
+            setup: ''
+            test: python3 cai.py ../vectors.tsv
+          - name: JavaScript
+            cwd: ports/javascript
+            setup: ''
+            test: node cai.js ../vectors.tsv
+          - name: TypeScript
+            cwd: ports/typescript
+            setup: npm install --no-save typescript@5.6.3
+            test: npx tsc -p tsconfig.json && node dist/cai.js ../vectors.tsv
+          - name: Perl
+            cwd: ports/perl
+            setup: ''
+            test: perl cai.pl ../vectors.tsv
+          - name: C
+            cwd: ports/c
+            setup: ''
+            test: cc -std=c99 -O2 -Wall -Wextra -Werror cai.c -lm -o cai && ./cai ../vectors.tsv
+          - name: C++
+            cwd: ports/cpp
+            setup: ''
+            test: g++ -std=c++17 -O2 -Wall -Wextra -Werror cai.cpp -o cai && ./cai ../vectors.tsv
+          - name: Go
+            cwd: ports/go
+            setup: |
+              go version
+            test: go run main.go ../vectors.tsv
+          - name: Ruby
+            cwd: ports/ruby
+            setup: |
+              ruby --version
+            test: ruby cai.rb ../vectors.tsv
+          - name: PHP
+            cwd: ports/php
+            setup: |
+              php --version
+            test: php cai.php ../vectors.tsv
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.cwd }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        if: matrix.setup != ''
+        run: ${{ matrix.setup }}
+
+      - name: Vectors
+        run: ${{ matrix.test }}

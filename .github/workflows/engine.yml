@@ -1,0 +1,66 @@
+name: Engine
+
+on:
+  push:
+    branches: [main, 'arena/**']
+    paths:
+      - 'engine/**'
+      - '.github/workflows/engine.yml'
+  pull_request:
+    paths:
+      - 'engine/**'
+      - '.github/workflows/engine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Build and test the Rust engine
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            engine/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('engine/Cargo.toml') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Build
+        run: cargo build --all-targets --locked
+
+      - name: Test
+        run: cargo test --all --locked
+
+      - name: Clippy
+        run: cargo clippy --all-targets --locked -- -D warnings
+
+      - name: Formatting
+        continue-on-error: true
+        run: cargo fmt --all -- --check
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Smoke-test the CLI
+        run: |
+          set -euo pipefail
+          test "$(./target/release/cai --eval '2 + 3 * 4')" = "14"
+          test "$(./target/release/cai --intent '15% of 240')" = "percent"
+          ./target/release/cai --json '100 f to c' | grep -q '"intent":"units"'
+          ./target/release/cai 'what is the weather in Boston' | grep -q 'cannot check live information'

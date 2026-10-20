@@ -42,7 +42,18 @@ jobs:
           restore-keys: ${{ runner.os }}-cargo-
 
       - name: Build
-        run: cargo build --all-targets --locked
+        run: |
+          set +e
+          cargo build --all-targets --locked 2>&1 | tee /tmp/build.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E '^error(\[E[0-9]+\])?|^ *-->' /tmp/build.log | paste - - | head -20 |
+              while IFS="$(printf '\t')" read -r head tail; do
+                echo "::error::${head} ${tail}"
+              done
+            echo "::error::$(tail -25 /tmp/build.log | tr '\n' ' ' | cut -c1-900)"
+          fi
+          exit "$status"
 
       - name: Test
         run: cargo test --all --locked

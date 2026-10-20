@@ -1,14 +1,14 @@
 {
   "name": "starter-site",
-  "version": "3.13.0",
-  "description": "Eltes AI — a local-first workspace with live web search, cited sources, a search-thinking trace, 65 models across 14 providers, and a built-in Studio with a real terminal and live preview.",
+  "version": "3.14.0",
+  "description": "Eltes AI \u2014 a local-first workspace with live web search, cited sources, a search-thinking trace, 66 models across 14 providers, and Eltes Lab \u2014 a language model you train in the browser, and a built-in Studio with a real terminal and live preview.",
   "main": "index.html",
   "scripts": {
     "start": "node tools/local-server.mjs",
     "dev": "node tools/local-server.mjs",
     "downloads:build": "bash tools/build-windows.sh",
-    "validate:html": "html-validate index.html app.html auth.html docs.html news.html studio.html",
-    "validate:css": "for file in assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css assets/css/studio.css assets/css/news.css assets/css/galaxy.css; do csstree-validator \"$file\" || exit 1; done",
+    "validate:html": "html-validate index.html app.html auth.html docs.html news.html studio.html train.html",
+    "validate:css": "for file in assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css assets/css/studio.css assets/css/news.css assets/css/galaxy.css assets/css/lab.css; do csstree-validator \"$file\" || exit 1; done",
     "backend": "node tools/local-server.mjs",
     "test": "node --test test/*.test.cjs"
   },

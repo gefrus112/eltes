@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 65 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, web search with sources, the tool loop, building a website in Studio, code-generated images and effects, local history, accounts, downloads, pricing and self-hosting." />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 66 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, web search with sources, the tool loop, building a website in Studio, code-generated images and effects, local history, accounts, downloads, pricing and self-hosting." />
   <meta name="theme-color" content="#000003" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
@@ -67,8 +67,8 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.13.0</span>
-          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>17 minute read</span>
+          <span class="badge"><span class="dot"></span>v3.14.0</span>
+          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>20 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
         </div>
@@ -104,6 +104,7 @@
         <a href="#workflow"><span data-icon="workflow" data-icon-size="14"></span>Build a website</a>
         <a href="#effects"><span data-icon="sparkles" data-icon-size="14"></span>Images &amp; effects</a>
         <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
+        <a href="#lab"><span data-icon="flask" data-icon-size="14"></span>Lab &amp; training</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#look"><span data-icon="image" data-icon-size="14"></span>Look &amp; feel</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
@@ -138,7 +139,7 @@
             <tbody>
               <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry. CAI answers locally and labels itself.</td></tr>
               <tr><td>Chat</td><td>Obsidian black shell (Graphite grey optional) with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
-              <tr><td>Models</td><td>65 real models across 14 providers, including Claude Sonnet 5.5, DeepSeek V4.1, GPT-4o, Gemini, NVIDIA NIM, Cohere and three Eltes CAI models.</td></tr>
+              <tr><td>Models</td><td>66 real models across 14 providers, including Claude Sonnet 5.5, DeepSeek V4.1, GPT-4o, Gemini, NVIDIA NIM, Cohere, three Eltes CAI models and the Lab model you train in the browser.</td></tr>
               <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
               <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
               <tr><td>Downloads</td><td>A portable Windows package with <code>eltes.bat</code>, a Start-Eltes helper and the whole static site.</td></tr>
@@ -401,7 +402,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <h2>Models <a class="anchor" href="#models" aria-label="Link to models" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>HTML code fences include a sandboxed preview, copy and download actions. Preview scripts run in an isolated frame with network access blocked.</p>
           <p>NVIDIA NIM uses <code>https://integrate.api.nvidia.com/v1</code> and a key from NVIDIA Build. Catalog access and any free quota depend on NVIDIA's account and model availability; these models are not guaranteed to be free.</p>
-          <p>The catalogue ships <strong>65 models across 14 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
+          <p>The catalogue ships <strong>66 models across 14 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead, and <strong>Eltes Lab-1</strong> is the character model you train yourself in <a href="train.html">Lab</a>.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Models</th><th>Best at</th></tr></thead>
@@ -983,6 +984,82 @@ find dist -name <span class="s">'*.html'</span>       <span class="c"># dist/ind
           <p>Next: see how the same files flow through the terminal and the live preview in <a class="inline-link" href="#workflow">the website workflow</a>, or how Studio is put together in <a class="inline-link" href="#studio">Studio, files and the terminal</a>.</p>
         </section>
 
+        <section id="lab">
+          <h2>Eltes Lab: training a model in the browser <a class="anchor" href="#lab" aria-label="Link to the Lab section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p><a href="train.html">Lab</a> is the other half of the on-device story. CAI answers questions with rules; Lab is an actual neural network that starts from random weights and learns from text while you watch. It is a character-level language model — embeddings, one tanh hidden layer and a softmax over the vocabulary — trained by hand-written backpropagation and Adam. Everything runs in the tab: no server, no key, no download, and no network request at any point.</p>
+          <p>It is deliberately small. About 51,000 parameters on the default corpus, roughly nine seconds for a 1,500-step run on a laptop, and a vocabulary measured in dozens of characters. That is enough to watch a loss curve fall and to memorise a paragraph exactly. It is not enough to hold a conversation, and the page never pretends otherwise.</p>
+
+          <h3>Train one</h3>
+          <ol>
+            <li>Open <a href="train.html">Lab</a> and pick a corpus: the Eltes handbook, an original story, or interface code. Each one changes the vocabulary and therefore the parameter count.</li>
+            <li>Set the steps and seed. The seed initialises the weights and every batch, so the same settings reproduce the same curve exactly.</li>
+            <li>Press <strong>Train model</strong>. The page trains in ~40 ms slices so it stays responsive, drawing the training and validation curves as they happen.</li>
+            <li>Press <strong>Generate</strong> to sample. Temperature controls risk; top-k restricts the choice to the k most likely characters; length caps the run.</li>
+            <li>Press <strong>Save model</strong>. The checkpoint goes to <code>localStorage</code> under <code>eltes.lab.model.v1</code> and <strong>Eltes Lab-1</strong> becomes usable in the workspace chat.</li>
+          </ol>
+
+          <h3>What is actually in the network</h3>
+          <p>The default shape is a context of 14 characters, 24-wide embeddings and 128 tanh units. On the Eltes handbook (53 distinct characters) that is 51,245 weights:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Tensor</th><th>Shape</th><th>Weights</th><th>Role</th></tr></thead>
+              <tbody>
+                <tr><td><code>E</code></td><td>53 × 24</td><td>1,272</td><td>The embedding table. One learned vector per character, including the unknown token.</td></tr>
+                <tr><td><code>W1</code>, <code>b1</code></td><td>336 × 128</td><td>43,136</td><td>The hidden layer over the concatenated 14-character window, followed by <code>tanh</code>.</td></tr>
+                <tr><td><code>W2</code>, <code>b2</code></td><td>128 × 53</td><td>6,837</td><td>The output layer: one logit per character, normalised by softmax.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Training uses a batch of 24 random windows, cross-entropy loss, dropout <code>0.1</code> on the hidden layer, weight decay <code>2e-5</code>, gradient clipping at a global norm of <code>5</code>, and Adam with bias correction at a learning rate of <code>0.003</code>. The gradients are derived by hand — no autograd library, no WebAssembly, no GPU. A step takes about 6 ms in a browser and the page shows the measured figure for your machine.</p>
+
+          <h3>The two curves, and why the dashed one turns up</h3>
+          <p>The last 10% of the corpus is held out. Training loss is measured on text the model sees; validation loss is measured on text it never trains on. On a corpus this small the two diverge: training loss keeps falling towards zero while validation loss bottoms out after a few hundred steps and then climbs. That is overfitting, and it is the honest headline of a 51k-parameter model on 87 KB of text. The chart marks the best validation point and the readout names its step, so you can see exactly where the model stopped generalising and started memorising.</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Readout</th><th>What it means</th></tr></thead>
+              <tbody>
+                <tr><td>Train loss</td><td>Cross-entropy on the training split. Falls with every useful update.</td></tr>
+                <tr><td>Val loss</td><td>Cross-entropy on held-out text, every 50 steps. The number that says whether it generalises.</td></tr>
+                <tr><td>Best val</td><td>The lowest validation loss and the step it happened. The ring on the chart.</td></tr>
+                <tr><td>Perplexity</td><td><code>exp(loss)</code> — how many characters the model is effectively choosing between.</td></tr>
+                <tr><td>Tokens</td><td>Character windows consumed, equal to steps × batch.</td></tr>
+                <tr><td>Speed</td><td>Measured milliseconds per step in your tab, not a platform claim.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The memorisation test</h3>
+          <p>Free generation from a model this small produces word-shaped fragments — that is what the budget buys. The fair test of whether training worked is to make the target trivially attainable: give the model one paragraph, repeated 24 times, and train until the loss approaches zero. Then prompt it with the first few words and compare the recital with the paragraph, character by character. The page reports the similarity, and a memorised paragraph scores above 90%.</p>
+          <p>This is memorisation, not understanding, and the page says so. It is also the clearest possible proof that the weights changed, the gradients flowed and the optimiser did its job — which is exactly what a demo that only ever prints confident text cannot show.</p>
+
+          <h3>Use it in the chat</h3>
+          <p>Once a checkpoint is saved, <strong>Eltes Lab-1</strong> appears in the workspace model picker under <em>On-device · no key</em>. It continues the words you type and states its parameter count, corpus and validation loss above the quote. With no checkpoint it says it is not trained yet and links to Lab. Because a character model cannot follow instructions, the reply is a quoted continuation followed by a plain note that a character-level model wrote it.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>the whole integration — app.js routes Lab-1 to EltesLab.chat</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c">// assets/js/app.js, inside runLocalTurn()</span>
+<span class="k">if</span> (model.id === <span class="s">'eltes-lab-1'</span> &amp;&amp; window.EltesLab) {
+  result = <span class="k">await</span> streamLabTurn({ messages: history, signal: controller.signal, onToken });
+} <span class="k">else</span> {
+  result = <span class="k">await</span> CAI.stream({ modelId: model.id, messages: history, onToken });
+}
+
+<span class="c">// assets/js/lab.js</span>
+<span class="k">const</span> lab = window.EltesLab;
+<span class="k">const</span> payload = lab.chat(messages);   <span class="c">// quotes a continuation, states its limits</span></code></pre>
+          </div>
+
+          <h3>Storage, exports and limits</h3>
+          <ul>
+            <li><strong>One checkpoint per browser.</strong> The key is <code>eltes.lab.model.v1</code>; saving replaces the previous snapshot. The payload is a base64 dump of the Float32 weight arrays with the vocabulary and config — about 270 KB for the default shape.</li>
+            <li><strong>Sample after loading, train again for a new run.</strong> A snapshot keeps the weights, not the corpus bytes, so a loaded model can generate but cannot continue the original run. The page labels the button accordingly.</li>
+            <li><strong>Nothing is uploaded.</strong> There is no analytics on the page, no model download and no font or script CDN call.</li>
+            <li><strong>Not a chatbot.</strong> No instruction following, no tools, no world knowledge and no coherent paragraphs. For an answer, use a hosted model; for an explanation of how a local model is trained, use Lab.</li>
+          </ul>
+        </section>
+
         <section id="settings">
           <h2>Settings <a class="anchor" href="#settings" aria-label="Link to settings" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>Open with <code>⌘,</code> or the gear in the top bar. Settings are stored in <code>eltes.settings.v1</code> and apply instantly.</p>
@@ -1322,6 +1399,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#workflow">Build a website</a>
         <a href="#effects">Images &amp; effects</a>
         <a href="#studio">Studio &amp; terminal</a>
+        <a href="#lab">Lab &amp; training</a>
         <a href="#settings">Settings</a>
         <a href="#look">Look &amp; feel</a>
         <a href="#shortcuts">Shortcuts</a>
@@ -1354,6 +1432,7 @@ eltes.bat --port 8080</code></pre>
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="#quickstart">Quickstart</a>
+          <a href="#lab">Lab &amp; training</a>
           <a href="#api-keys">API keys</a>
           <a href="#providers">Providers &amp; CORS</a>
           <a href="#agent">Agent tools</a>

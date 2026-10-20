@@ -101,9 +101,7 @@ pub fn answer(prompt: &str) -> Answer {
 fn normalize(text: &str) -> String {
     text.to_lowercase()
         .replace(['\u{2019}', '\u{2018}'], "'")
-        .replace('\u{2212}', "-")
-        .replace('\u{2013}', "-")
-        .replace('\u{2014}', "-")
+        .replace(['\u{2212}', '\u{2013}', '\u{2014}'], "-")
         .replace('\u{00b2}', "^2")
         .replace('\u{00b3}', "^3")
         .split_whitespace()
@@ -203,14 +201,10 @@ fn split_number(word: &str) -> Option<(f64, &str)> {
 }
 
 fn unit_intent(text: &str) -> Option<Answer> {
-    let prepared = text
-        .replace('°', " ")
-        .replace("degrees", " ")
-        .replace("degree", " ")
-        .replace("fahrenheit", " f ")
-        .replace("celsius", " c ")
-        .replace("centigrade", " c ")
-        .replace("kelvin", " k ");
+    let mut prepared = text.replace('°', " ");
+    prepared = prepared.replace(["degrees", "degree"], " ");
+    prepared = prepared.replace(["celsius", "centigrade"], " c ");
+    prepared = prepared.replace("fahrenheit", " f ").replace("kelvin", " k ");
     let words: Vec<&str> = prepared.split_whitespace().collect();
 
     for index in 0..words.len() {

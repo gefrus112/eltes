@@ -58,13 +58,51 @@ test('the renderer is self-contained and cheap', async () => {
   assert.match(js, /const backdropCanvas = document\.querySelector\('canvas\[data-galaxy-backdrop\]'\)/, 'static layer is painted once');
   assert.match(js, /if \(backdrop && !backdropCanvas\)/, 'no per-frame repaint when the static layer exists');
   assert.match(js, /window\.EltesGalaxy =/, 'exposes a handle for tests');
+
+  // the scene itself: a band, a spiral, a cluster and coloured nebulae
+  assert.match(js, /function spiralSprite\(/, 'a real spiral galaxy is painted');
+  assert.match(js, /function clusterSprite\(/, 'a globular cluster is painted');
+  assert.match(js, /function nebulaKnot\(/, 'emission nebulae are painted');
+  assert.match(js, /function heroStar\(/, 'bright stars get diffraction spikes');
+  assert.match(js, /Math\.min\(state\.dpr, 1\.4\)/, 'the backdrop renders at a cheaper scale');
+  assert.match(js, /drawImage\(backdrop, 0, 0, backdropCanvas\.width, backdropCanvas\.height\)/, 'the backdrop still fills its layer');
+});
+
+test('the sky is painted in black and spectrally, not navy', async () => {
+  const css = await read('assets/css/galaxy.css');
+  assert.match(css, /--space-0: #000003;/, 'true-black base');
+  assert.match(css, /radial-gradient\(64% 40% at 58% 74%, rgba\(255, 218, 178/, 'warm band in the fallback');
+  assert.doesNotMatch(css, /#0a1630|#0a1a2c/, 'no navy sky');
+
+  // the slow drift and the grain, plus their reduced-motion escape
+  assert.match(css, /@keyframes galaxy-drift/, 'the sky drifts');
+  assert.match(css, /animation: none; transform: none;/, 'drift stops for reduced motion');
+  assert.match(css, /feTurbulence/, 'film grain hides banding');
+});
+
+test('the chat shell is black, and blue is gone', async () => {
+  const html = await read('app.html');
+  assert.match(html, /<body class="app" data-theme="black">/, 'Obsidian is the default');
+  assert.match(html, /<option value="black">Obsidian/, 'Obsidian is selectable');
+  assert.match(html, /<option value="grey">Graphite/, 'Graphite stays');
+  assert.doesNotMatch(html, /Midnight|value="blue"/, 'no blue theme in the settings');
+
+  const js = await read('assets/js/app.js');
+  assert.match(js, /const THEMES = \{ black: 'Obsidian', grey: 'Graphite' \};/, 'two black/grey themes');
+  assert.doesNotMatch(js, /blue: 'Midnight'/, 'Midnight is removed');
+  assert.match(js, /theme: 'black',/, 'black is the default setting');
+
+  const css = await read('assets/css/app.css');
+  assert.doesNotMatch(css, /#030814|rgba\(46, 104, 255/, 'the navy shell background is gone');
+  assert.match(css, /--ink-0: #000000;/, 'true-black surfaces');
+  assert.match(css, /body\.app\[data-theme="grey"\]/, 'Graphite still overrides the base');
 });
 
 test('the galaxy keeps its look without JavaScript or motion', async () => {
   const css = await read('assets/css/galaxy.css');
 
   // a painted fallback for the no-JS case
-  assert.match(css, /\.galaxy \{[\s\S]*?radial-gradient\(58% 42% at 32% 24%/, 'fallback nebula painted in CSS');
+  assert.match(css, /\.galaxy \{[\s\S]*?radial-gradient\(64% 40% at 58% 74%/, 'fallback nebula painted in CSS');
   assert.match(css, /prefers-reduced-motion: reduce/, 'reduced-motion branch');
   assert.match(css, /forced-colors: active/, 'forced-colours branch');
   assert.match(css, /body\.galaxy-page \.nav\.scrolled/, 'scrolled nav still readable over the sky');

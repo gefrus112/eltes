@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eltes AI — workspace</title>
   <meta name="description" content="The Eltes AI agent workspace. Real models, real keys, real tool calls — with local history and live latency metrics." />
-  <meta name="theme-color" content="#02050a" />
+  <meta name="theme-color" content="#000000" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/app.css" />
 </head>
-<body class="app" data-theme="grey">
+<body class="app" data-theme="black">
   <a class="skip" href="#thread">Skip to conversation</a>
   <div class="block-field" id="blockField" aria-hidden="true"></div>
 
@@ -282,7 +282,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.11.0 · BYOK<br />Optional proxy. No telemetry.<br /><a href="news.html">What’s new →</a></div>
+          <div class="nav-foot">Eltes v3.12.0 · BYOK<br />Optional proxy. No telemetry.<br /><a href="news.html">What’s new →</a></div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -290,14 +290,14 @@
           <section data-panel="general" class="active">
             <div class="set-group">
               <h4>Theme</h4>
-              <p class="group-desc">The chat shell ships in neutral graphite — grey, not blue. Midnight restores the original blue accents.</p>
+              <p class="group-desc">The chat shell ships in Obsidian — true black, with no blue in the surfaces, bubbles or accents. Graphite is the softer grey.</p>
 
               <div class="set-row">
                 <div class="lbl"><strong>Interface theme</strong><span>Applies to the whole chat workspace: shell, composer, bubbles and accents.</span></div>
                 <div class="ctl">
                   <select class="select" id="themeSelect">
+                    <option value="black">Obsidian (black)</option>
                     <option value="grey">Graphite (grey)</option>
-                    <option value="blue">Midnight (blue)</option>
                   </select>
                 </div>
               </div>
@@ -529,7 +529,7 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.11.0</span></div>
+              <div class="kv"><span>Version</span><span>3.12.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
               <div class="kv"><span>Models</span><span>65 · 14 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>

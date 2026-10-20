@@ -519,7 +519,10 @@ local function is_number_word(word)
   if word == nil or word == "" then
     return false
   end
-  return string.match(word, "^[%+%-]?%d*%.?%d+([eE][%+%-]?%d+)?$") ~= nil
+  if string.match(word, "^[%+%-]?%d*%.?%d+$") then
+    return true
+  end
+  return string.match(word, "^[%+%-]?%d*%.?%d+[eE][%+%-]?%d+$") ~= nil
 end
 
 local function split_number(word)

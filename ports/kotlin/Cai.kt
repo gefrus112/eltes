@@ -166,12 +166,10 @@ fun tokenize(source: String): List<Token> {
             index++
             continue
         }
-        when (ch) {
-            '(' -> { tokens.add(Token(Kind.OPEN)); index++; continue }
-            ')' -> { tokens.add(Token(Kind.CLOSE)); index++; continue }
-            ',' -> { tokens.add(Token(Kind.COMMA)); index++; continue }
-            else -> throw ParseFailure("unexpected character")
-        }
+        if (ch == '(') { tokens.add(Token(Kind.OPEN)); index++; continue }
+        if (ch == ')') { tokens.add(Token(Kind.CLOSE)); index++; continue }
+        if (ch == ',') { tokens.add(Token(Kind.COMMA)); index++; continue }
+        throw ParseFailure("unexpected character")
     }
 
     val expanded = mutableListOf<Token>()

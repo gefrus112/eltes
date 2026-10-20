@@ -94,7 +94,7 @@ async function ensureBucket() {
       allowed_mime_types: null
     })
   });
-  if (response.ok) return 'created';
+  if (response.ok) return 'ready';
   const text = await response.text();
   if (/already exists|duplicate|409/i.test(text)) return 'exists';
   throw new Error(`bucket: ${response.status} ${text.slice(0, 200)}`);
@@ -121,9 +121,29 @@ async function upload(path, bytes) {
   }
 }
 
-async function listSite() {
-  const response = await fetch(`https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`, {
-    headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'eltes-site-publish' }
+const GITHUB_HEADERS = { Accept: 'application/vnd.github+json', 'User-Agent': 'eltes-site-publish' };
+
+/* Pin every read to a commit, not a branch: GitHub's CDN caches branch URLs
+   for a few minutes, and a mirror that quietly serves last week's news is
+   worse than one that refuses. */
+async function resolveRef() {
+  const response = await fetch(`https://api.github.com/repos/${REPO}/git/ref/heads/${BRANCH}`, {
+    headers: GITHUB_HEADERS,
+    cache: 'no-store'
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    return { ref: BRANCH, sha: '', status: response.status, error: text.slice(0, 160) };
+  }
+  const data = await response.json();
+  const sha = String((data && data.object && data.object.sha) || '');
+  return { ref: sha || BRANCH, sha, status: response.status, error: sha ? '' : 'no_sha' };
+}
+
+async function listSite(ref) {
+  const response = await fetch(`https://api.github.com/repos/${REPO}/git/trees/${ref}?recursive=1`, {
+    headers: GITHUB_HEADERS,
+    cache: 'no-store'
   });
   if (!response.ok) {
     const text = await response.text();
@@ -136,9 +156,10 @@ async function listSite() {
     .map((entry) => ({ path: String(entry.path), size: Number(entry.size) || 0 }));
 }
 
-async function download(path) {
-  const response = await fetch(`https://raw.githubusercontent.com/${REPO}/${BRANCH}/${path}`, {
-    headers: { 'User-Agent': 'eltes-site-publish' }
+async function download(path, ref) {
+  const response = await fetch(`https://raw.githubusercontent.com/${REPO}/${ref}/${path}`, {
+    headers: { 'User-Agent': 'eltes-site-publish' },
+    cache: 'no-store'
   });
   if (!response.ok) throw new Error(`${path}: raw ${response.status}`);
   return response.arrayBuffer();
@@ -154,12 +175,20 @@ async function handle(req) {
   if (token !== TOKEN) return json({ ok: false, error: 'bad_token' }, 401);
 
   try {
-    const files = await listSite();
+    const pinned = String(url.searchParams.get('sha') || '').trim();
+    const head = /^[0-9a-f]{7,40}$/i.test(pinned)
+      ? { ref: pinned, sha: pinned, status: 200, error: '' }
+      : await resolveRef();
+    const files = await listSite(head.ref);
     const total = files.reduce((sum, file) => sum + file.size, 0);
     const base = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/`;
 
     if (url.searchParams.get('dry') === '1') {
-      return json({ ok: true, dry: true, bucket: BUCKET, files: files.length, bytes: total, base, sample: files.slice(0, 12) });
+      return json({
+        ok: true, dry: true, bucket: BUCKET, sha: head.sha, refStatus: head.status, refError: head.error,
+        files: files.length, bytes: total, base,
+        sample: files.slice(0, 12)
+      });
     }
 
     const bucket = await ensureBucket();
@@ -177,7 +206,7 @@ async function handle(req) {
       while (cursor < queue.length) {
         const file = queue[cursor++];
         try {
-          const body = await download(file.path);
+          const body = await download(file.path, head.ref);
           await upload(file.path, body);
           uploaded += 1;
           bytes += body.byteLength;
@@ -192,6 +221,9 @@ async function handle(req) {
       ok: failures.length === 0,
       bucket,
       repo: `${REPO}@${BRANCH}`,
+      sha: head.sha,
+      // No sha means GitHub's branch caches answered: the copy may lag by minutes.
+      stale: head.sha ? undefined : true,
       uploaded,
       bytes,
       failures,

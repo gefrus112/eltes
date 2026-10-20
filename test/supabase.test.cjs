@@ -550,10 +550,15 @@ function makePublishBackend(state) {
     const parsed = new URL(String(url));
     const method = (init && init.method) || 'GET';
 
-    if (parsed.hostname === 'api.github.com') return reply({ tree });
+    if (parsed.hostname === 'api.github.com') {
+      if (parsed.pathname.includes('/git/ref/')) return reply({ object: { sha: 'deadbeefcafe' } });
+      return reply({ tree });
+    }
 
     if (parsed.hostname === 'raw.githubusercontent.com') {
-      const path = parsed.pathname.split('/').slice(4).join('/');
+      const parts = parsed.pathname.split('/');
+      state.ref = parts[3];
+      const path = parts.slice(4).join('/');
       if (state.missing && state.missing.includes(path)) return reply('not found', 404);
       return new Response(new Uint8Array([1, 2, 3, 4]), { status: 200 });
     }
@@ -612,6 +617,7 @@ test('a dry run lists only the published site, and never uploads', async () => {
   assert.equal(body.dry, true);
   assert.equal(body.files, 7, 'tests, migrations, the desktop harness and README stay out');
   assert.equal(body.bytes, 1200 + 900 + 220 + 180 + 6400 + 300 + 2048);
+  assert.equal(body.sha, 'deadbeefcafe');
   assert.match(body.base, /\/storage\/v1\/object\/public\/eltes\/$/);
   assert.equal(state.uploads.length, 0);
 });
@@ -622,9 +628,11 @@ test('publishing creates the public bucket and uploads with real MIME types', as
   const body = await (await handler(publishRequest())).json();
 
   assert.equal(body.ok, true);
-  assert.equal(body.bucket, 'created');
+  assert.equal(body.bucket, 'ready');
   assert.equal(body.uploaded, 7);
   assert.deepEqual(body.failures, []);
+  assert.equal(body.sha, 'deadbeefcafe', 'reads are pinned to a commit');
+  assert.equal(state.ref, 'deadbeefcafe', 'and every download uses it');
   assert.equal(state.bucket.public, true);
   assert.equal(state.bucket.id, 'eltes');
   assert.equal(body.index, 'https://demo.supabase.co/storage/v1/object/public/eltes/index.html');

@@ -14,6 +14,7 @@
    ========================================================================== */
 
 import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,8 +34,22 @@ if (!token) {
   process.exit(1);
 }
 
+/* GitHub caches branch lookups for a few minutes, so a mirror published right
+   after a merge can quietly serve the previous commit. Ask git for the exact
+   commit and pin every read to it. */
+function localSha() {
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  } catch {
+    return '';
+  }
+}
+
 const flags = new Set(process.argv.slice(2));
 const query = new URLSearchParams({ token });
+const shaFlag = process.argv.slice(2).find((arg) => arg.startsWith('--sha='));
+const sha = shaFlag ? shaFlag.slice('--sha='.length) : localSha();
+if (/^[0-9a-f]{7,40}$/i.test(sha)) query.set('sha', sha);
 if (flags.has('--dry')) query.set('dry', '1');
 const single = process.argv.slice(2).find((arg) => arg.startsWith('--path='));
 if (single) query.set('path', single.slice('--path='.length));
@@ -58,6 +73,8 @@ if (data.dry) {
   console.log(`dry run — ${data.files} files, ${(data.bytes / 1048576).toFixed(2)} MB would be published`);
 } else {
   console.log(`uploaded ${data.uploaded} files (${(data.bytes / 1048576).toFixed(2)} MB) in ${Date.now() - started} ms`);
+  if (data.sha) console.log(`at ${data.sha}${sha && sha !== data.sha ? ' (local HEAD differs — push first?)' : ''}`);
+  if (data.stale) console.warn('warning: GitHub served a cached branch tip; pass --sha=<commit> to pin the read');
   if (data.failures && data.failures.length) {
     console.warn(`${data.failures.length} file(s) failed:`);
     for (const failure of data.failures) console.warn(`  ${failure.path} — ${failure.error}`);

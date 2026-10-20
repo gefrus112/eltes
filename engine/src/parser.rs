@@ -453,7 +453,8 @@ mod tests {
         assert_eq!(evaluate("3!").unwrap(), 6.0);
         assert_eq!(evaluate("max(3, 9, 4)").unwrap(), 9.0);
         assert_eq!(evaluate("mean(2, 4, 6)").unwrap(), 4.0);
-        assert_eq!(evaluate("log(8, 2)").unwrap(), 3.0);
+        // ln(8)/ln(2) lands a hair under 3 in binary floating point.
+        assert!(close(evaluate("log(8, 2)").unwrap(), 3.0));
         assert!(matches!(evaluate("sqrt(1, 2)"), Err(EvalError::ArgumentCount)));
         assert!(matches!(evaluate("(-1)!"), Err(EvalError::FactorialDomain)));
     }

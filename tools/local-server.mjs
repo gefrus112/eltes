@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { randomBytes } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -6,6 +7,9 @@ import chat from '../api/chat.js';
 import keyCheck from '../api/key-check.js';
 import health from '../api/health.js';
 import search from '../api/search.js';
+import {
+  WORKSPACE_DIR, createStudio, ensureWorkspace, previewMime, resolvePreviewFile, seedWorkspace
+} from './studio.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const port = Number(process.env.PORT || 4173);
@@ -19,8 +23,77 @@ const mime = {
   '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json'
 };
 
+/* ------------------------------- studio ---------------------------------- */
+const studioEnabled = process.env.ELTES_STUDIO !== '0';
+const studioAllowShell = process.env.ELTES_STUDIO_SHELL !== '0';
+const studioToken = process.env.ELTES_STUDIO_TOKEN || randomBytes(16).toString('hex');
+const workspace = resolve(root, WORKSPACE_DIR);
+const studio = studioEnabled
+  ? createStudio({
+    workspace,
+    token: studioToken,
+    allowShell: studioAllowShell,
+    maxRunMs: Math.min(Math.max(Number(process.env.ELTES_STUDIO_TIMEOUT) || 60_000, 1000), 600_000)
+  })
+  : null;
+
+async function servePreview(req, res, pathname) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    res.statusCode = 405;
+    res.end('Method not allowed');
+    return;
+  }
+  const rel = pathname.replace(/^\/preview\/?/, '');
+  const file = await resolvePreviewFile(workspace, rel);
+  if (!file) {
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    res.end(`<!doctype html><meta charset="utf-8"><title>Not in the workspace</title>
+      <body style="font:15px/1.6 ui-sans-serif,system-ui;background:#05070c;color:#9dadc9;padding:40px">
+      <h1 style="color:#e9effb;font-size:20px">Nothing at <code>${rel ? `/${rel.replace(/[<>&]/g, '')}` : '/'}</code></h1>
+      <p>Create the file in the Studio file list, then reload this preview.</p>
+      <p style="color:#6b7b99">Files live in <code>.studio/</code> beside the app.</p></body>`);
+    return;
+  }
+  try {
+    const data = await readFile(file);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', previewMime(file));
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (req.method === 'HEAD') return res.end();
+    res.end(data);
+  } catch {
+    res.statusCode = 500;
+    res.end('Could not read workspace file');
+  }
+}
+
 const server = createServer(async (req, res) => {
-  const pathname = new URL(req.url || '/', 'http://localhost').pathname;
+  const url = new URL(req.url || '/', 'http://localhost');
+  const pathname = url.pathname;
+
+  if (studio && (pathname === '/preview' || pathname.startsWith('/preview/'))) {
+    await servePreview(req, res, pathname);
+    return;
+  }
+
+  if (studio && (pathname === '/api/studio' || pathname.startsWith('/api/studio/'))) {
+    try {
+      const handled = await studio.handle(req, res, url);
+      if (handled) return;
+    } catch {
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.end(JSON.stringify({ error: 'Studio backend error' }));
+      }
+      return;
+    }
+  }
+
   if (routes[pathname]) {
     try { await routes[pathname](req, res); }
     catch (error) {
@@ -44,6 +117,7 @@ const server = createServer(async (req, res) => {
   const relative = decoded === '/' ? 'index.html' : decoded.replace(/^\/+/, '');
   const file = resolve(root, relative);
   if (file !== root && !file.startsWith(root + sep)) { res.statusCode = 403; res.end('Forbidden'); return; }
+  if (file === workspace || file.startsWith(workspace + sep)) { res.statusCode = 404; res.end('Not found'); return; }
   try {
     const info = await stat(file);
     if (!info.isFile()) throw new Error('Not a file');
@@ -63,8 +137,32 @@ const server = createServer(async (req, res) => {
 });
 
 server.requestTimeout = 65000;
-server.listen(port, host, () => {
+server.listen(port, host, async () => {
   console.log(`Eltes local server listening at http://localhost:${port}`);
   console.log('Local API routes: /api/health, /api/key-check, /api/chat, /api/search');
   console.log('API keys are used per request and are not persisted by this server.');
+  if (!studio) {
+    console.log('Studio disabled (ELTES_STUDIO=0).');
+    return;
+  }
+  try {
+    await ensureWorkspace(workspace);
+    const seeded = await seedWorkspace(workspace);
+    console.log(`Studio workspace: ${workspace}${seeded.created ? ' (starter files created)' : ''}`);
+    console.log(`Studio preview:   http://localhost:${port}/preview/index.html`);
+    console.log(`Studio shell:     ${studioAllowShell ? 'enabled' : 'disabled'} · jail=${WORKSPACE_DIR}`);
+    if (studioAllowShell) {
+      console.log('Studio is a local development tool with shell access. Keep it on a trusted network.');
+    }
+  } catch (error) {
+    console.log(`Studio workspace could not be prepared: ${error.message}`);
+  }
 });
+
+function shutdown() {
+  try { studio?.close(); } catch { /* noop */ }
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 1200).unref();
+}
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

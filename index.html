@@ -40,6 +40,7 @@
         <nav class="nav-links" aria-label="Primary">
           <a href="#models">Models</a>
           <a href="#web-search">Search</a>
+          <a href="studio.html">Studio</a>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="#downloads">Downloads</a>
@@ -60,6 +61,7 @@
   <div class="mobile-menu" id="mobileMenu">
     <a href="#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#web-search">Web search <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="studio.html">Studio <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#downloads">Downloads <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
@@ -406,6 +408,30 @@
               </div>
             </div>
           </article>
+
+          <article class="card span-6 reveal studio-card">
+            <div class="studio-card-copy">
+              <div class="card-icon" data-icon="terminal" data-icon-size="19"></div>
+              <h3>Studio: code, run and preview in one window</h3>
+              <p>A real workspace with a real shell. Open any HTML file and the preview follows it, edit and the page reloads, run <code>npm run build</code> and watch it land. The terminal runs locally with <code>npm start</code> — never on the deployed site.</p>
+              <a class="btn btn-ghost btn-sm" href="studio.html">
+                Open Studio
+                <span data-icon="arrow-right" data-icon-size="13"></span>
+              </a>
+            </div>
+            <div class="card-visual">
+              <div class="code-mini">
+                <div class="head"><span data-icon="terminal" data-icon-size="10"></span>~/.studio · bash</div>
+                <div class="body">
+                  <span class="cm">$</span> npm run build<br />
+                  <span class="cm">vite v6 building for production…</span><br />
+                  <span class="fn">✓</span> 12 modules transformed<br />
+                  <span class="pr">dist/</span>index.html <span class="cm">· 1.42 kB</span><br />
+                  <span class="cm">preview reloaded</span>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -614,7 +640,7 @@
           <article class="download-card featured reveal">
             <div class="dl-top">
               <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Windows</span>
-              <span class="dl-ver">v3.7.1 · portable</span>
+              <span class="dl-ver">v3.8.0 · portable</span>
             </div>
             <h3>Eltes for Windows</h3>
             <p>Unzip anywhere and double-click <code class="mono">eltes.bat</code>. It finds Python or Node,
@@ -698,6 +724,7 @@
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="docs.html">Documentation</a>
+          <a href="studio.html">Studio &amp; terminal</a>
           <a href="docs.html#quickstart">Quickstart</a>
           <a href="docs.html#api-keys">API keys</a>
           <a href="docs.html#agent">Agent tools</a>

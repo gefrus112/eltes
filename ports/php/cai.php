@@ -61,7 +61,7 @@ const LIVE_WORDS = [
     'headlines', 'browse', 'search the web',
 ];
 
-class ParseError extends Exception
+class CaiParseError extends Exception
 {
 }
 
@@ -195,11 +195,11 @@ function tokenize(string $source): array
             }
             $literal = substr($text, $start, $index - $start);
             if (!is_numeric($literal)) {
-                throw new ParseError('bad number');
+                throw new CaiParseError('bad number');
             }
             $value = (float) $literal;
             if (is_nan($value) || is_infinite($value)) {
-                throw new ParseError('bad number');
+                throw new CaiParseError('bad number');
             }
             $tokens[] = make_token('number', $value);
             continue;
@@ -234,7 +234,7 @@ function tokenize(string $source): array
             $index++;
             continue;
         }
-        throw new ParseError('unexpected character');
+        throw new CaiParseError('unexpected character');
     }
 
     $expanded = [];
@@ -274,7 +274,7 @@ final class Parser
     {
         $value = $this->expression(0);
         if ($this->position !== count($this->tokens)) {
-            throw new ParseError('parse');
+            throw new CaiParseError('parse');
         }
         return $value;
     }
@@ -308,7 +308,7 @@ final class Parser
                 case '/': $left /= $right; break;
                 case '%': $left = fmod($left, $right); break;
                 case '^': $left = $left ** $right; break;
-                default: throw new ParseError('parse');
+                default: throw new CaiParseError('parse');
             }
         }
 
@@ -318,7 +318,7 @@ final class Parser
     private function primary(): float
     {
         if (!$this->has()) {
-            throw new ParseError('parse');
+            throw new CaiParseError('parse');
         }
         $item = $this->tokens[$this->position];
         $this->position++;
@@ -335,7 +335,7 @@ final class Parser
         if ($item[0] === 'open') {
             $value = $this->expression(0);
             if (!$this->has() || $this->tokens[$this->position][0] !== 'close') {
-                throw new ParseError('parse');
+                throw new CaiParseError('parse');
             }
             $this->position++;
             return $value;
@@ -353,7 +353,7 @@ final class Parser
                     }
                 }
                 if (!$this->has() || $this->tokens[$this->position][0] !== 'close') {
-                    throw new ParseError('parse');
+                    throw new CaiParseError('parse');
                 }
                 $this->position++;
                 return self::call_function($item[2], $args);
@@ -366,13 +366,13 @@ final class Parser
             }
         }
 
-        throw new ParseError('parse');
+        throw new CaiParseError('parse');
     }
 
     private static function factorial(float $value): float
     {
         if ($value < 0 || $value !== floor($value) || $value > 170) {
-            throw new ParseError('factorial domain');
+            throw new CaiParseError('factorial domain');
         }
         $result = 1.0;
         for ($step = 2.0; $step <= $value; $step += 1) {
@@ -386,10 +386,10 @@ final class Parser
     {
         $bounds = FUNCTIONS[$name] ?? null;
         if ($bounds === null) {
-            throw new ParseError('unknown function');
+            throw new CaiParseError('unknown function');
         }
         if (count($args) < $bounds[0] || count($args) > $bounds[1]) {
-            throw new ParseError('argument count');
+            throw new CaiParseError('argument count');
         }
 
         switch ($name) {
@@ -417,7 +417,7 @@ final class Parser
             case 'mean': return array_sum($args) / count($args);
             case 'product': return array_product($args);
         }
-        throw new ParseError('unknown function');
+        throw new CaiParseError('unknown function');
     }
 }
 
@@ -425,7 +425,7 @@ function evaluate(string $source): float
 {
     $tokens = tokenize($source);
     if ($tokens === []) {
-        throw new ParseError('parse');
+        throw new CaiParseError('parse');
     }
     return (new Parser($tokens))->parse();
 }
@@ -656,7 +656,7 @@ function math_intent(string $text): ?array
 
     try {
         $value = evaluate($candidate);
-    } catch (ParseError $error) {
+    } catch (CaiParseError $error) {
         return null;
     }
 
@@ -745,7 +745,7 @@ function run_vectors(string $path): int
         if ($fields[0] === 'eval') {
             try {
                 $value = evaluate($fields[1]);
-            } catch (ParseError $error) {
+            } catch (CaiParseError $error) {
                 $failures[] = "line {$number}: '{$fields[1]}' -> error";
                 continue;
             }

@@ -64,6 +64,26 @@ jobs:
             setup: |
               php --version
             test: php cai.php ../vectors.tsv
+          - name: Java
+            cwd: ports/java
+            setup: |
+              java -version
+            test: javac -encoding UTF-8 -d out Cai.java && java -cp out Cai ../vectors.tsv
+          - name: Kotlin
+            cwd: ports/kotlin
+            setup: |
+              kotlinc -version
+            test: kotlinc Cai.kt -include-runtime -d cai.jar && java -jar cai.jar ../vectors.tsv
+          - name: C#
+            cwd: ports/csharp
+            setup: |
+              dotnet --version
+            test: dotnet run --project cai.csproj -- ../vectors.tsv
+          - name: Lua
+            cwd: ports/lua
+            setup: |
+              lua5.4 -v
+            test: lua5.4 cai.lua ../vectors.tsv
 
     defaults:
       run:
@@ -71,6 +91,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Java
+        if: matrix.name == 'Java' || matrix.name == 'Kotlin'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up .NET
+        if: matrix.name == 'C#'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Kotlin and Lua
+        if: matrix.name == 'Kotlin' || matrix.name == 'Lua'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq kotlin lua5.4
 
       - name: Toolchain
         if: matrix.setup != ''

@@ -33,6 +33,11 @@
       </div>
 
       <div class="st-top-actions">
+        <button class="st-btn guide-btn" id="btnGuide" type="button" title="Guided workflow: build a website">
+          <span data-icon="workflow" data-icon-size="13"></span>
+          <span id="guideLabel">Guide</span>
+          <span class="guide-count" id="guideCount">0/5</span>
+        </button>
         <button class="st-btn hide-sm" id="btnRunBuild" type="button" title="Run the project's build script">
           <span data-icon="play" data-icon-size="13"></span>Run build
         </button>
@@ -146,6 +151,69 @@
       </div>
     </section>
   </div>
+
+  <!-- ================================ workflow ============================= -->
+  <dialog class="st-modal st-guide" id="guideDialog" aria-label="Build a website, step by step">
+    <div class="m-body">
+      <div class="guide-head">
+        <span class="guide-orb" data-icon="workflow" data-icon-size="17"></span>
+        <div>
+          <h3>Build a website, step by step</h3>
+          <p>Five real actions in this workspace — no mock screens. Progress saves in this browser.</p>
+        </div>
+      </div>
+
+      <ol class="guide-steps" id="guideSteps">
+        <li data-wf-step="scaffold">
+          <span class="gs-num">1</span>
+          <div class="gs-body">
+            <strong>Create the project files</strong>
+            <span>Writes <code>index.html</code>, <code>about.html</code>, <code>styles.css</code>, a <code>package.json</code> and a <code>build.mjs</code> into the workspace, then opens the home page.</span>
+          </div>
+          <button class="st-btn" type="button" data-wf-action="scaffold">Create files</button>
+        </li>
+        <li data-wf-step="terminal">
+          <span class="gs-num">2</span>
+          <div class="gs-body">
+            <strong>Start the terminal</strong>
+            <span>Opens the real shell and runs <code>npm run build</code>, which copies the site into <code>dist/</code> — streamed while it runs.</span>
+          </div>
+          <button class="st-btn" type="button" data-wf-action="terminal">Run command</button>
+        </li>
+        <li data-wf-step="create">
+          <span class="gs-num">3</span>
+          <div class="gs-body">
+            <strong>Add another page</strong>
+            <span>Opens the new-file box. Type <code>pricing.html</code> — every HTML file can be previewed.</span>
+          </div>
+          <button class="st-btn" type="button" data-wf-action="create">New file</button>
+        </li>
+        <li data-wf-step="preview">
+          <span class="gs-num">4</span>
+          <div class="gs-body">
+            <strong>Preview it live</strong>
+            <span>Loads the page in the right pane from <code>/preview/</code>, with its CSS and scripts intact.</span>
+          </div>
+          <button class="st-btn" type="button" data-wf-action="preview">Preview page</button>
+        </li>
+        <li data-wf-step="open">
+          <span class="gs-num">5</span>
+          <div class="gs-body">
+            <strong>Open the page on its own</strong>
+            <span>Opens the preview in a new browser tab, exactly like a deployed site.</span>
+          </div>
+          <button class="st-btn" type="button" data-wf-action="open">Open page</button>
+        </li>
+      </ol>
+
+      <p class="guide-note" id="guideNote">Tip: <kbd>Ctrl/⌘</kbd>+<kbd>S</kbd> saves, and the preview reloads after saves and after build commands.</p>
+      <div class="m-actions guide-actions">
+        <a class="guide-docs" href="docs.html#workflow">Read the full workflow <span data-icon="arrow-up-right" data-icon-size="11"></span></a>
+        <button class="st-btn ghost" id="btnGuideReset" type="button">Reset progress</button>
+        <button class="st-btn primary" id="btnGuideClose" type="button">Close</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- ================================= help ================================ -->
   <dialog class="st-modal" id="helpDialog" aria-label="Studio help">

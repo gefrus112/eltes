@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.8.0</span>
+          <span class="badge"><span class="dot"></span>v3.9.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -93,6 +93,7 @@
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
         <a href="#chat-commands"><span data-icon="command" data-icon-size="14"></span>Chat commands</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
+        <a href="#workflow"><span data-icon="workflow" data-icon-size="14"></span>Build a website</a>
         <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
@@ -571,6 +572,106 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <span data-icon="download" data-icon-size="15"></span>
             <span><strong>Backups never include keys.</strong> Import merges chats and settings into this browser while keeping the keys already there.</span>
           </div>
+        </section>
+
+        <section id="workflow">
+          <h2>Workflow: build a website <a class="anchor" href="#workflow" aria-label="Link to the website workflow" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>This is the loop Eltes is built around, end to end: open a workspace, start a terminal, create files, watch the page update while you edit, then open the finished page on its own. Studio's <strong>Guide</strong> button walks the same five steps and ticks each one off as you do it.</p>
+
+          <div class="callout tip">
+            <span data-icon="workflow" data-icon-size="15"></span>
+            <span><strong>Follow it in the app.</strong> Open <a href="studio.html">Studio</a> and press <strong>Guide</strong> in the top bar. Each step has one button that performs the real action — create the files, run the command, open the preview — and the counter shows progress. Reset it from the same panel.</span>
+          </div>
+
+          <ol class="workflow-steps">
+            <li>
+              <div class="ws-head"><span class="ws-num">1</span><h3>Open the workspace</h3></div>
+              <p>Start the local server and open Studio. You get four panes: files on the left, the editor in the middle, the live preview on the right and the terminal underneath.</p>
+              <div class="doc-code"><pre><code>npm install
+npm start
+# app       http://localhost:4173/app.html
+# studio    http://localhost:4173/studio.html</code></pre></div>
+              <p class="ws-meta">The first run creates a small starter project in <code>.studio/</code>: <code>index.html</code>, <code>styles.css</code>, <code>app.js</code>, <code>notes.md</code> and <code>README.txt</code>.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">2</span><h3>Start the terminal</h3></div>
+              <p>Click the terminal input, or press <strong>Run command</strong> in the Guide, which runs the starter build for you. The panel is a real shell in <code>.studio/</code>, so anything you would type in a Linux terminal works here — output streams while the command runs.</p>
+              <div class="doc-code"><pre><code>pwd                       # /…/eltes/.studio
+ls -la                    # the files you can see in the tree
+npm run build             # runs build.mjs → dist/
+ls dist                   # index.html, about.html, styles.css
+node -v                   # the runtime your build uses</code></pre></div>
+              <p class="ws-meta">The starter <code>package.json</code> points <code>build</code> at <code>build.mjs</code>, a ~15-line Node script that copies every HTML, CSS and JS file into <code>dist/</code>. No dependencies and no network — swap it for Vite, Eleventy or anything else whenever you want. <kbd>↑</kbd>/<kbd>↓</kbd> recall history, <kbd>Ctrl</kbd>+<kbd>C</kbd> stops a running command, <kbd>Ctrl</kbd>+<kbd>L</kbd> clears. Commands time out after 60 seconds by default and output is capped at 512 KB.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">3</span><h3>Create the files</h3></div>
+              <p>Use <strong>+</strong> in the file panel, the Guide's <strong>New file</strong>, or write them from the terminal. <code>index.html</code>, <code>about.html</code> and a shared <code>styles.css</code> are enough for a first site — the Guide's <strong>Create files</strong> button scaffolds exactly that, with working links between the pages, a package manifest and a build script.</p>
+              <div class="doc-code"><pre><code># from the file panel:  +  →  pricing.html
+# or from the terminal:
+cat &gt; about.html &lt;&lt;'EOF'
+&lt;!doctype html&gt;
+&lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;h1&gt;About&lt;/h1&gt;
+&lt;a href="index.html"&gt;Home&lt;/a&gt;
+EOF</code></pre></div>
+              <p class="ws-meta">Nested paths such as <code>pages/about.html</code> work too. Every new HTML file can be previewed; the editor highlights the open file and marks unsaved changes with a dot.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">4</span><h3>Preview while you edit</h3></div>
+              <p>The right pane follows whichever HTML file you open, served from <code>/preview/</code>, so relative CSS, scripts, modules, fonts and images resolve like a normal site. Saving reloads it — and so does a build run in the terminal.</p>
+              <ul>
+                <li>Press <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd> to save, or stop typing for a second and Studio saves for you.</li>
+                <li>Switch the preview between desktop, tablet and phone widths.</li>
+                <li>Type any path in the preview address bar, for example <code>/preview/about.html</code> or <code>/preview/dist/index.html</code>.</li>
+                <li>Use the reload button after a change made outside the editor.</li>
+              </ul>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">5</span><h3>Open the page on its own</h3></div>
+              <p>The pop-out button opens the current preview in a new browser tab, at its real URL. That is the same page a visitor would load — useful for testing links between pages, browser back and forward, and full-window layout.</p>
+              <div class="doc-code"><pre><code>http://localhost:4173/preview/index.html
+http://localhost:4173/preview/about.html</code></pre></div>
+              <p class="ws-meta">On a static deployment without the local server, Studio switches to browser-only mode and opens the page from a blob URL instead. The editing and preview loop is the same; the terminal is not.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">6</span><h3>Build, then preview the build</h3></div>
+              <p>This is where the terminal earns its place. The starter ships a dependency-free <code>build.mjs</code>, so the build works immediately; point the preview at the output folder — no second server needed.</p>
+              <div class="doc-code"><pre><code>npm run build              # build.mjs → dist/
+# then set the preview address to /preview/dist/index.html
+# or click "Run build" — Studio reads package.json and runs its build script
+# swapping in a real toolchain later is just:
+npm install --save-dev vite
+npx vite build             # writes dist/ in Vite's format</code></pre></div>
+              <p class="ws-meta">The watcher reloads the preview whenever the build changes files. A failing build leaves its stderr in the terminal with the exit code, so you can fix it and run again. <code>dist/</code> is hidden from the file tree to keep it readable, but it is served at <code>/preview/dist/…</code> like any other file.</p>
+            </li>
+          </ol>
+
+          <h3>At a glance</h3>
+          <table class="doc-table">
+            <thead><tr><th>Step</th><th>Where</th><th>What you see</th></tr></thead>
+            <tbody>
+              <tr><td>Open the workspace</td><td><a href="studio.html">Studio</a></td><td>Files, editor, preview, terminal</td></tr>
+              <tr><td>Start the terminal</td><td>Terminal panel</td><td>Streaming output and exit status</td></tr>
+              <tr><td>Create files</td><td>File panel or terminal</td><td>New files in the tree, opened in a tab</td></tr>
+              <tr><td>Preview</td><td>Right pane</td><td>The page loaded from <code>/preview/</code></td></tr>
+              <tr><td>Open the page</td><td>Pop-out button</td><td>The same page in its own tab</td></tr>
+              <tr><td>Build</td><td>Terminal or <em>Run build</em></td><td><code>dist/</code> output, preview reloaded</td></tr>
+            </tbody>
+          </table>
+
+          <h3>When a step does not work</h3>
+          <ul>
+            <li><strong>The terminal says it needs <code>npm start</code>.</strong> Studio is open as a static page. Start the local server and reload; the editor and browser-only preview still work without it.</li>
+            <li><strong>Nothing previews.</strong> Check the address bar path and that the file exists in the tree. A 404 page tells you the path it tried.</li>
+            <li><strong>The preview is stale.</strong> Press the reload button; a file outside <code>.studio/</code> is not watched.</li>
+            <li><strong><code>npm init</code> complains about the folder name.</strong> The workspace is a dot-folder (<code>.studio</code>), which npm will not accept as a package name. The starter <code>package.json</code> already has a valid name, so use <code>npm run build</code> and add scripts with <code>npm pkg set</code> instead.</li>
+            <li><strong>A command was stopped.</strong> The 60-second limit fired or <kbd>Ctrl</kbd>+<kbd>C</kbd> was pressed. Long builds can be given more time with <code>ELTES_STUDIO_TIMEOUT</code> (milliseconds) when starting the server.</li>
+          </ul>
         </section>
 
         <section id="studio">

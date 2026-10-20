@@ -40,7 +40,7 @@ test('avoids unsupported certainty on out-of-scope medical questions', () => {
 });
 
 test('states the actual CAI training limits instead of claiming a training run', () => {
-  const result = answer('Train the Eltes custom AI model not to give wrong responses and add 4,000,000 vocabulary');
+  const result = answer('Train the AI model not to give wrong responses and add 4,000,000 vocabulary');
   assert.equal(result.intent, 'training-limits');
   assert.match(result.text, /have not trained model weights/i);
   assert.match(result.text, /four-million-entry knowledge base/i);
@@ -87,7 +87,7 @@ test('recaps only the user prompts supplied in the active conversation context',
   assert.doesNotMatch(result.text, /RAG retrieves evidence/);
 });
 
-test('math returns a finite answer and identifies division by zero', () => {
+test('basic math returns a finite answer and identifies division by zero', () => {
   assert.match(answer('What is 12 * 8?').text, /96/);
   assert.match(answer('What is 1 / 0?').text, /does not produce a finite number/);
   assert.match(answer('percentage change from 0 to 5').text, /undefined/);
@@ -99,4 +99,33 @@ test('privacy answer no longer promises all requests stay only in the browser', 
   assert.match(result.text, /request also transits that backend\/platform/);
   assert.match(result.text, /provider/);
   assert.doesNotMatch(result.text, /Everything stays in this browser/);
+});
+
+test('calculator handles safe scientific functions and natural-language arithmetic', () => {
+  assert.match(answer('What is the square root of 81?').text, /\*\*9\*\*/);
+  assert.match(answer('sin(pi / 2)').text, /\*\*1\*\*/);
+  assert.match(answer('factorial of 5').text, /\*\*120\*\*/);
+  assert.match(answer('average of 1, 2, 3').text, /\*\*2\*\*/);
+  assert.match(answer('2 to the power of 8').text, /\*\*256\*\*/);
+  assert.match(answer('-2^2').text, /\*\*-4\*\*/);
+});
+
+test('solves supported linear and quadratic equations, and abstains on higher-degree forms', () => {
+  const linear = answer('Solve for x: 2x + 3 = 7');
+  assert.equal(linear.intent, 'math');
+  assert.match(linear.text, /x = 2/);
+  const quadratic = answer('solve x^2 - 5x + 6 = 0');
+  assert.match(quadratic.text, /x = 2/);
+  assert.match(quadratic.text, /x = 3/);
+  assert.match(answer('solve x² − 5x + 6 = 0').text, /x = 2[\s\S]*x = 3/);
+  assert.match(answer('solve x^2 = 4').text, /x = -2[\s\S]*x = 2/);
+  assert.equal(answer('solve x^3 = 8').intent, 'math-limit');
+  assert.match(answer('solve x^2 + 1 = 0').text, /no real solutions/);
+});
+
+test('math parser rejects unsupported expressions without evaluating code', () => {
+  const result = answer('1 + window.alert(1)');
+  assert.equal(result.intent, 'fallback');
+  assert.match(answer('3x4').text, /12/);
+  assert.match(answer('1e20 * 2').text, /2e\+20/i);
 });

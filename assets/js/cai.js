@@ -51,58 +51,153 @@ window.EltesCAI = (function () {
 
   /* --------------------------------- maths -------------------------------- */
 
-  const tokenize = (src) => {
+  const MATH_FUNCTIONS = Object.freeze({
+    sqrt: { min: 1, max: 1, run: (a) => Math.sqrt(a[0]) },
+    cbrt: { min: 1, max: 1, run: (a) => Math.cbrt(a[0]) },
+    abs: { min: 1, max: 1, run: (a) => Math.abs(a[0]) },
+    sin: { min: 1, max: 1, run: (a) => Math.sin(a[0]) },
+    cos: { min: 1, max: 1, run: (a) => Math.cos(a[0]) },
+    tan: { min: 1, max: 1, run: (a) => Math.tan(a[0]) },
+    asin: { min: 1, max: 1, run: (a) => Math.asin(a[0]) },
+    acos: { min: 1, max: 1, run: (a) => Math.acos(a[0]) },
+    atan: { min: 1, max: 1, run: (a) => Math.atan(a[0]) },
+    ln: { min: 1, max: 1, run: (a) => Math.log(a[0]) },
+    log: { min: 1, max: 2, run: (a) => a.length === 1 ? Math.log(a[0]) : Math.log(a[0]) / Math.log(a[1]) },
+    log10: { min: 1, max: 1, run: (a) => Math.log10(a[0]) },
+    log2: { min: 1, max: 1, run: (a) => Math.log2(a[0]) },
+    exp: { min: 1, max: 1, run: (a) => Math.exp(a[0]) },
+    floor: { min: 1, max: 1, run: (a) => Math.floor(a[0]) },
+    ceil: { min: 1, max: 1, run: (a) => Math.ceil(a[0]) },
+    round: { min: 1, max: 1, run: (a) => Math.round(a[0]) },
+    min: { min: 1, max: Infinity, run: (a) => Math.min(...a) },
+    max: { min: 1, max: Infinity, run: (a) => Math.max(...a) },
+    sum: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total + n, 0) },
+    mean: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total + n, 0) / a.length },
+    product: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total * n, 1) },
+    pow: { min: 2, max: 2, run: (a) => Math.pow(a[0], a[1]) }
+  });
+
+  function tokenize(src) {
     const out = [];
     let i = 0;
-    const s = src.replace(/[×x]/gi, '*').replace(/÷/g, '/').replace(/\^/g, '^').replace(/,/g, '');
+    // Accept common calculator notation without treating arbitrary text as code.
+    const s = String(src)
+      .replace(/(\d)\s*[xX]\s*(\d)/g, '$1*$2')
+      .replace(/\b(\d{1,3}(?:,\d{3})+)\b/g, (n) => n.replace(/,/g, ''))
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/');
     while (i < s.length) {
       const ch = s[i];
       if (/\s/.test(ch)) { i++; continue; }
-      if (/[0-9.]/.test(ch)) {
-        let j = i;
-        while (j < s.length && /[0-9.]/.test(s[j])) j++;
-        const raw = s.slice(i, j);
-        const n = Number(raw);
-        if (!Number.isFinite(n)) throw new Error('bad number');
-        out.push({ type: 'num', value: n });
-        i = j;
+      const rest = s.slice(i);
+      const number = rest.match(/^(?:(?:\d+(?:\.\d*)?)|(?:\.\d+))(?:e[+-]?\d+)?/i);
+      if (number) {
+        const value = Number(number[0]);
+        if (!Number.isFinite(value)) throw new Error('bad number');
+        out.push({ type: 'num', value });
+        i += number[0].length;
         continue;
       }
-      if ('+-*/^%()'.includes(ch)) { out.push({ type: ch === '(' || ch === ')' ? ch : 'op', op: ch }); i++; continue; }
+      const ident = rest.match(/^[a-z]+/i);
+      if (ident) {
+        out.push({ type: 'ident', value: ident[0].toLowerCase() });
+        i += ident[0].length;
+        continue;
+      }
+      if ('+-*/^%(),!'.includes(ch)) {
+        out.push({ type: ch === ',' ? 'comma' : ch === '(' || ch === ')' ? ch : 'op', op: ch });
+        i++;
+        continue;
+      }
       throw new Error('unexpected character');
     }
-    return out;
-  };
 
-  function evaluate(src) {
+    // Conventional implicit products: 2pi, 3(4+5), and (a)(b).
+    const expanded = [];
+    out.forEach((token, index) => {
+      const prev = expanded[expanded.length - 1];
+      const nextStartsValue = token.type === 'num' || token.type === 'ident' || token.type === '(';
+      const prevEndsValue = prev && (prev.type === 'num' || prev.type === ')' ||
+        (prev.type === 'ident' && (prev.value === 'pi' || prev.value === 'e')));
+      const isFunctionCall = prev && prev.type === 'ident' && MATH_FUNCTIONS[prev.value] && token.type === '(';
+      if (prevEndsValue && nextStartsValue && !isFunctionCall) expanded.push({ type: 'op', op: '*' });
+      expanded.push(token);
+    });
+    return expanded;
+  }
+
+  function evaluate(src, variables) {
     const tokens = tokenize(src);
+    const vars = variables || {};
     let pos = 0;
     const peek = () => tokens[pos];
-    const eat = (kind) => {
-      const t = tokens[pos];
-      if (!t || (kind && t.type !== kind && t.op !== kind)) throw new Error('parse');
+    const eat = (type, op) => {
+      const token = tokens[pos];
+      if (!token || token.type !== type || (op && token.op !== op)) throw new Error('parse');
       pos++;
-      return t;
+      return token;
     };
 
+    function factorial(value) {
+      if (value < 0 || !Number.isInteger(value) || value > 170) throw new Error('factorial domain');
+      let result = 1;
+      for (let n = 2; n <= value; n++) result *= n;
+      return result;
+    }
+
     function primary() {
-      const t = peek();
-      if (!t) throw new Error('parse');
-      if (t.type === 'num') { pos++; return t.value; }
-      if (t.op === '(') { eat('('); const v = expr(0); eat(')'); return v; }
-      if (t.op === '-' || t.op === '+') { pos++; const v = primary(); return t.op === '-' ? -v : v; }
+      const token = peek();
+      if (!token) throw new Error('parse');
+      if (token.type === 'num') { pos++; return token.value; }
+      if (token.type === 'op' && (token.op === '-' || token.op === '+')) {
+        pos++;
+        const value = expr(3);
+        return token.op === '-' ? -value : value;
+      }
+      if (token.type === '(') {
+        eat('(');
+        const value = expr(0);
+        eat(')');
+        return value;
+      }
+      if (token.type === 'ident') {
+        pos++;
+        const name = token.value;
+        if (peek() && peek().type === '(' && MATH_FUNCTIONS[name]) {
+          eat('(');
+          const args = [];
+          if (!peek() || peek().type !== ')') {
+            args.push(expr(0));
+            while (peek() && peek().type === 'comma') {
+              pos++;
+              args.push(expr(0));
+            }
+          }
+          eat(')');
+          const fn = MATH_FUNCTIONS[name];
+          if (args.length < fn.min || args.length > fn.max) throw new Error('argument count');
+          return fn.run(args);
+        }
+        if (name === 'pi') return Math.PI;
+        if (name === 'e') return Math.E;
+        if (Object.prototype.hasOwnProperty.call(vars, name)) return vars[name];
+      }
       throw new Error('parse');
     }
 
-    const prec = { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '^': 3 };
+    const precedence = { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '^': 3 };
     function expr(minPrec) {
       let left = primary();
-      while (true) {
-        const t = peek();
-        if (!t || t.type !== 'op' || !prec[t.op] || prec[t.op] < minPrec) break;
-        const op = t.op;
+      while (peek() && peek().type === 'op' && peek().op === '!') {
         pos++;
-        const right = expr(prec[op] + (op === '^' ? 0 : 1));
+        left = factorial(left);
+      }
+      while (true) {
+        const token = peek();
+        if (!token || token.type !== 'op' || !precedence[token.op] || precedence[token.op] < minPrec) break;
+        const op = token.op;
+        pos++;
+        const right = expr(precedence[op] + (op === '^' ? 0 : 1));
         if (op === '+') left += right;
         else if (op === '-') left -= right;
         else if (op === '*') left *= right;
@@ -120,43 +215,127 @@ window.EltesCAI = (function () {
 
   function cleanNumber(n) {
     if (!Number.isFinite(n)) return String(n);
-    const rounded = Math.round(n * 1e10) / 1e10;
-    return String(rounded);
+    if (Math.abs(n) >= 1e12 || (Math.abs(n) > 0 && Math.abs(n) < 1e-8)) {
+      return n.toExponential(10).replace(/(\.\d*?[1-9])0+e/, '$1e').replace(/\.0+e/, 'e');
+    }
+    return String(Math.round(n * 1e10) / 1e10);
+  }
+
+  function equationIntent(text) {
+    let equation = norm(text)
+      .replace(/^(?:please\s+)?(?:solve(?:\s+for\s+[a-z])?|find\s+[a-z]|calculate|compute|what is|does)\s*:?\s*/i, '')
+      .replace(/\s+equals?\s+/g, '=')
+      .replace(/[−–—]/g, '-')
+      .replace(/²/g, '^2')
+      .replace(/³/g, '^3')
+      .replace(/[×]/g, '*')
+      .replace(/[÷]/g, '/')
+      .replace(/(\d)\s*x\s*(\d)/g, '$1*$2');
+    if ((equation.match(/=/g) || []).length !== 1) return null;
+    const sides = equation.split('=').map((part) => part.trim());
+    if (!sides[0] || !sides[1] || !/^[a-z0-9+\-*/^%().,\s×÷!=]+$/i.test(equation)) return null;
+    const known = new Set([...Object.keys(MATH_FUNCTIONS), 'pi', 'e']);
+    const symbols = Array.from(new Set((equation.match(/[a-z]+/gi) || []).map((name) => name.toLowerCase()).filter((name) => !known.has(name))));
+    if (!symbols.length) {
+      try {
+        const left = evaluate(sides[0]);
+        const right = evaluate(sides[1]);
+        if (!Number.isFinite(left) || !Number.isFinite(right)) return { intent: 'math-limit', text: 'That equation does not produce finite numeric values, so I cannot compare its sides reliably.' };
+        return { intent: 'math', text: left === right ? `Both sides equal **${cleanNumber(left)}**, so the equation is true.` : `The sides are **${cleanNumber(left)}** and **${cleanNumber(right)}**, so the equation is false.` };
+      } catch (e) { return null; }
+    }
+    if (symbols.length !== 1) return { intent: 'math-limit', text: 'I can only solve equations with one variable at a time. This one has multiple variables, so I will not guess a solution.' };
+    const variable = symbols[0];
+    if (!/^[a-z]$/.test(variable)) return { intent: 'math-limit', text: 'For symbolic equations, CAI currently supports one-letter variables and a limited linear/quadratic form. I will not guess how a longer identifier should be treated.' };
+    const numberTerm = '(?:\\d+(?:\\.\\d*)?|\\.\\d+)';
+    const term = `(?:(?:${numberTerm})?\\s*\\*?\\s*${variable}(?:\\s*\\^\\s*[0-2])?|${numberTerm})`;
+    const polynomial = new RegExp(`^[+\\-\\s]*${term}(?:\\s*[+\\-]\\s*${term})*$`);
+    if (!sides.every((side) => polynomial.test(side))) {
+      return { intent: 'math-limit', text: `I can evaluate arithmetic and solve one-variable linear or quadratic equations written as sums of constant, ${variable}, and ${variable}² terms. This equation uses a form outside that solver, so I will not guess a solution.` };
+    }
+    const at = (value) => evaluate(sides[0], { [variable]: value }) - evaluate(sides[1], { [variable]: value });
+    try {
+      const c = at(0);
+      const f1 = at(1);
+      const fm1 = at(-1);
+      if (![c, f1, fm1].every(Number.isFinite)) throw new Error('non-finite');
+      const a = (f1 + fm1 - 2 * c) / 2;
+      const b = (f1 - fm1) / 2;
+      const close = (left, right) => Math.abs(left - right) <= 1e-9 * Math.max(1, Math.abs(left), Math.abs(right));
+      let roots;
+      if (close(a, 0)) {
+        if (close(b, 0)) return { intent: 'math', text: close(c, 0) ? 'Every value of the variable satisfies this equation.' : 'This equation has no solution.' };
+        roots = [-c / b];
+      } else {
+        const discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) return { intent: 'math', text: 'This quadratic has no real solutions. CAI does not report complex roots.' };
+        const root = Math.sqrt(discriminant);
+        roots = close(root, 0) ? [-b / (2 * a)] : [(-b - root) / (2 * a), (-b + root) / (2 * a)];
+      }
+      const shown = roots.map((value) => `**${variable} = ${cleanNumber(value)}**`);
+      const doubleNewline = String.fromCharCode(10, 10);
+      return { intent: 'math', text: `${shown.join(doubleNewline)}${doubleNewline}Solved as a one-variable ${close(a, 0) ? 'linear' : 'quadratic'} equation and checked by substitution.` };
+    } catch (e) {
+      return { intent: 'math-limit', text: 'I could not safely evaluate both sides of that equation. Check the syntax, then try a simpler one-variable linear or quadratic equation.' };
+    }
   }
 
   function mathIntent(text) {
-    // percentages first: "15% of 240", "what is 20 percent of 80"
-    let m = norm(text).match(/(-?\d+(?:\.\d+)?)\s*(?:%|percent)\s*(?:of|off)\s*(-?\d+(?:\.\d+)?)/);
+    const original = norm(text);
+    // Percentages first: "15% of 240", "what is 20 percent of 80".
+    let m = original.match(/(-?\d+(?:\.\d+)?)\s*(?:%|percent)\s*(?:of|off)\s*(-?\d+(?:\.\d+)?)/);
     if (m) {
       const pct = Number(m[1]);
       const base = Number(m[2]);
       const part = (pct / 100) * base;
-      if (/off/.test(m[0])) {
-        return `**${cleanNumber(part)}** is ${m[1]}% of ${m[2]}, so ${m[2]} minus that is **${cleanNumber(base - part)}**.`;
-      }
-      return `**${cleanNumber(part)}** — ${m[1]}% of ${m[2]}.\n\n\`${m[2]} × ${m[1]} / 100 = ${cleanNumber(part)}\``;
+      if (/off/.test(m[0])) return `**${cleanNumber(base - part)}** after ${m[1]}% off ${m[2]} (a discount of ${cleanNumber(part)}).`;
+      return `**${cleanNumber(part)}** — ${m[1]}% of ${m[2]}.${String.fromCharCode(10, 10)}${m[2]} × ${m[1]} / 100 = ${cleanNumber(part)}`;
     }
-    // percentage change
-    m = norm(text).match(/from\s+(-?\d+(?:\.\d+)?)\s+to\s+(-?\d+(?:\.\d+)?)/);
-    if (m && /(percent|increase|decrease|change)/.test(norm(text))) {
+
+    m = original.match(/from\s+(-?\d+(?:\.\d+)?)\s+to\s+(-?\d+(?:\.\d+)?)/);
+    if (m && /(percent|increase|decrease|change)/.test(original)) {
       const a = Number(m[1]);
       const b = Number(m[2]);
       if (a === 0) return 'Percentage change from zero is undefined because the calculation divides by the starting value. I will not report a finite percentage.';
       const change = ((b - a) / Math.abs(a)) * 100;
-      return `**${cleanNumber(change)}%** change from ${m[1]} to ${m[2]}.\n\nFormula: (${m[2]} − ${m[1]}) ÷ |${m[1]}| × 100`;
+      return `**${cleanNumber(change)}%** change from ${m[1]} to ${m[2]}.${String.fromCharCode(10, 10)}Formula: (${m[2]} − ${m[1]}) ÷ |${m[1]}| × 100`;
     }
-    const candidate = norm(text)
-      .replace(/^(what(?:'s| is)|calculate|compute|solve|how much is|evaluate)\s+/i, '')
+
+    let candidate = original
+      .replace(/^(what(?:'s| is)|calculate|compute|solve|how much is|evaluate|what is the value of)\s+/i, '')
       .replace(/[?=]+\s*$/, '')
       .replace(/\s+equals?$/i, '')
+      .trim()
+      .replace(/^the\s+/i, '')
+      .replace(/[−–—]/g, '-')
+      .replace(/²/g, '^2')
+      .replace(/³/g, '^3');
+
+    const average = candidate.match(/^(?:average|mean)\s+of\s+(.+)$/);
+    if (average) candidate = `mean(${average[1].replace(/\s+and\s+/g, ',')})`;
+    candidate = candidate
+      .replace(/\bsquare root of\s+(-?(?:\d+(?:\.\d+)?|pi|e))\b/g, 'sqrt($1)')
+      .replace(/\bcube root of\s+(-?(?:\d+(?:\.\d+)?|pi|e))\b/g, 'cbrt($1)')
+      .replace(/\bfactorial of\s+(\d+(?:\.\d+)?)/g, '$1!')
+      .replace(/(\d+(?:\.\d+)?|\([^()]+\))\s+factorial\b/g, '$1!')
+      .replace(/(\d+(?:\.\d+)?|\([^()]+\))\s+squared\b/g, '($1)^2')
+      .replace(/(\d+(?:\.\d+)?|\([^()]+\))\s+cubed\b/g, '($1)^3')
+      .replace(/\bto the power of\b/g, '^')
+      .replace(/\bdivided by\b/g, '/')
+      .replace(/\b(?:multiplied by|times)\b/g, '*')
+      .replace(/\bplus\b/g, '+')
+      .replace(/\bminus\b/g, '-')
+      .replace(/(\d+(?:\.\d+)?)\s*percent\b/g, '($1/100)')
       .trim();
-    if (!candidate || !/[0-9]/.test(candidate)) return null;
-    if (!/^[-+*/^%().\d\s×x÷,]+$/i.test(candidate)) return null;
-    if (!/[-+*/^%×x÷]/.test(candidate)) return null;
+
+    if (!candidate || !/^[a-z0-9+\-*/^%().,!×÷\s]+$/i.test(candidate)) return null;
+    if (!/[0-9]/.test(candidate) && !/\b(?:pi|e)\b/.test(candidate)) return null;
+    if (!/[-+*/^%×÷!()]|(?:\d\s*x\s*\d|\bx\b)|\b(?:sqrt|cbrt|abs|sin|cos|tan|asin|acos|atan|ln|log|log10|log2|exp|floor|ceil|round|min|max|sum|mean|product|pi|e)\b/i.test(candidate)) return null;
     try {
       const value = evaluate(candidate);
-      if (!Number.isFinite(value)) return 'That expression does not produce a finite number (for example, division by zero or numeric overflow), so I will not present it as a normal result.';
-      return `**${cleanNumber(value)}**\n\nExpression: ${candidate.replace(/[×x]/g, '×')} = ${cleanNumber(value)}`;
+      if (!Number.isFinite(value)) return 'That expression does not produce a finite number (for example, division by zero, an invalid function domain or numeric overflow), so I will not present it as a normal result.';
+      const trigNote = /\b(?:sin|cos|tan|asin|acos|atan)\s*\(/.test(candidate) ? `${String.fromCharCode(10, 10)}Trigonometric functions use radians.` : '';
+      return `**${cleanNumber(value)}**${String.fromCharCode(10, 10)}Expression: ${candidate.replace(/(\d)\s*x\s*(?=\d)/gi, '$1×').replace(/\*/g, '×')} = ${cleanNumber(value)}${trigNote}`;
     } catch (e) { return null; }
   }
 
@@ -265,7 +444,7 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['cai', 'on-device', 'local model', 'own model', 'custom model', 'eltes model', 'offline model'],
-      a: `## Eltes CAI — our own models\n\nCAI runs inside this tab: no key, no network, no per-token cost.\n\n- **Eltes CAI-1** — general chat, model advice, arithmetic, units, dates and Eltes help.\n- **Eltes CAI-1 Fast** — shorter answers with quicker pacing.\n- **Eltes CAI Docs** — a specialist for setup, keys, accounts, downloads and troubleshooting.\n\nCAI is a deterministic JavaScript rules-and-knowledge system, not a trained general-purpose neural model. It has a narrow scope, can still make mistakes, and has no network or live browsing. For questions outside its supported knowledge, it should say so rather than invent an answer.`
+      a: `## Eltes CAI — our own models\n\nCAI runs inside this tab: no key, no network, no per-token cost.\n\n- **Eltes CAI-1** — bounded chat, model advice, arithmetic, common functions, simple equations, units, dates and Eltes help.\n- **Eltes CAI-1 Fast** — shorter answers with quicker pacing.\n- **Eltes CAI Docs** — a specialist for setup, keys, accounts, downloads and troubleshooting.\n\nCAI is a deterministic JavaScript rules-and-knowledge system, not a trained general-purpose neural model. It has a narrow scope, can still make mistakes, and has no network or live browsing. For questions outside its supported knowledge, it should say so rather than invent an answer.`
     },
     {
       keys: ['models', 'model list', 'catalogue', 'catalog', 'how many models', 'providers', 'how many providers'],
@@ -482,8 +661,8 @@ window.EltesCAI = (function () {
 
   function trainingIntent(text) {
     const t = norm(text);
-    const mentionsEltesModel = /\b(eltes|etles|cai|custom ai|custom model|yourself)\b/.test(t);
-    const asksToTrain = /\b(train|training|fine.?tun|teach)\b/.test(t) && mentionsEltesModel;
+    const mentionsEltesModel = /\b(eltes|etles|cai|custom ai|custom model|ai model|assistant|yourself)\b/.test(t);
+    const asksToTrain = /\b(train|training|teach)\b|\bfine[\s-]*tune\w*\b/.test(t) && mentionsEltesModel;
     const asksHugeVocab = /(?:4[, ]?000[, ]?000|4000000|four million)/.test(t) && /vocab|word|token|train|knowledge/.test(t);
     return asksToTrain || asksHugeVocab;
   }
@@ -548,7 +727,7 @@ window.EltesCAI = (function () {
       const part = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
       return {
         intent: 'greeting',
-        text: `Good ${part}. I am **Eltes CAI-1**, running on this device.\n\nI can help with:\n\n- Eltes itself — setup, keys, accounts, downloads\n- choosing between the ${M.MODELS.length} models in the catalogue\n- arithmetic, unit conversions, dates and definitions\n\nWhat do you want to work on?`
+        text: `Good ${part}. I am **Eltes CAI-1**, running on this device.\n\nI can help with:\n\n- Eltes itself — setup, keys, accounts, downloads\n- choosing between the ${M.MODELS.length} models in the catalogue\n- arithmetic, common math functions, simple equations, unit conversions, dates and definitions\n\nWhat do you want to work on?`
       };
     }
 
@@ -570,7 +749,7 @@ window.EltesCAI = (function () {
     if (hasAny(t, /what can you do|help me|capabilit|what do you know|how do you work/)) {
       return {
         intent: 'capabilities',
-        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue\n- arithmetic and percentages, with the working shown\n- unit and temperature conversions\n- the current date and time in your timezone\n- word and character counts\n- short definitions from its built-in AI glossary\n- exact retrieval of relevant messages included in this chat\n\n**Out of range:** live facts, news, browsing and long-form originality. CAI is rule-based and may miss intent or contain outdated product facts; verify important answers. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
+        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue\n- calculator expressions, common math functions and simple linear/quadratic equations\n- unit and temperature conversions\n- the current date and time in your timezone\n- word and character counts\n- short definitions from its built-in AI glossary\n- exact retrieval of relevant messages included in this chat\n\n**Out of range:** arbitrary symbolic math and proofs, live facts, news, browsing and long-form originality. CAI is rule-based and may miss intent or contain outdated product facts; verify important answers. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
       };
     }
 
@@ -583,6 +762,9 @@ window.EltesCAI = (function () {
 
     const units = unitIntent(text);
     if (units) return { intent: 'units', text: units };
+
+    const equation = equationIntent(text);
+    if (equation) return equation;
 
     const math = mathIntent(text);
     if (math) return { intent: 'math', text: math };

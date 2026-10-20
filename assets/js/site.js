@@ -288,31 +288,31 @@
     },
     {
       provider: 'openai', brand: 'openai', name: 'OpenAI', meta: 'api.openai.com · streamed responses',
-      models: ['GPT‑6 Sol', 'GPT‑6.1 Sol', 'GPT‑6 Luna', 'GPT‑4.1'], href: 'app.html?model=gpt-6-sol'
+      models: ['GPT‑6 Sol', 'GPT‑4o', 'o3-mini', 'GPT‑4.1'], href: 'app.html?model=gpt-6-sol'
     },
     {
       provider: 'anthropic', brand: 'claude', name: 'Anthropic', meta: 'Native Messages API',
-      models: ['Claude Sonnet 5.5', 'Claude Opus 5.5', 'Claude Haiku 5.5'], href: 'app.html?model=claude-sonnet-5-5'
+      models: ['Claude Sonnet 5.5', 'Claude Opus 5.5', 'Claude Haiku 4', 'Sonnet 4'], href: 'app.html?model=claude-sonnet-5-5'
     },
     {
       provider: 'deepseek', brand: 'deepseek', name: 'DeepSeek', meta: 'deepseek.com · 1M context',
-      models: ['V4.1 Flash', 'V4 Pro'], href: 'app.html?model=deepseek-flash'
+      models: ['V4.1 Flash', 'V4 Pro', 'Reasoner', 'Chat'], href: 'app.html?model=deepseek-flash'
     },
     {
       provider: 'google', brand: 'gemini', name: 'Google Gemini', meta: 'OpenAI-compatible endpoint',
-      models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash'], href: 'app.html?model=gemini-2-5-pro'
+      models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash', 'Gemini 2.0 Flash', 'Gemini 1.5 Pro'], href: 'app.html?model=gemini-2-5-pro'
     },
     {
       provider: 'zai', brand: 'glm', name: 'Z.ai · GLM', meta: 'api.z.ai · tool calling',
-      models: ['GLM-4.6', 'GLM-4.5', 'GLM-4.5 Air'], href: 'app.html?model=glm-4-6'
+      models: ['GLM-4.7', 'GLM-4.6', 'GLM-4.5 Air'], href: 'app.html?model=glm-4-6'
     },
     {
       provider: 'xai', brand: 'grok', name: 'xAI Grok', meta: 'api.x.ai',
-      models: ['Grok 4', 'Grok 3'], href: 'app.html?model=grok-4'
+      models: ['Grok 4', 'Grok 4 Fast', 'Grok 3 Mini'], href: 'app.html?model=grok-4'
     },
     {
       provider: 'qwen', brand: 'qwen', name: 'Qwen · Alibaba', meta: 'Model Studio',
-      models: ['Qwen3 Max', 'Qwen3 Coder Plus'], href: 'app.html?model=qwen3-max'
+      models: ['Qwen3 Max', 'Qwen3 Coder Plus', 'Qwen2.5 32B'], href: 'app.html?model=qwen3-max'
     },
     {
       provider: 'groq', brand: 'llama', name: 'Llama · Meta', meta: 'via Groq or OpenRouter',
@@ -320,15 +320,19 @@
     },
     {
       provider: 'groq', brand: 'groq', name: 'Groq', meta: 'api.groq.com · Llama + Qwen',
-      models: ['Llama 3.3 70B', 'Llama 4 Scout', 'Qwen 3'], href: 'app.html?model=llama-3-3-70b'
+      models: ['Llama 3.3 70B', 'Llama 4 Scout', 'Llama 3.1 8B', 'Qwen3 32B'], href: 'app.html?model=llama-3-3-70b'
     },
     {
       provider: 'mistral', brand: 'mistral', name: 'Mistral', meta: 'api.mistral.ai',
-      models: ['Mistral Large', 'Codestral'], href: 'app.html?model=mistral-large'
+      models: ['Mistral Large', 'Mistral Small', 'Codestral', 'Pixtral'], href: 'app.html?model=mistral-large'
     },
     {
       provider: 'nvidia', brand: 'nvidia', name: 'NVIDIA NIM', meta: 'NVIDIA-hosted · key required',
-      models: ['Llama 3.3 70B', 'Nemotron Ultra'], href: 'app.html?model=nvidia-llama-3-3'
+      models: ['Llama 3.3 70B', 'Nemotron Ultra', 'DeepSeek R1'], href: 'app.html?model=nvidia-llama-3-3'
+    },
+    {
+      provider: 'cohere', brand: 'cohere', name: 'Cohere', meta: 'api.cohere.ai · RAG and tools',
+      models: ['Command A', 'Command R+'], href: 'app.html?model=command-a'
     },
     {
       provider: 'openrouter', brand: 'openrouter', name: 'OpenRouter', meta: 'one key · 200+ models',

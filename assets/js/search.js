@@ -1,4 +1,4 @@
-/* Eltes — web search provider catalogue (v3.6)
+/* Eltes — web search provider catalogue (v3.7)
    Metadata for the optional search backends. The actual endpoints live in
    lib/search.cjs and are a fixed server allowlist; this file only drives UI. */
 window.EltesSearch = (function () {
@@ -35,8 +35,19 @@ window.EltesSearch = (function () {
     }
   };
 
-  const DEFAULT = 'brave';
-  const byId = (id) => PROVIDERS[id] || null;
+  /* Recency filter labels shared with the backend allowlist. */
+  const FRESHNESS = {
+    any: { label: 'Any time', short: 'any time' },
+    day: { label: 'Past 24 hours', short: 'past day' },
+    week: { label: 'Past week', short: 'past week' },
+    month: { label: 'Past month', short: 'past month' },
+    year: { label: 'Past year', short: 'past year' }
+  };
 
-  return { PROVIDERS, DEFAULT, byId };
+  const DEFAULT = 'brave';
+  const DEFAULT_FRESHNESS = 'any';
+  const byId = (id) => PROVIDERS[id] || null;
+  const freshnessLabel = (id) => (FRESHNESS[id] || FRESHNESS.any).label;
+
+  return { PROVIDERS, FRESHNESS, DEFAULT, DEFAULT_FRESHNESS, byId, freshnessLabel };
 })();

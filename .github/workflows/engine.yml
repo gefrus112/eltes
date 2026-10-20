@@ -79,9 +79,19 @@ jobs:
           fi
           exit "$status"
 
+      # rustfmt runs in CI only (the sandbox this crate was written in has no
+      # toolchain), so when it wants changes it publishes the patch as
+      # annotations instead of failing the build.
       - name: Formatting
         continue-on-error: true
-        run: cargo fmt --all -- --check
+        run: |
+          cargo fmt --all
+          if ! git diff --quiet; then
+            git diff | base64 -w0 | fold -w 2400 | while IFS= read -r chunk; do
+              echo "::error::FMT${chunk}"
+            done
+            exit 1
+          fi
 
       - name: Build release binary
         run: cargo build --release --locked

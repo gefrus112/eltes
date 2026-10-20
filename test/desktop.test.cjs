@@ -248,8 +248,9 @@ test('packaging stages the shell and the site, and the config is complete', asyn
   assert.deepEqual(config.extraResources, [{ from: build.SITE_OUT, to: 'site', filter: ['**/*'] }]);
   assert.deepEqual(config.protocols, [{ name: 'Eltes link', schemes: ['eltes'] }]);
 
-  assert.deepEqual(config.win.target.map((t) => t.target), ['nsis', 'portable']);
-  assert.deepEqual(config.win.target[0].arch, ['x64', 'arm64']);
+  /* arch lives on the command line, so one invocation builds one arch and the
+     artifact name always contains it (no combined multi-arch installer) */
+  assert.deepEqual(config.win.target, ['nsis', 'portable']);
   assert.match(config.nsis.artifactName, /Eltes-Setup/);
   assert.match(config.portable.artifactName, /Portable/);
   assert.equal(config.nsis.oneClick, false);

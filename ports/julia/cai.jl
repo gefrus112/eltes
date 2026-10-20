@@ -340,7 +340,7 @@ function expression(parser::Parser, min_precedence::Int)
     return left
 end
 
-function evaluate(source::String)
+function evaluate(source::AbstractString)
     tokens = tokenize(source)
     isempty(tokens) && error("parse")
     parser = Parser(tokens, 1)
@@ -400,7 +400,7 @@ end
 # intents
 # --------------------------------------------------------------------------
 
-function normalize(text::String)
+function normalize(text::AbstractString)
     out = lowercase(text)
     out = replace(out, "’" => "'", "‘" => "'", "−" => "-", "–" => "-", "—" => "-",
         "²" => "^2", "³" => "^3")
@@ -418,7 +418,7 @@ function split_number(word::AbstractString)
     return (value, match_result.captures[2])
 end
 
-function percent_intent(text::String)
+function percent_intent(text::AbstractString)
     words = split(replace(text, "%" => " percent "))
 
     for index in 1:max(0, length(words) - 3)
@@ -460,7 +460,7 @@ function percent_intent(text::String)
     return nothing
 end
 
-function unit_intent(text::String)
+function unit_intent(text::AbstractString)
     prepared = replace(text,
         "°" => " ", "degrees" => " ", "degree" => " ",
         "celsius" => " c ", "centigrade" => " c ", "fahrenheit" => " f ", "kelvin" => " k ")
@@ -519,13 +519,13 @@ const PREFIXES = [
     "solve ", "evaluate ", "how much is ",
 ]
 
-function strip_prefix(text::String, prefix::String)
+function strip_prefix(text::AbstractString, prefix::AbstractString)
     startswith(text, prefix) || return nothing
     length(text) <= length(prefix) && return ""
     return text[length(prefix)+1:end]
 end
 
-function math_intent(text::String)
+function math_intent(text::AbstractString)
     candidate = strip(text)
     for prefix in PREFIXES
         rest = strip_prefix(candidate, prefix)
@@ -585,7 +585,7 @@ end
 const LIVE_WORDS = ["weather", "news", "stock price", "score", "who won", "latest",
     "headlines", "browse", "search the web"]
 
-function answer(prompt::String)
+function answer(prompt::AbstractString)
     text = strip(prompt)
     if isempty(text)
         return ("empty",

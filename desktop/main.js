@@ -157,7 +157,7 @@ function openWindow(mode) {
     show: false,
     backgroundColor: '#04060a',
     title: core.APP_NAME,
-    icon: process.platform === 'linux' ? join(__dirname, 'resources', 'icon.png') : undefined,
+    icon: process.platform === 'linux' ? join(__dirname, 'assets', 'icon.png') : undefined,
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       contextIsolation: true,

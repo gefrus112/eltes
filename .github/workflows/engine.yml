@@ -87,7 +87,7 @@ jobs:
         run: |
           cargo fmt --all
           if ! git diff --quiet; then
-            git diff | base64 -w0 | fold -w 8000 | while IFS= read -r chunk; do
+            git diff --unified=1 | base64 -w0 | fold -w 3900 | while IFS= read -r chunk; do
               echo "::error::FMT${chunk}"
             done
             exit 1

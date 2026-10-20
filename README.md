@@ -29,6 +29,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Effects from code:** the **Effects** button in Studio writes one of six dependency-free recipes — gradient mesh, canvas particles, aurora, halftone, glowing orb, generative poster — into `effects/<name>.html`, opens it in the editor and loads it in the preview. Every recipe is CSS, SVG or canvas, so there is no bitmap to export or download; the guide is in [docs.html#effects](docs.html#effects). The starter `build.mjs` walks subfolders, so the effects ship with the site. Release notes with screenshots: [news.html](news.html).
 - **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
 - **Model catalogue:** 66 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, a Lab model you train in the browser, and custom endpoints.
+- **Real welcome email, from your own machine:** creating a profile in `auth.html` sends *Welcome to Eltes AI Workspace* through your own free provider account — Resend (3,000/month), Brevo (300/day) or any SMTP mailbox — from `lib/mail.cjs`, with no dependencies. With nothing configured the message is written to `.mail/outbox/*.eml` instead of pretending; hard bounces (`5xx` at `RCPT TO`, provider `4xx`, or a Brevo/Resend webhook) go on a suppression list so the address is never retried. See [Welcome email](#welcome-email) and [docs.html#email](docs.html#email).
 - **Desktop apps:** a Windows installer and portable `.exe`, macOS `.dmg` and Linux AppImage/`.deb`, built from the same site by `desktop/` (Electron shell + the bundled local server), with a hardened window, loopback-only server, recovery screen and CI builds per platform. See [Desktop apps](#desktop-apps).
 - **Eltes Lab — a model you train:** [train.html](train.html) builds a real character-level neural network in the tab: a 14-character context, 24-wide embeddings, 128 tanh units and a softmax over the corpus vocabulary (51,245 weights on the default corpus). Hand-written backpropagation, Adam with bias correction, dropout, weight decay and gradient clipping; training and held-out validation curves drawn live with the best validation point marked. Seeded and reproducible, ~6 ms per step. **Memorise it** trains on one paragraph until the loss reaches zero and reports the character-level match of the recital. **Save model** writes the checkpoint to `localStorage` (`eltes.lab.model.v1`), and **Eltes Lab-1** then answers in the workspace chat by quoting a continuation — with its parameter count, corpus and validation loss stated, because a character model cannot follow instructions. No server, no key, no network requests. Details: [docs.html#lab](docs.html#lab).
 - **Chat welcome:** an orange ember field follows the pointer across the new-chat screen (`assets/js/chat-embers.js`) — speed is heat, a click stokes it, and it fades out as soon as a conversation starts.
@@ -84,7 +85,7 @@ npm start
 # open http://localhost:4173/app.html
 ```
 
-`npm start` serves the site, the local API routes and Studio together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, `/api/chat`, `/api/search`, and the local-only `/api/studio/*` endpoints. Studio lives at `/studio.html`; its workspace is `.studio/` (gitignored) and its preview is `/preview/`. Stop the server with Ctrl+C. The local server has no user authentication and the terminal can run commands as your user; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`. Set `ELTES_STUDIO=0` to disable Studio entirely or `ELTES_STUDIO_SHELL=0` to keep the editor and preview without a shell.
+`npm start` serves the site, the local API routes and Studio together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, `/api/chat`, `/api/search`, `/api/email/*`, and the local-only `/api/studio/*` endpoints. Studio lives at `/studio.html`; its workspace is `.studio/` (gitignored) and its preview is `/preview/`. Stop the server with Ctrl+C. The local server has no user authentication and the terminal can run commands as your user; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`. Set `ELTES_STUDIO=0` to disable Studio entirely or `ELTES_STUDIO_SHELL=0` to keep the editor and preview without a shell.
 
 For a static-only preview, Python also works:
 
@@ -143,6 +144,49 @@ The `.github/workflows/pages.yml` workflow publishes the static site. It does no
 ## Windows launcher
 
 `downloads/eltes-windows.zip` includes the `.bat` launcher, PowerShell helper, static site, and documentation. Unzip and run `eltes.bat`; it opens the local workspace and serves only files. It does not start the Node API proxy. To use key testing and the proxy on Windows, configure a Vercel backend in Eltes settings. The launcher requires Windows 10/11 plus Python 3 or Node 18+.
+
+## Welcome email
+
+`auth.html` posts the new profile to `POST /api/email/welcome` on the server that served the page. That server — yours, not Eltes's — renders a multipart message (plain text plus HTML, no tracking pixel) and hands it to a provider you own. There is no mail server in Eltes, no shared list and no analytics.
+
+```bash
+# Resend — 3,000 emails/month, 100/day, free
+export ELTES_MAIL_FROM="Eltes <hello@yourdomain.com>"
+export RESEND_API_KEY=re_xxxxxxxx
+
+# Brevo — 300/day, free, no domain required
+export ELTES_MAIL_FROM="Eltes <you@gmail.com>"
+export BREVO_API_KEY=xkeysib-xxxxxxxx
+
+# or any SMTP mailbox (implicit TLS on 465, STARTTLS on 587)
+export ELTES_MAIL_FROM="Eltes <you@example.com>"
+export ELTES_SMTP_URL="smtps://you:app-password@smtp.example.com:465"
+
+npm start
+```
+
+| Variable | Purpose |
+| --- | --- |
+| `ELTES_MAIL_FROM` | Sender for the welcome email; required before anything is delivered. |
+| `RESEND_API_KEY` / `BREVO_API_KEY` / `ELTES_SMTP_URL` | Pick one transport. |
+| `ELTES_MAIL_PROVIDER` | `resend`, `brevo`, `smtp` or `none` to override detection. |
+| `ELTES_MAIL_DIR` | Outbox, `events.jsonl` and `suppressed.json`. Defaults to `.mail/`; the desktop app uses `mail/` in its data folder. |
+| `ELTES_MAIL_WEBHOOK_SECRET` | Needed for a webhook reachable beyond loopback. |
+| `ELTES_MAIL_REPLY_TO` | Optional `Reply-To`. |
+
+Without a provider, `/api/email/welcome` still does the whole job except the network call: it writes a real `.eml` file to `.mail/outbox/` and answers `delivered: false, outbox: true`. The auth page shows *Saved to the local outbox*; on the static GitHub Pages copy, where no API exists, it shows *No mail server on this host*.
+
+Bounces are handled where they are observable. SMTP `5xx` replies at `RCPT TO`/`DATA` are detected in the same request, provider `4xx` rejections of the address are treated the same, and `POST /api/email/webhook` normalises Brevo (`hard_bounce`, `spam`) and Resend (`email.bounced`, `email.complained`) events. Hard bounces and complaints are written to `.mail/suppressed.json`; later sends to that address never open a connection.
+
+```bash
+npm run mail status                       # mode, folder, counts, recent events
+npm run mail welcome you@example.com      # send the real welcome email
+npm run mail test you@example.com         # verify a provider
+npm run mail bounce you@example.com       # record a hard bounce (what a webhook writes)
+npm run mail unsuppress you@example.com   # allow the address again
+```
+
+Tests: `test/mail.test.cjs` covers the wire format, config detection, both provider payloads against a stub, an SMTP delivery over a real socket, a `550` at `RCPT TO`, suppression, webhook normalisation and the HTTP routes against a spawned server.
 
 ## Validate and rebuild
 

@@ -85,5 +85,39 @@ window.EltesAccount = (function () {
     return !!get();
   }
 
-  return { get, create, signOut, initials, avatarHtml, isSignedIn, safeAvatar, KEY };
+  /* Ask the server that served this page to send the welcome email. It is the
+     same origin, so a static host simply has no route and we say so. Never
+     reports a delivery that did not happen. */
+  async function welcome(account, options) {
+    const target = account || get();
+    const email = (target && target.email) || '';
+    if (!email) return { status: 'no-email' };
+
+    const timeout = (options && options.timeout) || 4000;
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), timeout) : null;
+
+    try {
+      const response = await fetch('/api/email/welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name: (target && target.name) || '' }),
+        signal: controller ? controller.signal : undefined,
+        keepalive: true
+      });
+      let data = {};
+      try { data = await response.json(); } catch (e) { data = {}; }
+      if (data.delivered) return { status: 'sent', provider: data.provider, id: data.id || null };
+      if (data.outbox) return { status: 'outbox', file: data.file || '' };
+      if (data.suppressed) return { status: 'suppressed', reason: data.reason || '' };
+      if (response.status === 404 || response.status === 405 || response.status >= 500) return { status: 'unavailable' };
+      return { status: 'error', error: data.error || '' };
+    } catch (error) {
+      return { status: 'unavailable' };
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
+  return { get, create, signOut, initials, avatarHtml, isSignedIn, safeAvatar, welcome, KEY };
 })();

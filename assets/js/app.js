@@ -2095,7 +2095,7 @@
         <div class="ctl profile-bio-ctl"><textarea id="accountBioInput" maxlength="240" aria-label="Profile bio" placeholder="A little about you">${esc(account.bio || '')}</textarea><button class="btn btn-ghost btn-sm" id="accountBioSave">Save bio</button></div>
       </div>
       <div class="set-row">
-        <div class="lbl"><strong>Email</strong><span>Only used locally. No email is ever sent.</span></div>
+        <div class="lbl"><strong>Email</strong><span>Stored locally. Your own Eltes server can send it a welcome email.</span></div>
         <div class="ctl"><span class="mono" style="font-size:11.5px;color:var(--text-2)">${esc(account.email || '—')}</span></div>
       </div>
       <div class="set-row">

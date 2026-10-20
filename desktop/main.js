@@ -29,6 +29,7 @@ const state = {
   appOrigin: null,
   lastError: null,
   studioDir: null,
+  mailDir: null,
   log: null,
   shuttingDown: false,
   quitting: false
@@ -46,6 +47,7 @@ function start() {
 
   const userData = app.getPath('userData');
   state.studioDir = join(userData, 'studio');
+  state.mailDir = join(userData, 'mail');
   state.log = core.createLog(join(userData, 'logs'), { version: app.getVersion() });
 
   registerProtocol();
@@ -129,6 +131,7 @@ async function boot() {
       port: cli.port,
       studio: cli.studio,
       studioDir: state.studioDir,
+      mailDir: state.mailDir,
       studioToken: randomBytes(16).toString('hex'),
       onLog: (line) => state.log.write(`[server] ${line}`)
     });

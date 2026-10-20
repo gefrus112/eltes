@@ -4,3 +4,4 @@ _site
 
 # desktop harness staging and installers
 desktop/.build/
+.mail/

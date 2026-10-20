@@ -115,7 +115,8 @@ fn normalize(text: &str) -> String {
 /* --------------------------------- percent -------------------------------- */
 
 fn percent_intent(text: &str) -> Option<Answer> {
-    let words: Vec<&str> = text.replace('%', " percent ").split_whitespace().collect();
+    let expanded = text.replace('%', " percent ");
+    let words: Vec<&str> = expanded.split_whitespace().collect();
 
     for index in 0..words.len().saturating_sub(3) {
         if words[index + 1] != "percent" {

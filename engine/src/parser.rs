@@ -80,23 +80,42 @@ fn prepare(source: &str) -> String {
             _ => out.push(ch),
         }
     }
-    // `2 x 3` is a common calculator spelling of `2 * 3`; only rewrite it when
-    // digits sit on both sides, so words like "x" stay untouched.
+    // `2 x 3` is a common calculator spelling of `2 * 3`; rewrite it only when
+    // digits sit on both sides (spaces allowed), so words stay untouched.
     let chars: Vec<char> = out.chars().collect();
     let mut rewritten = String::with_capacity(out.len());
     for (index, ch) in chars.iter().enumerate() {
-        if (*ch == 'x' || *ch == 'X')
-            && index > 0
-            && index + 1 < chars.len()
-            && chars[index - 1].is_ascii_digit()
-            && chars[index + 1].is_ascii_digit()
-        {
+        if (*ch == 'x' || *ch == 'X') && digit_before(&chars, index) && digit_after(&chars, index) {
             rewritten.push('*');
         } else {
             rewritten.push(*ch);
         }
     }
     rewritten
+}
+
+fn digit_before(chars: &[char], index: usize) -> bool {
+    let mut cursor = index;
+    while cursor > 0 {
+        cursor -= 1;
+        if chars[cursor].is_whitespace() {
+            continue;
+        }
+        return chars[cursor].is_ascii_digit();
+    }
+    false
+}
+
+fn digit_after(chars: &[char], index: usize) -> bool {
+    let mut cursor = index + 1;
+    while cursor < chars.len() {
+        if chars[cursor].is_whitespace() {
+            cursor += 1;
+            continue;
+        }
+        return chars[cursor].is_ascii_digit();
+    }
+    false
 }
 
 fn tokenize(source: &str) -> Result<Vec<Token>, EvalError> {

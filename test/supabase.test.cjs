@@ -571,6 +571,11 @@ function makePublishBackend(state) {
 
     if (parsed.pathname.includes('/storage/v1/object/')) {
       const path = decodeURIComponent(parsed.pathname.split('/storage/v1/object/')[1]);
+      if (state.rateLimit && state.rateLimit[path] > 0) {
+        state.rateLimit[path] -= 1;
+        state.throttled = (state.throttled || 0) + 1;
+        return reply({ statusCode: '429', error: 'too_many_connections', code: 'SlowDown' }, 429);
+      }
       const bytes = init && init.body ? new Uint8Array(init.body) : new Uint8Array();
       state.uploads.push({ path, type: init.headers['Content-Type'], bytes: bytes.length, method });
       return reply({ Key: path }, 200);
@@ -656,6 +661,21 @@ test('an existing bucket is reused, and one bad file does not hide the rest', as
   assert.equal(body.uploaded, 6);
   assert.equal(body.failures.length, 1);
   assert.equal(body.failures[0].path, 'auth.html');
+});
+
+test('a throttled upload backs off instead of failing', async () => {
+  const state = { rateLimit: { 'eltes/index.html': 2 } };
+  const handler = loadEdgeFunction(
+    'supabase/functions/site-publish/index.ts',
+    PUBLISH_ENV,
+    makePublishBackend(state)
+  );
+  const res = await handler(publishRequest());
+  const body = await res.json();
+  assert.equal(res.status, 200);
+  assert.equal(body.ok, true, 'the file eventually lands');
+  assert.deepEqual(body.failures, []);
+  assert.equal(state.throttled, 2, 'Storage answered 429 twice');
 });
 
 test('a single page can be republished', async () => {

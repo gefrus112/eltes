@@ -220,6 +220,9 @@ fn unit_intent(text: &str) -> Option<Answer> {
         };
 
         let (from, cursor) = if remainder.trim().is_empty() {
+            if index + 1 >= words.len() {
+                continue;
+            }
             (words[index + 1], index + 2)
         } else {
             (remainder, index + 1)

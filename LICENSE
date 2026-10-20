@@ -1,21 +1,56 @@
-MIT License
+ELTES PROPRIETARY SOURCE LICENSE
+Copyright (c) 2026 Eltes AI. All rights reserved.
 
-Copyright (c) 2026 Eltes AI
+Effective for this release: October 19, 2026.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Limited permission
+Subject to these terms, the copyright holder grants you a revocable, non-exclusive,
+non-transferable permission to download and run an unmodified copy of this release
+solely for your own personal, non-commercial evaluation. You may make the copies
+that are technically necessary for that use. This permission does not grant a right
+to publish or distribute a copy.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+2. Restrictions
+Unless the copyright holder gives you prior written permission, you may not, in
+whole or in part:
+- copy, modify, adapt, translate, or create derivative works from the Software;
+- publish, distribute, sublicense, sell, rent, lease, or otherwise make the Software
+  available to another person, including through a hosted service;
+- use the Software or a derivative work to offer a competing product or service;
+- remove or alter copyright, trademark, attribution, or license notices; or
+- use the Eltes name, logo, or other marks to imply endorsement or affiliation.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+"Software" means this release's source code, object code, user interface, visual
+design, documentation, and other project materials, except third-party components
+identified in NOTICE.md or their own license files. Third-party materials remain
+subject to their respective licenses; this license does not replace or narrow those
+licenses.
+
+3. Ownership; no other rights
+The Software is licensed, not sold. All rights not expressly granted above are
+reserved by the copyright holder. No patent, trademark, or other intellectual
+property rights are granted by this license.
+
+4. Termination
+This permission terminates automatically if you materially violate these terms.
+Upon termination, stop using the Software and delete copies in your possession,
+except where applicable law requires retention.
+
+5. Disclaimer and limitation
+To the maximum extent permitted by law, the Software is provided "AS IS" and
+"AS AVAILABLE," without warranties or conditions of any kind, express or implied,
+including merchantability, fitness for a particular purpose, title, and
+non-infringement. To the maximum extent permitted by law, the copyright holder
+will not be liable for any indirect, incidental, special, consequential, exemplary,
+or punitive damages, or for loss of data, profits, or goodwill, arising from or
+related to the Software or this license. Nothing in this section excludes liability
+that applicable law does not allow to be excluded.
+
+6. Earlier releases
+This license applies to this release and later releases that include it. It does not
+revoke, narrow, or retroactively change permissions already granted for earlier
+versions distributed under a different license, including any prior MIT-licensed
+release.
+
+For permissions beyond this license, obtain prior written authorization from the
+copyright holder.

@@ -57,9 +57,9 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="book-open" data-icon-size="14"></span>Documentation</span>
         <h1>Everything, in one page.</h1>
-        <p>Eltes is a static, local-first agent workspace. No backend, no build step, no demo replies. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
+        <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.2.0</span>
+          <span class="badge"><span class="dot"></span>v3.3.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -107,12 +107,12 @@
       <article class="doc">
         <section id="overview">
           <h2>Overview <a class="anchor" href="#overview" aria-label="Link to overview" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is a browser-based AI agent workspace. Connect a real provider account (or paste a key), pick a model, and Eltes streams that provider's answer, renders the tool calls, and keeps the history in this browser. There is no Eltes server and no account requirement. If a hosted provider is not connected, the app says so instead of inventing an answer — and <strong>Eltes CAI</strong>, our own on-device model family, is always available with no key at all.</p>
+          <p>Eltes is a browser-based AI workspace. Connect a real provider account (or paste a key), pick a model, and Eltes streams that provider's answer, renders tool calls, and keeps history in this browser. Direct mode calls providers from the browser; an optional separately hosted Vercel/local proxy can test keys and forward requests. If a hosted provider is not connected, the app says so instead of inventing an answer — and <strong>Eltes CAI</strong>, a small on-device helper, is available with no key.</p>
 
           <h3>Three ideas, in order</h3>
           <ol>
             <li><strong>Local-first.</strong> Chats, settings, keys and profiles live in <code>localStorage</code>. Clearing site data is the nuclear option, and it is yours to press.</li>
-            <li><strong>Bring your own key.</strong> Requests go from your tab to the provider over HTTPS. Eltes never sees or relays them.</li>
+            <li><strong>Bring your own key.</strong> By default, requests go from your tab to the provider. An optional trusted backend can relay a key for each request without persisting or logging it in the function code.</li>
             <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
             <li><strong>On-device when you need it.</strong> Eltes CAI-1 answers chat, Eltes questions, model choice, arithmetic, units and dates in this tab. No key, no network, and it is explicit about what it does not know.</li>
           </ol>
@@ -254,7 +254,7 @@ https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
 
         <section id="api-keys">
           <h2>API keys <a class="anchor" href="#api-keys" aria-label="Link to API keys" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Keys are read from <code>localStorage</code> at request time. OpenAI-compatible providers receive them as <code>Authorization: Bearer …</code>; Anthropic receives <code>x-api-key</code> plus <code>anthropic-version</code> and the direct-browser header. They are excluded from exports and never sent anywhere except the provider endpoint you selected.</p>
+          <p>Keys are read from <code>localStorage</code> at request time and are excluded from exports. In direct mode, OpenAI-compatible providers receive <code>Authorization: Bearer …</code>; Anthropic receives <code>x-api-key</code> and <code>anthropic-version</code>. With the optional proxy, the browser sends the key in a request header to the configured backend, which forwards it using the provider's required authentication. Eltes function code does not persist or log it; the key still transits the backend platform.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Key prefix</th><th>Where to get it</th></tr></thead>
@@ -305,7 +305,7 @@ https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
 
         <section id="providers">
           <h2>Providers &amp; CORS <a class="anchor" href="#providers" aria-label="Link to providers and CORS" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Every provider is called directly from the page. That only works when the provider returns permissive CORS headers. Some do; some do not. Eltes does not hide the difference: a blocked call becomes a network/CORS error card with a retry button and a link to this section.</p>
+          <p>By default, providers are called directly from the page, which requires permissive provider CORS headers. Some providers allow it; others do not. If a direct call is blocked, Eltes shows a network/CORS error with retry guidance. You may instead configure the optional Vercel/local backend to relay supported hosted-model requests; review the proxy trust and privacy notes before using it.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Base URL</th><th>Direct browser calls</th></tr></thead>
@@ -341,7 +341,7 @@ https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
 
           <div class="callout">
             <span data-icon="globe" data-icon-size="15"></span>
-            <span><strong>Why not proxy everything?</strong> A proxy would need to hold your key, which defeats the point of BYOK. Eltes only recommends one when the provider blocks browsers, and then it is your proxy, your key.</span>
+            <span><strong>Optional proxy.</strong> Eltes can send a key to a Vercel/local backend over HTTPS for one request; the function code does not persist or log it. The backend operator and platform still process it, so configure only a backend you trust. Direct browser-to-provider mode remains available when the backend URL is blank. See <a href="#self-host">deployment steps</a>.</span>
           </div>
         </section>
 
@@ -374,32 +374,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           </div>
 
           <h3>When CORS blocks the browser</h3>
-          <p>A small proxy that forwards to the provider fixes it without changing the app. Keep the key on the proxy, never in the page, and restrict the origin:</p>
-
-          <div class="doc-code">
-            <div class="bar">
-              <span class="label"><span class="dot"></span>Cloudflare Worker — minimal CORS proxy</span>
-              <button class="cpy" type="button">Copy</button>
-            </div>
-            <pre><code><span class="k">export default</span> {
-  <span class="f">async fetch</span>(request, env) {
-    <span class="k">const</span> url = <span class="k">new</span> URL(request.url);
-    <span class="k">if</span> (url.pathname === <span class="s">'/health'</span>) <span class="k">return new</span> Response(<span class="s">'ok'</span>);
-
-    <span class="k">const</span> upstream = <span class="k">new</span> Request(
-      <span class="s">'https://api.deepseek.com/v1/'</span> + url.pathname.replace(<span class="s">/^\/v1\//</span>, <span class="s">''</span>),
-      request
-    );
-    upstream.headers.set(<span class="s">'authorization'</span>, <span class="s">`Bearer ${env.PROVIDER_KEY}`</span>);
-    upstream.headers.delete(<span class="s">'host'</span>);
-
-    <span class="k">const</span> res = <span class="k">await</span> fetch(upstream);
-    <span class="k">const</span> out = <span class="k">new</span> Response(res.body, res);
-    out.headers.set(<span class="s">'access-control-allow-origin'</span>, <span class="s">'https://eltes.example'</span>);
-    <span class="k">return</span> out;
-  }
-};</code></pre>
-          </div>
+          <p>Configure the optional Vercel backend described in <a href="#self-host">Self-hosting</a>, or run Eltes with <code>npm start</code> for the local API during development. The proxy forwards the user's key for that request and only allows fixed provider targets. Do not paste a provider key into a source file, public static host, or shared deployment environment variable.</p>
 
           <div class="callout warn">
             <span data-icon="triangle-alert" data-icon-size="15"></span>
@@ -528,7 +503,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <thead><tr><th>Panel</th><th>Controls</th></tr></thead>
             <tbody>
               <tr><td>General</td><td>Default model, streaming, send key, tools by default, density, reduced motion, timestamps, metrics</td></tr>
-              <tr><td>API keys</td><td>Ten provider keys, reveal/save/remove, custom base URL, model id and token</td></tr>
+              <tr><td>API keys</td><td>Provider keys, reveal/save/remove and provider key test through configured proxy, Vercel/local backend URL, custom model endpoint</td></tr>
               <tr><td>Models</td><td>Star favourites, choose the default model for new chats</td></tr>
               <tr><td>Account</td><td>Profile, display name, sign out, delete profile, plan</td></tr>
               <tr><td>Data</td><td>Chat count, storage meter, export all, import, delete all chats</td></tr>
@@ -644,9 +619,19 @@ eltes.bat --port 8080</code></pre>
         <section id="self-host">
           <h2>Self-hosting <a class="anchor" href="#self-host" aria-label="Link to self-hosting" data-icon="link-2" data-icon-size="16"></a></h2>
           <h3>Publish with GitHub Pages</h3>
-          <p>The repository’s <code>.github/workflows/pages.yml</code> workflow assembles only the static site files and deploys them to GitHub Pages when changes land on <code>main</code>. Enable <strong>Settings → Pages → Source → GitHub Actions</strong> once in the repository. Subsequent updates deploy automatically; there is no server process to maintain.</p>
-          <p>GitHub Pages serves HTML, CSS, JavaScript, images and the Windows download. It does not run a backend, store secrets, proxy model requests or grant provider free-tier access. Users save their own API keys in their browser; provider APIs receive requests directly from that browser and must allow its origin through CORS.</p>
-          <p>Eltes is a static site. Any host that serves files with the right MIME types works: GitHub Pages, Cloudflare Pages, Netlify, S3, nginx or <code>python3 -m http.server</code>. There is no server-side code to run and no environment variable to set.</p>
+          <p>The repository’s <code>.github/workflows/pages.yml</code> workflow assembles and deploys only the static site files to GitHub Pages. Subsequent updates publish through the repository workflow. GitHub Pages serves HTML, CSS, JavaScript, images and the Windows download; it does not run the API backend, store secrets, proxy model requests, or grant provider free-tier access.</p>
+          <p>Without a configured proxy, users save keys in their browser and provider APIs receive requests directly from that browser, subject to provider CORS. Eltes also includes Node-based local API routes for development and separate Vercel functions for deployment.</p>
+
+          <h3>Run the local site and API</h3>
+          <p>With Node.js 18 or newer, run <code>npm install</code> and <code>npm start</code>, then open <code>http://localhost:4173/app.html</code>. This serves the static site and the three local API routes. The server binds to <code>0.0.0.0</code> for development-preview compatibility and has no user authentication; keep it on a trusted network. Use <code>HOST=127.0.0.1 npm start</code> to bind only to loopback. A Python static server serves only files, so it does not provide key testing or proxy routes.</p>
+
+          <h3>Deploy the optional proxy to Vercel</h3>
+          <ol>
+            <li>Import the repository into Vercel with the project root as the root directory. The functions are in <code>api/</code>; <code>vercel.json</code> sets a 60-second function limit.</li>
+            <li>Set the project environment variable <code>ELTES_ALLOWED_ORIGINS</code> to exact comma-separated browser origins, without paths or trailing slashes. Example: <code>https://gefrus112.github.io,http://localhost:4173</code>.</li>
+            <li>Deploy, then in Eltes <strong>Settings → API keys → Optional Vercel/local backend</strong>, enter the Vercel deployment origin and use <strong>Save and test</strong>.</li>
+          </ol>
+          <p>The available routes are <code>/api/health</code>, <code>/api/key-check</code>, and streaming/non-streaming <code>/api/chat</code>. The backend only contacts fixed provider hosts and allowlisted provider/model pairs; it never accepts an arbitrary upstream URL. CORS origin checks are not authentication; these routes are public to non-browser clients unless you add access controls. Do not offer an unprotected shared proxy to untrusted users without adding authentication and rate limiting. The key transits the backend for each call; the function code does not persist or log it, but the platform and provider process the request. Use only a deployment you trust and set provider spending limits. Static hosting and Vercel backend deployment are separate; this documentation does not mean a deployment has already occurred.</p>
 
           <div class="doc-code">
             <div class="bar">
@@ -683,12 +668,12 @@ eltes.bat --port 8080</code></pre>
 
         <section id="privacy">
           <h2>Privacy <a class="anchor" href="#privacy" aria-label="Link to privacy" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes has no analytics, no telemetry, no fonts fetched from a third party and no backend to receive anything. The only outbound requests are the ones you trigger: a model call to the provider you configured, or a link you click.</p>
+          <p>Eltes includes no analytics, telemetry, or third-party font requests. In direct mode, a model request goes from your browser to the selected provider. If you configure the optional backend, key checks and model requests transit that backend; the function code does not persist or log provider keys, but the backend platform processes request metadata and the key while handling the call.</p>
 
           <h3>What Eltes stores</h3>
           <div class="keys-table">
             <div class="krow"><span><code>eltes.chats.v1</code> — conversations and per-message metadata</span><span class="keys mono">local</span></div>
-            <div class="krow"><span><code>eltes.settings.v1</code> — provider keys, model default, preferences</span><span class="keys mono">local</span></div>
+            <div class="krow"><span><code>eltes.settings.v1</code> — provider keys, backend URL, model default, preferences</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.account.v1</code> — optional profile</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.waitlist.v1</code> — pricing waitlist entries, if you join</span><span class="keys mono">local</span></div>
             <div class="krow"><span>No cookies, no fingerprinting, no session replay</span><span class="keys mono">none</span></div>
@@ -719,7 +704,7 @@ eltes.bat --port 8080</code></pre>
             </details>
             <details>
               <summary>Why does a provider fail with a network error?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>Usually CORS. The provider must allow the browser origin. See <a class="inline-link" href="#providers">Providers &amp; CORS</a>, or route the request through your own proxy and point a custom endpoint at it.</p>
+              <p>Usually CORS. The provider must allow the browser origin in direct mode. See <a class="inline-link" href="#providers">Providers &amp; CORS</a>, or configure the optional Vercel/local backend in Settings → API keys.</p>
             </details>
             <details>
               <summary>Which models can use tools?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>

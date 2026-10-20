@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eltes AI — one workspace, every model</title>
-  <meta name="description" content="Eltes is a local-first AI agent workspace. GPT, Claude, Gemini, GLM, DeepSeek, Grok, Qwen and more behind one keyboard — bring your own key, keep your history on your device." />
+  <title>Eltes AI — one workspace for the models you choose</title>
+  <meta name="description" content="A focused AI workspace for Claude, OpenAI, Gemini, open models, and more. Bring your own key, switch models, and keep your history on your device." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
-  <meta property="og:title" content="Eltes AI — one workspace, every model" />
-  <meta property="og:description" content="A local-first AI agent workspace with real model switching, agent tools and bring-your-own-key." />
+  <meta property="og:title" content="Eltes AI — one workspace for the models you choose" />
+  <meta property="og:description" content="Switch between hosted models and local open models in a thoughtful, local-first workspace." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/img/icon-512.png" />
   <meta property="og:image:alt" content="Eltes — a green cloud with one eye closed and one open" />
@@ -25,6 +25,7 @@
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
 
   <!-- ============================== nav ============================== -->
   <header class="nav" id="nav">
@@ -73,113 +74,82 @@
       <span class="aura a3" data-parallax="-0.18"></span>
 
       <div class="wrap hero-inner">
-        <a class="hero-badge" href="#models">
-          <span class="tag">New</span>
-          <span>Claude Sonnet streams live · Eltes CAI runs on-device</span>
-          <span class="chev" data-icon="chevron-right" data-icon-size="14"></span>
-        </a>
-
+        <div class="hero-kicker"><span class="kicker-mark"><span></span><span></span><span></span></span>AN OPEN WORKSPACE FOR AI</div>
         <h1>
-          One workspace.
-          <span class="line-2">Every real model.</span>
+          The right model.
+          <span class="line-2">For this moment.</span>
         </h1>
 
         <p class="hero-sub">
-          Claude Sonnet 5.5, DeepSeek V4, Gemini and <strong>Eltes CAI</strong> behind one keyboard.
-          Bring your own account, switch mid-conversation and keep every token of history on your device.
+          Claude, OpenAI, Gemini, open models — choose what fits, move between them without losing your thread, and keep your workspace yours.
         </p>
 
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="app.html">
-            Open the workspace
+            Start with Eltes CAI
             <span data-icon="arrow-right" data-icon-size="17"></span>
           </a>
-          <a class="btn btn-ghost btn-lg" href="auth.html?mode=signup">
-            <span data-icon="user-plus" data-icon-size="16"></span>
-            Connect an account
+          <a class="btn btn-ghost btn-lg" href="#models">
+            Explore models
+            <span data-icon="arrow-down" data-icon-size="15"></span>
           </a>
         </div>
 
         <div class="hero-note">
-          <span><span data-icon="key-round" data-icon-size="13"></span>Provider key needed · CAI is free</span>
-          <span><span data-icon="shield-check" data-icon-size="13"></span>Local history</span>
-          <a href="#downloads"><span data-icon="monitor-down" data-icon-size="13"></span>Windows download</a>
+          <span><span data-icon="key-round" data-icon-size="13"></span>Bring your own provider key</span>
+          <span><span data-icon="shield-check" data-icon-size="13"></span>Local history by default</span>
+          <span><span data-icon="cpu" data-icon-size="13"></span>Open-model ready</span>
         </div>
       </div>
 
-      <!-- app preview -->
-      <div class="hero-stage">
-        <div class="float-card f1">
-          <span class="ficon" data-icon="layers" data-icon-size="14"></span>
-          <div><strong>GLM-4.6</strong><small>Switched mid-conversation</small></div>
-        </div>
-        <div class="float-card f2">
-          <span class="ficon" data-icon="activity" data-icon-size="14"></span>
-          <div><strong>Live from your provider</strong><small>Key required · tokens stream as they arrive</small></div>
-        </div>
-
-        <div class="window" role="img" aria-label="Preview of the Eltes AI workspace with a real model answering">
-          <div class="window-bar">
-            <div class="traffic"><i></i><i></i><i></i></div>
-            <div class="url"><span data-icon="lock" data-icon-size="10"></span>eltes.ai/app</div>
-            <div class="tools"><span data-icon="panel-left" data-icon-size="14"></span><span data-icon="settings" data-icon-size="14"></span></div>
+      <!-- interactive model preview: selection only, no request is sent -->
+      <div class="hero-stage reveal">
+        <div class="showcase-shell">
+          <div class="showcase-top">
+            <div class="showcase-brand"><span class="brand-mark sm"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>Eltes</strong><span class="showcase-slash">/</span><span>Model workspace</span></div>
+            <div class="showcase-status"><span class="status-dot"></span>Local-first · BYOK</div>
           </div>
-          <div class="mock">
-            <aside class="mock-side">
-              <div class="brand"><span class="brand-mark sm"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>Eltes</div>
-              <div class="mock-new"><span data-icon="plus" data-icon-size="13"></span>New chat</div>
-              <div class="mock-label">Today</div>
-              <div class="mock-chat active"><span data-icon="message-square" data-icon-size="12"></span><span>Realtime sync design</span></div>
-              <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Refactor auth middleware</span></div>
-              <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Postgres index strategy</span></div>
-              <div class="mock-label">Yesterday</div>
-              <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Landing page copy</span></div>
-              <div class="mock-chat"><span data-icon="message-square" data-icon-size="12"></span><span>Stripe webhook retries</span></div>
-              <div class="mock-foot"><span data-icon="key-round" data-icon-size="12"></span>3 accounts connected</div>
-            </aside>
-            <div class="mock-main">
-              <div class="mock-top">
-                <div class="mock-model">
-                  <span class="p-logo sm" data-brand="glm"></span>
-                  GLM-4.6
-                  <span data-icon="chevron-down" data-icon-size="11" style="color:#566788"></span>
-                </div>
-                <div class="right"><span data-icon="search" data-icon-size="14"></span><span data-icon="panel-left" data-icon-size="14"></span></div>
+          <div class="showcase-layout">
+            <div class="showcase-picker">
+              <div class="showcase-label">CHOOSE A MODEL</div>
+              <div class="preview-tabs" role="tablist" aria-label="Featured models">
+                <button class="preview-tab active" type="button" role="tab" id="preview-tab-claude" aria-selected="true" aria-controls="previewPanel" data-preview-model="claude-sonnet-5-5">
+                  <span class="p-logo sm" data-brand="claude" data-brand-size="15"></span><span class="tab-copy"><strong>Claude Sonnet 5.5</strong><small>Anthropic · streaming</small></span><span class="tab-check" data-icon="check" data-icon-size="13"></span>
+                </button>
+                <button class="preview-tab" type="button" role="tab" id="preview-tab-gemini" aria-selected="false" aria-controls="previewPanel" data-preview-model="gemini-2-5-pro" tabindex="-1">
+                  <span class="p-logo sm" data-brand="gemini" data-brand-size="15"></span><span class="tab-copy"><strong>Gemini 2.5 Pro</strong><small>Google · multimodal</small></span><span class="tab-check" data-icon="check" data-icon-size="13"></span>
+                </button>
+                <button class="preview-tab" type="button" role="tab" id="preview-tab-gpt" aria-selected="false" aria-controls="previewPanel" data-preview-model="gpt-4-1" tabindex="-1">
+                  <span class="p-logo sm" data-brand="openai" data-brand-size="15"></span><span class="tab-copy"><strong>GPT-4.1</strong><small>OpenAI · long context</small></span><span class="tab-check" data-icon="check" data-icon-size="13"></span>
+                </button>
+                <button class="preview-tab" type="button" role="tab" id="preview-tab-cai" aria-selected="false" aria-controls="previewPanel" data-preview-model="eltes-cai-1" tabindex="-1">
+                  <span class="p-logo sm" data-brand="eltes" data-brand-size="15"></span><span class="tab-copy"><strong>Eltes CAI-1</strong><small>On-device · no key</small></span><span class="tab-check" data-icon="check" data-icon-size="13"></span>
+                </button>
               </div>
-              <div class="mock-thread">
-                <div class="mock-msg user"><div class="mock-bubble">Write a tiny debounce hook for React, then explain the cleanup.</div></div>
-                <div class="mock-msg ai">
-                  <span class="mock-avatar"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-                  <div class="mock-ai-body">
-                    <div class="mock-steps">
-                      <div class="mock-step"><span class="tool">read</span><span>src/hooks/index.ts</span><span class="res">64 lines</span></div>
-                      <div class="mock-step"><span class="tool">write</span><span>src/hooks/useDebounce.ts</span><span class="res">+21</span></div>
-                      <div class="mock-step"><span class="ok">done</span><span>verified with tsc</span><span class="res">0 errors</span></div>
-                    </div>
-                    <p><span class="hi">Here's a dependency-free version.</span> The timer is cleared on cleanup, so fast re-renders never fire a stale callback.</p>
-                    <div class="mock-code">
-                      <div class="bar"><span data-icon="code-2" data-icon-size="10"></span>useDebounce.ts</div>
-                      <pre><span class="k">export function</span> <span class="f">useDebounce</span>(value, delay) {
-  <span class="k">const</span> [debounced, setDebounced] = <span class="f">useState</span>(value);
-  <span class="f">useEffect</span>(() => {
-    <span class="k">const</span> id = <span class="f">setTimeout</span>(() => <span class="f">setDebounced</span>(value), delay);
-    <span class="c">// cleanup cancels the pending update</span>
-    <span class="k">return</span> () => <span class="f">clearTimeout</span>(id);
-  }, [value, delay]);
-  <span class="k">return</span> debounced;
-}</pre>
-                    </div>
-                    <p>The returned value only changes after the delay<span class="caret"></span></p>
-                  </div>
-                </div>
+              <div class="picker-foot"><span data-icon="layers" data-icon-size="12"></span><span>36 catalogue entries</span><a href="#models">Browse all<span data-icon="arrow-right" data-icon-size="11"></span></a></div>
+            </div>
+            <div class="preview-panel" id="previewPanel" role="tabpanel" aria-labelledby="preview-tab-claude" aria-live="polite">
+              <div class="preview-panel-head">
+                <div class="preview-provider"><span class="p-logo lg" id="previewLogo" data-brand="claude" data-brand-size="22"></span><span><small id="previewProvider">ANTHROPIC</small><strong id="previewName">Claude Sonnet 5.5</strong></span></div>
+                <span class="preview-tier" id="previewTier">BALANCED</span>
               </div>
-              <div class="mock-composer">
-                <span data-icon="paperclip" data-icon-size="15" style="color:#4e6080"></span>
-                <span class="hint">Ask anything, or type / for commands</span>
-                <span class="mock-send"><span data-icon="arrow-up" data-icon-size="15"></span></span>
+              <p class="preview-blurb" id="previewBlurb">Anthropic Messages API with real token streaming. Requires an Anthropic API key.</p>
+              <div class="preview-facts">
+                <div><span>API</span><strong id="previewApi">Messages</strong></div>
+                <div><span>Context</span><strong id="previewContext">200K</strong></div>
+                <div><span>Tools</span><strong id="previewTools">Supported</strong></div>
               </div>
+              <div class="privacy-flow" role="group" aria-label="Request flow">
+                <div class="flow-node"><span class="flow-number">01</span><span><strong id="flowCredential">Your key</strong><small id="flowStorage">Stored in this browser</small></span></div>
+                <span class="flow-arrow" data-icon="arrow-right" data-icon-size="13"></span>
+                <div class="flow-node"><span class="flow-number">02</span><span><strong id="flowDestination">Provider API</strong><small>Direct or trusted proxy</small></span></div>
+                <span class="flow-arrow" data-icon="arrow-right" data-icon-size="13"></span>
+                <div class="flow-node"><span class="flow-number">03</span><span><strong>Your history</strong><small>Saved on this device</small></span></div>
+              </div>
+              <div class="preview-panel-foot"><span class="preview-disclaimer"><span data-icon="info" data-icon-size="12"></span>Selection preview · no request is sent</span><a class="preview-open" id="previewOpen" href="app.html?model=claude-sonnet-5-5">Open in workspace<span data-icon="arrow-up-right" data-icon-size="13"></span></a></div>
             </div>
           </div>
+          <div class="showcase-bottom"><span>ONE CONVERSATION</span><span class="bottom-line"></span><span>YOUR MODEL CHOICE</span><span class="bottom-line"></span><span>YOUR DATA, YOUR TERMS</span></div>
         </div>
       </div>
 
@@ -194,7 +164,7 @@
       <div class="band-label">
         <div class="inner">
           <p>Break the page apart</p>
-          <h3>Eleven providers. <span>Twenty-three models.</span></h3>
+          <h3>Thirteen providers. <span>Thirty-six model routes.</span></h3>
           <div class="hint">Keep scrolling — the blocks reassemble themselves.</div>
         </div>
       </div>
@@ -205,11 +175,11 @@
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="layers" data-icon-size="14"></span>The model wall</span>
-          <h2>Every frontier lab.<br class="desk-br" /> One interface.</h2>
+          <h2>One workspace.<br class="desk-br" /> Many ways to think.</h2>
           <p>Real provider logos, real endpoints, real streaming. Pick a model, paste a key, and the same conversation carries across labs.</p>
         </div>
 
-        <div class="model-wall" id="modelWall"></div>
+        <div class="model-wall stagger" id="modelWall"></div>
 
         <div class="wall-foot reveal">
           <span><span data-icon="key-round" data-icon-size="12"></span> One key per provider</span>
@@ -230,11 +200,11 @@
           <p>No account walls, no model lock-in, no fake answers. A sharp interface that gets out of the way of the work.</p>
         </div>
 
-        <div class="bento">
+        <div class="bento stagger">
           <article class="card span-4 reveal">
             <div class="card-icon" data-icon="layers" data-icon-size="19"></div>
             <h3>Compare labs on the same prompt</h3>
-            <p>Send once, switch models, and watch a different intelligence answer with the same context. Each reply keeps a provider chip so you always know who said what.</p>
+            <p>Send a prompt, switch models, and keep the same context without losing track of which provider answered. Replies stay labeled by model.</p>
             <div class="card-visual">
               <div class="provider-pills">
                 <span class="provider-pill on"><span class="p-logo" data-brand="claude"></span>Claude Sonnet 5.5</span>
@@ -258,11 +228,11 @@
             <p>Native tool calling with a real loop: the model asks, Eltes executes locally and feeds the result back — with timing for every step.</p>
             <div class="card-visual">
               <div class="code-mini">
-                <div class="head"><span data-icon="terminal" data-icon-size="10"></span>agent · 3 tool calls</div>
+                <div class="head"><span data-icon="cpu" data-icon-size="10"></span>available · runs in your browser</div>
                 <div class="body">
-                  <span class="fn">calculate</span> 17 * 43 = <span class="st">731</span><br />
-                  <span class="fn">search_history</span> "index" · 6 hits<br />
-                  <span class="fn">current_time</span> 2026-10-19T23:14Z
+                  <span class="fn">calculate</span>(expression)<br />
+                  <span class="fn">current_time</span>()<br />
+                  <span class="fn">search_history</span>(query)
                 </div>
               </div>
             </div>
@@ -271,14 +241,14 @@
           <article class="card span-2 reveal">
             <div class="card-icon" data-icon="key-round" data-icon-size="19"></div>
             <h3>Your keys, your browser</h3>
-            <p>Each provider key is stored locally and attached at request time. Nothing is proxied, nothing is billed through us.</p>
+            <p>Each provider key is stored locally and attached at request time. Requests go directly to the provider by default; you may opt into your own Vercel/local proxy. Provider billing remains with the provider.</p>
             <div class="card-visual">
               <div class="code-mini">
                 <div class="head"><span data-icon="lock" data-icon-size="10"></span>this browser only</div>
                 <div class="body">
                   <span class="pr">ELTES_KEYS</span>.<span class="fn">openai</span> = <span class="st">"sk-••••9f2c"</span><br />
                   <span class="pr">ELTES_KEYS</span>.<span class="fn">zai</span> = <span class="st">"••••7a1e"</span><br />
-                  <span class="cm">// never leaves the tab</span>
+                  <span class="cm">// sent direct or via your trusted proxy</span>
                 </div>
               </div>
             </div>
@@ -345,28 +315,25 @@
             <a class="btn btn-ghost" href="docs.html#agent">How the tool loop works<span data-icon="arrow-right" data-icon-size="15"></span></a>
           </div>
 
-          <div class="terminal reveal" style="--d:100ms">
-            <div class="term-head">
-              <span class="traffic"><i></i><i></i><i></i></span>
-              <span class="name">eltes · agent run</span>
-              <span class="live"><i></i>live</span>
-            </div>
-            <div class="term-body">
-              <div class="term-line"><span style="color:#5b7ba6">$</span><span class="cmd">how many weeks until 2027, and what did we decide about indexes?</span></div>
-              <div class="term-block">
-                <div class="term-tool"><span class="ic" data-icon="calculator" data-icon-size="11"></span><span class="tool" style="color:#8bb4ff">calculate</span><span>{"expression":"(2027-01-01 - now) / 7 days"}</span><span class="res">10.5 weeks</span></div>
-                <div class="term-tool"><span class="ic" data-icon="search" data-icon-size="11"></span><span class="tool" style="color:#8bb4ff">search_history</span><span>"index strategy"</span><span class="res">2 threads</span></div>
+          <div class="agent-architecture reveal" style="--d:100ms" role="group" aria-label="How Eltes local tools work">
+            <div class="architecture-head"><span class="arch-mark" data-icon="workflow" data-icon-size="15"></span><span><strong>Visible by design</strong><small>How a tool call moves through Eltes</small></span><span class="architecture-tag">LOCAL EXECUTION</span></div>
+            <div class="architecture-flow">
+              <div class="architecture-step">
+                <span class="step-index">01</span><span class="step-icon model" data-icon="brain" data-icon-size="17"></span>
+                <div><strong>The model requests a tool</strong><p>For example: calculate, read the clock, or search chat history.</p></div><span class="step-state">MODEL</span>
               </div>
-              <div class="term-line"><span class="ok" data-icon="check" data-icon-size="11"></span><span>About <b style="color:#d8e4f8">10.5 weeks</b>. On indexes you picked the composite key <span class="path">(tenant_id, status, created_at DESC)</span> with <span class="path">INCLUDE (total_cents)</span>.</span></div>
-              <div class="term-line" style="margin-top:9px"><span class="dim2">source</span><span class="path">chat: Postgres index strategy · 1 day ago</span></div>
-              <div class="term-meter">
-                <span><b>2</b> tools</span>
-                <span><b>1.4s</b> total</span>
-                <span><b>212</b> tokens</span>
-                <span class="bar"><i></i></span>
-                <span>streamed</span>
+              <div class="architecture-connector"><span></span><span class="connector-label">structured tool call</span></div>
+              <div class="architecture-step">
+                <span class="step-index">02</span><span class="step-icon local" data-icon="cpu" data-icon-size="17"></span>
+                <div><strong>Eltes runs it in your browser</strong><p>No shell access. No arbitrary terminal commands. The result is shown to you.</p></div><span class="step-state local-state">LOCAL</span>
+              </div>
+              <div class="architecture-connector"><span></span><span class="connector-label">result returns to the conversation</span></div>
+              <div class="architecture-step">
+                <span class="step-index">03</span><span class="step-icon response" data-icon="message-square" data-icon-size="17"></span>
+                <div><strong>The model continues with that result</strong><p>When enabled, the provider receives the tool result to finish its answer.</p></div><span class="step-state">TRANSPARENT</span>
               </div>
             </div>
+            <div class="architecture-foot"><span><span class="status-dot"></span>Every step is inspectable</span><a href="docs.html#agent">Read about the tool loop<span data-icon="arrow-up-right" data-icon-size="12"></span></a></div>
           </div>
         </div>
       </div>
@@ -377,8 +344,8 @@
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="ruler" data-icon-size="14"></span>Why Eltes</span>
-          <h2>Less platform.<br />More leverage.</h2>
-          <p>Most chat products pick a model for you and keep the receipts. Eltes does the opposite.</p>
+          <h2>One workspace.<br />Your rules.</h2>
+          <p>Pick the model, choose how the request is sent, and keep control of your local workspace.</p>
         </div>
 
         <div class="compare-wrap reveal">
@@ -386,51 +353,19 @@
             <thead>
               <tr>
                 <th scope="col">Capability</th>
-                <th scope="col" class="eltes-col"><span class="head-cell"><span class="brand-mark sm" style="width:20px;height:20px;border-radius:6px"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>Eltes</span></th>
-                <th scope="col">Typical AI chat</th>
+                <th scope="col" class="eltes-col"><span class="head-cell"><span class="brand-mark sm"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>Eltes</span></th>
+                <th scope="col">What that means</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Bring your own API key</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Any provider</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Locked subscription</span></td>
-              </tr>
-              <tr>
-                <td>Switch models mid-conversation</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>One keystroke</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Start over</span></td>
-              </tr>
-              <tr>
-                <td>Chat history on your device</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Local by default</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Cloud account</span></td>
-              </tr>
-              <tr>
-                <td>Answers come from a real model</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Always</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Varies by tier</span></td>
-              </tr>
-              <tr>
-                <td>Sign in with a provider account</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>OpenAI · Anthropic · DeepSeek</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>One vendor only</span></td>
-              </tr>
-              <tr>
-                <td>Works with no key at all</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Eltes CAI, on-device</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Requires an account</span></td>
-              </tr>
-              <tr>
-                <td>Real agent tool loop</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Timed and visible</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Hidden or absent</span></td>
-              </tr>
-              <tr>
-                <td>Latency and token metrics</td>
-                <td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>Per reply</span></td>
-                <td><span class="no"><span data-icon="x" data-icon-size="14"></span>Rarely exposed</span></td>
-              </tr>
+              <tr><td>Model choice</td><td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>36 catalogue entries</span></td><td>Hosted providers plus your own OpenAI-compatible endpoint.</td></tr>
+              <tr><td>Provider access</td><td class="eltes-col"><span class="yes"><span data-icon="key-round" data-icon-size="14"></span>Bring your own key</span></td><td>Direct from the browser by default; optional trusted proxy.</td></tr>
+              <tr><td>Conversation continuity</td><td class="eltes-col"><span class="yes"><span data-icon="shuffle" data-icon-size="14"></span>Switch mid-thread</span></td><td>Choose a different model without discarding the chat.</td></tr>
+              <tr><td>History</td><td class="eltes-col"><span class="yes"><span data-icon="hard-drive" data-icon-size="14"></span>Local by default</span></td><td>Export or clear it from this browser at any time.</td></tr>
+              <tr><td>No-key option</td><td class="eltes-col"><span class="yes"><span data-icon="cpu" data-icon-size="14"></span>Eltes CAI</span></td><td>A small, bounded on-device helper—not a frontier LLM.</td></tr>
+              <tr><td>Agent tools</td><td class="eltes-col"><span class="yes"><span data-icon="workflow" data-icon-size="14"></span>Visible and local</span></td><td>Calculator, clock, and chat search; no shell access.</td></tr>
+              <tr><td>Usage visibility</td><td class="eltes-col"><span class="yes"><span data-icon="gauge" data-icon-size="14"></span>Latency and tokens</span></td><td>Metrics depend on what each provider reports.</td></tr>
+              <tr><td>Hosted billing</td><td class="eltes-col"><span class="yes"><span data-icon="globe" data-icon-size="14"></span>Provider-controlled</span></td><td>Provider pricing and account limits still apply.</td></tr>
             </tbody>
           </table>
         </div>
@@ -505,7 +440,7 @@
             <h2>Sign in with<br />the account you use.</h2>
             <p>Eltes connects OpenAI, Anthropic and DeepSeek directly. Sign up with the provider that already
               pays for your models, or keep a local profile with no account at all. The profile lives in this
-              browser; no Eltes server ever sees it.</p>
+              browser. Hosted model requests may optionally use a Vercel/local proxy that you configure; the profile itself remains in this browser.</p>
             <div class="account-actions">
               <a class="btn btn-ghost account-provider" href="auth.html?provider=openai&amp;mode=signup&amp;next=app.html">
                 <span class="p-logo sm" data-brand="openai" data-brand-size="15"></span>OpenAI
@@ -559,15 +494,15 @@
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</span>
           <h2>Run Eltes<br class="desk-br" /> from your desktop.</h2>
-          <p>The whole workspace is static files. The Windows launcher starts a tiny local server and opens
-            your browser — no installer, no registry, no admin rights, no background service.</p>
+          <p>The app is a static site. The Windows launcher serves the files locally and opens
+            your browser — no installer, no registry, no admin rights, no background service. An optional Node/Vercel backend supports key testing and proxying.</p>
         </div>
 
         <div class="download-grid">
           <article class="download-card featured reveal">
             <div class="dl-top">
               <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Windows</span>
-              <span class="dl-ver">v3.2.0 · portable</span>
+              <span class="dl-ver">v3.3.0 · portable</span>
             </div>
             <h3>Eltes for Windows</h3>
             <p>Unzip anywhere and double-click <code class="mono">eltes.bat</code>. It finds Python or Node,
@@ -576,7 +511,7 @@
               <li><span data-icon="check" data-icon-size="13"></span>Includes the launcher and the full site</li>
               <li><span data-icon="check" data-icon-size="13"></span>Optional Start-menu shortcut with <code class="mono">--shortcut</code></li>
               <li><span data-icon="check" data-icon-size="13"></span>Needs Windows 10/11 and Python 3 or Node 18+</li>
-              <li><span data-icon="shield-check" data-icon-size="13"></span>Runs offline; keys stay in your browser</li>
+              <li><span data-icon="shield-check" data-icon-size="13"></span>CAI works offline; keys stay in your browser</li>
             </ul>
             <a class="btn btn-primary btn-lg dl-btn" href="downloads/eltes-windows.zip" download>
               <span data-icon="download" data-icon-size="16"></span>
@@ -589,9 +524,8 @@
             <article class="download-card small">
               <span class="dl-os"><span data-icon="terminal" data-icon-size="15"></span>macOS · Linux</span>
               <h3>Serve the same files</h3>
-              <p>Clone the repository and run <code class="mono">python3 -m http.server 4173</code> in the project
-                root. Eltes is a static site; nothing is compiled.</p>
-              <div class="cmd-row"><code class="mono">python3 -m http.server 4173</code></div>
+              <p>Clone the repository and run <code class="mono">npm install &amp;&amp; npm start</code> to serve the site with the optional local API. A static server such as Python works too, but does not run key checks or the proxy.</p>
+              <div class="cmd-row"><code class="mono">npm start</code></div>
             </article>
             <article class="download-card small">
               <span class="dl-os"><span data-icon="layout-grid" data-icon-size="15"></span>Install as an app</span>
@@ -602,8 +536,7 @@
             </article>
           </div>
         </div>
-        <p class="dl-note">The launcher is a reviewable text file — read it before you run it. Eltes hosts nothing;
-          the server binds to localhost and only serves files from the folder you unzipped.</p>
+        <p class="dl-note">The launcher is a reviewable text file — read it before you run it. It binds to localhost and only serves files from the folder you unzipped; it does not run the optional API backend.</p>
       </div>
     </section>
 
@@ -667,8 +600,8 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Windows build 3.2.0.</span>
-        <span class="status"><i></i>All systems local</span>
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Windows build 3.3.0.</span>
+        <span class="status"><i></i>Local-first workspace</span>
       </div>
     </div>
   </footer>

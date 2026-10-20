@@ -172,7 +172,7 @@
         </div>
         <div class="composer-foot" id="composerFoot">
           <span data-icon="lock" data-icon-size="11"></span>
-          Keys and history stay in this browser — Eltes has no server.
+          Keys and history stay in this browser; hosted calls go direct or through a proxy you configure.
         </div>
       </div>
     </div>
@@ -192,7 +192,7 @@
       </div>
       <div class="picker-list" id="connectList"></div>
       <div class="dlg-foot">
-        <span data-icon="lock" data-icon-size="11"></span>Stored in this browser · sent only to the provider
+        <span data-icon="lock" data-icon-size="11"></span>Stored locally · sent to the provider directly or through your configured backend
         <span class="grow"></span>
         <button class="btn btn-ghost btn-sm" id="connectAdvanced">All providers</button>
         <a class="btn btn-ghost btn-sm" id="connectAccount" href="auth.html?mode=signup&next=app.html">Provider accounts<span data-icon="arrow-up-right" data-icon-size="12"></span></a>
@@ -271,7 +271,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.2 · BYOK<br />No server. No telemetry.</div>
+          <div class="nav-foot">Eltes v3.3 · BYOK<br />Optional proxy. No telemetry.</div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -341,18 +341,30 @@
           <!-- keys -->
           <section data-panel="keys">
             <div class="set-group">
+              <h4>Optional Vercel/local backend</h4>
+              <p class="group-desc">Use a backend you control for provider key checks and hosted-model requests. A key is sent over HTTPS with each request and is not stored by the Eltes function code. The backend operator and platform still process it; use only a backend you trust. Leave blank for direct browser-to-provider requests.</p>
+              <div class="key-input-row">
+                <label class="key-input">
+                  <span data-icon="server" data-icon-size="13"></span>
+                  <input type="url" id="backendUrl" placeholder="https://your-project.vercel.app" aria-label="Vercel or local backend URL" autocomplete="url" />
+                </label>
+                <div class="key-actions"><button class="btn btn-ghost btn-sm" id="backendSave" type="button">Save and test</button></div>
+              </div>
+              <div class="key-help" id="backendHint" aria-live="polite">Proxy off — hosted requests go directly from this browser to the provider.</div>
+              <div class="key-help">GitHub Pages is static and does not run this backend. See <a href="docs.html#self-host">backend deployment docs</a>.</div>
+            </div>
+
+            <div class="set-group">
               <h4>Bring your own key</h4>
               <p class="group-desc">
-                Keys are kept in this browser's local storage and sent directly to the provider you choose.
-                They never touch an Eltes server — there isn't one. Eltes checks whether a key is saved; the
-                provider validates it on the request and controls any free quota or billing.
+                Keys are saved in this browser's local storage. By default, they go directly from the browser to your selected provider. If you set a backend above, requests and the key test go through that backend. Eltes does not decide free-tier eligibility or provider billing.
               </p>
               <div id="keyList"></div>
             </div>
 
             <div class="set-group">
               <h4>Custom endpoint</h4>
-              <p class="group-desc">Point Eltes at Ollama, vLLM, LiteLLM or your own gateway. Any OpenAI-compatible <code class="mono">/chat/completions</code> endpoint works — no key needed for localhost.</p>
+              <p class="group-desc">Connect an already-running Ollama, LM Studio, vLLM, LiteLLM, or other OpenAI-compatible server at <code class="mono">/chat/completions</code>. This connects to an inference endpoint; it does not train a model. Configure its CORS allowlist for this page's origin.</p>
               <div class="key-input-row">
                 <label class="key-input">
                   <span data-icon="globe" data-icon-size="13"></span>
@@ -455,7 +467,7 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.2.0</span></div>
+              <div class="kv"><span>Version</span><span>3.3.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
               <div class="kv"><span>Models</span><span>36 · 13 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>

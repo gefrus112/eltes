@@ -1,14 +1,16 @@
 {
   "name": "eltes-ai",
-  "version": "3.2.0",
-  "description": "Eltes AI \u2014 a local-first, browser-only AI agent workspace with 36 real models, on-device Eltes CAI, provider accounts, streaming and downloads.",
+  "version": "3.3.0",
+  "description": "Eltes AI \u2014 a local-first AI workspace with optional transient BYOK proxy, local open-model endpoints, streaming, and on-device CAI.",
   "main": "index.html",
   "scripts": {
-    "start": "serve -l 4173",
-    "dev": "serve -l 4173",
+    "start": "node tools/local-server.mjs",
+    "dev": "node tools/local-server.mjs",
     "downloads:build": "bash tools/build-windows.sh",
     "validate:html": "html-validate index.html app.html auth.html docs.html",
-    "validate:css": "csstree-validator assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css"
+    "validate:css": "for file in assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css; do csstree-validator \"$file\" || exit 1; done",
+    "backend": "node tools/local-server.mjs",
+    "test": "node --test test/*.test.cjs"
   },
   "keywords": [
     "ai",
@@ -26,10 +28,12 @@
     "streaming"
   ],
   "author": "Eltes",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "devDependencies": {
-    "serve": "11.2.0",
     "html-validate": "11.16.4",
     "csstree-validator": "4.0.1"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

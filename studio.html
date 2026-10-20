@@ -38,6 +38,9 @@
           <span id="guideLabel">Guide</span>
           <span class="guide-count" id="guideCount">0/5</span>
         </button>
+        <button class="st-btn" id="btnEffects" type="button" title="Generate a visual effect as code">
+          <span data-icon="sparkles" data-icon-size="13"></span>Effects
+        </button>
         <button class="st-btn hide-sm" id="btnRunBuild" type="button" title="Run the project's build script">
           <span data-icon="play" data-icon-size="13"></span>Run build
         </button>
@@ -152,6 +155,24 @@
     </section>
   </div>
 
+  <!-- ================================ effects =============================== -->
+  <dialog class="st-modal st-effects" id="effectsDialog" aria-label="Generate a visual effect as code">
+    <div class="m-body">
+      <div class="guide-head">
+        <span class="guide-orb" data-icon="sparkles" data-icon-size="17"></span>
+        <div>
+          <h3>Effects, generated as code</h3>
+          <p>Pick one and Studio writes a complete, dependency-free HTML page into <code>effects/</code> and previews it. The code is yours to edit — <a class="inline-note" href="news.html">new in v3.10</a>.</p>
+        </div>
+      </div>
+      <div class="effect-grid" id="effectGrid"></div>
+      <div class="m-actions">
+        <a class="guide-docs" href="docs.html#effects">How these work <span data-icon="arrow-up-right" data-icon-size="11"></span></a>
+        <button class="st-btn primary" id="btnEffectsClose" type="button">Close</button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- ================================ workflow ============================= -->
   <dialog class="st-modal st-guide" id="guideDialog" aria-label="Build a website, step by step">
     <div class="m-body">
@@ -225,6 +246,7 @@
         <li><strong>Terminal.</strong> <code>ls</code>, <code>git</code>, <code>npm install</code>, <code>npm run build</code> — output streams as it runs. Preview reloads when files change.</li>
         <li><strong>Shortcuts.</strong> <kbd>⌘/Ctrl</kbd>+<kbd>S</kbd> save · <kbd>Tab</kbd> indent · <kbd>⌘/Ctrl</kbd>+<kbd>P</kbd> quick switch.</li>
         <li><strong>No backend?</strong> The editor still works and builds a preview in the browser; the terminal needs <code>npm start</code>.</li>
+        <li><strong>What&rsquo;s new?</strong> The <a href="news.html">release notes</a> show the effects library, the workflow guide and the Graphite theme with screenshots.</li>
       </ul>
       <p class="m-note">The terminal runs on the machine hosting <code>npm start</code>. It is a development tool — keep it on a trusted network. The deployed static site never exposes it.</p>
       <div class="m-actions"><button class="st-btn primary" id="btnHelpClose" type="button">Got it</button></div>
@@ -232,6 +254,7 @@
   </dialog>
 
   <script src="assets/js/icons.js"></script>
+  <script src="assets/js/studio-effects.js"></script>
   <script src="assets/js/studio.js"></script>
 </body>
 </html>

@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="1280" height="760" role="img" aria-label="Eltes Studio: file tree, code editor, live preview and terminal in one window">
+  <defs>
+    <linearGradient id="studioBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1018"/>
+      <stop offset="1" stop-color="#05070b"/>
+    </linearGradient>
+    <linearGradient id="studioGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f6bff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#2f6bff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="studioSend" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4785ff"/>
+      <stop offset="1" stop-color="#2a63ee"/>
+    </linearGradient>
+    <clipPath id="studioClip"><rect width="1280" height="760" rx="18"/></clipPath>
+    <clipPath id="studioPreviewClip"><rect x="830" y="104" width="438" height="446" rx="10"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#studioClip)">
+    <rect width="1280" height="760" fill="url(#studioBg)"/>
+    <rect width="1280" height="420" fill="url(#studioGlow)"/>
+
+    <!-- window chrome -->
+    <rect x="0" y="0" width="1280" height="54" fill="#070b12"/>
+    <line x1="0" y1="54" x2="1280" y2="54" stroke="#1b2432"/>
+    <circle cx="26" cy="27" r="9" fill="#39dca2"/>
+    <text x="44" y="33" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="600" fill="#e9effb">Eltes</text>
+    <text x="90" y="33" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#48546b">/</text>
+    <text x="104" y="33" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#9dadc9">Studio</text>
+    <rect x="166" y="17" width="132" height="22" rx="11" fill="#0d1f1a" stroke="#1d4a3a"/>
+    <circle cx="179" cy="28" r="3.5" fill="#4ee2a8"/>
+    <text x="190" y="32" font-family="Inter, system-ui, sans-serif" font-size="10.5" fill="#8ff0c8">local workspace</text>
+
+    <rect x="700" y="16" width="92" height="24" rx="7" fill="#101827" stroke="#243349"/>
+    <text x="715" y="32" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#b9c6da">Guide 5/5</text>
+    <rect x="802" y="16" width="92" height="24" rx="7" fill="#101827" stroke="#243349"/>
+    <text x="817" y="32" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#b9c6da">Effects</text>
+    <rect x="904" y="16" width="96" height="24" rx="7" fill="#101827" stroke="#243349"/>
+    <text x="919" y="32" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#b9c6da">Run build</text>
+    <rect x="1010" y="16" width="84" height="24" rx="7" fill="#0e1c34" stroke="#2c4a7e"/>
+    <text x="1025" y="32" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#cfe0ff">Export</text>
+    <rect x="1104" y="16" width="80" height="24" rx="7" fill="url(#studioSend)"/>
+    <text x="1120" y="32" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#ffffff">Chat ↗</text>
+
+    <!-- file panel -->
+    <rect x="0" y="54" width="228" height="706" fill="#060a11"/>
+    <line x1="228" y1="54" x2="228" y2="760" stroke="#161e2b"/>
+    <text x="16" y="82" font-family="Inter, system-ui, sans-serif" font-size="9.5" letter-spacing="1.4" fill="#5b6a85">WORKSPACE</text>
+    <text x="16" y="112" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#8fa3c2">▸ effects</text>
+    <text x="30" y="136" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ff9f68">•  gradient-mesh.html</text>
+    <text x="30" y="160" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ff9f68">•  particles.html</text>
+    <text x="30" y="184" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ff9f68">•  poster.html</text>
+    <text x="16" y="214" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ff9f68">•  index.html</text>
+    <text x="16" y="238" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ff9f68">•  about.html</text>
+    <text x="16" y="262" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#6fb4ff">•  styles.css</text>
+    <text x="16" y="286" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#ffd873">JS build.mjs</text>
+    <text x="16" y="310" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#9ee493">• package.json</text>
+    <rect x="8" y="326" width="196" height="26" rx="6" fill="#12213c"/>
+    <text x="16" y="343" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#d6e5ff">•  pricing.html</text>
+    <rect x="0" y="698" width="228" height="62" fill="#070b12"/>
+    <line x1="0" y1="698" x2="228" y2="698" stroke="#161e2b"/>
+    <text x="16" y="720" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#4f5c73">.studio/ · served at</text>
+    <text x="16" y="738" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#7d8ca6">/preview/</text>
+
+    <!-- tabs -->
+    <rect x="228" y="54" width="590" height="38" fill="#080c13"/>
+    <line x1="228" y1="92" x2="818" y2="92" stroke="#161e2b"/>
+    <rect x="228" y="54" width="200" height="38" fill="#0d1728"/>
+    <rect x="228" y="90" width="200" height="2" fill="#5b95ff"/>
+    <text x="242" y="78" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#e9effb">•  gradient-mesh.html</text>
+    <text x="446" y="78" font-family="ui-monospace, Menlo, monospace" font-size="11.5" fill="#6b7b99">•  index.html</text>
+
+    <!-- code -->
+    <rect x="228" y="92" width="48" height="470" fill="#06090f"/>
+    <g font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#35415a" text-anchor="end">
+      <text x="266" y="118">1</text><text x="266" y="138">2</text><text x="266" y="158">3</text>
+      <text x="266" y="178">4</text><text x="266" y="198">5</text><text x="266" y="218">6</text>
+      <text x="266" y="238">7</text><text x="266" y="258">8</text><text x="266" y="278">9</text>
+      <text x="266" y="298">10</text><text x="266" y="318">11</text><text x="266" y="338">12</text>
+      <text x="266" y="358">13</text><text x="266" y="378">14</text><text x="266" y="398">15</text>
+      <text x="266" y="418">16</text><text x="266" y="438">17</text><text x="266" y="458">18</text>
+    </g>
+    <g font-family="ui-monospace, Menlo, monospace" font-size="11.5">
+      <text x="288" y="118" fill="#7f8fb0">&lt;!doctype html&gt;</text>
+      <text x="288" y="138" fill="#7f8fb0">&lt;html lang=</text><text x="376" y="138" fill="#74d6ae">"en"</text><text x="398" y="138" fill="#7f8fb0">&gt;</text>
+      <text x="288" y="158" fill="#9fb2d0">&lt;head&gt;</text>
+      <text x="300" y="178" fill="#9fb2d0">&lt;meta charset=</text><text x="404" y="178" fill="#74d6ae">"utf-8"</text><text x="452" y="178" fill="#9fb2d0">/&gt;</text>
+      <text x="300" y="198" fill="#9fb2d0">&lt;title&gt;</text><text x="352" y="198" fill="#dbe4f4">Gradient mesh</text><text x="452" y="198" fill="#9fb2d0">&lt;/title&gt;</text>
+      <text x="300" y="218" fill="#9fb2d0">&lt;style&gt;</text>
+      <text x="312" y="238" fill="#ffd873">.mesh</text><text x="352" y="238" fill="#b9c6da"> {</text>
+      <text x="324" y="258" fill="#7fb6ff">filter</text><text x="376" y="258" fill="#b9c6da">: </text><text x="390" y="258" fill="#74d6ae">blur(48px)</text><text x="466" y="258" fill="#b9c6da">;</text>
+      <text x="324" y="278" fill="#7fb6ff">mix-blend-mode</text><text x="448" y="278" fill="#b9c6da">: </text><text x="462" y="278" fill="#74d6ae">screen</text><text x="502" y="278" fill="#b9c6da">;</text>
+      <text x="312" y="298" fill="#b9c6da">}</text>
+      <text x="312" y="318" fill="#ffd873">@keyframes</text><text x="392" y="318" fill="#c8d4e8"> drift { … }</text>
+      <text x="300" y="338" fill="#9fb2d0">&lt;/style&gt;</text>
+      <text x="288" y="358" fill="#9fb2d0">&lt;/head&gt;</text>
+      <text x="288" y="378" fill="#9fb2d0">&lt;body&gt;</text>
+      <text x="300" y="398" fill="#9fb2d0">&lt;div class=</text><text x="390" y="398" fill="#74d6ae">"mesh"</text><text x="438" y="398" fill="#9fb2d0">&gt;&lt;/div&gt;</text>
+      <text x="288" y="418" fill="#9fb2d0">&lt;/body&gt;</text>
+      <text x="288" y="438" fill="#9fb2d0">&lt;/html&gt;</text>
+    </g>
+
+    <!-- status bar -->
+    <rect x="228" y="536" width="590" height="26" fill="#06090f"/>
+    <line x1="228" y1="536" x2="818" y2="536" stroke="#161e2b"/>
+    <text x="240" y="553" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#5b6a85">effects/gradient-mesh.html</text>
+    <text x="720" y="553" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#6fdcb6">saved</text>
+    <text x="774" y="553" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#5b6a85">Ln 12</text>
+
+    <!-- preview -->
+    <rect x="818" y="54" width="462" height="508" fill="#05080d"/>
+    <rect x="818" y="54" width="462" height="38" fill="#080c13"/>
+    <line x1="818" y1="92" x2="1280" y2="92" stroke="#161e2b"/>
+    <rect x="830" y="64" width="300" height="20" rx="5" fill="#04060a" stroke="#1a2331"/>
+    <text x="840" y="78" font-family="ui-monospace, Menlo, monospace" font-size="9.5" fill="#7d8ca6">/preview/effects/gradient-mesh.html</text>
+
+    <!-- previewed effect -->
+    <rect x="830" y="104" width="438" height="446" rx="10" fill="#070a10"/>
+    <g clip-path="url(#studioPreviewClip)">
+    <circle cx="960" cy="250" r="150" fill="#2f6bff" opacity="0.55"/>
+    <circle cx="1160" cy="210" r="130" fill="#8b5cf6" opacity="0.5"/>
+    <circle cx="1010" cy="470" r="150" fill="#12b981" opacity="0.4"/>
+    <circle cx="1210" cy="470" r="120" fill="#f97362" opacity="0.38"/>
+    <rect x="830" y="104" width="438" height="446" rx="10" fill="#070a10" opacity="0.25"/>
+    </g>
+    <rect x="900" y="220" width="300" height="190" rx="16" fill="#0a0f18" fill-opacity="0.62" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="926" y="258" font-family="Inter, system-ui, sans-serif" font-size="9" letter-spacing="2" fill="#c9d3e6" opacity="0.75">CODE, NOT AN IMAGE FILE</text>
+    <text x="926" y="296" font-family="Inter, system-ui, sans-serif" font-size="26" font-weight="600" fill="#f4f7fc">Gradient mesh</text>
+    <text x="926" y="322" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#c9d3e6" opacity="0.8">Four fields · one grain tile · 22s loop</text>
+    <rect x="926" y="342" width="94" height="26" rx="13" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="940" y="359" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#e8eef9">blur(48px)</text>
+    <rect x="1030" y="342" width="92" height="26" rx="13" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="1044" y="359" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#e8eef9">feTurbulence</text>
+
+    <!-- terminal -->
+    <rect x="0" y="562" width="1280" height="198" fill="#04070c"/>
+    <line x1="0" y1="562" x2="1280" y2="562" stroke="#1b2432"/>
+    <text x="18" y="588" font-family="Inter, system-ui, sans-serif" font-size="9.5" letter-spacing="1.4" fill="#5b6a85">TERMINAL</text>
+    <rect x="104" y="573" width="92" height="20" rx="5" fill="#0a1c17" stroke="#1d4a3a"/>
+    <text x="114" y="587" font-family="ui-monospace, Menlo, monospace" font-size="9.5" fill="#6fdcb6">~/studio</text>
+    <text x="1180" y="588" font-family="Inter, system-ui, sans-serif" font-size="9.5" fill="#3f4b60">Ctrl+C stop</text>
+
+    <g font-family="ui-monospace, Menlo, monospace" font-size="11.5">
+      <text x="18" y="618" fill="#7d8ca6"><tspan fill="#5ee0b0">~/studio</tspan> <tspan fill="#7aa8ff">$</tspan> ls effects</text>
+      <text x="18" y="642" fill="#b9c6da">gradient-mesh.html   particles.html   poster.html</text>
+      <text x="18" y="666" fill="#7d8ca6"><tspan fill="#5ee0b0">~/studio</tspan> <tspan fill="#7aa8ff">$</tspan> npm run build</text>
+      <text x="18" y="690" fill="#b9c6da">built 9 files into dist/: about.html, index.html, …</text>
+      <text x="18" y="714" fill="#4e5d77">exit 0 · 148ms</text>
+      <text x="18" y="744" fill="#7d8ca6"><tspan fill="#5ee0b0">~/studio</tspan> <tspan fill="#7aa8ff">$</tspan> </text>
+    </g>
+    <rect x="92" y="734" width="7" height="14" fill="#5ee0b0" opacity="0.8"/>
+  </g>
+</svg>

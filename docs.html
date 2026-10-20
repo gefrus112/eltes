@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 65 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, web search with sources, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 65 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, web search with sources, the tool loop, building a website in Studio, code-generated images and effects, local history, accounts, downloads, pricing and self-hosting." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
@@ -31,6 +31,7 @@
           <a href="index.html#features">Features</a>
           <a href="index.html#models">Models</a>
           <a href="docs.html" class="active" aria-current="page">Docs</a>
+          <a href="news.html">News</a>
           <a href="index.html#pricing">Pricing</a>
         </nav>
       </div>
@@ -48,6 +49,7 @@
     <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="news.html">News <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
   </div>
@@ -59,8 +61,8 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.9.0</span>
-          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
+          <span class="badge"><span class="dot"></span>v3.10.0</span>
+          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>17 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
         </div>
@@ -94,6 +96,7 @@
         <a href="#chat-commands"><span data-icon="command" data-icon-size="14"></span>Chat commands</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
         <a href="#workflow"><span data-icon="workflow" data-icon-size="14"></span>Build a website</a>
+        <a href="#effects"><span data-icon="sparkles" data-icon-size="14"></span>Images &amp; effects</a>
         <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
@@ -717,6 +720,262 @@ npm run build
           </table>
         </section>
 
+        <section id="effects">
+          <h2>Images &amp; effects from code <a class="anchor" href="#effects" aria-label="Link to code-generated images and effects" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>A site does not need a folder of photographs to look designed. Gradients, grain, particles, halftone, glow and poster art can all be <strong>drawn by the browser</strong> from a few lines of CSS, SVG or canvas. The page <em>is</em> the image: there is no asset to export, nothing to compress, and the result stays sharp on any screen.</p>
+          <p>Studio ships six working recipes and one button that writes them into your project, so you can read the code, change a number, and watch the preview redraw.</p>
+
+          <div class="callout tip">
+            <span data-icon="sparkles" data-icon-size="15"></span>
+            <span><strong>Try it in Studio.</strong> Open <a href="studio.html">Studio</a>, press <strong>Effects</strong> in the top bar, then <strong>Create &amp; preview</strong> on any card. Studio writes <code>effects/&lt;name&gt;.html</code>, opens it in the editor and points the preview at it — the same file you would ship.</span>
+          </div>
+
+          <h3>Why draw with code</h3>
+          <ul>
+            <li><strong>Small and sharp.</strong> A full-screen mesh gradient is about 2 KB of CSS instead of a 400 KB JPEG, and it stays crisp at every device pixel ratio.</li>
+            <li><strong>Editable.</strong> Colours are hex values and shape is maths — change one variable and the whole page follows, including dark and light themes.</li>
+            <li><strong>Responsive by construction.</strong> Percentages and <code>vmax</code> units re-compose the artwork at any window size; nothing is cropped or stretched.</li>
+            <li><strong>No licences, no stock photos, no attribution.</strong> The output is generated from your own source files.</li>
+          </ul>
+          <p>The trade-off is paint cost. Blurred layers and SVG filters are expensive per pixel, so the recipes keep the expensive parts on a few large elements, animate only <code>transform</code> and <code>opacity</code>, and stop when the reader asks for reduced motion.</p>
+
+          <h3>Four techniques, one page</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Technique</th><th>Best for</th><th>What to watch</th></tr></thead>
+              <tbody>
+                <tr><td>CSS gradients and shadows</td><td>Mesh fields, aurora ribbons, glows, duotone washes</td><td>Animate <code>transform</code>/<code>opacity</code>, not gradient stops — stop changes repaint the layer</td></tr>
+                <tr><td>SVG filters</td><td>Grain, turbulence, displacement, poster warp, logo effects</td><td><code>feTurbulence</code> is computed per pixel; keep filtered areas small or static</td></tr>
+                <tr><td>Masks, clip paths and blend modes</td><td>Halftone dots, cut-outs, type blended into a field</td><td>Needs a stacking context (<code>isolation: isolate</code>) to blend against the right layer</td></tr>
+                <tr><td>Canvas 2D</td><td>Hundreds of moving particles, links, pointer-reactive fields</td><td>Scale for <code>devicePixelRatio</code> once, cap it at 2, and pause when the tab is hidden</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The loop: create, preview, keep</h3>
+          <div class="steps-list">
+            <div class="step-item">
+              <h4>Create the file</h4>
+              <p>Press <strong>Effects</strong> → <strong>Create &amp; preview</strong>. The recipe is written to <code>effects/&lt;name&gt;.html</code> and opened in the editor. Prefer the keyboard? <strong>+</strong> in the file panel creates the same file by hand.</p>
+            </div>
+            <div class="step-item">
+              <h4>Edit the code</h4>
+              <p>Change a colour, a blur radius or the number of particles. <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd> saves; Studio also auto-saves about a second after you stop typing.</p>
+            </div>
+            <div class="step-item">
+              <h4>Watch the preview</h4>
+              <p>The right pane reloads the saved file from <code>/preview/effects/&lt;name&gt;.html</code>. Pop it out to see it at full window size, or switch to phone width to check the layout.</p>
+            </div>
+            <div class="step-item">
+              <h4>Use it in the site</h4>
+              <p>Copy the CSS block, the SVG or the canvas script into your own page and stylesheet. Then build:</p>
+              <div class="doc-code">
+                <div class="bar">
+                  <span class="label"><span class="dot"></span>terminal — build the site with the effect</span>
+                  <button class="cpy" type="button">Copy</button>
+                </div>
+                <pre><code><span class="c"># the scaffold's build.mjs walks subfolders and copies .html/.css/.js/.svg/.json</span>
+npm run build
+find dist -name <span class="s">'*.html'</span>       <span class="c"># dist/index.html, dist/effects/mesh.html</span>
+<span class="c"># then preview the build itself</span>
+<span class="c"># /preview/dist/effects/mesh.html</span></code></pre>
+              </div>
+            </div>
+          </div>
+
+          <h3>Recipe 1 — a mesh gradient in CSS</h3>
+          <p>Four soft circles, pushed through a blur and mixed with <code>screen</code>, read as a single continuous colour field. The grain layer on top hides banding, which is the giveaway of a low-bit-depth gradient.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>effects/mesh.html — structure and style</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>&lt;<span class="k">div</span> class=<span class="s">"mesh"</span> aria-hidden=<span class="s">"true"</span>&gt;
+  &lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;&lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;&lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;&lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;
+&lt;/<span class="k">div</span>&gt;
+
+&lt;<span class="k">style</span>&gt;
+  .mesh { position: fixed; inset: -20%; filter: blur(48px) saturate(130%); }
+  .mesh span {
+    position: absolute; width: 62vmax; height: 62vmax; border-radius: 50%;
+    mix-blend-mode: screen;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  .mesh span:nth-child(1) { background: #2f6bff; top: -10%; left: -6%; }
+  .mesh span:nth-child(2) { background: #8b5cf6; top: 8%; right: -12%; animation-duration: 27s; }
+  .mesh span:nth-child(3) { background: #12b981; bottom: -16%; left: 16%; animation-duration: 31s; }
+  .mesh span:nth-child(4) { background: #f97362; bottom: -8%; right: 4%; animation-duration: 25s; }
+
+  @keyframes drift {
+    from { transform: translate3d(-3%, -2%, 0) scale(1); }
+    to   { transform: translate3d(5%, 4%, 0) scale(1.18); }
+  }
+&lt;/<span class="k">style</span>&gt;</code></pre>
+          </div>
+          <p><code>inset: -20%</code> gives the blur room to fade instead of showing a hard edge at the viewport rim. Vary the four hex values and the durations to get anything from a calm night sky to a neon aurora.</p>
+
+          <h3>Recipe 2 — grain without an image file</h3>
+          <p>Grain is one CSS background: an inline SVG with a fractal-noise filter, URL-encoded so it can live inside a stylesheet. No request, no binary.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>grain layer — one declaration</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>.grain {
+  position: fixed; inset: 0; pointer-events: none; opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}</code></pre>
+          </div>
+          <p><code>baseFrequency</code> sets the speck size (higher is finer), <code>numOctaves</code> adds detail, and <code>%23</code> is a URL-encoded <code>#</code> — forget it and the browser silently drops the whole declaration. Toggle <code>mix-blend-mode</code> between <code>overlay</code> and <code>soft-light</code> to taste.</p>
+
+          <h3>Recipe 3 — halftone dots and a mask</h3>
+          <p>Two <code>radial-gradient</code> dot screens offset by half a tile give a print-like halftone. A radial <code>mask-image</code> fades it into the background, and scaling the layer makes the dots appear to breathe.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>halftone layer</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>.dots {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle, #e8edf6 1.1px, transparent 1.5px) 0 0 / 12px 12px,
+    radial-gradient(circle, #7aa8ff 1.1px, transparent 1.5px) 6px 6px / 12px 12px;
+  mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 62%);
+  animation: breathe 6s ease-in-out infinite alternate;
+}
+@keyframes breathe { from { transform: scale(0.9); } to { transform: scale(1.08); } }</code></pre>
+          </div>
+          <p>The whole effect is two gradients and a mask — no <code>&lt;canvas&gt;</code>, no JavaScript. Change the tile size (<code>/ 12px 12px</code>) to switch between a subtle texture and a visible dot field.</p>
+
+          <h3>Recipe 4 — canvas particles</h3>
+          <p>When you need hundreds of moving objects, canvas is the right tool. The three details that make it look professional are the device-pixel-ratio scale, a cap on that scale, and a stop for readers who ask for reduced motion.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>particles.js</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>&lt;<span class="k">canvas</span> id=<span class="s">"sky"</span> aria-hidden=<span class="s">"true"</span>&gt;&lt;/<span class="k">canvas</span>&gt;
+
+&lt;<span class="k">script</span>&gt;
+  const canvas = document.querySelector('#sky');
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const dots = Array.from({ length: 90 }, () =&gt; ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random() - 0.5) * 0.0006,
+    vy: (Math.random() - 0.5) * 0.0006
+  }));
+
+  function fit() {
+    canvas.width = innerWidth * dpr;
+    canvas.height = innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const d of dots) {
+      d.x = (d.x + d.vx + 1) % 1;
+      d.y = (d.y + d.vy + 1) % 1;
+      ctx.beginPath();
+      ctx.arc(d.x * innerWidth, d.y * innerHeight, 1.6, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(180, 214, 255, .8)';
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  addEventListener('resize', fit);
+  fit();
+  if (!calm) requestAnimationFrame(frame);
+&lt;/<span class="k">script</span>&gt;</code></pre>
+          </div>
+          <p>Drawing in CSS pixels after <code>setTransform(dpr, …)</code> keeps coordinates readable while the canvas renders at full resolution. <code>innerWidth</code>/<code>innerHeight</code> are used instead of CSS sizes so the loop does not force layout every frame.</p>
+
+          <h3>Recipe 5 — a poster from turbulence</h3>
+          <p>SVG is the only place you get real procedural noise in a document. <code>feTurbulence</code> plus <code>feDisplacementMap</code> warps type and shapes; a duotone gradient behind them supplies the colour.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>poster.svg — filters and duotone</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>&lt;<span class="k">svg</span> viewBox=<span class="s">"0 0 600 800"</span> role=<span class="s">"img"</span> aria-label=<span class="s">"Generative poster"</span>&gt;
+  &lt;<span class="k">defs</span>&gt;
+    &lt;<span class="k">filter</span> id=<span class="s">"warp"</span>&gt;
+      &lt;<span class="k">feTurbulence</span> type=<span class="s">"fractalNoise"</span> baseFrequency=<span class="s">".012 .02"</span> numOctaves=<span class="s">"4"</span>/&gt;
+      &lt;<span class="k">feDisplacementMap</span> in=<span class="s">"SourceGraphic"</span> scale=<span class="s">"36"</span>/&gt;
+    &lt;/<span class="k">filter</span>&gt;
+    &lt;<span class="k">linearGradient</span> id=<span class="s">"duo"</span> x1=<span class="s">"0"</span> y1=<span class="s">"0"</span> x2=<span class="s">"1"</span> y2=<span class="s">"1"</span>&gt;
+      &lt;<span class="k">stop</span> offset=<span class="s">"0"</span> stop-color=<span class="s">"#ff6b4a"</span>/&gt;
+      &lt;<span class="k">stop</span> offset=<span class="s">".45"</span> stop-color=<span class="s">"#d92d5c"</span>/&gt;
+      &lt;<span class="k">stop</span> offset=<span class="s">"1"</span> stop-color=<span class="s">"#120d2b"</span>/&gt;
+    &lt;/<span class="k">linearGradient</span>&gt;
+  &lt;/<span class="k">defs</span>&gt;
+  &lt;<span class="k">rect</span> width=<span class="s">"600"</span> height=<span class="s">"800"</span> fill=<span class="s">"url(#duo)"</span>/&gt;
+  &lt;<span class="k">g</span> filter=<span class="s">"url(#warp)"</span> fill=<span class="s">"none"</span> stroke=<span class="s">"#f5f2ea"</span> stroke-width=<span class="s">"10"</span>&gt;
+    &lt;<span class="k">circle</span> cx=<span class="s">"300"</span> cy=<span class="s">"360"</span> r=<span class="s">"170"</span>/&gt;
+    &lt;<span class="k">path</span> d=<span class="s">"M-40 620 Q 300 500 640 660"</span>/&gt;
+  &lt;/<span class="k">g</span>&gt;
+&lt;/<span class="k">svg</span>&gt;</code></pre>
+          </div>
+          <p>Keep the filtered group small — filters rasterise every pixel they touch. For a page-wide poster, render it once into an SVG file and load it with <code>&lt;img&gt;</code>; the browser then caches the rasterised result.</p>
+
+          <h3>Putting an effect behind your content</h3>
+          <p>The recipes are complete pages so you can read them top to bottom. To use one in a real page, keep the effect layer absolutely positioned and decorative, and lift the text above it:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>styles.css — hero with a code-drawn background</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>.hero { position: relative; isolation: isolate; overflow: hidden; padding: 96px 24px; }
+.hero .mesh { position: absolute; inset: -20%; z-index: -1; filter: blur(48px); }
+.hero .grain { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.2; }
+.hero h1 { position: relative; margin: 0; font-size: clamp(2rem, 6vw, 4.5rem); }</code></pre>
+          </div>
+          <p><code>isolation: isolate</code> gives the blending its own stacking context, so <code>mix-blend-mode</code> combines with the effect layers and not with the rest of the site. <code>pointer-events: none</code> keeps the decoration from stealing clicks, and <code>z-index: -1</code> keeps it behind the text without extra wrappers.</p>
+
+          <h3>The six recipes Studio ships</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Recipe</th><th>Technique</th><th>File written</th></tr></thead>
+              <tbody>
+                <tr><td>Animated gradient mesh</td><td>CSS radial fields + blur + inline-SVG grain</td><td><code>effects/gradient-mesh.html</code></td></tr>
+                <tr><td>Canvas particle field</td><td>Canvas 2D, DPR-aware, distance links</td><td><code>effects/particles.html</code></td></tr>
+                <tr><td>Aurora ribbons</td><td>Rotated gradient ribbons, blur, slow sway</td><td><code>effects/aurora.html</code></td></tr>
+                <tr><td>Animated halftone</td><td>Two dot screens under a radial mask</td><td><code>effects/halftone.html</code></td></tr>
+                <tr><td>Glowing orb</td><td>Spinning conic gradient + orbit rings</td><td><code>effects/orb.html</code></td></tr>
+                <tr><td>Generative poster</td><td>SVG turbulence, displacement, duotone</td><td><code>effects/poster.html</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Each file is standalone: no build step, no CDN, no fonts to fetch. Open it directly at <code>/preview/effects/poster.html</code>, or copy parts of it into <code>styles.css</code> and your own markup.</p>
+
+          <h3>Keep it fast and accessible</h3>
+          <ul>
+            <li><strong>Animate compositor properties only.</strong> <code>transform</code> and <code>opacity</code> can run on the GPU; animating <code>filter</code>, <code>background-position</code> or gradient stops forces a repaint every frame.</li>
+            <li><strong>Respect reduced motion.</strong> Wrap long animations in <code>@media (prefers-reduced-motion: reduce) { .mesh span { animation: none; } }</code>, as the shipped recipes do.</li>
+            <li><strong>Decorate, then hide.</strong> Purely visual layers get <code>aria-hidden="true"</code>; a poster that carries meaning gets a real <code>alt</code> or nearby text.</li>
+            <li><strong>Cap the pixel ratio.</strong> Rendering canvas at <code>devicePixelRatio</code> 3 triples the fill cost for no visible gain; <code>Math.min(dpr, 2)</code> is the usual compromise.</li>
+            <li><strong>Pause off-screen work.</strong> For canvas loops, stop drawing when <code>document.hidden</code> is true or an <code>IntersectionObserver</code> says the canvas left the viewport.</li>
+            <li><strong>Check contrast.</strong> Grain and glow sit under text; keep the text on a solid panel or verify it against the lightest point of the effect.</li>
+          </ul>
+
+          <h3>When it does not render</h3>
+          <ul>
+            <li><strong>The grain disappears.</strong> A raw <code>#</code> inside a data URI ends the URL early. Encode it as <code>%23</code>.</li>
+            <li><strong>The blur has a hard edge.</strong> The layer is exactly viewport-sized. Extend it with <code>inset: -20%</code> and clip the parent with <code>overflow: hidden</code>.</li>
+            <li><strong>Canvas looks soft.</strong> Set <code>canvas.width = innerWidth * dpr</code> (not just a CSS width) and call <code>ctx.setTransform(dpr, 0, 0, dpr, 0, 0)</code>.</li>
+            <li><strong>An SVG filter is clipped.</strong> Filters paint outside the element's box; give the SVG a <code>viewBox</code> with margin, or set <code>x/y/width/height</code> on the <code>filter</code> element.</li>
+            <li><strong>The effect is missing from <code>dist/</code>.</strong> The scaffold build only copies <code>.html</code>, <code>.css</code>, <code>.js</code>, <code>.svg</code> and <code>.json</code>, and skips dot-folders. Rename the asset or add its extension to the <code>include</code> regex in <code>build.mjs</code>.</li>
+            <li><strong>The preview frozen on an old version.</strong> It reloads on save and after a build; if the file changed outside Studio, press the reload button.</li>
+          </ul>
+
+          <p>Next: see how the same files flow through the terminal and the live preview in <a class="inline-link" href="#workflow">the website workflow</a>, or how Studio is put together in <a class="inline-link" href="#studio">Studio, files and the terminal</a>.</p>
+        </section>
+
         <section id="settings">
           <h2>Settings <a class="anchor" href="#settings" aria-label="Link to settings" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>Open with <code>⌘,</code> or the gear in the top bar. Settings are stored in <code>eltes.settings.v1</code> and apply instantly.</p>
@@ -973,6 +1232,9 @@ eltes.bat --port 8080</code></pre>
         <a href="#web-search">Web search</a>
         <a href="#agent">Agent &amp; tools</a>
         <a href="#chat">Chats &amp; export</a>
+        <a href="#workflow">Build a website</a>
+        <a href="#effects">Images &amp; effects</a>
+        <a href="#studio">Studio &amp; terminal</a>
         <a href="#settings">Settings</a>
         <a href="#shortcuts">Shortcuts</a>
         <a href="#downloads">Downloads</a>

@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/app.css" />
 </head>
-<body class="app">
+<body class="app" data-theme="grey">
   <a class="skip" href="#thread">Skip to conversation</a>
   <div class="block-field" id="blockField" aria-hidden="true"></div>
 
@@ -282,12 +282,27 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.9.0 · BYOK<br />Optional proxy. No telemetry.</div>
+          <div class="nav-foot">Eltes v3.10.0 · BYOK<br />Optional proxy. No telemetry.<br /><a href="news.html">What’s new →</a></div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
           <!-- general -->
           <section data-panel="general" class="active">
+            <div class="set-group">
+              <h4>Theme</h4>
+              <p class="group-desc">The chat shell ships in neutral graphite — grey, not blue. Midnight restores the original blue accents.</p>
+
+              <div class="set-row">
+                <div class="lbl"><strong>Interface theme</strong><span>Applies to the whole chat workspace: shell, composer, bubbles and accents.</span></div>
+                <div class="ctl">
+                  <select class="select" id="themeSelect">
+                    <option value="grey">Graphite (grey)</option>
+                    <option value="blue">Midnight (blue)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <div class="set-group">
               <h4>Conversation</h4>
               <p class="group-desc">How Eltes behaves while you work.</p>
@@ -514,7 +529,7 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.9.0</span></div>
+              <div class="kv"><span>Version</span><span>3.10.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
               <div class="kv"><span>Models</span><span>65 · 14 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>News — Eltes AI</title>
   <meta name="description" content="Eltes release notes with real screenshots: the code-generated effects library, the guided build-a-website workflow, Studio's file editor, live preview and Linux terminal, and the Graphite chat theme." />
-  <meta name="theme-color" content="#02050a" />
+  <meta name="theme-color" content="#000003" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
@@ -22,7 +22,7 @@
     <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
   </div>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
-  <a class="skip" href="#r311">Skip to the latest release</a>
+  <a class="skip" href="#r312">Skip to the latest release</a>
 
   <header class="nav" id="nav">
     <div class="wrap">
@@ -68,15 +68,16 @@
       <div class="wrap">
         <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
         <h1>Every release, with the screen to prove it.</h1>
-        <p class="lede">Notes from the Eltes build: the effects library that draws its own imagery, the five-step website workflow, Studio's editor and Linux terminal, and the Graphite chat theme. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <p class="lede">Notes from the Eltes build: the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.11.0</span>
+          <span class="badge"><span class="dot"></span>v3.12.0</span>
           <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
           <span class="badge"><span data-icon="image" data-icon-size="12"></span>5 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r311" class="active">v3.11 · Living galaxy</a>
+          <a href="#r312" class="active">v3.12 · Deeper sky</a>
+          <a href="#r311">v3.11 · Living galaxy</a>
           <a href="#r310">v3.10 · Effects from code</a>
           <a href="#r39">v3.9 · Website workflow</a>
           <a href="#r38">v3.8 · Studio</a>
@@ -86,35 +87,36 @@
     </section>
 
     <!-- =========================== latest =============================== -->
-    <section class="news-feed" id="r311" aria-labelledby="h-r311">
+    <section class="news-feed" id="r312" aria-labelledby="h-r312">
       <div class="wrap">
         <article class="news-feature reveal">
           <figure class="shot">
-            <a href="assets/img/news/galaxy.jpg" target="_blank" rel="noreferrer" aria-label="Open the galaxy still at full size">
-              <img src="assets/img/news/galaxy.jpg" alt="The Eltes galaxy background: a tilted band of stars with a warm core, dust lanes and a dusting of faint blue stars over deep space." width="1280" height="760" />
+            <a href="assets/img/news/galaxy.jpg" target="_blank" rel="noreferrer" aria-label="Open the new galaxy still at full size">
+              <img src="assets/img/news/galaxy.jpg" alt="The rebuilt Eltes sky: a diagonal river of stars with a bright cream core and dark dust lanes, a spiral galaxy in the upper right, a globular cluster upper left, an edge-on galaxy lower left and coloured stars throughout." width="1280" height="760" />
               <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
             </a>
             <figcaption>
-              <span>A still from the live canvas: the band, the dust lanes and the star field are all painted in the browser.</span>
+              <span>A still from the live canvas: band, spiral, cluster, dust and coloured stars, all painted in the browser.</span>
               <span class="tag">galaxy.jpg · canvas capture</span>
             </figcaption>
           </figure>
 
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.11.0</span>
+              <span class="news-ver latest">v3.12.0</span>
               <span class="news-kind">Latest release</span>
             </div>
-            <h2 id="h-r311">The whole site now floats through space.</h2>
-            <p class="news-sum">Every marketing and documentation page sits in front of a moving galaxy: a tilted band of stars with a warm core, dust lanes, drifting star layers and the occasional meteor. It is drawn in one canvas — no video, no image files, no libraries.</p>
+            <h2 id="h-r312">A deeper sky. A blacker chat.</h2>
+            <p class="news-sum">The backdrop was rebuilt from the ground up — a spiral galaxy, a globular cluster, an edge-on galaxy, coloured nebulae and diffraction spikes around the brightest stars. The chat shell went the other way: blue is gone, and Obsidian is true black from the sidebar to the composer.</p>
             <ul class="news-points">
-              <li><strong>Real depth</strong> — three parallax star layers drift at different speeds and lean with the pointer.</li>
-              <li><strong>Scroll is travel</strong> — fast scrolling stretches the stars into short warp trails.</li>
-              <li><strong>Cheap by design</strong> — the backdrop is painted once, stars animate at 30 fps, DPR capped, nothing runs in a hidden tab.</li>
-              <li><strong>Respectful</strong> — a single still frame under <code>prefers-reduced-motion</code>, and the app and Studio keep their clean surfaces.</li>
+              <li><strong>More universe</strong> — a tilted Milky Way with a hot cream core and a dark rift, plus a spiral, a cluster and a distant lens.</li>
+              <li><strong>Real light</strong> — stars in six temperatures, emission nebulae in rose, teal and amber, meteors trailing sparks.</li>
+              <li><strong>Obsidian chat</strong> — <code>#000</code> surfaces, silver accents, no dark blue anywhere. Graphite stays for anyone who wants grey.</li>
+              <li><strong>Still cheap</strong> — the sky is painted once at 1.4× DPR, stars run at 30 fps, and the drift stops under reduced motion.</li>
             </ul>
             <div class="news-links">
-              <a class="primary" href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See it on the homepage</a>
+              <a class="primary" href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See the new sky</a>
+              <a href="app.html">Chat in black<span data-icon="arrow-right" data-icon-size="14"></span></a>
               <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
             </div>
           </div>
@@ -125,6 +127,19 @@
     <!-- ============================= feed =============================== -->
     <div class="news-feed">
       <div class="wrap">
+        <article class="news-item reveal" id="r311" aria-labelledby="h-r311">
+          <div class="news-item-head">
+            <span class="news-ver">v3.11.0</span>
+            <span class="news-kind">Galaxy backdrop</span>
+          </div>
+          <h2 id="h-r311">The whole site starts floating through space.</h2>
+          <p class="news-sum">Every marketing and documentation page moved in front of a living sky: a tilted band of stars, drifting parallax layers and the occasional meteor, drawn in one canvas with no video and no image files. v3.12 rebuilt the artwork on top of it.</p>
+          <div class="news-links">
+            <a href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See it on the homepage</a>
+            <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          </div>
+        </article>
+
         <article class="news-item reveal" id="r310" aria-labelledby="h-r310">
           <div class="news-item-head">
             <span class="news-ver">v3.10.0</span>
@@ -218,7 +233,7 @@
             <span class="news-kind">Interface</span>
           </div>
           <h2 id="h-r371">Grey chat, not blue.</h2>
-          <p class="news-sum">The workspace now ships Graphite: neutral grey shell, bubbles, accents and send button. Midnight blue is still there as a second theme, one dropdown away in Settings → General.</p>
+          <p class="news-sum">The workspace shipped Graphite: neutral grey shell, bubbles, accents and send button, with Midnight blue as the second theme. v3.12 replaced Midnight with Obsidian black.</p>
           <figure class="shot">
             <a href="assets/img/news/theme.svg" target="_blank" rel="noreferrer" aria-label="Open the Graphite theme screenshot at full size">
               <img src="assets/img/news/theme.svg" alt="The Eltes chat interface in the Graphite theme: dark grey sidebar, grey user bubble, grey send button, a web-search thinking panel and the composer." width="1280" height="760" loading="lazy" />
@@ -233,7 +248,7 @@
             <li><strong>Grey by default</strong> — <code>data-theme="grey"</code> on the app shell.</li>
             <li><strong>Tokenised</strong> — accents, panels and gradients come from CSS variables.</li>
             <li><strong>Persisted</strong> — the choice lives in <code>eltes.settings.v1</code> and updates the browser chrome colour.</li>
-            <li><strong>Reversible</strong> — switch to Midnight in Settings → General, no reload.</li>
+            <li><strong>Reversible</strong> — switch between Graphite and Obsidian in Settings → General, no reload.</li>
           </ul>
           <div class="news-links">
             <a href="app.html">Open the app<span data-icon="arrow-right" data-icon-size="14"></span></a>

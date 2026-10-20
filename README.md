@@ -29,7 +29,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Effects from code:** the **Effects** button in Studio writes one of six dependency-free recipes — gradient mesh, canvas particles, aurora, halftone, glowing orb, generative poster — into `effects/<name>.html`, opens it in the editor and loads it in the preview. Every recipe is CSS, SVG or canvas, so there is no bitmap to export or download; the guide is in [docs.html#effects](docs.html#effects). The starter `build.mjs` walks subfolders, so the effects ship with the site. Release notes with screenshots: [news.html](news.html).
 - **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
 - **Model catalogue:** 65 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, and custom endpoints.
-- **Interface:** Graphite (neutral grey) by default with Midnight blue as an option under Settings → General, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports. The theme is tokenised in `assets/css/app.css` and stored in `eltes.settings.v1`.
+- **Interface:** Obsidian (true black, no blue) by default with Graphite grey as an option under Settings → General, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports. Both themes are tokenised in `assets/css/app.css` and stored in `eltes.settings.v1`.
 
 ## The galaxy backdrop
 

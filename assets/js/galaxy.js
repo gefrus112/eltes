@@ -43,12 +43,12 @@
 
   const COLORS = [
     [255, 255, 255],
-    [214, 226, 255],
-    [168, 201, 255],
-    [133, 176, 255],
-    [255, 238, 218],
-    [190, 247, 236],
-    [203, 190, 255]
+    [226, 237, 255],
+    [186, 212, 255],
+    [255, 238, 210],
+    [255, 208, 164],
+    [192, 248, 236],
+    [210, 192, 255]
   ];
 
   const state = {
@@ -103,8 +103,16 @@
     ctx.lineTo(m.x - dx, m.y - dy);
     ctx.stroke();
 
+    for (let i = 1; i <= 5; i += 1) {
+      const f = i / 6;
+      const sx = m.x - dx * f * 0.85 + (i % 2 ? 1 : -1) * i * 0.9;
+      const sy = m.y - dy * f * 0.85 + (i % 2 ? -1 : 1) * i * 0.7;
+      ctx.fillStyle = `rgba(255, 255, 255, ${(0.4 * fade * (1 - f)).toFixed(3)})`;
+      ctx.fillRect(sx, sy, 1.3, 1.3);
+    }
+
     if (glowSprites) {
-      const size = 22 * (0.6 + fade * 0.6);
+      const size = 26 * (0.6 + fade * 0.6);
       ctx.globalAlpha = fade;
       ctx.drawImage(glowSprites[0], m.x - size / 2, m.y - size / 2, size, size);
       ctx.globalAlpha = 1;
@@ -135,133 +143,426 @@
     b.restore();
   }
 
+  /* ---------------------------- scene sprites ---------------------------- */
+
+  /* A grand-design spiral seen at an angle, painted once into a small sprite
+     and blitted into the backdrop. Painting it small keeps the cost flat no
+     matter how big the viewport is. */
+  function spiralSprite(size) {
+    const c = makeCanvas(size, size);
+    const g = c.getContext('2d');
+    if (!g) return c;
+    const R = size / 2;
+    g.translate(R, R);
+
+    // faint halo around the whole disk
+    g.globalCompositeOperation = 'lighter';
+    ellipseFill(g, 0, 0, R, R * 0.94, [
+      [0, 'rgba(255, 224, 188, 0.2)'],
+      [0.3, 'rgba(226, 208, 250, 0.07)'],
+      [1, 'rgba(170, 170, 255, 0)']
+    ]);
+
+    const thetaMax = Math.PI * 3.05;
+    const k = Math.log(1 / 0.055) / thetaMax;
+
+    for (let arm = 0; arm < 2; arm += 1) {
+      const phase = arm * Math.PI;
+
+      // young blue-white stars strung along the arm
+      for (let i = 0; i < 2400; i += 1) {
+        const f = Math.pow(i / 2400, 0.84);
+        const theta = f * thetaMax;
+        const r = R * 0.055 * Math.exp(k * theta);
+        const jitter = (Math.random() + Math.random() + Math.random() - 1.5) * R * 0.085 * (0.25 + f);
+        const ang = theta + phase;
+        const x = Math.cos(ang) * r + Math.cos(ang + Math.PI / 2) * jitter;
+        const y = (Math.sin(ang) * r + Math.sin(ang + Math.PI / 2) * jitter) * 0.3;
+        const warm = Math.max(0, 1 - f * 2.2);
+        const rr = Math.round(214 + warm * 41);
+        const gg = Math.round(226 - warm * 8);
+        const bb = Math.round(255 - warm * 45);
+        const a = (0.04 + 0.3 * (1 - f)) * rand(0.3, 1);
+        g.fillStyle = `rgba(${rr}, ${gg}, ${bb}, ${Math.max(0.02, a).toFixed(3)})`;
+        g.fillRect(x, y, rand(0.5, 1.6), rand(0.5, 1.6));
+      }
+
+      // pink star-forming knots
+      for (let i = 0; i < 22; i += 1) {
+        const f = rand(0.22, 0.94);
+        const theta = f * thetaMax;
+        const r = R * 0.055 * Math.exp(k * theta);
+        const ang = theta + phase + rand(-0.14, 0.14);
+        const x = Math.cos(ang) * r;
+        const y = Math.sin(ang) * r * 0.3;
+        const rad = rand(1.4, 4.6);
+        const grad = g.createRadialGradient(x, y, 0, x, y, rad);
+        grad.addColorStop(0, 'rgba(255, 158, 196, 0.62)');
+        grad.addColorStop(1, 'rgba(255, 120, 170, 0)');
+        g.fillStyle = grad;
+        g.beginPath(); g.arc(x, y, rad, 0, Math.PI * 2); g.fill();
+      }
+
+      // a dark dust lane hugging the inside edge of the arm
+      g.globalCompositeOperation = 'source-over';
+      for (let i = 0; i < 110; i += 1) {
+        const f = Math.pow(i / 110, 0.82);
+        const theta = f * thetaMax;
+        const r = R * 0.055 * Math.exp(k * theta);
+        const ang = theta + phase + 0.17;
+        const x = Math.cos(ang) * r;
+        const y = Math.sin(ang) * r * 0.3;
+        const rad = R * 0.024 * (0.35 + f);
+        const grad = g.createRadialGradient(x, y, 0, x, y, rad);
+        grad.addColorStop(0, 'rgba(0, 0, 3, 0.5)');
+        grad.addColorStop(0.6, 'rgba(0, 0, 3, 0.2)');
+        grad.addColorStop(1, 'rgba(0, 0, 3, 0)');
+        g.fillStyle = grad;
+        g.beginPath(); g.arc(x, y, rad, 0, Math.PI * 2); g.fill();
+      }
+      g.globalCompositeOperation = 'lighter';
+    }
+
+    // bar + nucleus, outshining everything else in the disk
+    ellipseFill(g, 0, 0, R * 0.5, R * 0.085, [
+      [0, 'rgba(255, 238, 206, 0.42)'],
+      [0.55, 'rgba(255, 214, 172, 0.14)'],
+      [1, 'rgba(255, 200, 150, 0)']
+    ], 0.5);
+    ellipseFill(g, 0, 0, R * 0.26, R * 0.12, [
+      [0, 'rgba(255, 246, 230, 0.85)'],
+      [0.2, 'rgba(255, 230, 190, 0.5)'],
+      [0.55, 'rgba(255, 206, 150, 0.16)'],
+      [1, 'rgba(255, 190, 130, 0)']
+    ]);
+    ellipseFill(g, 0, 0, R * 0.055, R * 0.03, [
+      [0, 'rgba(255, 255, 255, 0.95)'],
+      [0.5, 'rgba(255, 246, 224, 0.5)'],
+      [1, 'rgba(255, 236, 200, 0)']
+    ]);
+    return c;
+  }
+
+  /* A globular cluster: a compact ball of resolved stars. */
+  function clusterSprite(size) {
+    const c = makeCanvas(size, size);
+    const g = c.getContext('2d');
+    if (!g) return c;
+    const R = size / 2;
+    g.translate(R, R);
+    g.globalCompositeOperation = 'lighter';
+    ellipseFill(g, 0, 0, R * 0.9, R * 0.9, [
+      [0, 'rgba(255, 232, 200, 0.34)'],
+      [0.32, 'rgba(214, 206, 255, 0.12)'],
+      [1, 'rgba(160, 170, 255, 0)']
+    ]);
+    for (let i = 0; i < 820; i += 1) {
+      const a = Math.random() * Math.PI * 2;
+      const rad = Math.pow(Math.random(), 1.75) * R * 0.78;
+      const x = Math.cos(a) * rad;
+      const y = Math.sin(a) * rad;
+      const alpha = rand(0.12, 0.8) * (1 - rad / (R * 0.95));
+      const warm = Math.random() < 0.32;
+      g.fillStyle = `rgba(${warm ? 255 : 226}, ${warm ? 226 : 236}, ${warm ? 194 : 255}, ${Math.max(0.02, alpha).toFixed(3)})`;
+      g.fillRect(x, y, rand(0.4, 1.6), rand(0.4, 1.6));
+    }
+    return c;
+  }
+
+  /* A wispy emission nebula: a soft body plus a handful of filaments. */
+  function nebulaKnot(b, x, y, radius, rgb, alpha) {
+    // Painted small and blitted large: the upscale does the blurring, so the
+    // cloud keeps soft, organic edges instead of visible gradient rings.
+    const span = radius * 3;
+    const size = Math.max(56, Math.round(span * 0.42));
+    const sprite = makeCanvas(size, size);
+    const g = sprite.getContext('2d');
+    if (!g) return;
+    const c = size / 2;
+    const r = size * 0.3;
+    g.globalCompositeOperation = 'lighter';
+
+    for (let i = 0; i < 12; i += 1) {
+      const a = rand(0, Math.PI * 2);
+      const d = rand(0, r * 0.95);
+      const lx = c + Math.cos(a) * d;
+      const ly = c + Math.sin(a) * d * 0.8;
+      const lr = r * rand(0.22, 0.58);
+      const grad = g.createRadialGradient(lx, ly, 0, lx, ly, lr);
+      grad.addColorStop(0, `rgba(${rgb}, ${(alpha * rand(0.25, 0.6)).toFixed(3)})`);
+      grad.addColorStop(0.5, `rgba(${rgb}, ${(alpha * rand(0.06, 0.18)).toFixed(3)})`);
+      grad.addColorStop(1, `rgba(${rgb}, 0)`);
+      g.fillStyle = grad;
+      g.beginPath();
+      g.arc(lx, ly, lr, 0, Math.PI * 2);
+      g.fill();
+    }
+
+    g.lineCap = 'round';
+    for (let i = 0; i < 16; i += 1) {
+      const a0 = rand(0, Math.PI * 2);
+      const d0 = rand(0, r * 0.7);
+      let px = c + Math.cos(a0) * d0;
+      let py = c + Math.sin(a0) * d0;
+      g.beginPath();
+      g.moveTo(px, py);
+      for (let k = 0; k < 4; k += 1) {
+        const ang = a0 + rand(-0.9, 0.9);
+        const len = r * rand(0.14, 0.38);
+        const nx = px + Math.cos(ang) * len;
+        const ny = py + Math.sin(ang) * len * 0.85;
+        g.quadraticCurveTo(px + Math.cos(ang + 0.7) * len * 0.5, py + Math.sin(ang + 0.7) * len * 0.5, nx, ny);
+        px = nx;
+        py = ny;
+      }
+      g.strokeStyle = `rgba(${rgb}, ${(alpha * rand(0.05, 0.15)).toFixed(3)})`;
+      g.lineWidth = rand(1.4, 3.4);
+      g.stroke();
+    }
+
+    b.save();
+    b.globalCompositeOperation = 'lighter';
+    b.drawImage(sprite, x - span / 2, y - span / 2, span, span);
+    b.restore();
+  }
+
+  /* A bright foreground star with a bloom and four diffraction spikes. */
+  function heroStar(b, x, y, r, rgb, alpha) {
+    ellipseFill(b, x, y, r * 3.6, r * 3.6, [
+      [0, `rgba(${rgb}, ${(alpha * 0.5).toFixed(3)})`],
+      [0.32, `rgba(${rgb}, ${(alpha * 0.14).toFixed(3)})`],
+      [1, `rgba(${rgb}, 0)`]
+    ]);
+    b.fillStyle = `rgba(255, 255, 255, ${Math.min(1, alpha * 1.5).toFixed(3)})`;
+    b.beginPath();
+    b.arc(x, y, r * 0.52, 0, Math.PI * 2);
+    b.fill();
+
+    const len = r * 7;
+    const spike = (dx, dy) => {
+      const g = b.createLinearGradient(x, y, x + dx * len, y + dy * len);
+      g.addColorStop(0, `rgba(255, 255, 255, ${(alpha * 0.85).toFixed(3)})`);
+      g.addColorStop(0.14, `rgba(${rgb}, ${(alpha * 0.4).toFixed(3)})`);
+      g.addColorStop(1, `rgba(${rgb}, 0)`);
+      b.strokeStyle = g;
+      b.lineWidth = Math.max(0.7, r * 0.4);
+      b.lineCap = 'round';
+      b.beginPath();
+      b.moveTo(x - dx * len, y - dy * len);
+      b.lineTo(x + dx * len, y + dy * len);
+      b.stroke();
+    };
+    spike(1, 0);
+    spike(0, 1);
+  }
+
   function buildBackdrop() {
-    const c = makeCanvas(state.width * state.dpr, state.height * state.dpr);
+    // Soft art does not need the full device ratio; 1.4 is indistinguishable
+    // here and keeps the one-off paint cheap on high-density screens.
+    const scale = Math.min(state.dpr, 1.4);
+    const c = makeCanvas(state.width * scale, state.height * scale);
     const b = c.getContext('2d');
     if (!b) return null;
     const W = state.width;
     const H = state.height;
-    b.scale(state.dpr, state.dpr);
+    b.scale(scale, scale);
 
-    // deep space
-    const base = b.createLinearGradient(0, 0, W * 0.3, H);
-    base.addColorStop(0, '#010207');
-    base.addColorStop(0.45, '#02040c');
-    base.addColorStop(0.75, '#030616');
-    base.addColorStop(1, '#010106');
+    // 1. deep space: true black with a faint warm bloom, no blue cast
+    const base = b.createLinearGradient(0, 0, W * 0.35, H);
+    base.addColorStop(0, '#000001');
+    base.addColorStop(0.42, '#010003');
+    base.addColorStop(0.72, '#030105');
+    base.addColorStop(1, '#000001');
     b.fillStyle = base;
     b.fillRect(0, 0, W, H);
 
-    /* The galaxy runs across the screen, tilted, with its warm core left of
-       centre. Everything is drawn in a rotated frame, then dust is cut back
-       through the glow so the band reads as a band instead of a blob. */
-    const cx = W * 0.56;
-    const cy = H * 0.6;
-    const tilt = -0.34;
+    // 2. neighbours: a spiral top-right, a globular cluster top-left and one
+    //    edge-on galaxy low on the left. All blitted from small sprites.
+    const spiralSize = Math.min(H * 0.46, W * 0.32, 430);
+    const spiral = spiralSprite(Math.round(spiralSize * state.dpr * 0.7));
+    b.save();
+    b.translate(W * 0.845, H * 0.16);
+    b.rotate(-0.38);
+    b.globalAlpha = 0.6;
+    b.drawImage(spiral, -spiralSize / 2, -spiralSize / 2, spiralSize, spiralSize);
+    b.restore();
+
+    const clusterSize = Math.min(H * 0.24, 220);
+    const cluster = clusterSprite(Math.round(clusterSize * state.dpr));
+    b.save();
+    b.globalAlpha = 0.8;
+    b.drawImage(cluster, W * 0.1 - clusterSize / 2, H * 0.17 - clusterSize / 2, clusterSize, clusterSize);
+    b.restore();
+
+    b.save();
+    b.translate(W * 0.055, H * 0.66);
+    b.rotate(-0.55);
+    b.scale(1, 0.22);
+    ellipseFill(b, 0, 0, H * 0.17, H * 0.17, [
+      [0, 'rgba(255, 240, 214, 0.5)'],
+      [0.16, 'rgba(255, 226, 190, 0.24)'],
+      [0.5, 'rgba(226, 214, 255, 0.07)'],
+      [1, 'rgba(200, 200, 255, 0)']
+    ]);
+    b.restore();
+
+    /* 3. the galactic band: a long tilted river of stars with a warm core and
+       a cold outer lane, cut open by a dark rift. */
+    const cx = W * 0.55;
+    const cy = H * 0.66;
+    const tilt = -0.3;
     const L = Math.hypot(W, H);
-    const BW = Math.min(H * 0.36, 420);
+    const BW = Math.min(H * 0.34, 400);
 
     b.save();
     b.translate(cx, cy);
     b.rotate(tilt);
     b.globalCompositeOperation = 'lighter';
 
-    // 1. the wide halo of the band
-    ellipseFill(b, 0, 0, L * 0.62, BW * 1.65, [
-      [0, 'rgba(70, 98, 186, 0.17)'],
-      [0.5, 'rgba(56, 80, 160, 0.085)'],
-      [1, 'rgba(40, 62, 130, 0)']
+    // wide halo
+    ellipseFill(b, 0, 0, L * 0.62, BW * 1.55, [
+      [0, 'rgba(150, 132, 176, 0.11)'],
+      [0.42, 'rgba(104, 96, 148, 0.055)'],
+      [1, 'rgba(70, 60, 110, 0)']
     ]);
 
-    // 2. star clouds along the band — the structure that makes it read
+    // star clouds — warm in the middle, cool at the ends
     const clouds = [
-      ['255, 228, 196', 0.34], ['196, 214, 255', 0.4], ['128, 166, 255', 0.34],
-      ['168, 132, 255', 0.26], ['96, 220, 206', 0.18], ['255, 196, 210', 0.16]
+      ['214, 228, 255', 0.46], ['242, 246, 255', 0.4],
+      ['170, 206, 255', 0.34], ['255, 234, 202', 0.3],
+      ['255, 210, 164', 0.2], ['255, 156, 192', 0.16],
+      ['128, 226, 208', 0.12], ['186, 162, 255', 0.18]
     ];
-    for (let i = 0; i < 54; i += 1) {
+    for (let i = 0; i < 64; i += 1) {
       const tint = clouds[(Math.random() * clouds.length) | 0];
-      const along = rand(-0.48, 0.48) * L;
-      const across = (Math.random() + Math.random() + Math.random() - 1.5) * BW * 0.55;
-      const rx = rand(60, 300) * (1 - Math.abs(across) / (BW * 1.6));
-      if (rx < 30) continue;
-      const alpha = tint[1] * rand(0.1, 0.30) * (1 - Math.abs(across) / (BW * 1.6));
-      ellipseFill(b, along, across, rx, rx * rand(0.3, 0.65), [
+      const along = rand(-0.5, 0.5) * L;
+      const across = (Math.random() + Math.random() + Math.random() - 1.5) * BW * 0.5;
+      const rx = rand(70, 320) * (1 - Math.abs(across) / (BW * 1.7));
+      if (rx < 26) continue;
+      const alpha = tint[1] * rand(0.035, 0.1) * (1 - Math.abs(across) / (BW * 1.7));
+      ellipseFill(b, along, across, rx, rx * rand(0.26, 0.6), [
         [0, `rgba(${tint[0]}, ${Math.max(0.02, alpha).toFixed(3)})`],
-        [0.55, `rgba(${tint[0]}, ${Math.max(0.01, alpha * 0.38).toFixed(3)})`],
+        [0.55, `rgba(${tint[0]}, ${Math.max(0.01, alpha * 0.36).toFixed(3)})`],
         [1, `rgba(${tint[0]}, 0)`]
-      ], rand(-0.3, 0.3));
+      ], rand(-0.32, 0.32));
     }
 
-    // 3. the core: a warm bulge that outshines the arms
-    ellipseFill(b, -L * 0.13, 0, BW * 1.55, BW * 1.05, [
-      [0, 'rgba(255, 240, 210, 0.3)'],
-      [0.16, 'rgba(255, 222, 178, 0.21)'],
-      [0.45, 'rgba(206, 190, 255, 0.11)'],
-      [1, 'rgba(150, 170, 255, 0)']
+    // broad bulge, then a hot nucleus that blows the middle out to cream
+    ellipseFill(b, -L * 0.14, 0, BW * 1.35, BW * 0.86, [
+      [0, 'rgba(255, 238, 208, 0.3)'],
+      [0.2, 'rgba(255, 222, 180, 0.17)'],
+      [0.5, 'rgba(214, 196, 240, 0.07)'],
+      [1, 'rgba(150, 160, 255, 0)']
     ]);
-    ellipseFill(b, -L * 0.13, 0, BW * 0.62, BW * 0.5, [
-      [0, 'rgba(255, 252, 240, 0.46)'],
-      [0.3, 'rgba(255, 238, 206, 0.18)'],
-      [1, 'rgba(255, 210, 160, 0)']
+    ellipseFill(b, -L * 0.14, 0, BW * 0.7, BW * 0.44, [
+      [0, 'rgba(255, 252, 240, 0.58)'],
+      [0.22, 'rgba(255, 238, 206, 0.3)'],
+      [0.6, 'rgba(255, 210, 160, 0.08)'],
+      [1, 'rgba(255, 200, 150, 0)']
+    ]);
+    ellipseFill(b, -L * 0.14, 0, BW * 0.2, BW * 0.13, [
+      [0, 'rgba(255, 255, 252, 0.9)'],
+      [0.4, 'rgba(255, 247, 228, 0.42)'],
+      [1, 'rgba(255, 228, 190, 0)']
     ]);
 
-    // 4. dust lanes cut the glow: dark ellipses along the spine
+    // the rift: dark dust that splits the band in two
     b.globalCompositeOperation = 'source-over';
-    for (let i = 0; i < 26; i += 1) {
-      const along = rand(-0.5, 0.4) * L;
-      const across = rand(-1, 1) * BW * 0.28;
-      const rx = rand(80, 280);
-      const shade = rand(0.22, 0.46);
-      ellipseFill(b, along, across, rx, rx * rand(0.16, 0.34), [
-        [0, `rgba(2, 3, 10, ${shade.toFixed(3)})`],
-        [0.42, `rgba(2, 3, 10, ${(shade * 0.62).toFixed(3)})`],
-        [0.72, `rgba(2, 3, 10, ${(shade * 0.24).toFixed(3)})`],
-        [1, 'rgba(2, 3, 10, 0)']
-      ], rand(-0.15, 0.15));
+    for (let i = 0; i < 64; i += 1) {
+      const along = rand(-0.52, 0.42) * L;
+      const across = rand(-1, 1) * BW * 0.22;
+      const rx = rand(60, 260);
+      const shade = rand(0.5, 0.9);
+      ellipseFill(b, along, across, rx, rx * rand(0.12, 0.3), [
+        [0, `rgba(1, 0, 4, ${shade.toFixed(3)})`],
+        [0.4, `rgba(1, 0, 4, ${(shade * 0.6).toFixed(3)})`],
+        [0.72, `rgba(1, 0, 4, ${(shade * 0.22).toFixed(3)})`],
+        [1, 'rgba(1, 0, 4, 0)']
+      ], rand(-0.16, 0.16));
     }
 
-    // 5. dense star clouds: thousands of faint specks hugging the band
+    // an edge of hot young stars along the rift, so it reads as a dust lane
     b.globalCompositeOperation = 'lighter';
-    const specks = Math.round(2600 * INTENSITY);
+    for (let i = 0; i < 90; i += 1) {
+      const along = rand(-0.5, 0.45) * L;
+      const across = rand(-1, 1) * BW * 0.2;
+      const r = rand(0.6, 1.6);
+      b.fillStyle = `rgba(226, 236, 255, ${rand(0.1, 0.36).toFixed(3)})`;
+      b.beginPath();
+      b.arc(along, across + rand(4, 16), r, 0, Math.PI * 2);
+      b.fill();
+    }
+
+    // a handful of dense star clouds along the spine
+    for (let i = 0; i < 9; i += 1) {
+      const along = rand(-0.42, 0.42) * L;
+      const across = rand(-0.35, 0.35) * BW;
+      const rr = rand(30, 110);
+      for (let j = 0; j < 340; j += 1) {
+        const a = Math.random() * Math.PI * 2;
+        const d = Math.pow(Math.random(), 1.6) * rr;
+        b.fillStyle = `rgba(${(206 + Math.random() * 49) | 0}, ${(222 + Math.random() * 26) | 0}, 255, ${rand(0.12, 0.6).toFixed(3)})`;
+        b.fillRect(along + Math.cos(a) * d, across + Math.sin(a) * d * 0.5, rand(0.3, 1.1), rand(0.3, 1.1));
+      }
+    }
+
+    // dense star field, exponentially clustered towards the spine
+    const specks = Math.round(8200 * INTENSITY);
     for (let i = 0; i < specks; i += 1) {
       const along = rand(-0.55, 0.55) * L;
-      const across = (Math.random() + Math.random() + Math.random() - 1.5) * BW * 0.62;
-      const size = rand(0.3, 1.15);
-      const bright = rand(0.06, 0.4) * (1 - Math.abs(across) / (BW * 1.4));
-      if (bright <= 0.01) continue;
-      b.fillStyle = `rgba(${rand(186, 255) | 0}, ${rand(200, 245) | 0}, 255, ${bright.toFixed(3)})`;
+      const spread = Math.random() < 0.55 ? 0.2 : 0.72;
+      const across = (Math.random() + Math.random() + Math.random() - 1.5) * BW * spread;
+      const size = rand(0.3, 1.5);
+      const bright = rand(0.04, 0.5) * (1 - Math.abs(across) / (BW * 1.45));
+      if (bright <= 0.012) continue;
+      const warm = Math.random() < 0.18;
+      if (warm) {
+        b.fillStyle = `rgba(255, ${(206 + Math.random() * 34) | 0}, ${(160 + Math.random() * 44) | 0}, ${bright.toFixed(3)})`;
+      } else {
+        const t = Math.random();
+        b.fillStyle = `rgba(${(178 + t * 77) | 0}, ${(206 + t * 40) | 0}, 255, ${bright.toFixed(3)})`;
+      }
       b.fillRect(along, across, size, size);
     }
     b.restore();
 
-    // 6. a soft cool haze in the lower corners for depth
-    ellipseFill(b, W * 0.08, H * 1.02, W * 0.42, H * 0.36, [
-      [0, 'rgba(28, 64, 132, 0.22)'],
-      [1, 'rgba(28, 64, 132, 0)']
-    ]);
-    ellipseFill(b, W * 0.94, H * 0.92, W * 0.3, H * 0.3, [
-      [0, 'rgba(92, 60, 140, 0.14)'],
-      [1, 'rgba(92, 60, 140, 0)']
-    ]);
+    // 4. emission nebulae, each with a different temperature
+    b.globalCompositeOperation = 'lighter';
+    nebulaKnot(b, W * 0.29, H * 0.71, Math.min(W, H) * 0.15, '255, 104, 146', 0.1);
+    nebulaKnot(b, W * 0.73, H * 0.5, Math.min(W, H) * 0.13, '58, 226, 200', 0.085);
+    nebulaKnot(b, W * 0.55, H * 0.88, Math.min(W, H) * 0.1, '255, 168, 100', 0.07);
+    nebulaKnot(b, W * 0.12, H * 0.4, Math.min(W, H) * 0.09, '164, 128, 255', 0.06);
 
-    // 7. two distant galaxies — faint, warm and cool, behind everything
-    ellipseFill(b, W * 0.84, H * 0.16, 96, 34, [
-      [0, 'rgba(255, 226, 196, 0.16)'],
-      [0.35, 'rgba(255, 200, 170, 0.08)'],
-      [1, 'rgba(255, 180, 150, 0)']
-    ], 0.5);
-    ellipseFill(b, W * 0.12, H * 0.3, 74, 26, [
-      [0, 'rgba(196, 214, 255, 0.14)'],
-      [0.4, 'rgba(150, 176, 255, 0.07)'],
-      [1, 'rgba(120, 150, 255, 0)']
-    ], 0.35);
+    // 5. a few foreground hero stars with diffraction spikes
+    const heroes = [
+      [0.72, 0.12, 2.1, '226, 236, 255', 0.8],
+      [0.34, 0.22, 1.7, '255, 238, 210', 0.7],
+      [0.9, 0.42, 1.5, '206, 226, 255', 0.6],
+      [0.14, 0.3, 1.9, '255, 224, 196', 0.66],
+      [0.62, 0.9, 1.4, '226, 238, 255', 0.5],
+      [0.06, 0.88, 1.6, '210, 230, 255', 0.55],
+      [0.46, 0.06, 1.3, '255, 244, 226', 0.5]
+    ];
+    heroes.forEach(([hx, hy, hr, hue, alpha]) => {
+      heroStar(b, W * hx, H * hy, hr * INTENSITY, hue, alpha);
+    });
+
+    // 6. a cool haze low in the corners for depth
+    ellipseFill(b, W * 0.06, H * 1.04, W * 0.4, H * 0.34, [
+      [0, 'rgba(96, 74, 138, 0.18)'],
+      [1, 'rgba(96, 74, 138, 0)']
+    ]);
+    ellipseFill(b, W * 0.95, H * 0.94, W * 0.28, H * 0.28, [
+      [0, 'rgba(140, 96, 120, 0.12)'],
+      [1, 'rgba(140, 96, 120, 0)']
+    ]);
 
     // A veil keeps the artwork rich without competing with the typography.
-    const veil = clamp(0.58 - INTENSITY * 0.2, 0.2, 0.5);
-    const vignette = b.createRadialGradient(W * 0.5, H * 0.34, 0, W * 0.5, H * 0.42, Math.max(W, H) * 0.78);
-    vignette.addColorStop(0, `rgba(1, 2, 7, ${(veil * 0.55).toFixed(3)})`);
-    vignette.addColorStop(0.55, `rgba(1, 2, 7, ${(veil * 0.8).toFixed(3)})`);
-    vignette.addColorStop(1, `rgba(1, 2, 7, ${veil.toFixed(3)})`);
+    const veil = clamp(0.47 - INTENSITY * 0.13, 0.16, 0.42);
+    const vignette = b.createRadialGradient(W * 0.5, H * 0.32, 0, W * 0.5, H * 0.4, Math.max(W, H) * 0.8);
+    vignette.addColorStop(0, `rgba(1, 0, 4, ${(veil * 0.55).toFixed(3)})`);
+    vignette.addColorStop(0.55, `rgba(1, 0, 4, ${(veil * 0.82).toFixed(3)})`);
+    vignette.addColorStop(1, `rgba(1, 0, 4, ${veil.toFixed(3)})`);
     b.fillStyle = vignette;
     b.fillRect(0, 0, W, H);
 
@@ -275,8 +576,9 @@
     if (!n) return null;
     n.globalCompositeOperation = 'lighter';
     const palette = [
-      ['62, 108, 255', 0.5], ['122, 92, 255', 0.42], ['24, 188, 168', 0.3],
-      ['46, 120, 200', 0.4], ['186, 96, 200', 0.22], ['255, 160, 120', 0.12]
+      ['255, 118, 160', 0.4], ['74, 226, 198', 0.34], ['255, 176, 108', 0.24],
+      ['178, 146, 255', 0.4], ['255, 92, 138', 0.2], ['140, 208, 255', 0.18],
+      ['255, 210, 168', 0.16]
     ];
     for (let i = 0; i < 34; i += 1) {
       const tint = palette[(Math.random() * palette.length) | 0];
@@ -337,15 +639,16 @@
     state.stars = list;
 
     bokeh = [];
-    const bokehCount = Math.round(7 * INTENSITY);
+    const bokehCount = Math.round(9 * INTENSITY);
     for (let i = 0; i < bokehCount; i += 1) {
       bokeh.push({
         x: Math.random(),
         y: Math.random(),
-        r: rand(26, 64),
-        a: rand(0.015, 0.045),
+        r: rand(30, 78),
+        a: rand(0.014, 0.038),
         tint: (Math.random() * COLORS.length) | 0,
-        speed: rand(0.0009, 0.0022)
+        speed: rand(0.0009, 0.0022),
+        ring: rand(0.1, 0.24)
       });
     }
   }
@@ -375,7 +678,7 @@
       const bctx = backdropCanvas.getContext && backdropCanvas.getContext('2d');
       if (bctx) {
         bctx.setTransform(1, 0, 0, 1, 0, 0);
-        if (backdrop) bctx.drawImage(backdrop, 0, 0);
+        if (backdrop) bctx.drawImage(backdrop, 0, 0, backdropCanvas.width, backdropCanvas.height);
       }
     }
     if (!nebula) nebula = buildNebula();
@@ -398,7 +701,7 @@
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.3;
+    ctx.globalAlpha = 0.19;
     ctx.translate(W * 0.52 + drift, H * 0.42 + lift);
     ctx.rotate(t * 0.0045);
     ctx.drawImage(nebula, -size / 2, -size / 2, size, size);
@@ -406,7 +709,7 @@
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.16;
+    ctx.globalAlpha = 0.11;
     ctx.translate(W * 0.24 - drift * 0.6, H * 0.68 + lift * 0.5);
     ctx.rotate(-t * 0.0032 + 2.1);
     ctx.drawImage(nebula, -size * 0.42, -size * 0.42, size * 0.84, size * 0.84);
@@ -469,6 +772,13 @@
       const py = ((dot.y * (H + dot.r * 2) + pointer.y * 26) % (H + dot.r * 2) + H + dot.r * 2) % (H + dot.r * 2) - dot.r;
       ctx.globalAlpha = dot.a * (0.8 + 0.2 * Math.sin(t * 0.6 + i));
       ctx.drawImage(glowSprites[dot.tint], px - dot.r, py - dot.r, dot.r * 2, dot.r * 2);
+      // a faint rim, the way an out-of-focus star reads through a lens
+      ctx.globalAlpha = dot.a * dot.ring;
+      ctx.strokeStyle = `rgba(${COLORS[dot.tint].join(', ')}, 0.9)`;
+      ctx.lineWidth = Math.max(0.8, dot.r * 0.045);
+      ctx.beginPath();
+      ctx.arc(px, py, dot.r * 0.72, 0, Math.PI * 2);
+      ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }

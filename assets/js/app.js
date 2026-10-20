@@ -49,7 +49,7 @@
     sendKey: 'enter',
     tools: false,
     density: 'comfortable',
-    theme: 'grey',
+    theme: 'black',
     reduceMotion: false,
     showTime: true,
     showMetrics: true,
@@ -1673,13 +1673,15 @@
   }
   $$('.settings-nav button').forEach((btn) => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
 
-  const THEMES = { grey: 'Graphite', blue: 'Midnight' };
+  // Obsidian is the default: true black, no blue cast anywhere in the shell.
+  // Graphite stays available as the softer neutral option.
+  const THEMES = { black: 'Obsidian', grey: 'Graphite' };
 
   function applyTheme(theme) {
-    const id = THEMES[theme] ? theme : 'grey';
+    const id = THEMES[theme] ? theme : 'black';
     document.body.dataset.theme = id;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', id === 'grey' ? '#0a0b0d' : '#02050a');
+    if (meta) meta.setAttribute('content', id === 'black' ? '#000000' : '#0a0b0d');
   }
 
   function applySettingsToUI() {
@@ -1696,7 +1698,7 @@
     const freshness = $('#searchFreshness');
     if (freshness) freshness.value = s.searchFreshness || 'any';
     const density = $('#densitySelect'); if (density) density.value = s.density;
-    const theme = $('#themeSelect'); if (theme) theme.value = THEMES[s.theme] ? s.theme : 'grey';
+    const theme = $('#themeSelect'); if (theme) theme.value = THEMES[s.theme] ? s.theme : 'black';
     const customUrl = $('#customBaseUrl'); if (customUrl) customUrl.value = s.customBaseUrl || '';
     const customKey = $('#customKey'); if (customKey) customKey.value = s.customKey || '';
     const customModel = $('#customModel'); if (customModel) customModel.value = s.customModel || '';
@@ -1745,7 +1747,7 @@
   const themeSelect = $('#themeSelect');
   if (themeSelect) {
     themeSelect.addEventListener('change', (e) => {
-      state.settings.theme = THEMES[e.target.value] ? e.target.value : 'grey';
+      state.settings.theme = THEMES[e.target.value] ? e.target.value : 'black';
       persistNow();
       applySettingsToUI();
       toast(`Theme: ${THEMES[state.settings.theme]}`, 'palette');

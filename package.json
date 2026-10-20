@@ -1,6 +1,6 @@
 {
   "name": "starter-site",
-  "version": "3.11.0",
+  "version": "3.12.0",
   "description": "Eltes AI \u2014 a local-first workspace with live web search, cited sources, a search-thinking trace, 65 models across 14 providers, and a built-in Studio with a real terminal and live preview.",
   "main": "index.html",
   "scripts": {

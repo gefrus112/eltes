@@ -1682,3 +1682,49 @@ body.compact .msg { padding: 9px 0; }
 }
 .code-head .code-preview { width: 27px; min-width: 27px; justify-content: center; padding: 0; color: #9bbcff; }
 .code-head .code-preview:hover { color: #d9e6ff; background: rgba(94,144,255,.12); }
+
+/* Slash command autocomplete */
+.slash-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 12px;
+  right: 12px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #0b1424;
+  border: 1px solid rgba(116,164,255,.18);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.45);
+  z-index: 30;
+  padding: 6px;
+}
+.slash-menu[hidden] { display: none !important; }
+.slash-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.slash-item:hover, .slash-item.active { background: rgba(94,144,255,.14); }
+.slash-item kbd {
+  flex: none;
+  min-width: 84px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #c8d9ff;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+}
+.slash-item small { color: var(--text-3); font-size: 11px; }
+.composer-dock { position: relative; }

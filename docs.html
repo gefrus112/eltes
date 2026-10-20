@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 38 models, NVIDIA NIM, on-device CAI, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 36 models, NVIDIA NIM, on-device CAI, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static, local-first agent workspace. No backend, no build step, no demo replies. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.1.0</span>
+          <span class="badge"><span class="dot"></span>v3.2.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -123,7 +123,7 @@
             <tbody>
               <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry. CAI answers locally and labels itself.</td></tr>
               <tr><td>Chat</td><td>Dark-blue theme with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
-              <tr><td>Models</td><td>38 real models across 13 providers, including GPT‑6 Astra, Claude 5.5, DeepSeek V4.1, NVIDIA NIM and three Eltes CAI models.</td></tr>
+              <tr><td>Models</td><td>36 real models across 13 providers, including Claude Sonnet 5.5, DeepSeek V4.1, NVIDIA NIM and three Eltes CAI models.</td></tr>
               <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
               <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
               <tr><td>Downloads</td><td>A portable Windows package with <code>eltes.bat</code>, a Start-Eltes helper and the whole static site.</td></tr>
@@ -411,13 +411,13 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <h2>Models <a class="anchor" href="#models" aria-label="Link to models" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>HTML code fences include a sandboxed preview, copy and download actions. Preview scripts run in an isolated frame with network access blocked.</p>
           <p>NVIDIA NIM uses <code>https://integrate.api.nvidia.com/v1</code> and a key from NVIDIA Build. Catalog access and any free quota depend on NVIDIA's account and model availability; these models are not guaranteed to be free.</p>
-          <p>The catalogue ships <strong>38 models across 13 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
+          <p>The catalogue ships <strong>36 models across 13 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Models</th><th>Best at</th></tr></thead>
             <tbody>
               <tr><td>Eltes CAI</td><td>CAI-1, CAI-1 Fast, CAI Docs</td><td>On-device chat, Eltes help, maths, units, dates</td></tr>
-              <tr><td>OpenAI</td><td>ChatGPT Astra, GPT‑6 Sol, GPT‑6.1 Sol, GPT‑6 Luna, GPT‑4.1</td><td>Frontier reasoning, real-time streaming, vision</td></tr>
+              <tr><td>OpenAI</td><td>GPT‑6 Sol, GPT‑6.1 Sol, GPT‑6 Luna, GPT‑4.1</td><td>Reasoning, coding and vision</td></tr>
               <tr><td>Anthropic</td><td>Claude Sonnet 5.5, Opus 5.5, Haiku 5.5, Fable 5.1, Opus 4.5</td><td>Code, long context, careful writing</td></tr>
               <tr><td>DeepSeek</td><td>V4.1 Flash, V4 Pro</td><td>Cost, 1M context, multimodal</td></tr>
               <tr><td>Google</td><td>Gemini 2.5 Pro, 2.5 Flash</td><td>1M context, multimodal</td></tr>
@@ -427,7 +427,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td>Mistral</td><td>Mistral Large, Codestral</td><td>Function calling, completion</td></tr>
               <tr><td>Groq</td><td>Llama 3.3 70B, Llama 4 Scout</td><td>Very high tokens per second</td></tr>
               <tr><td>NVIDIA NIM</td><td>Llama 3.3 70B, Nemotron Ultra</td><td>Open models via NVIDIA-hosted NIM; key and model access required</td></tr>
-              <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 5.5, ChatGPT Astra, Gemini 2.5 Pro, GLM-4.6, DeepSeek Flash, Qwen3 Coder</td><td>One key, routing and fallbacks</td></tr>
+              <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 5.5, Gemini 2.5 Pro, GLM-4.6, DeepSeek Flash, Qwen3 Coder</td><td>One key, routing and fallbacks</td></tr>
               <tr><td>Custom</td><td>Whatever your endpoint serves</td><td>Local and private models</td></tr>
             </tbody>
           </table>
@@ -444,12 +444,13 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           </table>
           <p>CAI covers Eltes documentation, model recommendations from the live catalogue, arithmetic and percentages, unit and temperature conversion, the current date and time, word counts and a glossary of AI terms. Anything outside that gets an honest fallback with a suggestion to switch to a hosted model.</p>
 
-          <h3>ChatGPT Astra and real-time streaming</h3>
-          <p><strong>GPT‑6 Astra</strong> (<code>gpt-6-astra</code>) is the flagship OpenAI entry. Eltes calls Chat Completions with <code>stream: true</code> and paints each delta as it arrives. The picker marks it <strong>realtime</strong>, the message head shows a live streaming dot, and the metrics row reports first-token latency and total time.</p>
+          <h3>Real model streaming, including Claude</h3>
+          <p>Eltes streams from provider APIs when <strong>Settings → General → Stream responses</strong> is enabled. Claude uses Anthropic’s native Messages API; OpenAI-compatible providers stream chat-completion events. Replies are never simulated for hosted models.</p>
           <ul>
-            <li>Streaming is on by default; disable it in Settings → General to receive whole responses instead.</li>
-            <li>Astra exposes tool calling through OpenAI's Responses API. Eltes speaks Chat Completions, so tools stay off for that entry; every other tool-capable model keeps them.</li>
-            <li>OpenRouter also serves Astra (<code>openai/gpt-6-astra</code>) with fallbacks, marked realtime as well.</li>
+            <li>Save a valid provider API key in <strong>Settings → API keys</strong>. Eltes checks locally for a key before sending and opens a connect prompt if it is missing.</li>
+            <li>Claude Sonnet 5.5 uses Anthropic SSE and paints tokens as they arrive. OpenAI-compatible providers use SSE with a live cursor and first-token metrics.</li>
+            <li>401/403, 429, model-not-found and CORS/network failures have separate retry guidance.</li>
+            <li>Eltes does not include hosted model credits or determine whether a provider account has free quota. CAI is the free, on-device option; hosted usage follows provider terms and billing.</li>
           </ul>
 
           <h3>Per-chat models</h3>
@@ -623,7 +624,7 @@ eltes.bat --port 8080</code></pre>
 
         <section id="pricing">
           <h2>Pricing <a class="anchor" href="#pricing" aria-label="Link to pricing" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is free to run with your own keys, so you pay providers directly at their published rates. There is no markup, no subscription and no card on file. A hosted tier with managed keys is in design; the <a class="inline-link" href="index.html#pricing">pricing section</a> shows <em>pricing not announced</em> because nothing is purchasable yet.</p>
+          <p>The static Eltes workspace is free. Hosted replies require your own API key and may incur provider charges at its published rates. Eltes does not supply free hosted credits. CAI runs on-device without a key or per-token cost. There is no markup, subscription or card on file. A hosted tier with managed keys is in design; the <a class="inline-link" href="index.html#pricing">pricing section</a> shows <em>pricing not announced</em> because nothing is purchasable yet.</p>
 
           <table class="doc-table">
             <thead><tr><th>Plan</th><th>Status</th><th>What you get</th></tr></thead>
@@ -642,6 +643,9 @@ eltes.bat --port 8080</code></pre>
 
         <section id="self-host">
           <h2>Self-hosting <a class="anchor" href="#self-host" aria-label="Link to self-hosting" data-icon="link-2" data-icon-size="16"></a></h2>
+          <h3>Publish with GitHub Pages</h3>
+          <p>The repository’s <code>.github/workflows/pages.yml</code> workflow assembles only the static site files and deploys them to GitHub Pages when changes land on <code>main</code>. Enable <strong>Settings → Pages → Source → GitHub Actions</strong> once in the repository. Subsequent updates deploy automatically; there is no server process to maintain.</p>
+          <p>GitHub Pages serves HTML, CSS, JavaScript, images and the Windows download. It does not run a backend, store secrets, proxy model requests or grant provider free-tier access. Users save their own API keys in their browser; provider APIs receive requests directly from that browser and must allow its origin through CORS.</p>
           <p>Eltes is a static site. Any host that serves files with the right MIME types works: GitHub Pages, Cloudflare Pages, Netlify, S3, nginx or <code>python3 -m http.server</code>. There is no server-side code to run and no environment variable to set.</p>
 
           <div class="doc-code">
@@ -719,7 +723,7 @@ eltes.bat --port 8080</code></pre>
             </details>
             <details>
               <summary>Which models can use tools?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>Models with tool support in the catalogue: Claude 5.5 and 4.5, GPT‑6 Sol/Luna, GPT‑4.1, Gemini 2.5, GLM-4.x, DeepSeek V4.1/V4, Grok, Qwen3, Mistral Large, Llama 3.3/4 and most OpenRouter routes. ChatGPT Astra uses OpenAI's Responses API for tools, so the Chat Completions entry stays tool-free; the Eltes CAI models run their own local intents and Codestral is sent the plain conversation.</p>
+              <p>Models with tool support in the catalogue: Claude 5.5 and 4.5, GPT‑6 Sol/Luna, GPT‑4.1, Gemini 2.5, GLM-4.x, DeepSeek V4.1/V4, Grok, Qwen3, Mistral Large, Llama 3.3/4 and most OpenRouter routes. The Eltes CAI models run their own local intents and Codestral is sent the plain conversation.</p>
             </details>
             <details>
               <summary>Can I use it offline?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>

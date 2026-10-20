@@ -257,8 +257,8 @@ window.EltesCAI = (function () {
       a: `## Reading provider errors\n\n- **401 / 403** — the provider rejected the key. Paste a fresh one in Settings → API keys, then press **Retry**.\n- **429** — rate limit or no credit. Wait a moment, or switch models.\n- **404** — the model id is not enabled for your account.\n- **400** — the provider rejected the payload; check the model id or endpoint.\n- **Could not reach** — usually CORS, an ad-blocker or being offline.\n\nEltes keeps the failed turn in the thread with a retry button, so nothing is lost.`
     },
     {
-      keys: ['astra', 'gpt 6', 'gpt-6', 'gpt6', 'realtime', 'real time', 'streaming', 'first token', 'latency'],
-      a: `## ChatGPT Astra and real-time streaming\n\n**GPT‑6 Astra** (\`gpt-6-astra\`) is the flagship OpenAI model in Eltes. It streams through the Chat Completions API with \`stream: true\`, and Eltes paints each delta the moment it arrives.\n\n- Turn on **Settings → General → Stream responses** (on by default).\n- The message header shows a live **streaming** dot, then first-token and total latency.\n- The picker marks Astra with a **realtime** chip.\n\nAstra supports tool calling through OpenAI's Responses API; Eltes uses Chat Completions, so tools stay off for that entry and every other model keeps them.`
+      keys: ['streaming', 'real-time', 'realtime', 'token streaming', 'live tokens'],
+      a: `## Real model streaming\n\nEltes streams replies from the provider you selected when **Settings → General → Stream responses** is enabled. Claude uses Anthropic’s Messages API; OpenAI-compatible providers use server-sent events from their chat completions endpoint.\n\n- Add that provider’s API key in **Settings → API keys** first. Keys stay in this browser and are sent directly to the provider.\n- Missing keys show a connect prompt; rejected keys, quota limits and network/CORS failures show separate retry guidance.\n- Eltes itself does not include hosted model credits. CAI runs locally without a key; hosted usage follows the provider’s plan and billing.`
     },
     {
       keys: ['cai', 'on-device', 'local model', 'own model', 'custom model', 'eltes model', 'offline model'],
@@ -266,7 +266,7 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['models', 'model list', 'catalogue', 'catalog', 'how many models', 'providers', 'how many providers'],
-      a: `## The catalogue\n\nEltes ships **${M.MODELS.length} models across ${Object.keys(M.PROVIDERS).length} providers**: Anthropic, OpenAI, Google, Z.ai, DeepSeek, xAI, Qwen, Mistral, Groq, OpenRouter, Eltes CAI and your own custom endpoint.\n\nEvery hosted entry is a real API id. The on-device CAI family is labelled **On-device**. Nothing is simulated.`
+      a: `## The catalogue\n\nEltes ships **${M.MODELS.length} models across ${Object.keys(M.PROVIDERS).length} providers**: Anthropic, OpenAI, Google, Z.ai, DeepSeek, xAI, Qwen, Mistral, Groq, OpenRouter, NVIDIA NIM, Eltes CAI and your own custom endpoint.\n\nEvery hosted entry is a real API id. The on-device CAI family is labelled **On-device**. Nothing is simulated.`
     },
     {
       keys: ['which model should', 'best model', 'recommend', 'for coding', 'for code', 'cheap', 'cheapest', 'fastest', 'vision', 'long context', 'reasoning'],
@@ -378,20 +378,20 @@ window.EltesCAI = (function () {
       reasons.push('speed');
     }
     if (/vision|image|screenshot|diagram|photo/.test(t)) {
-      picks.push('gpt-6-astra', 'claude-sonnet-5-5', 'gemini-2-5-pro');
+      picks.push('claude-sonnet-5-5', 'gemini-2-5-pro', 'deepseek-flash');
       reasons.push('vision');
     }
     if (/long|book|document|pdf|million|context/.test(t)) {
-      picks.push('gpt-6-astra', 'gemini-2-5-pro', 'deepseek-flash');
+      picks.push('claude-sonnet-5-5', 'gemini-2-5-pro', 'deepseek-flash');
       reasons.push('long context');
     }
     if (/reason|math|hard|plan|research/.test(t)) {
-      picks.push('claude-opus-5-5', 'gpt-6-astra', 'deepseek-v4-pro');
+      picks.push('claude-opus-5-5', 'gpt-6-sol', 'deepseek-v4-pro');
       reasons.push('reasoning');
     }
     const unique = Array.from(new Set(picks)).slice(0, 4);
     if (!unique.length) {
-      return `## Choosing a model\n\nThere is no single best model — pick by the job:\n\n- **Code and long refactors:** Claude Sonnet 5.5 or GPT‑6 Sol.\n- **Hard reasoning:** Claude Opus 5.5 or ChatGPT Astra.\n- **Cheap and long:** DeepSeek V4.1 Flash.\n- **Instant and offline:** Eltes CAI-1.\n\nTell me the job (code, cheap, fast, vision, long documents) and I will narrow it down.`;
+      return `## Choosing a model\n\nThere is no single best model — pick by the job:\n\n- **Code and long refactors:** Claude Sonnet 5.5 or GPT‑6 Sol.\n- **Hard reasoning:** Claude Opus 5.5 or GPT‑6 Sol.\n- **Cheap and long:** DeepSeek V4.1 Flash.\n- **Instant and offline:** Eltes CAI-1.\n\nTell me the job (code, cheap, fast, vision, long documents) and I will narrow it down.`;
     }
     const rows = unique.map((id) => {
       const m = M.byId(id);

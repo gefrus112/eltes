@@ -1,4 +1,4 @@
-/* Eltes — provider catalogue (v3.1, October 2026)
+/* Eltes — provider catalogue (v3.2, October 2026)
    OpenAI-compatible endpoints plus native Anthropic and the on-device Eltes CAI family.
    No demo models: every hosted entry is a real API target that needs a key (or a custom
    base URL pointed at your own server). CAI models run locally in this tab and say so. */
@@ -22,7 +22,7 @@ window.EltesModels = (function () {
       keyHint: 'sk-proj-…',
       keyUrl: 'https://platform.openai.com/api-keys',
       baseUrl: 'https://api.openai.com/v1',
-      blurb: 'GPT‑6 Astra, GPT‑6 Sol and Luna — with real-time streaming.'
+      blurb: 'GPT‑6 Sol, GPT‑6.1 Sol and Luna through the OpenAI-compatible API. Streaming requires your API key.'
     },
     google: {
       name: 'Google',
@@ -150,8 +150,8 @@ window.EltesModels = (function () {
     {
       id: 'claude-sonnet-5-5', apiId: 'claude-sonnet-5-5', name: 'Claude Sonnet 5.5',
       provider: 'anthropic', context: '200K', tier: 'Balanced', tools: true, vision: true,
-      tags: ['coding', 'tools', 'reasoning', 'default'],
-      blurb: 'Best default for code, long context and careful writing.'
+      realtime: true, tags: ['coding', 'tools', 'reasoning', 'streaming', 'default'],
+      blurb: 'Anthropic Messages API with real token streaming. Requires an Anthropic API key.'
     },
     {
       id: 'claude-opus-5-5', apiId: 'claude-opus-5-5', name: 'Claude Opus 5.5',
@@ -174,12 +174,6 @@ window.EltesModels = (function () {
       tags: ['reasoning'], blurb: 'The previous Opus generation, still strong and widely available.'
     },
     /* --------------------------------- OpenAI ------------------------------- */
-    {
-      id: 'gpt-6-astra', apiId: 'gpt-6-astra', name: 'ChatGPT Astra',
-      provider: 'openai', context: '1M', tier: 'Frontier', tools: false, vision: true,
-      realtime: true, tags: ['reasoning', 'vision', 'realtime', 'new'],
-      blurb: 'GPT‑6 Astra with real-time token streaming. Eltes paints the first token as it lands.'
-    },
     {
       id: 'gpt-6-sol', apiId: 'gpt-6-sol', name: 'GPT‑6 Sol',
       provider: 'openai', context: 'varies', tier: 'Balanced', tools: true, vision: true,
@@ -303,11 +297,6 @@ window.EltesModels = (function () {
       id: 'or-claude-sonnet', apiId: 'anthropic/claude-sonnet-5.5', name: 'Claude Sonnet 5.5',
       provider: 'openrouter', context: '200K', tier: 'Balanced', tools: true, vision: true,
       tags: ['coding'], blurb: 'Anthropic’s Sonnet billed through OpenRouter credits.'
-    },
-    {
-      id: 'or-gpt-astra', apiId: 'openai/gpt-6-astra', name: 'ChatGPT Astra',
-      provider: 'openrouter', context: '1M', tier: 'Frontier', tools: true, vision: true,
-      realtime: true, tags: ['reasoning', 'realtime'], blurb: 'GPT‑6 Astra routed by OpenRouter with fallbacks.'
     },
     {
       id: 'or-gemini-pro', apiId: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro',

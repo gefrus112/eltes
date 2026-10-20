@@ -1680,3 +1680,5 @@ body.compact .msg { padding: 9px 0; }
   .coming-model { align-items:flex-start; }
   .coming-tag { margin-top:1px; }
 }
+.code-head .code-preview { width: 27px; min-width: 27px; justify-content: center; padding: 0; color: #9bbcff; }
+.code-head .code-preview:hover { color: #d9e6ff; background: rgba(94,144,255,.12); }

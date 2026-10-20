@@ -49,7 +49,7 @@
     reduceMotion: false,
     showTime: true,
     showMetrics: true,
-    favorites: ['eltes-cai-1', 'claude-sonnet-5-5', 'gpt-6-astra', 'deepseek-flash']
+    favorites: ['eltes-cai-1', 'claude-sonnet-5-5', 'deepseek-flash']
   };
 
   const savedSettings = readJSON(LS.settings, {});
@@ -79,6 +79,7 @@
           .filter((m) => m && (m.role === 'user' || m.role === 'assistant'))
           .map((m) => Object.assign({}, m, {
             id: m.id || uid(),
+            model: validModel(m.model) ? m.model : (validModel(c.model) ? c.model : M.DEFAULT_MODEL),
             content: typeof m.content === 'string' ? m.content : String(m.content == null ? '' : m.content),
             ts: m.ts || now,
             streaming: false,
@@ -223,11 +224,13 @@
         while (i < lines.length && !/^```/.test(lines[i])) { buf.push(lines[i]); i++; }
         i++;
         const code = buf.join('\n');
+        const htmlFence = /^(html|htm|xhtml)$/i.test(lang) ||
+          (!lang && /^\s*(?:<!doctype\s+html|<html[\s>]|<(?:main|body|div|section)\b)/i.test(code));
         html.push(
           `<div class="code"><div class="code-head"><span class="lang">${ic('code-2', 11)}${esc(lang || 'text')}</span>` +
-            (/^(html|htm|xhtml)$/i.test(lang) ? `<button class="cpy" data-preview-html type="button">${ic('eye', 11)}<span>Preview</span></button>` : '') +
-            `<button class="cpy" data-download-code type="button">${ic('download', 11)}<span>Download</span></button>` +
-            `<button class="cpy" data-copy-code type="button">${ic('copy', 11)}<span>Copy</span></button></div>` +
+            `<button class="cpy" data-copy-code type="button" aria-label="Copy code" title="Copy code">${ic('copy', 11)}<span>Copy</span></button>` +
+            (htmlFence ? `<button class="cpy code-preview" data-preview-html type="button" aria-label="Preview HTML" title="Preview HTML">${ic('eye', 13)}</button>` : '') +
+            `<button class="cpy" data-download-code type="button" aria-label="Download code" title="Download code">${ic('download', 11)}<span>Download</span></button></div>` +
             `<pre><code>${highlight(code, lang)}</code></pre></div>`
         );
         continue;
@@ -685,7 +688,7 @@
     return `<div class="connect-card">
       <strong>No key for ${esc(p.name)}.</strong><br />
       Eltes has no demo replies — this is a real request that needs a real credential.
-      Add a ${esc(p.name)} key or switch to a provider you already connected.
+      Add a ${esc(p.name)} key or switch to a provider you already connected. Provider free tiers and billing are managed by that provider; Eltes cannot see your plan.
       <div class="providers">${Object.keys(M.PROVIDERS)
         .filter((id) => id !== 'custom')
         .map((id) => `<span class="p-logo sm" data-brand="${M.PROVIDERS[id].brand}" data-brand-size="13" title="${esc(M.PROVIDERS[id].name)}" data-connect="${id}" role="button" tabindex="0"></span>`)
@@ -2396,43 +2399,49 @@
     let usage = null;
     const calls = new Map();
 
+    const consumeLine = (raw) => {
+      const line = raw.trim();
+      if (!line || line.startsWith(':') || !line.startsWith('data:')) return;
+      const payload = line.slice(5).trim();
+      if (!payload || payload === '[DONE]') return;
+      let obj;
+      try { obj = JSON.parse(payload); } catch (e) { return; }
+      if (obj.usage) usage = { input: obj.usage.prompt_tokens, output: obj.usage.completion_tokens };
+      const choice = (obj.choices && obj.choices[0]) || null;
+      if (!choice) return;
+      const delta = choice.delta || {};
+      if (delta.content) {
+        if (!firstTokenAt) firstTokenAt = performance.now();
+        text += delta.content;
+        assistant.content = prefix + text;
+        assistant.phase = 'streaming';
+        paint();
+      }
+      if (delta.tool_calls) {
+        delta.tool_calls.forEach((tc) => {
+          const idx = tc.index == null ? 0 : tc.index;
+          const cur = calls.get(idx) || { id: '', name: '', args: '' };
+          if (tc.id) cur.id = tc.id;
+          if (tc.function) {
+            if (tc.function.name) cur.name = tc.function.name;
+            if (tc.function.arguments) cur.args += tc.function.arguments;
+          }
+          calls.set(idx, cur);
+        });
+      }
+    };
+
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        buffer += decoder.decode();
+        if (buffer.trim()) consumeLine(buffer);
+        break;
+      }
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
       buffer = lines.pop();
-      for (const raw of lines) {
-        const line = raw.trim();
-        if (!line || line.startsWith(':') || !line.startsWith('data:')) continue;
-        const payload = line.slice(5).trim();
-        if (!payload || payload === '[DONE]') continue;
-        let obj;
-        try { obj = JSON.parse(payload); } catch (e) { continue; }
-        if (obj.usage) usage = { input: obj.usage.prompt_tokens, output: obj.usage.completion_tokens };
-        const choice = (obj.choices && obj.choices[0]) || null;
-        if (!choice) continue;
-        const delta = choice.delta || {};
-        if (delta.content) {
-          if (!firstTokenAt) firstTokenAt = performance.now();
-          text += delta.content;
-          assistant.content = prefix + text;
-          assistant.phase = 'streaming';
-          paint();
-        }
-        if (delta.tool_calls) {
-          delta.tool_calls.forEach((tc) => {
-            const idx = tc.index == null ? 0 : tc.index;
-            const cur = calls.get(idx) || { id: '', name: '', args: '' };
-            if (tc.id) cur.id = tc.id;
-            if (tc.function) {
-              if (tc.function.name) cur.name = tc.function.name;
-              if (tc.function.arguments) cur.args += tc.function.arguments;
-            }
-            calls.set(idx, cur);
-          });
-        }
-      }
+      lines.forEach(consumeLine);
     }
 
     const toolCalls = Array.from(calls.values())
@@ -2480,45 +2489,49 @@
     let usage = null;
     const blocks = new Map();
 
+    const consumeLine = (raw) => {
+      const line = raw.trim();
+      if (!line || line.startsWith('event:') || line.startsWith(':') || !line.startsWith('data:')) return;
+      let obj;
+      try { obj = JSON.parse(line.slice(5).trim()); } catch (e) { return; }
+      if (obj.type === 'message_start' && obj.message && obj.message.usage) {
+        usage = { input: obj.message.usage.input_tokens || 0, output: 0 };
+      }
+      if (obj.type === 'content_block_start' && obj.content_block && obj.content_block.type === 'tool_use') {
+        blocks.set(obj.index, { id: obj.content_block.id, name: obj.content_block.name, json: '' });
+      }
+      if (obj.type === 'content_block_delta' && obj.delta) {
+        if (obj.delta.type === 'text_delta' && obj.delta.text) {
+          if (!firstTokenAt) firstTokenAt = performance.now();
+          text += obj.delta.text;
+          assistant.content = prefix + text;
+          assistant.phase = 'streaming';
+          paint();
+        }
+        if (obj.delta.type === 'input_json_delta' && blocks.has(obj.index)) {
+          blocks.get(obj.index).json += obj.delta.partial_json || '';
+        }
+      }
+      if (obj.type === 'message_delta' && obj.usage) {
+        usage = { input: (usage && usage.input) || 0, output: obj.usage.output_tokens || 0 };
+      }
+      if (obj.type === 'error') {
+        const message = (obj.error && obj.error.message) || 'Anthropic stream error';
+        throw new Error(message);
+      }
+    };
+
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        buffer += decoder.decode();
+        if (buffer.trim()) consumeLine(buffer);
+        break;
+      }
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
       buffer = lines.pop();
-      for (const raw of lines) {
-        const line = raw.trim();
-        if (!line || line.startsWith('event:') || line.startsWith(':')) continue;
-        if (!line.startsWith('data:')) continue;
-        let obj;
-        try { obj = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
-        if (obj.type === 'message_start' && obj.message && obj.message.usage) {
-          usage = { input: obj.message.usage.input_tokens || 0, output: 0 };
-        }
-        if (obj.type === 'content_block_start' && obj.content_block && obj.content_block.type === 'tool_use') {
-          blocks.set(obj.index, { id: obj.content_block.id, name: obj.content_block.name, json: '' });
-        }
-        if (obj.type === 'content_block_delta' && obj.delta) {
-          if (obj.delta.type === 'text_delta' && obj.delta.text) {
-            if (!firstTokenAt) firstTokenAt = performance.now();
-            text += obj.delta.text;
-            assistant.content = prefix + text;
-            assistant.phase = 'streaming';
-            paint();
-          }
-          if (obj.delta.type === 'input_json_delta' && blocks.has(obj.index)) {
-            blocks.get(obj.index).json += obj.delta.partial_json || '';
-          }
-        }
-        if (obj.type === 'message_delta' && obj.usage) {
-          usage = { input: (usage && usage.input) || 0, output: obj.usage.output_tokens || 0 };
-        }
-        if (obj.type === 'error') {
-          const message = (obj.error && obj.error.message) || 'Anthropic stream error';
-          const err = new Error(message);
-          throw err;
-        }
-      }
+      lines.forEach(consumeLine);
     }
 
     const toolCalls = Array.from(blocks.values()).map((b) => {
@@ -2777,6 +2790,8 @@
     if (window.innerWidth <= 900) els.shell.classList.add('collapsed');
     applySettingsToUI();
     renderAll();
+    // Normalize migrated model IDs (and stale favorites) back to storage at boot.
+    persistNow();
     autoGrow();
     updateSendState();
     if (activeChat() && activeChat().messages.length) scrollToBottom(true);

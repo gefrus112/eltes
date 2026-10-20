@@ -316,11 +316,11 @@
   const TOOL_DEFS = [
     {
       name: 'calculate',
-      description: 'Evaluate an arithmetic expression. Supports + - * / % ^, parentheses and decimal numbers. Use for any maths instead of guessing.',
+      description: 'Evaluate a math expression safely. Supports + - * / % ^, parentheses, sqrt, sin, cos, log, factorial (!), pi, e and aggregates (sum, mean, median, min, max). Use for any maths instead of guessing.',
       parameters: {
         type: 'object',
         properties: {
-          expression: { type: 'string', description: 'Arithmetic expression, e.g. "(17 * 43) / 2"' }
+          expression: { type: 'string', description: 'Math expression, e.g. "(17 * 43) / 2", "sqrt(81)", "sum(1,2,3)" or "median(4,2,9)"' }
         },
         required: ['expression']
       },
@@ -348,14 +348,53 @@
         required: ['query']
       },
       icon: 'search'
+    },
+    {
+      name: 'convert_units',
+      description: 'Convert a value between supported units. Kinds: length (mm/cm/m/km/in/ft/mi), mass (mg/g/kg/lb/oz), volume (ml/l/cup/gal), data (b/kb/mb/gb/tb, kib/mib/gib), speed (m/s, km/h, mph), area (m2, km2, acre), time (ms/s/min/h/day/week/month/year), temperature (C/F/K). Use instead of guessing conversions.',
+      parameters: {
+        type: 'object',
+        properties: {
+          value: { type: 'number', description: 'Numeric value to convert, e.g. 100' },
+          from: { type: 'string', description: 'Source unit, e.g. "km", "lb", "F" or "hours"' },
+          to: { type: 'string', description: 'Target unit, e.g. "mi", "kg", "C" or "minutes"' }
+        },
+        required: ['value', 'from', 'to']
+      },
+      icon: 'arrow-left-right'
+    },
+    {
+      name: 'define_term',
+      description: 'Define an AI, retrieval or Eltes term from the curated on-device glossary (RAG, embedding, token, transformer, fine-tuning, etc.). Use for "what is / define / explain" questions.',
+      parameters: {
+        type: 'object',
+        properties: {
+          term: { type: 'string', description: 'Term to define, e.g. "RAG", "embedding", "quantization"' }
+        },
+        required: ['term']
+      },
+      icon: 'book-open'
     }
   ];
 
   function safeCalculate(expression) {
     const expr = String(expression || '').trim();
     if (!expr) return { error: 'Empty expression.' };
+    // Try enhanced CAI parser first (supports functions, pi, e, median etc.) — safer than Function ctor
+    if (window.EltesCAI) {
+      try {
+        // quick allowlist: numbers, letters for function names, operators, punctuation
+        if (/^[a-z0-9+\-*/%^().,! \t×÷]+$/i.test(expr)) {
+          // Reuse CAI's math pipeline by faking a build call with a synthetic prompt
+          // We extract the expression value via CAI's internal evaluate if exposed via mathIntent pattern.
+          // Fallback: try direct evaluation using a lightweight safe parser mirroring cai.js
+          const temp = tryCaiEvaluate(expr);
+          if (temp != null) return { result: temp };
+        }
+      } catch (e) {}
+    }
     if (!/^[0-9+\-*/%(). ^]+$/.test(expr)) {
-      return { error: 'Only numbers and + - * / % ^ ( ) are allowed.' };
+      return { error: 'Only numbers and + - * / % ^ ( ) are allowed in fallback. Try sqrt(), sin(), log() via the advanced parser.' };
     }
     const js = expr.replace(/\^/g, '**');
     if (/\.\s*\./.test(js)) return { error: 'Malformed number.' };
@@ -367,6 +406,58 @@
     } catch (e) {
       return { error: 'Could not evaluate that expression.' };
     }
+  }
+
+  // lightweight mirror of CAI's evaluate for tool use (no variable support, safe)
+  function tryCaiEvaluate(src) {
+    const clean = src.replace(/×/g, '*').replace(/÷/g, '/');
+    // Only attempt if it looks like a function call or contains pi/e/median etc.
+    if (!/[a-z]/i.test(clean) || !/(sqrt|cbrt|abs|sin|cos|tan|asin|acos|atan|ln|log|min|max|sum|mean|median|product|pow|floor|ceil|round|exp|pi|e)/i.test(clean)) return null;
+    // Build a minimal evaluator by delegating to CAI's answer pipeline:
+    // We craft a prompt like "what is <expr>" and check if CAI returns a math intent.
+    try {
+      const now = new Date();
+      const res = window.EltesCAI.build('eltes-cai-1', 'what is ' + src, [], now);
+      if (res && res.intent === 'math' && /\*\*/.test(res.text)) {
+        const m = res.text.match(/\*\*([^*]+)\*\*/);
+        if (m) return m[1] + ' — ' + res.text.replace(/\n/g, ' ').slice(0, 180);
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function toolConvertUnits(args) {
+    try {
+      const value = Number(args && args.value);
+      const from = String((args && args.from) || '').trim().toLowerCase();
+      const to = String((args && args.to) || '').trim().toLowerCase();
+      if (!Number.isFinite(value)) return { error: 'Value must be a finite number.' };
+      if (!from || !to) return { error: 'Both from and to units are required.' };
+      // Delegate to CAI's unit logic by faking a conversion prompt — keeps single source of truth
+      const now = new Date();
+      const prompt = `${value} ${from} to ${to}`;
+      const res = window.EltesCAI ? window.EltesCAI.build('eltes-cai-1', prompt, [], now) : null;
+      if (res && res.intent === 'units') {
+        // strip markdown ** markers for tool result clarity
+        const clean = res.text.replace(/\*\*/g, '').replace(/`/g, '');
+        return { result: clean };
+      }
+      return { error: `Cannot convert ${from} → ${to}. Supported kinds must match (e.g., km→mi, kg→lb, C→F, hours→minutes).` };
+    } catch (e) {
+      return { error: 'Conversion failed.' };
+    }
+  }
+
+  function toolDefineTerm(args) {
+    const term = String((args && args.term) || '').trim();
+    if (!term) return { error: 'Term is required.' };
+    if (!window.EltesCAI) return { error: 'Glossary not loaded.' };
+    const now = new Date();
+    const res = window.EltesCAI.build('eltes-cai-1', 'what is ' + term, [], now);
+    if (res && res.intent === 'glossary') {
+      return { result: res.text.replace(/\*\*/g, '') };
+    }
+    return { result: `No curated definition for “${term}”. Try: token, context window, RAG, embedding, transformer, fine-tuning, quantization, retrieval.` };
   }
 
   function toolCurrentTime(args) {
@@ -412,6 +503,8 @@
     if (name === 'calculate') out = safeCalculate(args && args.expression);
     else if (name === 'current_time') out = toolCurrentTime(args || {});
     else if (name === 'search_history') out = toolSearchHistory(args || {});
+    else if (name === 'convert_units') out = toolConvertUnits(args || {});
+    else if (name === 'define_term') out = toolDefineTerm(args || {});
     else out = { error: `Unknown tool: ${name}` };
     const text = out.error ? `Error: ${out.error}` : out.result;
     return {
@@ -2117,7 +2210,8 @@
     'You are Eltes, a precise and practical AI agent inside a local-first workspace.',
     'Answer directly with Markdown. Put code in fenced blocks with a language tag.',
     'Be concise unless the user asks for depth. Never claim to have run a tool you were not given.',
-    'If you need arithmetic, the current time or earlier conversation, call the provided tools.'
+    'If you need arithmetic, unit conversions, time, or earlier conversation, call the provided tools: calculate, convert_units, current_time, search_history, define_term.',
+    'When you use a tool, briefly explain the result before continuing. Prefer tools over guessing for numbers, dates and definitions.'
   ].join(' ');
 
   const MAX_TOOL_ROUNDS = 4;

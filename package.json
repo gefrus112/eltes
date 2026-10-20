@@ -1,7 +1,7 @@
 {
   "name": "eltes-ai",
-  "version": "3.3.0",
-  "description": "Eltes AI \u2014 a local-first AI workspace with optional transient BYOK proxy, local open-model endpoints, streaming, and on-device CAI.",
+  "version": "3.4.0",
+  "description": "Eltes AI — a local-first AI workspace with optional transient BYOK proxy, local open-model endpoints, streaming, and improved on-device CAI with date math, time units, expanded glossary and 5 agent tools.",
   "main": "index.html",
   "scripts": {
     "start": "node tools/local-server.mjs",

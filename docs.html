@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.3.0</span>
+          <span class="badge"><span class="dot"></span>v3.4.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -417,7 +417,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td>Eltes CAI Docs</td><td>Eltes setup, keys, accounts, downloads</td><td>“How do I connect a DeepSeek key?”</td></tr>
             </tbody>
           </table>
-          <p>CAI covers Eltes documentation, model recommendations from the catalogue, arithmetic, percentages, common calculator functions (including roots, powers, trigonometry and logs), one-variable linear and quadratic equations, unit and temperature conversion, the current date and time, word counts and a curated glossary of AI terms. Trigonometric inputs use radians. It is not a computer algebra system and cannot solve arbitrary proofs, higher-degree equations or every math problem. For chat understanding, it can retrieve exact matching excerpts and recap user prompts included in the active conversation context; it cannot search every saved chat from this local turn. It has no arbitrary-corpus import or training pipeline. Unsupported or ambiguous questions should receive a fallback, but this is not a guarantee against mistakes.</p>
+          <p>CAI covers Eltes documentation, model recommendations from the catalogue, arithmetic, percentages, common calculator functions (including roots, powers, trigonometry, logs, median, sum and product phrasing), one-variable linear and quadratic equations, unit and temperature conversion (including Kelvin and time units: ms → years), date arithmetic (days between dates, date + N days, days until a date), the current date and time, word counts and a curated glossary of AI terms (now 50+ terms including RAG, embeddings, attention and fine-tuning). Trigonometric inputs use radians. It is not a computer algebra system and cannot solve arbitrary proofs, higher-degree equations or every math problem. For chat understanding, it can retrieve exact matching excerpts and recap user prompts included in the active conversation context; it cannot search every saved chat from this local turn. It has no arbitrary-corpus import or training pipeline. Unsupported or ambiguous questions should receive a fallback, but this is not a guarantee against mistakes.</p>
           <p>A tokenizer vocabulary is a set of text pieces, not a count of verified facts. Adding four million words would not by itself teach the assistant meanings or make its answers reliable. Knowledge expansion needs vetted source documents, retrieval with traceable references, abstention when evidence is weak, and regression tests.</p>
 
           <h3>Real model streaming, including Claude</h3>
@@ -440,14 +440,16 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="agent">
           <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of three local tools. Eltes executes the call in the page, returns the result to the model, and lets it continue — up to four rounds.</p>
+          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of five local tools. Eltes executes the call in the page, returns the result to the model, and lets it continue — up to four rounds.</p>
 
           <table class="doc-table">
             <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
             <tbody>
-              <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic in a restricted sandbox — digits and operators only</td></tr>
+              <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic and scientific functions (sqrt, sin, log, median, sum…) in a sandboxed parser — much richer than a four-function calculator</td></tr>
               <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
               <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
+              <tr><td><code>convert_units</code></td><td><code>{ value, from, to }</code></td><td>Converts between length, mass, volume, data, speed, area, time and temperature using deterministic factors — Kelvin and time units included</td></tr>
+              <tr><td><code>define_term</code></td><td><code>{ term }</code></td><td>Defines an AI/Eltes term from the on-device glossary (RAG, embedding, transformer, etc.) with a curated, source-traceable explanation</td></tr>
             </tbody>
           </table>
 

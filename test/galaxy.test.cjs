@@ -135,6 +135,36 @@ test('the release notes show the real galaxy capture', async () => {
   assert.match(JSON.parse(await read('package.json')).description.length > 0 ? 'ok' : '', /ok/);
 });
 
+test('the empty chat has a warm, pointer-driven effect', async () => {
+  const { stat } = require('node:fs/promises');
+  const html = await read('app.html');
+  assert.match(html, /<canvas class="ember-field" data-embers aria-hidden="true"><\/canvas>/, 'the canvas is mounted');
+  assert.match(html, /assets\/js\/chat-embers\.js/, 'the module loads');
+  assert.ok(!html.includes('data-galaxy'), 'the chat keeps its own clean shell');
+
+  const js = await read('assets/js/chat-embers.js');
+  assert.match(js, /const FPS_CAP =/, 'frame budget');
+  assert.match(js, /DPR_CAP = 1\.75/, 'pixel-ratio cap');
+  assert.match(js, /prefers-reduced-motion/, 'honours the system setting');
+  assert.match(js, /reduce-motion/, 'honours Settings → Reduce motion');
+  assert.match(js, /MutationObserver\(sync\)\.observe\(empty/, 'stops when a chat starts');
+  assert.match(js, /document\.hidden/, 'pauses in a hidden tab');
+  assert.match(js, /function drawStill\(/, 'a still frame exists for reduced motion');
+  assert.match(js, /function drawOrbits\(/, 'sparks orbit the pointer');
+  assert.match(js, /function spawnStreak\(/, 'heat wisps rise');
+  assert.match(js, /window\.EltesEmbers =/, 'exposes a handle for tests');
+  assert.doesNotMatch(js, /import\s|require\(|fetch\(|XMLHttpRequest/, 'no dependencies or requests');
+
+  const css = await read('assets/css/app.css');
+  assert.match(css, /\.ember-field \{[\s\S]*?mix-blend-mode: screen/, 'the effect only adds light');
+  assert.match(css, /\.ember-field\.is-on/, 'it fades in with the empty state');
+
+  // the capture that ships with the release notes is real
+  const jpg = await stat(join(root, 'assets/img/news/embers.jpg'));
+  assert.ok(jpg.size > 4000, 'embers.jpg is a real capture');
+  assert.match(await read('tools/capture-embers.mjs'), /assets\/img\/news\/embers\.jpg/);
+});
+
 test('validators know about the new stylesheet', async () => {
   const pkg = JSON.parse(await read('package.json'));
   assert.match(pkg.scripts['validate:css'], /assets\/css\/galaxy\.css/);

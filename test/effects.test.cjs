@@ -176,7 +176,7 @@ test('the news page shows screenshots of the current project', async () => {
   const news = await read('news.html');
 
   const shots = [...news.matchAll(/<img src="(assets\/img\/news\/[^"]+)"/g)].map((m) => m[1]);
-  assert.equal(shots.length, 5, 'five screenshots');
+  assert.equal(shots.length, 6, 'six screenshots');
   const svgShots = shots.filter((src) => src.endsWith('.svg'));
   assert.equal(svgShots.length, 4, 'four drawn screenshots');
   for (const src of svgShots) {
@@ -192,8 +192,13 @@ test('the news page shows screenshots of the current project', async () => {
   assert.ok(galaxy.size > 15000, 'galaxy.jpg is a real capture');
   assert.match(news, /<img src="assets\/img\/news\/galaxy\.jpg"/);
 
+  // …and so is the embers capture
+  const embers = await stat(join(root, 'assets/img/news/embers.jpg'));
+  assert.ok(embers.size > 4000, 'embers.jpg is a real capture');
+  assert.match(news, /<img src="assets\/img\/news\/embers\.jpg"/);
+
   // each release entry is present and linked to a page that exists
-  for (const id of ['r312', 'r311', 'r310', 'r39', 'r38', 'r371']) {
+  for (const id of ['r313', 'r312', 'r311', 'r310', 'r39', 'r38', 'r371']) {
     assert.match(news, new RegExp(`id="${id}"`), `${id} entry`);
   }
   assert.match(news, /docs\.html#look/);
@@ -215,11 +220,11 @@ test('the news page shows screenshots of the current project', async () => {
 
 test('version is bumped and the new stylesheet is validated', async () => {
   const pkg = JSON.parse(await read('package.json'));
-  assert.equal(pkg.version, '3.12.0');
+  assert.equal(pkg.version, '3.13.0');
   assert.match(pkg.scripts['validate:html'], /news\.html/);
   assert.match(pkg.scripts['validate:css'], /news\.css/);
   await read('assets/css/news.css');
 
   const docs = await read('docs.html');
-  assert.match(docs, /v3\.12\.0/);
+  assert.match(docs, /v3\.13\.0/);
 });

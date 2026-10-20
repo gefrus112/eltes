@@ -475,6 +475,26 @@ body.app {
   line-height: 1.6;
 }
 
+/* ----------------------------- embers (empty) ---------------------------- */
+
+/* A warm counterpoint to the black shell: the canvas under the new-chat
+   screen glows orange and throws embers as the pointer moves. It only shows
+   while that screen is visible and is purely decorative. */
+.ember-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  transition: opacity 900ms var(--ease);
+}
+.ember-field.is-on { opacity: 1; }
+.empty { position: relative; z-index: 1; }
+body.reduce-motion .ember-field { transition: none; }
+
 .connect-strip {
   display: flex;
   align-items: center;

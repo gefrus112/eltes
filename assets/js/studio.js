@@ -155,6 +155,24 @@ button.addEventListener('click', () => {
     try { return window.confirm(message); } catch { return true; }
   }
 
+  function openModal(dialog) {
+    if (!dialog) return;
+    if (typeof dialog.showModal === 'function') {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      dialog.setAttribute('open', '');
+    }
+  }
+
+  function closeModal(dialog) {
+    if (!dialog) return;
+    if (typeof dialog.close === 'function') {
+      if (dialog.open) dialog.close();
+    } else {
+      dialog.removeAttribute('open');
+    }
+  }
+
   function prefs() {
     try { return JSON.parse(localStorage.getItem(LS_PREFS) || '{}') || {}; } catch { return {}; }
   }
@@ -300,6 +318,7 @@ button.addEventListener('click', () => {
     }
     updateTerminalPrompt();
     if (!state.termCollapsed) setTimeout(() => el.termInput.focus({ preventScroll: true }), 120);
+    state.booted = true;
   }
 
   function cacheEls() {
@@ -328,6 +347,10 @@ button.addEventListener('click', () => {
     el.newFileForm = $('#newFileForm');
     el.newFileName = $('#newFileName');
     el.helpDialog = $('#helpDialog');
+    el.guideDialog = $('#guideDialog');
+    el.guideSteps = $('#guideSteps');
+    el.guideCount = $('#guideCount');
+    el.guideLabel = $('#guideLabel');
   }
 
   function setBackend(online, session) {
@@ -657,6 +680,8 @@ button.addEventListener('click', () => {
 
   function reloadPreview() {
     if (!state.preview) return;
+    // The initial load is not a completed step; later reloads are real previews.
+    if (state.booted) markWorkflow('preview');
     clearTimeout(state.reloadTimer);
     state.reloadTimer = setTimeout(() => {
       if (state.online) {
@@ -861,6 +886,7 @@ button.addEventListener('click', () => {
     } finally {
       state.running = null;
       scrollTerminal();
+      markWorkflow('terminal');
     }
   }
 
@@ -1201,6 +1227,333 @@ button.addEventListener('click', () => {
 
   /* --------------------------------- files -------------------------------- */
 
+  /* ------------------------------- workflow -------------------------------- */
+  /* A guided version of the real flow: scaffold files, run a command, add a
+     page, preview it, open it. Every step is completed by the action itself,
+     not by a timer, and progress is stored locally. */
+
+  const WF_STEPS = ['scaffold', 'terminal', 'create', 'preview', 'open'];
+
+  function workflowDone() {
+    const saved = prefs().workflow;
+    return new Set(Array.isArray(saved) ? saved.filter((id) => WF_STEPS.includes(id)) : []);
+  }
+
+  function renderWorkflow() {
+    const done = workflowDone();
+    if (!el.guideSteps) return;
+    el.guideSteps.querySelectorAll('[data-wf-step]').forEach((item) => {
+      const id = item.dataset.wfStep;
+      const complete = done.has(id);
+      item.classList.toggle('done', complete);
+      const button = item.querySelector('[data-wf-action]');
+      if (button) {
+        if (!button.dataset.wfOriginal) button.dataset.wfOriginal = button.textContent;
+        button.textContent = complete ? 'Run again' : button.dataset.wfOriginal;
+      }
+    });
+    const count = done.size;
+    if (el.guideCount) el.guideCount.textContent = `${count}/${WF_STEPS.length}`;
+    if (el.guideLabel) el.guideLabel.textContent = count === WF_STEPS.length ? 'Guide done' : 'Guide';
+    const nav = $('#btnGuide');
+    if (nav) {
+      nav.classList.toggle('complete', count === WF_STEPS.length);
+      nav.title = count === WF_STEPS.length
+        ? 'Guided workflow complete — reopen it any time'
+        : `Guided workflow: build a website (${count}/${WF_STEPS.length} done)`;
+    }
+  }
+
+  function markWorkflow(id) {
+    if (!WF_STEPS.includes(id)) return;
+    const done = workflowDone();
+    if (done.has(id)) return;
+    done.add(id);
+    savePrefs({ workflow: [...done] });
+    renderWorkflow();
+    if (done.size === WF_STEPS.length) toast('Workflow complete — the page is live in your browser', 'ok');
+  }
+
+  function resetWorkflow() {
+    savePrefs({ workflow: [] });
+    renderWorkflow();
+    toast('Workflow progress reset', 'ok');
+  }
+
+  async function writeWorkspaceFile(path, content) {
+    if (state.online) {
+      await api(`/api/studio/file?path=${encodeURIComponent(path)}`, { method: 'PUT', body: content });
+    } else {
+      state.offlineProject[path] = content;
+      persistOfflineProject();
+    }
+  }
+
+  async function scaffoldSite() {
+    const files = {
+      'index.html': `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eltes starter site</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-nav">
+    <a class="logo" href="index.html">Your site</a>
+    <nav>
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="eyebrow">Built in Eltes Studio</p>
+    <h1>A website you can actually run.</h1>
+    <p class="lede">This page lives in <code>.studio/</code> and is served from <code>/preview/</code>. Edit any file, save, and the preview reloads.</p>
+    <div class="actions">
+      <a class="btn" href="about.html">Read the about page</a>
+      <button class="btn ghost" id="shuffle" type="button">Change the accent</button>
+    </div>
+    <section class="cards">
+      <article><h2>Files</h2><p>Add as many pages as you need — every <code>.html</code> file previews.</p></article>
+      <article><h2>Terminal</h2><p>Run <code>npm init -y</code>, install a framework, or build to <code>dist/</code>.</p></article>
+      <article><h2>Preview</h2><p>Desktop, tablet and phone widths, or open the page in its own tab.</p></article>
+    </section>
+  </main>
+
+  <footer>Built with Eltes · <a href="about.html">About</a></footer>
+  <script>
+    const accents = ['#4785ff', '#39dca2', '#ff9f68', '#b7a6ff'];
+    let index = 0;
+    document.getElementById('shuffle').addEventListener('click', () => {
+      index = (index + 1) % accents.length;
+      document.documentElement.style.setProperty('--accent', accents[index]);
+    });
+  </script>
+</body>
+</html>
+`,
+      'about.html': `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About · Eltes starter site</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-nav">
+    <a class="logo" href="index.html">Your site</a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html" aria-current="page">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="eyebrow">About</p>
+    <h1>A second page, already wired up.</h1>
+    <p class="lede">The same stylesheet applies, links work both ways, and the preview follows whichever file you open.</p>
+    <p><a class="btn" href="index.html">Back home</a></p>
+  </main>
+
+  <footer>Built with Eltes · <a href="index.html">Home</a></footer>
+</body>
+</html>
+`,
+      'styles.css': `:root {
+  --accent: #4785ff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 0 24px 40px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.65;
+  color: #e9effb;
+  background:
+    radial-gradient(900px 520px at 15% -10%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 62%),
+    #05070c;
+}
+.site-nav, main, footer { width: min(920px, 100%); margin: 0 auto; }
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 0 44px;
+}
+.site-nav .logo { font-weight: 700; color: #fff; text-decoration: none; }
+.site-nav nav { margin-left: auto; display: flex; gap: 18px; }
+.site-nav nav a { color: #9dadc9; text-decoration: none; font-size: 14px; }
+.site-nav nav a[aria-current="page"] { color: #fff; }
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+h1 { margin: 0 0 14px; font-size: clamp(30px, 5vw, 46px); line-height: 1.1; letter-spacing: -0.02em; }
+h2 { font-size: 16px; margin: 0 0 6px; }
+.lede { max-width: 62ch; color: #9dadc9; font-size: 17px; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; color: #cfe0ff; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 40px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn.ghost { background: transparent; border: 1px solid rgba(150, 180, 240, 0.28); color: #cfe0ff; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.cards article {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(130, 162, 220, 0.16);
+  background: rgba(9, 14, 24, 0.72);
+}
+.cards p { margin: 0; color: #8fa1bf; font-size: 13.5px; }
+footer { margin-top: 46px; padding-top: 18px; border-top: 1px solid rgba(130, 162, 220, 0.12); color: #63779a; font-size: 12.5px; }
+footer a { color: #9dadc9; }
+`,
+      'package.json': `{
+  "name": "eltes-starter-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A starter site built in Eltes Studio.",
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}
+`,
+      'build.mjs': `/* Copy the site into dist/ — no dependencies, no network. */
+import { cp, mkdir, readdir, rm } from 'node:fs/promises';
+
+const include = /\\.(html|css|js)$/i;
+const files = (await readdir('.')).filter((name) => include.test(name));
+
+await rm('dist', { recursive: true, force: true });
+await mkdir('dist', { recursive: true });
+for (const file of files) {
+  await cp(file, \`dist/\${file}\`);
+}
+console.log(\`built \${files.length} files into dist/: \${files.join(', ')}\`);
+`,
+      'README.md': `# Starter site
+
+Built in Eltes Studio.
+
+- \`index.html\` — home page
+- \`about.html\` — second page, linked both ways
+- \`styles.css\` — one stylesheet for both pages
+
+Open any HTML file and the preview follows it. Run \`npm run build\` in the
+terminal to copy the site into \`dist/\`, then preview \`dist/index.html\`.
+Swap \`build.mjs\` for Vite or any other tool whenever you want one.
+`
+    };
+
+    const existing = state.files.filter((f) => !f.dir).map((f) => f.path);
+    const clashes = Object.keys(files).filter((name) => existing.includes(name));
+    if (clashes.length && !askConfirm(`Replace ${clashes.join(', ')} with the starter version?`)) {
+      return false;
+    }
+
+    for (const [name, body] of Object.entries(files)) {
+      await writeWorkspaceFile(name, body);
+      state.open.delete(name);
+      state.tabs = state.tabs.filter((path) => path !== name);
+    }
+    await refreshTree();
+    renderTabs();
+    await openFile('index.html');
+    setPreviewPath('index.html');
+    reloadPreview();
+    markWorkflow('scaffold');
+    markWorkflow('preview');
+    toast('Starter site created — index.html, about.html, styles.css', 'ok');
+    return true;
+  }
+
+  async function runWorkflowAction(action) {
+    if (!state.online && action === 'terminal') {
+      toast('The terminal needs the local server — run npm start', 'warn');
+      return;
+    }
+    if (el.guideDialog && el.guideDialog.open) closeModal(el.guideDialog);
+    if (action === 'scaffold') {
+      await scaffoldSite();
+      return;
+    }
+    if (action === 'terminal') {
+      if (state.termCollapsed) {
+        state.termCollapsed = false;
+        applyTermHeight();
+        $('#btnTermToggle').setAttribute('aria-label', 'Collapse terminal');
+      }
+      el.termInput.focus({ preventScroll: true });
+      await execute('npm run build');
+      markWorkflow('terminal');
+      return;
+    }
+    if (action === 'create') {
+      el.newFileForm.classList.add('open');
+      el.newFileName.focus();
+      if (window.innerWidth <= 780) el.filesPanel.classList.add('open');
+      return;
+    }
+    if (action === 'preview') {
+      const current = state.preview && state.files.some((f) => !f.dir && f.path === state.preview);
+      const target = (current && isHtml(state.preview))
+        ? { path: state.preview }
+        : state.files.find((f) => !f.dir && isHtml(f.path)) || null;
+      if (!target) { toast('Create an HTML file first', 'warn'); return; }
+      await openFile(target.path);
+      setPreviewPath(target.path);
+      reloadPreview();
+      markWorkflow('preview');
+      toast(`Previewing ${target.path}`, 'ok');
+      return;
+    }
+    if (action === 'open') {
+      if (!state.online && !state.preview) { toast('Nothing to open yet', 'warn'); return; }
+      $('#btnPopout').click();
+      markWorkflow('open');
+    }
+  }
+
+  function bindWorkflow() {
+    renderWorkflow();
+    const dialog = $('#guideDialog');
+    if ($('#btnGuide')) {
+      $('#btnGuide').addEventListener('click', () => {
+        renderWorkflow();
+        openModal(dialog);
+      });
+    }
+    if ($('#btnGuideClose')) $('#btnGuideClose').addEventListener('click', () => closeModal(dialog));
+    if ($('#btnGuideReset')) $('#btnGuideReset').addEventListener('click', resetWorkflow);
+    if (el.guideSteps) {
+      el.guideSteps.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-wf-action]');
+        if (!button) return;
+        runWorkflowAction(button.dataset.wfAction).catch((error) => toast(error.message, 'warn'));
+      });
+    }
+  }
+
   function createFile(rawName) {
     let name = String(rawName || '').trim().replace(/^\/+/, '');
     if (!name) return;
@@ -1224,6 +1577,7 @@ button.addEventListener('click', () => {
           await refreshTree();
           await openFile(name);
           if (isHtml(name)) { setPreviewPath(name); reloadPreview(); }
+          markWorkflow('create');
           toast(`Created ${name}`, 'ok');
         })
         .catch((error) => toast(error.message, 'warn'));
@@ -1234,6 +1588,7 @@ button.addEventListener('click', () => {
       renderFileList();
       openFile(name).then(() => {
         if (isHtml(name)) { setPreviewPath(name); reloadPreview(); }
+        markWorkflow('create');
       });
       toast(`Created ${name}`, 'ok');
     }
@@ -1337,11 +1692,13 @@ button.addEventListener('click', () => {
     $('#btnPopout').addEventListener('click', () => {
       if (state.online) {
         window.open(`/preview/${state.preview}`, '_blank', 'noopener');
+        markWorkflow('open');
       } else {
         const blob = new Blob([buildOfflineDoc(state.preview)], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank', 'noopener');
         setTimeout(() => URL.revokeObjectURL(url), 20_000);
+        markWorkflow('open');
       }
     });
     el.previewPath.addEventListener('keydown', (event) => {
@@ -1356,8 +1713,9 @@ button.addEventListener('click', () => {
     });
 
     $('#btnDownload').addEventListener('click', exportProject);
-    $('#btnHelp').addEventListener('click', () => el.helpDialog.showModal());
-    $('#btnHelpClose').addEventListener('click', () => el.helpDialog.close());
+    $('#btnHelp').addEventListener('click', () => openModal(el.helpDialog));
+    $('#btnHelpClose').addEventListener('click', () => closeModal(el.helpDialog));
+    bindWorkflow();
 
     $('#btnRunBuild').addEventListener('click', runBuild);
     $('#btnFilesMobile').addEventListener('click', () => el.filesPanel.classList.toggle('open'));
@@ -1439,6 +1797,9 @@ button.addEventListener('click', () => {
     normalizePreviewInput,
     createFile,
     openFile,
-    execute
+    execute,
+    scaffoldSite,
+    markWorkflow,
+    renderWorkflow
   };
 })();

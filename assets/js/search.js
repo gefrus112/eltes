@@ -1,4 +1,4 @@
-/* Eltes — web search provider catalogue (v3.8)
+/* Eltes — web search provider catalogue (v3.9)
    Metadata for the optional search backends. The actual endpoints live in
    lib/search.cjs and are a fixed server allowlist; this file only drives UI. */
 window.EltesSearch = (function () {

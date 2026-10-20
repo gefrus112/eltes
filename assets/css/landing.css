@@ -1312,3 +1312,15 @@
   .studio-card { flex-direction: column; align-items: stretch; gap: 16px; }
   .studio-card .card-visual { max-width: none; }
 }
+
+.studio-card-links { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 4px; }
+.studio-card-links .btn { margin-top: 0; }
+.studio-card-workflow {
+  font-size: 12.5px;
+  font-weight: 550;
+  color: #8fb7ff;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(143, 183, 255, 0.28);
+  padding-bottom: 1px;
+}
+.studio-card-workflow:hover { color: #cfe0ff; border-color: rgba(207, 224, 255, 0.5); }

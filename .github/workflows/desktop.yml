@@ -52,12 +52,21 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Verify the harness
+        shell: bash
         run: |
-          node --check desktop/main.js
-          node --check desktop/shell.js
-          node --test test/desktop.test.cjs
+          set -o pipefail
+          node --check desktop/main.js &&
+          node --check desktop/shell.js &&
+          node --test test/desktop.test.cjs 2>&1 | tee "$RUNNER_TEMP/build.log"
       - name: Build Windows installers
-        run: npm run desktop:win
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run desktop:win 2>&1 | tee -a "$RUNNER_TEMP/build.log"
+      - name: Report the failure
+        if: failure()
+        shell: bash
+        run: node .github/scripts/report-failure.mjs "$RUNNER_TEMP/build.log"
         env:
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
@@ -90,7 +99,14 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Build the .dmg and .zip
-        run: node desktop/build.mjs --target=mac --arch=arm64
+        shell: bash
+        run: |
+          set -o pipefail
+          node desktop/build.mjs --target=mac --arch=arm64 2>&1 | tee "$RUNNER_TEMP/build.log"
+      - name: Report the failure
+        if: failure()
+        shell: bash
+        run: node .github/scripts/report-failure.mjs "$RUNNER_TEMP/build.log"
         env:
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
@@ -124,7 +140,14 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Build the .dmg and .zip
-        run: node desktop/build.mjs --target=mac --arch=x64
+        shell: bash
+        run: |
+          set -o pipefail
+          node desktop/build.mjs --target=mac --arch=x64 2>&1 | tee "$RUNNER_TEMP/build.log"
+      - name: Report the failure
+        if: failure()
+        shell: bash
+        run: node .github/scripts/report-failure.mjs "$RUNNER_TEMP/build.log"
         env:
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
@@ -158,9 +181,19 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Verify the harness
-        run: node --test test/desktop.test.cjs
+        shell: bash
+        run: |
+          set -o pipefail
+          node --test test/desktop.test.cjs 2>&1 | tee "$RUNNER_TEMP/build.log"
       - name: Build AppImage and deb
-        run: npm run desktop:linux
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run desktop:linux 2>&1 | tee -a "$RUNNER_TEMP/build.log"
+      - name: Report the failure
+        if: failure()
+        shell: bash
+        run: node .github/scripts/report-failure.mjs "$RUNNER_TEMP/build.log"
       - name: Inspect the packages
         run: |
           ls -lh desktop/.build/dist
@@ -198,3 +231,10 @@ jobs:
             gh release create "$TAG" --title "Eltes $TAG" --generate-notes
           fi
           gh release upload "$TAG" artifacts/* --clobber
+          # rebuilds must not leave stale asset names behind
+          for asset in $(gh release view "$TAG" --json assets --jq '.assets[].name'); do
+            if [ ! -e "artifacts/$asset" ]; then
+              echo "removing stale $asset"
+              gh release delete-asset "$TAG" "$asset" --yes
+            fi
+          done

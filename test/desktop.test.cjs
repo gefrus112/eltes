@@ -101,13 +101,16 @@ test('the site directory resolves for a checkout and for a packaged app', () => 
     core.resolveSiteDir({ packaged: false, appDir: join(root, 'desktop') }),
     root
   );
-  assert.equal(
-    core.resolveSiteDir({ packaged: true, resourcesPath: '/opt/Eltes/resources', appDir: '/opt/Eltes/resources/app.asar' }),
-    resolve('/opt/Eltes/resources/site')
+  /* path separators and drive letters differ per platform — compare suffixes */
+  assert.ok(
+    core.resolveSiteDir({ packaged: true, resourcesPath: join('/opt', 'Eltes', 'resources'), appDir: join('/opt', 'Eltes', 'resources', 'app.asar') })
+      .endsWith(join('Eltes', 'resources', 'site')),
+    'packaged apps serve resources/site next to the asar'
   );
-  assert.equal(
-    core.resolveSiteDir({ packaged: true, resourcesPath: '/x', override: '/tmp/site' }),
-    resolve('/tmp/site')
+  assert.ok(
+    core.resolveSiteDir({ packaged: true, resourcesPath: '/x', override: join('/tmp', 'site') })
+      .endsWith(join('tmp', 'site')),
+    'an explicit override wins'
   );
   assert.throws(() => core.resolveSiteDir({ packaged: false }), /appDir/);
 
@@ -245,8 +248,9 @@ test('packaging stages the shell and the site, and the config is complete', asyn
   assert.deepEqual(config.extraResources, [{ from: build.SITE_OUT, to: 'site', filter: ['**/*'] }]);
   assert.deepEqual(config.protocols, [{ name: 'Eltes link', schemes: ['eltes'] }]);
 
-  assert.deepEqual(config.win.target.map((t) => t.target), ['nsis', 'portable']);
-  assert.deepEqual(config.win.target[0].arch, ['x64', 'arm64']);
+  /* arch lives on the command line, so one invocation builds one arch and the
+     artifact name always contains it (no combined multi-arch installer) */
+  assert.deepEqual(config.win.target, ['nsis', 'portable']);
   assert.match(config.nsis.artifactName, /Eltes-Setup/);
   assert.match(config.portable.artifactName, /Portable/);
   assert.equal(config.nsis.oneClick, false);

@@ -79,21 +79,16 @@ jobs:
           fi
           exit "$status"
 
-      # rustfmt runs in CI only (the sandbox this crate was written in has no
-      # toolchain), so when it wants changes it publishes the patch as
-      # annotations instead of failing the build.
+      # rustfmt is advisory: the crate was authored without a local toolchain,
+      # so the check reports what it would change instead of failing the build.
       - name: Formatting
-        continue-on-error: true
         run: |
           cargo fmt --all
-          if ! git diff --quiet; then
-            git diff --unified=1 --name-only | while IFS= read -r file; do
-              git diff --unified=1 -- "$file" | base64 -w0 | fold -w 3900 | nl -w1 -s' ' |
-                while read -r part chunk; do
-                  echo "::error file=${file},line=${part}::FMT${chunk}"
-                done
-            done
-            exit 1
+          if git diff --quiet; then
+            echo "engine is rustfmt-clean"
+          else
+            echo "::warning::cargo fmt would reformat these files (run it in a checkout with a toolchain):"
+            git diff --stat
           fi
 
       - name: Build release binary

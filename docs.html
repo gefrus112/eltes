@@ -660,6 +660,11 @@ ollama serve
           <p><strong>Eltes CAI-1</strong> answers arithmetic, percentages, unit and temperature conversions, and questions about Eltes itself, entirely in the tab. It is a deterministic rules engine, not a language model, so it will refuse open-ended writing instead of inventing an answer. That refusal is the feature: <a class="inline-link" href="index.html#compare">the comparison</a> spells out what it can and cannot do.</p>
 
           <div class="callout">
+            <span data-icon="sparkles" data-icon-size="15"></span>
+            <span><strong>The engine is open source.</strong> The deterministic core behind CAI — arithmetic, percentages, units and temperatures — is ported to Rust under the MIT licence in <code>engine/</code>, with tests that mirror the browser engine so the two cannot drift apart silently. You can build it with <code>cargo build --release</code> and run <code>cai "12 km to miles"</code> from a terminal.</span>
+          </div>
+
+          <div class="callout">
             <span data-icon="key-round" data-icon-size="15"></span>
             <span><strong>What Eltes never does.</strong> It does not supply model credits, proxy your traffic to a free pool, rotate shared keys, or hide the provider's bill. “Free” here means <em>no charge from Eltes</em> — the model is either yours or on someone else's free quota.</span>
           </div>

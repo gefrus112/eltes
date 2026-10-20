@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 65 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 65 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, web search with sources, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
@@ -59,7 +59,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.5.0</span>
+          <span class="badge"><span class="dot"></span>v3.6.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -89,6 +89,7 @@
         <div class="nav-sep"></div>
         <h5>Using Eltes</h5>
         <a href="#models"><span data-icon="layers" data-icon-size="14"></span>Models</a>
+        <a href="#web-search"><span data-icon="globe" data-icon-size="14"></span>Web search</a>
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
         <a href="#chat-commands"><span data-icon="command" data-icon-size="14"></span>Chat commands</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
@@ -114,7 +115,7 @@
           <ol>
             <li><strong>Local-first.</strong> Chats, settings, keys and profiles live in <code>localStorage</code>. Clearing site data is the nuclear option, and it is yours to press.</li>
             <li><strong>Bring your own key.</strong> By default, requests go from your tab to the provider. An optional trusted backend can relay a key for each request without persisting or logging it in the function code.</li>
-            <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>convert_units</code>, <code>define_term</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
+            <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>convert_units</code>, <code>define_term</code>, <code>current_time</code>, <code>search_history</code> and <code>web_search</code>; every call is shown as a card with its arguments, result and runtime.</li>
             <li><strong>On-device when you need it.</strong> Eltes CAI-1 answers chat, Eltes questions, model choice, arithmetic, units and dates in this tab. No key, no network, and it is explicit about what it does not know.</li>
           </ol>
 
@@ -440,9 +441,48 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           </div>
         </section>
 
+        <section id="web-search">
+          <h2>Web search and sources <a class="anchor" href="#web-search" aria-label="Link to web search" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes can search the live web and show the links it used. Results appear as a numbered source list under the reply, and hosted models are asked to cite them inline as <code>[1]</code>, <code>[2]</code> — the same pattern DeepSeek and other search-enabled assistants use. Clicking a citation opens the original page.</p>
+
+          <div class="callout">
+            <span data-icon="server" data-icon-size="15"></span>
+            <span><strong>Requires the optional backend.</strong> Search keys are never put in browser requests to search providers, because those APIs do not allow direct cross-origin calls. Run <code>npm start</code> locally, or deploy the bundled <code>/api/search</code> route to Vercel. GitHub Pages alone cannot run it.</span>
+          </div>
+
+          <h3>Set it up</h3>
+          <ol>
+            <li>Get a key from <a href="https://api.search.brave.com/app/keys" target="_blank" rel="noreferrer">Brave</a>, <a href="https://app.tavily.com/home" target="_blank" rel="noreferrer">Tavily</a>, <a href="https://serper.dev/api-key" target="_blank" rel="noreferrer">Serper</a> or <a href="https://dashboard.exa.ai/api-keys" target="_blank" rel="noreferrer">Exa</a>.</li>
+            <li>Open <strong>Settings → API keys → Web search</strong>, choose the provider, paste the key and press <strong>Save</strong>. The key is stored in this browser only.</li>
+            <li>Turn on the <strong>Web</strong> chip in the composer. The toggle also governs the <code>web_search</code> tool offered to hosted models.</li>
+            <li>Ask a live question, or type <code>/web &lt;query&gt;</code> for an explicit search.</li>
+          </ol>
+
+          <table class="doc-table">
+            <thead><tr><th>Provider</th><th>Strength</th><th>Answer field</th></tr></thead>
+            <tbody>
+              <tr><td>Brave Search</td><td>Independent index, free developer tier</td><td>—</td></tr>
+              <tr><td>Tavily</td><td>Built for agents; returns a short synthesized answer</td><td>Yes</td></tr>
+              <tr><td>Serper</td><td>Google results with answer boxes and knowledge panels</td><td>Yes</td></tr>
+              <tr><td>Exa</td><td>Neural search with extracted page text and dates</td><td>—</td></tr>
+            </tbody>
+          </table>
+
+          <h3>What is sent where</h3>
+          <ul>
+            <li>The browser sends <code>{ provider, query, count }</code> plus your search key to <strong>your configured backend</strong>. The backend forwards it to the fixed provider endpoint — it never accepts an arbitrary URL.</li>
+            <li>The search provider sees the query and your key. Eltes does not store queries server-side, and the key is not logged.</li>
+            <li>Result titles, URLs and excerpts are returned to the page. For hosted models, the excerpts are added to the model request as tool output; treat them as untrusted evidence, never as instructions.</li>
+            <li>Nothing is fetched from a result page — Eltes shows the snippet the search API returned and links out, so you can open the full page yourself.</li>
+          </ul>
+
+          <h3>When search is unavailable</h3>
+          <p>If no backend or key is configured, CAI answers live questions with an explicit “I cannot check live information” message instead of guessing. If a search fails, the reply reports the provider error and links the settings, rather than inventing an answer.</p>
+        </section>
+
         <section id="agent">
           <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of five local tools. Eltes executes the call in the page, returns the result to the model, and lets it continue — up to four rounds.</p>
+          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of six tools. Five run locally; <code>web_search</code> uses your own search key through the optional backend. Eltes executes the call, returns the result to the model, and lets it continue — up to four rounds.</p>
 
           <table class="doc-table">
             <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
@@ -452,6 +492,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
               <tr><td><code>convert_units</code></td><td><code>{ value, from, to }</code></td><td>Converts between length, mass, volume, data, speed, area, time and temperature using deterministic factors — Kelvin and time units included</td></tr>
               <tr><td><code>define_term</code></td><td><code>{ term }</code></td><td>Defines an AI/Eltes term from the on-device glossary (RAG, embedding, transformer, etc.) with a curated, source-traceable explanation</td></tr>
+              <tr><td><code>web_search</code></td><td><code>{ query, count? }</code></td><td>Searches the live web through Brave, Tavily, Serper or Exa and returns numbered titles, URLs and excerpts for inline <code>[1]</code>-style citations. Only offered when the Web chip is on and a search key is saved</td></tr>
             </tbody>
           </table>
 
@@ -461,6 +502,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <li><strong>Tool cards</strong> with the tool name, arguments, a running/done state and the runtime in milliseconds.</li>
             <li><strong>Metrics</strong> after the turn: first-token latency, total time, tokens in/out and tokens per second.</li>
             <li><strong>Model and provider chips</strong> on every assistant message, so a long thread with switches stays readable.</li>
+            <li><strong>Source cards</strong> under web-search replies: numbered links to the pages the search provider returned, with the snippet it supplied.</li>
           </ul>
 
           <h3>Tool calling support</h3>
@@ -486,6 +528,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td><code>/convert</code></td><td>Converts units and temperatures</td><td><code>/convert 5 mi to km</code></td></tr>
               <tr><td><code>/define</code></td><td>Looks up the on-device AI glossary</td><td><code>/define RAG</code></td></tr>
               <tr><td><code>/base</code></td><td>Converts hex, binary, octal and decimal</td><td><code>/base 255 to hex</code></td></tr>
+              <tr><td><code>/web</code></td><td>Searches the live web and lists sources (needs a search key)</td><td><code>/web DeepSeek V4 release notes</code></td></tr>
               <tr><td><code>/time</code></td><td>Shows device date, time and timezone</td><td><code>/time</code></td></tr>
               <tr><td><code>/coin</code>, <code>/dice</code></td><td>Random utilities using the device RNG</td><td><code>/dice 20</code></td></tr>
               <tr><td><code>/random</code></td><td>Random integer in a range</td><td><code>/random 1 100</code></td></tr>
@@ -659,7 +702,7 @@ eltes.bat --port 8080</code></pre>
             <li>Set the project environment variable <code>ELTES_ALLOWED_ORIGINS</code> to exact comma-separated browser origins, without paths or trailing slashes. Example: <code>https://gefrus112.github.io,http://localhost:4173</code>.</li>
             <li>Deploy, then in Eltes <strong>Settings → API keys → Optional Vercel/local backend</strong>, enter the Vercel deployment origin and use <strong>Save and test</strong>.</li>
           </ol>
-          <p>The available routes are <code>/api/health</code>, <code>/api/key-check</code>, and streaming/non-streaming <code>/api/chat</code>. The backend only contacts fixed provider hosts and allowlisted provider/model pairs; it never accepts an arbitrary upstream URL. CORS origin checks are not authentication; these routes are public to non-browser clients unless you add access controls. Do not offer an unprotected shared proxy to untrusted users without adding authentication and rate limiting. The key transits the backend for each call; the function code does not persist or log it, but the platform and provider process the request. Use only a deployment you trust and set provider spending limits. Static hosting and Vercel backend deployment are separate; this documentation does not mean a deployment has already occurred.</p>
+          <p>The available routes are <code>/api/health</code>, <code>/api/key-check</code>, streaming/non-streaming <code>/api/chat</code>, and <code>/api/search</code>. The backend only contacts fixed provider hosts and allowlisted provider/model pairs; it never accepts an arbitrary upstream URL. CORS origin checks are not authentication; these routes are public to non-browser clients unless you add access controls. Do not offer an unprotected shared proxy to untrusted users without adding authentication and rate limiting. The key transits the backend for each call; the function code does not persist or log it, but the platform and provider process the request. Use only a deployment you trust and set provider spending limits. Static hosting and Vercel backend deployment are separate; this documentation does not mean a deployment has already occurred.</p>
 
           <div class="doc-code">
             <div class="bar">
@@ -776,6 +819,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#providers">Providers &amp; CORS</a>
         <a href="#custom-endpoint">Custom endpoints</a>
         <a href="#models">Models</a>
+        <a href="#web-search">Web search</a>
         <a href="#agent">Agent &amp; tools</a>
         <a href="#chat">Chats &amp; export</a>
         <a href="#settings">Settings</a>

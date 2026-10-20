@@ -1058,7 +1058,7 @@ window.EltesCAI = (function () {
     if (/weather|news|stock price|score|who won|latest|today'?s headlines|browse|search the web/.test(t)) {
       return {
         intent: 'live',
-        text: `I cannot check live information — CAI has no network access, and I will not invent an answer.\n\nSwitch to a connected hosted model for current facts, or paste the source text here and I will help you reason about it.`
+        text: `I cannot check live information on my own — CAI has no network access, and I will not invent an answer.\n\nIf web search is set up, turn on the **Web** chip (or use \`/web <query>\`) and I will return live links with excerpts. You can also switch to a connected hosted model, or paste the source text here and I will help you reason about it.`
       };
     }
 

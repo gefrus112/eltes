@@ -1,7 +1,7 @@
 {
   "name": "eltes-ai",
-  "version": "3.5.0",
-  "description": "Eltes AI \u2014 65 models across 14 providers, on-device CAI with slash commands, bases, text tools, date math, time units, 5 agent tools and local-first workspace.",
+  "version": "3.6.0",
+  "description": "Eltes AI \u2014 65 models across 14 providers, on-device CAI with slash commands, live web search with cited sources, and a local-first workspace.",
   "main": "index.html",
   "scripts": {
     "start": "node tools/local-server.mjs",

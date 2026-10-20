@@ -131,7 +131,7 @@
             </button>
             <button class="suggestion" data-prompt="/help">
               <span class="sicon" data-icon="command" data-icon-size="15"></span>
-              <span><strong>Slash commands</strong><span class="txt">/calc, /convert, /define, /dice</span></span>
+              <span><strong>Slash commands</strong><span class="txt">/calc, /convert, /web, /dice</span></span>
             </button>
           </div>
 
@@ -160,6 +160,9 @@
             </button>
             <button class="chip" id="agentChip" aria-pressed="false" title="Enable tool calling for this run">
               <span data-icon="wrench" data-icon-size="14"></span>Tools
+            </button>
+            <button class="chip" id="webChip" aria-pressed="false" title="Search the live web and cite sources">
+              <span data-icon="globe" data-icon-size="14"></span>Web
             </button>
             <button class="chip" id="attachBtn" title="Attach a text file" aria-label="Attach a text file">
               <span data-icon="paperclip" data-icon-size="14"></span>
@@ -272,7 +275,7 @@
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
           <button data-tab="about"><span data-icon="info" data-icon-size="16"></span>About</button>
-          <div class="nav-foot">Eltes v3.5 · BYOK<br />Optional proxy. No telemetry.</div>
+          <div class="nav-foot">Eltes v3.6 · BYOK<br />Optional proxy. No telemetry.</div>
         </nav>
 
         <div class="settings-panel" id="settingsPanel">
@@ -361,6 +364,31 @@
                 Keys are saved in this browser's local storage. By default, they go directly from the browser to your selected provider. If you set a backend above, requests and the key test go through that backend. Eltes does not decide free-tier eligibility or provider billing.
               </p>
               <div id="keyList"></div>
+            </div>
+
+            <div class="set-group" id="searchGroup">
+              <h4>Web search</h4>
+              <p class="group-desc">
+                Optional live web search with numbered source links. Eltes calls a search API through your configured backend, using your own search key; the key is sent with that request only and is never stored by the backend. Search providers charge under their own terms.
+              </p>
+              <div class="search-row">
+                <label class="key-input">
+                  <span data-icon="globe" data-icon-size="13"></span>
+                  <select id="searchProvider" aria-label="Search provider"></select>
+                </label>
+                <div class="key-input grow">
+                  <span data-icon="key-round" data-icon-size="13"></span>
+                  <input type="password" id="searchKey" placeholder="search API key" aria-label="Search API key" autocomplete="new-password" spellcheck="false" />
+                </div>
+                <button class="icon-btn" id="searchReveal" type="button" aria-label="Show or hide search key" title="Show or hide"></button>
+                <div class="key-actions">
+                  <button class="btn btn-ghost btn-sm" id="searchSave" type="button">Save</button>
+                  <button class="btn btn-ghost btn-sm" id="searchTest" type="button">Test</button>
+                  <button class="icon-btn" id="searchClear" type="button" aria-label="Remove search key" title="Remove key"></button>
+                </div>
+              </div>
+              <div class="key-help" id="searchHint" aria-live="polite"></div>
+              <div class="key-help" id="searchProviderHint"></div>
             </div>
 
             <div class="set-group">
@@ -468,7 +496,7 @@
                 Eltes <span class="brand-sub">AI agent</span>
               </a>
               <p>A local-first AI agent workspace. Real provider keys, real streaming, real tool calls — with history that stays on your device.</p>
-              <div class="kv"><span>Version</span><span>3.5.0</span></div>
+              <div class="kv"><span>Version</span><span>3.6.0</span></div>
               <div class="kv"><span>Storage</span><span>localStorage</span></div>
               <div class="kv"><span>Models</span><span>65 · 14 providers</span></div>
               <div class="kv"><span>On-device</span><span>Eltes CAI</span></div>
@@ -556,6 +584,7 @@
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/brands.js"></script>
   <script src="assets/js/models.js"></script>
+  <script src="assets/js/search.js"></script>
   <script src="assets/js/cai.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/app.js"></script>

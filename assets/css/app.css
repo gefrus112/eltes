@@ -1728,3 +1728,90 @@ body.compact .msg { padding: 9px 0; }
 }
 .slash-item small { color: var(--text-3); font-size: 11px; }
 .composer-dock { position: relative; }
+
+/* Web search sources and inline citations */
+.search-row { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+.search-row .key-input.grow { flex: 1 1 240px; }
+.search-row select {
+  appearance: none;
+  min-width: 158px;
+  padding: 8px 26px 8px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.search-row select:focus { outline: 1px solid rgba(94,144,255,.55); border-radius: 6px; }
+.search-row select option { background: #0b1424; color: var(--text); }
+
+.sources-card {
+  margin-top: 12px;
+  border: 1px solid rgba(116, 164, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(11, 20, 36, 0.55);
+  overflow: hidden;
+}
+.sources-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(116, 164, 255, 0.12);
+  color: #b9cdf5;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.sources-head .sources-meta { margin-left: auto; color: var(--text-3); font-weight: 500; }
+.sources-card ol { list-style: none; margin: 0; padding: 4px; display: grid; gap: 2px; }
+.sources-card li a {
+  display: flex;
+  gap: 9px;
+  padding: 8px 9px;
+  border-radius: 7px;
+  text-decoration: none;
+  color: inherit;
+}
+.sources-card li a:hover { background: rgba(94, 144, 255, 0.10); }
+.src-index {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  margin-top: 1px;
+  border-radius: 5px;
+  background: rgba(94, 144, 255, 0.16);
+  color: #bcd2ff;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.src-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.src-title { color: #dbe8ff; font-size: 12.5px; font-weight: 550; line-height: 1.35; }
+.src-domain { color: #6fd7a9; font-size: 10.5px; }
+.src-snippet { color: var(--text-3); font-size: 11.5px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+a.cite {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 15px;
+  margin: 0 1px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: rgba(94, 144, 255, 0.18);
+  color: #c7d9ff;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  vertical-align: 1px;
+}
+a.cite:hover { background: rgba(94, 144, 255, 0.32); color: #fff; }
+@media (max-width: 600px) {
+  .search-row select { min-width: 130px; }
+  .sources-card ol { padding: 3px; }
+}

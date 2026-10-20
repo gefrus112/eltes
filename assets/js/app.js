@@ -10,6 +10,15 @@
   const B = window.EltesBrandSvg;
   const Account = window.EltesAccount;
   const CAI = window.EltesCAI;
+  const AGENT = window.EltesAgent && CAI
+    ? window.EltesAgent.create({
+      cai: CAI,
+      searchHistory: (query) => {
+        const found = toolSearchHistory({ query });
+        return found && !found.error ? found.result : null;
+      }
+    })
+    : null;
   const ic = (name, size = 16) => I.icon(name, { size });
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -46,7 +55,7 @@
     backendDisabled: false,
     stream: true,
     sendKey: 'enter',
-    tools: false,
+    tools: true,
     density: 'comfortable',
     reduceMotion: false,
     showTime: true,
@@ -313,74 +322,10 @@
   }
 
   /* --------------------------------- tools -------------------------------- */
-  const TOOL_DEFS = [
-    {
-      name: 'calculate',
-      description: 'Evaluate an arithmetic expression. Supports + - * / % ^, parentheses and decimal numbers. Use for any maths instead of guessing.',
-      parameters: {
-        type: 'object',
-        properties: {
-          expression: { type: 'string', description: 'Arithmetic expression, e.g. "(17 * 43) / 2"' }
-        },
-        required: ['expression']
-      },
-      icon: 'calculator'
-    },
-    {
-      name: 'current_time',
-      description: 'Return the current date and time in ISO format plus the local timezone. Use whenever the answer depends on now.',
-      parameters: {
-        type: 'object',
-        properties: {
-          timezone: { type: 'string', description: 'Optional IANA timezone, e.g. Europe/London' }
-        }
-      },
-      icon: 'clock'
-    },
-    {
-      name: 'search_history',
-      description: 'Search the user\'s saved Eltes conversations for a phrase and return matching titles with snippets. Use when the user refers to something discussed earlier.',
-      parameters: {
-        type: 'object',
-        properties: {
-          query: { type: 'string', description: 'Words to search for' }
-        },
-        required: ['query']
-      },
-      icon: 'search'
-    }
-  ];
-
-  function safeCalculate(expression) {
-    const expr = String(expression || '').trim();
-    if (!expr) return { error: 'Empty expression.' };
-    if (!/^[0-9+\-*/%(). ^]+$/.test(expr)) {
-      return { error: 'Only numbers and + - * / % ^ ( ) are allowed.' };
-    }
-    const js = expr.replace(/\^/g, '**');
-    if (/\.\s*\./.test(js)) return { error: 'Malformed number.' };
-    try {
-      // eslint-disable-next-line no-new-func
-      const value = Function(`"use strict"; return (${js});`)();
-      if (typeof value !== 'number' || !isFinite(value)) return { error: 'Result is not a finite number.' };
-      return { result: String(Number(value.toPrecision(12))) };
-    } catch (e) {
-      return { error: 'Could not evaluate that expression.' };
-    }
-  }
-
-  function toolCurrentTime(args) {
-    const tz = args && args.timezone;
-    try {
-      const now = new Date();
-      const formatted = tz
-        ? new Intl.DateTimeFormat('en-GB', { timeZone: tz, dateStyle: 'full', timeStyle: 'long' }).format(now)
-        : now.toISOString();
-      return { result: `${formatted}${tz ? ` (${tz})` : ' (ISO, local offset ' + (-now.getTimezoneOffset() / 60) + 'h)'}` };
-    } catch (e) {
-      return { result: new Date().toISOString(), note: 'Unknown timezone, returned local ISO time.' };
-    }
-  }
+  /* --------------------------------- agent -------------------------------- */
+  // Tool definitions and execution live in assets/js/agent.js, so the hosted
+  // function-calling loop and the on-device agent always expose the same tools.
+  const TOOL_DEFS = AGENT ? AGENT.toolDefs() : [];
 
   function toolSearchHistory(args) {
     const q = String((args && args.query) || '').toLowerCase().trim();
@@ -407,19 +352,16 @@
   }
 
   function runTool(name, args) {
-    const started = performance.now();
-    let out;
-    if (name === 'calculate') out = safeCalculate(args && args.expression);
-    else if (name === 'current_time') out = toolCurrentTime(args || {});
-    else if (name === 'search_history') out = toolSearchHistory(args || {});
-    else out = { error: `Unknown tool: ${name}` };
-    const text = out.error ? `Error: ${out.error}` : out.result;
+    if (!AGENT) {
+      return { name, args: args || {}, result: 'Error: the agent runtime did not load.', runtime: 0, error: true };
+    }
+    const outcome = AGENT.run(name, args, {});
     return {
-      name,
-      args: args || {},
-      result: text,
-      runtime: Math.round(performance.now() - started),
-      error: !!out.error
+      name: outcome.name,
+      args: outcome.args,
+      result: outcome.result,
+      runtime: outcome.runtime,
+      error: !!outcome.error
     };
   }
 
@@ -760,6 +702,7 @@
           <span class="who">Eltes</span>
           <span class="model-chip">${brand(model, 12)}${esc(model.name)}${M.isLocal(model) ? '' : `<span style="opacity:.6">· ${esc(M.providerOf(model).name)}</span>`}</span>
           ${M.isLocal(model) ? '<span class="local-chip"><i></i>on-device</span>' : ''}
+          ${msg.agent ? '<span class="local-chip agent-chip"><i></i>agent</span>' : ''}
           ${model.realtime ? '<span class="rt-inline"><i></i>real-time</span>' : ''}
           ${streaming && msg.content ? `<span class="rt-inline live-count"><i></i><b>${estimateTokens(msg.content)}</b> tok</span>` : ''}
           ${streaming ? `<span class="streaming-dot"><span class="wave"><i></i><i></i><i></i><i></i></span>${msg.phase === 'tools' ? 'tool loop' : 'streaming'}</span>` : time}
@@ -1246,7 +1189,7 @@
       { label: 'Export conversation', icon: 'download', run: () => { closeDialog(els.cmdDialog); openShare(); } },
       { label: 'Copy last reply', icon: 'copy', run: () => { closeDialog(els.cmdDialog); copyLastReply(); } },
       { label: 'Clear current conversation', icon: 'rotate-ccw', run: () => { closeDialog(els.cmdDialog); const c = activeChat(); if (c) clearChat(c.id); } },
-      { label: 'Toggle tools for this chat', icon: 'wrench', run: () => { closeDialog(els.cmdDialog); toggleTools(); } },
+      { label: 'Toggle agent mode', icon: 'wrench', run: () => { closeDialog(els.cmdDialog); toggleTools(); } },
       { label: 'Documentation', icon: 'book-open', run: () => { window.location.href = 'docs.html'; } },
       { label: 'Back to eltes.ai', icon: 'arrow-left', run: () => { window.location.href = 'index.html'; } }
     ];
@@ -1928,7 +1871,7 @@
     state.settings.tools = !state.settings.tools;
     persist();
     applySettingsToUI();
-    toast(state.settings.tools ? 'Tools enabled for new messages' : 'Tools disabled', 'wrench');
+    toast(state.settings.tools ? 'Agent mode on — tools run on this device' : 'Agent mode off', 'wrench');
   }
 
   els.input.addEventListener('input', () => { autoGrow(); updateSendState(); renderSlashMenu(); });
@@ -2021,7 +1964,7 @@
     return [
       { id: 'new', label: 'New chat', desc: 'Start a fresh thread with the current model', icon: 'plus', run: () => newChat() },
       { id: 'model', label: 'Switch model', desc: 'Open the model picker', icon: 'layers', run: () => openModelPicker() },
-      { id: 'tools', label: 'Toggle tools', desc: 'Enable or disable tool calling', icon: 'wrench', run: () => toggleTools() },
+      { id: 'agent', label: 'Toggle agent mode', desc: 'Let Eltes call on-device tools and show the trace', icon: 'wrench', run: () => toggleTools() },
       { id: 'export', label: 'Export conversation', desc: 'Markdown, JSON or a clipboard copy', icon: 'download', run: () => openShare() },
       { id: 'clear', label: 'Clear this chat', desc: 'Remove every message from this thread', icon: 'rotate-ccw', run: () => { const chat = activeChat(); if (chat) clearChat(chat.id); } },
       { id: 'keys', label: 'Connect a provider', desc: 'Add or manage API keys', icon: 'key-round', run: () => openSettings('keys') },
@@ -2303,7 +2246,7 @@
     'You are Eltes, a precise and practical AI agent inside a local-first workspace.',
     'Answer directly with Markdown. Put code in fenced blocks with a language tag.',
     'Be concise unless the user asks for depth. Never claim to have run a tool you were not given.',
-    'If you need arithmetic, the current time or earlier conversation, call the provided tools.'
+    'You can call tools for arithmetic, unit and temperature conversion, percentages, calendar maths, the current time and earlier conversation. Call them instead of guessing, and never invent a tool result.'
   ].join(' ');
 
   const MAX_TOOL_ROUNDS = 4;
@@ -2485,6 +2428,35 @@
       .filter((m) => m !== assistant && !m.streaming && !m.needsKey && m.content)
       .slice(-24)
       .map((m) => ({ role: m.role, content: m.content }));
+    // Agent mode: run the on-device tool loop instead of the plain router.
+    if (state.settings.tools && AGENT) {
+      const context = history.length && history[history.length - 1].content === prompt
+        ? history.slice(0, -1)
+        : history;
+      const plan = AGENT.runLocal(prompt, { model: model.id, history: context });
+      if (plan.steps.length) {
+        assistant.tools = plan.steps.map((step) => ({
+          name: step.name,
+          args: step.args,
+          result: step.result,
+          error: step.error,
+          runtime: step.runtime,
+          status: 'done'
+        }));
+        assistant.content = plan.text;
+        assistant.agent = true;
+        assistant.localIntent = 'agent';
+        assistant.streaming = false;
+        assistant.phase = null;
+        assistant.usage = { input: estimateTokens(prompt), output: estimateTokens(plan.text) };
+        const total = Math.round(performance.now() - started);
+        assistant.latency = { ttft: total, total };
+        state.abort = null;
+        saveAndRender(chat, assistant);
+        return;
+      }
+    }
+
     const paint = throttle(() => updateStreamingNode(assistant), 24);
     let result = null;
 

@@ -356,14 +356,15 @@
           <article class="card span-2 reveal" style="--d:60ms">
             <div class="card-icon" data-icon="bot" data-icon-size="19"></div>
             <h3>Agent tools that actually run</h3>
-            <p>Native tool calling with a real loop: the model asks, Eltes executes locally and feeds the result back — with timing for every step.</p>
+            <p>A real tool loop, not a scripted animation: the model asks, Eltes executes in the page and feeds the result back. With Eltes CAI-1 the agent plans the run itself — no key, nothing sent.</p>
             <div class="card-visual">
               <div class="code-mini">
-                <div class="head"><span data-icon="cpu" data-icon-size="10"></span>available · runs in your browser</div>
+                <div class="head"><span data-icon="cpu" data-icon-size="10"></span>6 tools · runs in your browser</div>
                 <div class="body">
                   <span class="fn">calculate</span>(expression)<br />
-                  <span class="fn">current_time</span>()<br />
-                  <span class="fn">search_history</span>(query)
+                  <span class="fn">convert_units</span>(value, from, to)<br />
+                  <span class="fn">percent</span>(mode, value, base)<br />
+                  <span class="fn">date_math</span>(kind, start, end)
                 </div>
               </div>
             </div>
@@ -442,11 +443,11 @@
           <div class="reveal">
             <span class="eyebrow"><span data-icon="bot" data-icon-size="14"></span>Agent mode</span>
             <h2>It calls tools.<br /><span class="grad">It doesn't pretend to.</span></h2>
-            <p>Eltes runs a real tool loop through your provider: the model requests a tool, the browser executes it, the result goes back into the conversation. Every call is timed and visible.</p>
+            <p>Eltes runs a real tool loop: the model asks for a tool, the browser executes it, the result goes back into the conversation. With Eltes CAI-1 there is no model to ask — the on-device agent plans the run itself. Every call is timed and visible.</p>
             <ul class="check-list">
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Local tools</strong> — calculate maths, read the clock, search your own chat history.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic tool_use, streamed.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Interruptible</strong> — stop mid-loop and keep every token already received.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Six local tools</strong> — arithmetic, unit and temperature conversion, percentages, calendar maths, the clock, and your own chat history.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic tool_use, streamed, up to four rounds.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Works with no key</strong> — Agent mode on Eltes CAI-1 plans and executes in the tab, so nothing is sent anywhere.</span></li>
             </ul>
             <a class="btn btn-ghost" href="docs.html#agent">How the tool loop works<span data-icon="arrow-right" data-icon-size="15"></span></a>
           </div>
@@ -456,12 +457,12 @@
             <div class="architecture-flow">
               <div class="architecture-step">
                 <span class="step-index">01</span><span class="step-icon model" data-icon="brain" data-icon-size="17"></span>
-                <div><strong>The model requests a tool</strong><p>For example: calculate, read the clock, or search chat history.</p></div><span class="step-state">MODEL</span>
+                <div><strong>The model requests a tool</strong><p>Arithmetic, a unit conversion, a date difference, the clock, or your chat history.</p></div><span class="step-state">MODEL</span>
               </div>
               <div class="architecture-connector"><span></span><span class="connector-label">structured tool call</span></div>
               <div class="architecture-step">
                 <span class="step-index">02</span><span class="step-icon local" data-icon="cpu" data-icon-size="17"></span>
-                <div><strong>Eltes runs it in your browser</strong><p>No shell access. No arbitrary terminal commands. The result is shown to you.</p></div><span class="step-state local-state">LOCAL</span>
+                <div><strong>Eltes runs it in your browser</strong><p>No shell access, no arbitrary terminal commands — or, with CAI-1, a deterministic planner picks the tools itself.</p></div><span class="step-state local-state">LOCAL</span>
               </div>
               <div class="architecture-connector"><span></span><span class="connector-label">result returns to the conversation</span></div>
               <div class="architecture-step">

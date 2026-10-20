@@ -350,7 +350,7 @@
     },
     {
       keys: ['agent', 'tool', 'tools', 'tool loop', 'function calling'],
-      text: 'The **agent** section explains the tool loop: the model asks, your browser runs the call, the result goes back. No shell and no server-side execution.',
+      text: 'The **agent** section explains the tool loop: the model asks, your browser runs the call, the result goes back. With Eltes CAI-1 there is no model — the on-device agent plans the run. Six tools, no shell, no server-side execution.',
       actions: [{ label: 'Walk me through it', go: '#agent' }]
     },
     {

@@ -192,8 +192,8 @@
               <span class="rt-badge" id="composerRt" hidden><i></i>real time</span>
               <span data-icon="chevron-down" data-icon-size="12"></span>
             </button>
-            <button class="chip" id="agentChip" aria-pressed="false" title="Enable tool calling for this run">
-              <span data-icon="wrench" data-icon-size="14"></span>Tools
+            <button class="chip" id="agentChip" aria-pressed="false" title="Agent mode: call on-device tools and show the trace">
+              <span data-icon="wrench" data-icon-size="14"></span>Agent
             </button>
             <button class="chip" id="attachBtn" title="Attach a text file" aria-label="Attach a text file">
               <span data-icon="paperclip" data-icon-size="14"></span>
@@ -338,8 +338,8 @@
               </div>
 
               <div class="set-row">
-                <div class="lbl"><strong>Tools by default</strong><span>Let new chats call the local tool set without toggling each time.</span></div>
-                <div class="ctl"><button class="toggle" role="switch" aria-checked="false" id="toggleTools" aria-label="Tools by default"></button></div>
+                <div class="lbl"><strong>Agent mode</strong><span>Let messages call on-device tools — calculator, units, dates, your history — and show the trace.</span></div>
+                <div class="ctl"><button class="toggle" role="switch" aria-checked="false" id="toggleTools" aria-label="Agent mode"></button></div>
               </div>
             </div>
 
@@ -598,6 +598,7 @@
   <script src="assets/js/brands.js"></script>
   <script src="assets/js/models.js"></script>
   <script src="assets/js/cai.js"></script>
+  <script src="assets/js/agent.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/app.js"></script>
 </body>

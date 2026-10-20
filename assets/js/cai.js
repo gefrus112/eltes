@@ -472,7 +472,7 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['tools', 'tool calling', 'agent', 'tool loop', 'search history', 'current time'],
-      a: `## Agent tools\n\nEnable the wrench chip in the composer (or \`⌘K → Toggle tools\`). Eltes then offers the model three real functions:\n\n- \`current_time\` — the device clock, with timezone\n- \`calculate\` — arithmetic evaluated in a sandboxed parser\n- \`search_history\` — search this browser's saved chats\n\nTool calls appear as cards with arguments, output and runtime. Eltes loops up to four rounds, then stops. Models without tool support hide the toggle.`
+      a: `## Agent mode\n\nAgent mode is **on by default** — the **Agent** chip in the composer toggles it. Eltes offers six real functions, all executed in this page:\n\n- \`calculate\` — arithmetic, functions and factorials through the CAI parser\n- \`convert_units\` — length, mass, volume, data, speed, area, temperatures\n- \`percent\` — percent of a number, a discount, or the change between two values\n- \`date_math\` — days between dates, weekday of a date, days until a date\n- \`current_time\` — the device clock, with timezone\n- \`search_history\` — search this browser's saved chats\n\nWith a hosted model the loop runs up to four rounds. With Eltes CAI-1 the agent plans the run on-device: it splits the message on \`then\`, matches each clause to a tool and chains follow-ups like \`then multiply by 3\`, up to six steps. Every call is drawn as a card with arguments, result, error state and runtime.`
     },
     {
       keys: ['export', 'import', 'backup', 'share', 'json', 'markdown'],
@@ -509,7 +509,7 @@ window.EltesCAI = (function () {
     'llm': 'A **large language model** is a neural network trained to process and generate text. It learns statistical patterns from training data; it is not a verified database, and its answers can be wrong.',
     'token': 'A **token** is a unit produced by a model tokenizer, often a word piece, punctuation mark or other text fragment. Some providers bill by tokens; billing rules vary.',
     'context window': 'The **context window** is the maximum number of tokens a model can process in one request, including instructions, conversation and generated output. The limit and its exact accounting are model-specific.',
-    'agent': 'An **agent** is a model given tools and a loop: it plans, calls a tool, reads the result and continues. Eltes caps the loop at four rounds.',
+    'agent': 'An **agent** is a model given tools and a loop: it plans, calls a tool, reads the result and continues. Eltes caps hosted loops at four rounds and the on-device planner at six steps.',
     'cors': '**CORS** is a browser rule: a page can only read a cross-origin response when the server sends the right headers. A missing header looks like a network failure, even though the request may have reached the API.',
     'byok': '**BYOK** means bring your own key. Your provider account is billed under its terms. In direct mode Eltes sends requests to that provider; with an optional proxy, requests also transit the configured backend.',
     'api key': 'An **API key** is a secret that identifies your account to a provider. Treat it like a password: never commit it, and rotate it if it leaks.',
@@ -876,6 +876,16 @@ window.EltesCAI = (function () {
     answer: (modelId, prompt) => buildAnswer(modelId, prompt, [], new Date()).text,
     build: buildAnswer,
     stream,
+    // Deterministic primitives used by the agent (assets/js/agent.js).
+    evaluate: (expression) => evaluate(expression),
+    formatNumber: (value) => cleanNumber(value),
+    temperature: (value, from, to) => temperature(value, from, to),
+    convertUnits: (value, from, to) => {
+      const source = UNITS[String(from || '').toLowerCase()];
+      const target = UNITS[String(to || '').toLowerCase()];
+      if (!source || !target || source.kind !== target.kind) return null;
+      return { value: (value * source.f) / target.f, kind: source.kind };
+    },
     kbEntries: KB.length,
     glossaryTerms: Object.keys(GLOSSARY).length
   };

@@ -440,33 +440,44 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
         </section>
 
         <section id="agent">
-          <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of three local tools. Eltes executes the call in the page, returns the result to the model, and lets it continue — up to four rounds.</p>
+          <h2>Agent &amp; tool calls <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p><strong>Agent mode</strong> is on by default (toggle it with the <strong>Agent</strong> chip in the composer or in Settings). Instead of guessing, the assistant calls real tools, Eltes runs them in the page, and the answer is built from what came back. Every call is drawn as a trace card — name, arguments, result, error state and runtime in milliseconds.</p>
 
           <table class="doc-table">
             <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
             <tbody>
-              <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic in a restricted sandbox — digits and operators only</td></tr>
-              <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
+              <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic, functions and factorials through the CAI parser — no <code>eval</code></td></tr>
+              <tr><td><code>convert_units</code></td><td><code>{ value, from, to }</code></td><td>Length, mass, volume, data, speed and area. Refuses incompatible units instead of inventing a number</td></tr>
+              <tr><td><code>percent</code></td><td><code>{ mode, value, base }</code> or <code>{ mode, from, to }</code></td><td>Percent of a number, a discount, or the change between two values</td></tr>
+              <tr><td><code>date_math</code></td><td><code>{ kind, start, end }</code></td><td>Days between two ISO dates, the weekday of a date, or days until a date</td></tr>
+              <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Current date and time, optionally in an IANA timezone</td></tr>
               <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
             </tbody>
           </table>
 
-          <h3>What the timeline shows</h3>
+          <h3>Two ways a tool gets called</h3>
           <ul>
-            <li><strong>Thinking</strong> while the request is open, then <strong>streaming</strong> once tokens arrive.</li>
-            <li><strong>Tool cards</strong> with the tool name, arguments, a running/done state and the runtime in milliseconds.</li>
-            <li><strong>Metrics</strong> after the turn: first-token latency, total time, tokens in/out and tokens per second.</li>
-            <li><strong>Model and provider chips</strong> on every assistant message, so a long thread with switches stays readable.</li>
+            <li><strong>With a hosted model.</strong> The tool schemas are sent with the request. The model asks for a call, Eltes runs it and returns the result, and the model continues — up to four rounds per message.</li>
+            <li><strong>With Eltes CAI-1 (no key).</strong> The on-device agent plans the request itself, with no model in the loop: it splits the message on <code>then</code> and semicolons, matches each clause to a tool, and chains a follow-up like &ldquo;then multiply by 3&rdquo; onto the previous result. Up to six steps, then it stops.</li>
           </ul>
-
-          <h3>Tool calling support</h3>
-          <p>Tools are only offered when the selected model advertises support. Models without tool support — the Eltes CAI family and completion models such as Codestral — are sent the plain conversation. If a provider rejects the tool schema, the error card reports it and retry without tools still works.</p>
 
           <div class="callout tip">
             <span data-icon="wrench" data-icon-size="15"></span>
-            <span><strong>Nothing leaves the page for tools.</strong> Arithmetic, time and history search run locally in JavaScript. Only the model request and its tool results go to the provider.</span>
+            <span><strong>Tools never touch the network.</strong> Arithmetic, conversions, dates, the clock and history search all run in the page. Only a hosted model request carries the results to your provider — and the on-device agent sends nothing at all.</span>
           </div>
+
+          <div class="callout warn">
+            <span data-icon="triangle-alert" data-icon-size="15"></span>
+            <span><strong>Guardrails, not magic.</strong> The agent cannot check live information, cannot fetch a URL, and will not fill a gap with a plausible number. If a tool fails — incompatible units, an impossible date — the trace shows the error and the answer says so.</span>
+          </div>
+
+          <h3>What the trace shows</h3>
+          <ul>
+            <li><strong>Thinking → tools → streaming</strong> while the turn is open, so a slow provider does not look frozen.</li>
+            <li><strong>Tool cards</strong> with the arguments that were sent and the result that came back.</li>
+            <li><strong>An <em>agent</em> badge</strong> on messages answered by the on-device loop, plus a footer with the number of calls.</li>
+            <li><strong>Metrics</strong> after the turn: first-token latency, total time, tokens in/out and tokens per second.</li>
+          </ul>
         </section>
 
         <section id="chat">

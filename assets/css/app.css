@@ -1555,6 +1555,8 @@ body.reduce-motion .block-field .bf-block,
 }
 .local-chip { border-color: rgba(96, 160, 255, 0.26); background: rgba(66, 130, 255, 0.09); color: #a9c8ff; }
 .local-chip i { background: #6aa6ff; animation: none; }
+.local-chip.agent-chip { border-color: rgba(150, 132, 255, 0.3); background: rgba(118, 98, 255, 0.1); color: #cec5ff; }
+.local-chip.agent-chip i { background: #a99bff; }
 .rt-inline { padding: 1px 6px; font-size: 9.5px; }
 .rt-badge[hidden] { display: none; }
 @keyframes rt-pulse {

@@ -202,8 +202,8 @@ fn split_number(word: &str) -> Option<(f64, &str)> {
 
 fn unit_intent(text: &str) -> Option<Answer> {
     let mut prepared = text.replace('°', " ");
-    prepared = prepared.replace(["degrees", "degree"], " ");
-    prepared = prepared.replace(["celsius", "centigrade"], " c ");
+    prepared = prepared.replace(&["degrees", "degree"][..], " ");
+    prepared = prepared.replace(&["celsius", "centigrade"][..], " c ");
     prepared = prepared.replace("fahrenheit", " f ").replace("kelvin", " k ");
     let words: Vec<&str> = prepared.split_whitespace().collect();
 

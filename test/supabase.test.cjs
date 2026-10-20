@@ -519,6 +519,149 @@ test('with no config the client is off and never calls the network', async () =>
   assert.equal(called, 0);
 });
 
+/* ----------------------------- site publisher ---------------------------- */
+
+function makePublishBackend(state) {
+  state.uploads = state.uploads || [];
+  state.bucket = state.bucket || null;
+
+  const tree = [
+    { path: 'index.html', type: 'blob', size: 1200 },
+    { path: 'auth.html', type: 'blob', size: 900 },
+    { path: 'config.js', type: 'blob', size: 220 },
+    { path: 'site.webmanifest', type: 'blob', size: 180 },
+    { path: 'assets/css/theme.css', type: 'blob', size: 6400 },
+    { path: 'assets/img/favicon.svg', type: 'blob', size: 300 },
+    { path: 'downloads/eltes-windows.zip', type: 'blob', size: 2048 },
+    // none of these belong to the published site
+    { path: 'test/supabase.test.cjs', type: 'blob', size: 10 },
+    { path: 'supabase/migrations/0001_eltes_accounts.sql', type: 'blob', size: 10 },
+    { path: 'desktop/main.js', type: 'blob', size: 10 },
+    { path: 'README.md', type: 'blob', size: 10 },
+    { path: 'assets', type: 'tree', size: 0 }
+  ];
+
+  const reply = (body, status = 200) => new Response(
+    typeof body === 'string' ? body : JSON.stringify(body),
+    { status, headers: { 'Content-Type': 'application/json' } }
+  );
+
+  return async function fakeFetch(url, init) {
+    const parsed = new URL(String(url));
+    const method = (init && init.method) || 'GET';
+
+    if (parsed.hostname === 'api.github.com') return reply({ tree });
+
+    if (parsed.hostname === 'raw.githubusercontent.com') {
+      const path = parsed.pathname.split('/').slice(4).join('/');
+      if (state.missing && state.missing.includes(path)) return reply('not found', 404);
+      return new Response(new Uint8Array([1, 2, 3, 4]), { status: 200 });
+    }
+
+    if (parsed.pathname.endsWith('/storage/v1/bucket')) {
+      if (state.bucketExists) return reply({ statusCode: '409', error: 'Duplicate', message: 'The resource already exists' }, 409);
+      state.bucket = JSON.parse(init.body);
+      return reply({ name: state.bucket.name, public: true }, 200);
+    }
+
+    if (parsed.pathname.includes('/storage/v1/object/')) {
+      const path = decodeURIComponent(parsed.pathname.split('/storage/v1/object/')[1]);
+      const bytes = init && init.body ? new Uint8Array(init.body) : new Uint8Array();
+      state.uploads.push({ path, type: init.headers['Content-Type'], bytes: bytes.length, method });
+      return reply({ Key: path }, 200);
+    }
+
+    return reply({ error: `unexpected ${method} ${parsed.pathname}` }, 404);
+  };
+}
+
+const PUBLISH_ENV = {
+  SUPABASE_URL: 'https://demo.supabase.co',
+  SUPABASE_SERVICE_ROLE_KEY: 'service-role-test-key',
+  ELTES_PUBLISH_TOKEN: 'publish-token',
+  ELTES_BUCKET: 'eltes'
+};
+
+const publishRequest = (query = '') =>
+  new Request(`https://fn.test/site-publish?token=publish-token${query}`);
+
+test('the publisher refuses to run without a token', async () => {
+  const closed = loadEdgeFunction(
+    'supabase/functions/site-publish/index.ts',
+    { ...PUBLISH_ENV, ELTES_PUBLISH_TOKEN: '' },
+    makePublishBackend({})
+  );
+  assert.equal((await closed(publishRequest())).status, 503);
+
+  const guarded = loadEdgeFunction(
+    'supabase/functions/site-publish/index.ts',
+    PUBLISH_ENV,
+    makePublishBackend({})
+  );
+  const wrong = await guarded(new Request('https://fn.test/site-publish?token=nope'));
+  assert.equal(wrong.status, 401);
+  assert.equal((await wrong.json()).error, 'bad_token');
+});
+
+test('a dry run lists only the published site, and never uploads', async () => {
+  const state = {};
+  const handler = loadEdgeFunction('supabase/functions/site-publish/index.ts', PUBLISH_ENV, makePublishBackend(state));
+  const body = await (await handler(publishRequest('&dry=1'))).json();
+
+  assert.equal(body.ok, true);
+  assert.equal(body.dry, true);
+  assert.equal(body.files, 7, 'tests, migrations, the desktop harness and README stay out');
+  assert.equal(body.bytes, 1200 + 900 + 220 + 180 + 6400 + 300 + 2048);
+  assert.match(body.base, /\/storage\/v1\/object\/public\/eltes\/$/);
+  assert.equal(state.uploads.length, 0);
+});
+
+test('publishing creates the public bucket and uploads with real MIME types', async () => {
+  const state = {};
+  const handler = loadEdgeFunction('supabase/functions/site-publish/index.ts', PUBLISH_ENV, makePublishBackend(state));
+  const body = await (await handler(publishRequest())).json();
+
+  assert.equal(body.ok, true);
+  assert.equal(body.bucket, 'created');
+  assert.equal(body.uploaded, 7);
+  assert.deepEqual(body.failures, []);
+  assert.equal(state.bucket.public, true);
+  assert.equal(state.bucket.id, 'eltes');
+  assert.equal(body.index, 'https://demo.supabase.co/storage/v1/object/public/eltes/index.html');
+
+  const types = Object.fromEntries(state.uploads.map((row) => [row.path, row.type]));
+  assert.equal(types['eltes/index.html'], 'text/html; charset=utf-8');
+  assert.equal(types['eltes/assets/css/theme.css'], 'text/css; charset=utf-8');
+  assert.equal(types['eltes/assets/img/favicon.svg'], 'image/svg+xml');
+  assert.equal(types['eltes/site.webmanifest'], 'application/manifest+json; charset=utf-8');
+  assert.ok(!state.uploads.some((row) => row.path.includes('supabase/')), 'the SQL stays private');
+  assert.ok(state.uploads.every((row) => row.method === 'POST' && row.bytes > 0));
+});
+
+test('an existing bucket is reused, and one bad file does not hide the rest', async () => {
+  const state = { bucketExists: true, missing: ['auth.html'] };
+  const handler = loadEdgeFunction('supabase/functions/site-publish/index.ts', PUBLISH_ENV, makePublishBackend(state));
+  const body = await (await handler(publishRequest())).json();
+
+  assert.equal(body.bucket, 'exists');
+  assert.equal(body.ok, false, 'a failure is reported, not swallowed');
+  assert.equal(body.uploaded, 6);
+  assert.equal(body.failures.length, 1);
+  assert.equal(body.failures[0].path, 'auth.html');
+});
+
+test('a single page can be republished', async () => {
+  const state = {};
+  const handler = loadEdgeFunction('supabase/functions/site-publish/index.ts', PUBLISH_ENV, makePublishBackend(state));
+  const body = await (await handler(publishRequest('&path=index.html'))).json();
+
+  assert.equal(body.uploaded, 1);
+  assert.deepEqual(state.uploads.map((row) => row.path), ['eltes/index.html']);
+
+  const missing = await handler(publishRequest('&path=supabase/README.md'));
+  assert.equal(missing.status, 404);
+});
+
 /* --------------------------------- files --------------------------------- */
 
 test('config.js ships public identifiers only', () => {
@@ -573,11 +716,12 @@ test('the Pages workflow ships every file the cloud path needs', () => {
   }
 });
 
-test('both functions are self-contained, deployable Deno modules', () => {
+test('every function is a self-contained, deployable Deno module', () => {
   const mail = read('supabase/functions/eltes-mail/index.ts');
   const hook = read('supabase/functions/email-webhook/index.ts');
+  const publisher = read('supabase/functions/site-publish/index.ts');
 
-  for (const [name, source] of [['eltes-mail', mail], ['email-webhook', hook]]) {
+  for (const [name, source] of [['eltes-mail', mail], ['email-webhook', hook], ['site-publish', publisher]]) {
     assert.match(source, /Deno\.serve\(/, name);
     assert.ok(!/^import\s/m.test(source), `${name} has no imports, so it deploys as one file`);
     assert.ok(!/RESEND_API_KEY\s*=\s*['"]re_/.test(source), `${name} never hardcodes a key`);
@@ -586,4 +730,6 @@ test('both functions are self-contained, deployable Deno modules', () => {
   assert.match(mail, /admin\/generate_link/);
   assert.match(hook, /svix-signature/);
   assert.match(hook, /suppressed_emails/);
+  assert.match(publisher, /storage\/v1\/object/);
+  assert.match(publisher, /raw\.githubusercontent\.com/);
 });

@@ -67,7 +67,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.17.0</span>
+          <span class="badge"><span class="dot"></span>v3.18.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>25 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -398,6 +398,7 @@ npm run mail unsuppress you@example.com   <span class="c"># let that address rec
             <li><code>supabase/migrations/0001_eltes_accounts.sql</code> — <code>profiles</code>, <code>email_events</code>, <code>suppressed_emails</code>, the <code>auth.users</code> trigger, RLS policies and the mail rate-limit function.</li>
             <li><code>supabase/functions/eltes-mail/index.ts</code> — one endpoint for welcome, magic link and reset. Builds the link with the service role, sends with Resend, records the outcome.</li>
             <li><code>supabase/functions/email-webhook/index.ts</code> — Resend's Svix-signed webhook; hard bounces and complaints land in <code>suppressed_emails</code>.</li>
+            <li><code>supabase/functions/site-publish/index.ts</code> — copies the published site into the project's public Storage bucket, so the same files are also served from Supabase.</li>
           </ul>
 
           <h3>Wire it up</h3>
@@ -427,6 +428,28 @@ npx supabase secrets set RESEND_API_KEY=<span class="s">re_…</span> \
           </div>
           <p>Then put the same URL and key in <code>config.js</code> and submit the sign-up form. There is nothing to build: GitHub Pages serves the files as they are.</p>
           <p><strong>About confirmation.</strong> The reference project has <em>Confirm email</em> switched off, so an account works the moment it is created — before a Resend key exists. Turn it on at <em>Authentication → Providers → Email</em> and the welcome letter's link becomes the confirmation: it verifies the address, then lands on <code>auth.html</code> signed in. Either way the same letter is the first thing the inbox receives.</p>
+
+          <h3 id="mirror">A second home: the Storage mirror</h3>
+          <p>The site is published twice from the same files. GitHub Pages is the canonical address; the Supabase project serves an identical copy from a public Storage bucket on its CDN:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Home</th><th>Address</th><th>Built by</th></tr></thead>
+              <tbody>
+                <tr><td>GitHub Pages</td><td><a class="inline-link" href="https://gefrus112.github.io/eltes/" target="_blank" rel="noreferrer">gefrus112.github.io/eltes/</a></td><td>the Pages workflow, on every push to <code>main</code></td></tr>
+                <tr><td>Supabase Storage</td><td><a class="inline-link" href="https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html" target="_blank" rel="noreferrer">…/storage/v1/object/public/eltes/index.html</a></td><td><code>site-publish</code>, on demand</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Supabase has no static-site product; this is a <strong>public Storage bucket</strong>, not a custom domain. Each object is uploaded with its real content type, so the browser renders the pages and resolves <code>assets/…</code> exactly as it does on Pages. Only pages, <code>assets/</code> and <code>downloads/</code> are published — never the SQL, the tests or the desktop harness.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>refresh the mirror</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>ELTES_PUBLISH_TOKEN=<span class="s">…</span> npm run site:publish -- --dry  <span class="c"># 62 files, 2.8 MB — nothing sent</span>
+ELTES_PUBLISH_TOKEN=<span class="s">…</span> npm run site:publish          <span class="c"># upsert, then print the URL</span></code></pre>
+          </div>
+          <p>The token lives in Edge Function secrets as <code>ELTES_PUBLISH_TOKEN</code>; without it the function answers <code>503 publish_token_not_configured</code>, and with the wrong one <code>401 bad_token</code>. Publishing reads the repository through the GitHub API, so a push to <code>main</code> is enough before you re-run it.</p>
 
           <h3>Free, and honest about it</h3>
           <ul class="doc-list">
@@ -1294,7 +1317,7 @@ export CSC_LINK=/path/certificate.pfx CSC_KEY_PASSWORD=…</code></pre>
           <p>Unsigned builds still work: Windows shows SmartScreen ("More info → Run anyway") and macOS needs a right-click → Open the first time. The macOS build is ad-hoc signed, so Apple silicon will launch it; distribution to other machines should be signed and notarised.</p>
 
           <h3>Continuous builds</h3>
-          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-latest</code> for Apple silicon, <code>macos-15-intel</code> for Intel and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.17.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
+          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-latest</code> for Apple silicon, <code>macos-15-intel</code> for Intel and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.18.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
 
           <h3>Testing without a display</h3>
           <p>The harness core (<code>desktop/shell.js</code>, <code>window-state.js</code>, <code>menu.js</code>) is plain Node, so <code>npm test</code> covers flag parsing, deep links, the navigation policy, window clamping across removed monitors, atomic window state and the menu on each platform. Two tests go further: the real <code>desktop/main.js</code> runs against a mocked Electron module (boot, IPC, navigation guard, quit), and the packaged layout is assembled in a temp folder — site under <code>resources/site</code>, server started through the production code path, health checked, <code>app.html</code> and its assets fetched, Studio session opened, process stopped. Packaging config is validated against electron-builder's own JSON schema, and the shell is packed into an <code>.asar</code> to prove <code>main.js</code> survives the round-trip.</p>

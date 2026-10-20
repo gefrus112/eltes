@@ -137,9 +137,26 @@ The proxy cannot grant credits, confirm free-tier eligibility, or bypass provide
 - Prompts, conversation history, and any enabled tool definitions/results are sent to the selected model service. Avoid sending sensitive content unless you accept that provider's terms.
 - Never add provider keys to source code, GitHub Pages, GitHub Actions, screenshots, issue reports, or a shared Vercel environment variable.
 
-## GitHub Pages
+## Where the site is published
 
-The `.github/workflows/pages.yml` workflow publishes the static site. It does not deploy the API functions. GitHub Pages cannot process POST requests, proxy provider calls, hold server secrets, or provide free model credits. For proxy features, deploy the separate Vercel project; otherwise use direct mode or your own local model endpoint.
+Both homes serve the same static files, unmodified:
+
+| Home | Address | What it is |
+| --- | --- | --- |
+| GitHub Pages (canonical) | **https://gefrus112.github.io/eltes/** | Built by `.github/workflows/pages.yml` on every push to `main`. |
+| Supabase Storage (mirror) | **https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html** | A public bucket in the same project that holds the accounts and sends the mail. |
+
+The Supabase address is not a "Supabase website" product — Supabase has none. It is a **public Storage bucket** served over its CDN: every object gets a real content type, relative links resolve, and the pages behave exactly as they do on Pages. It is a mirror, not a second deployment pipeline: it is refreshed on demand from the repository.
+
+```bash
+# one command, no build step — the Edge Function copies the files from GitHub
+ELTES_PUBLISH_TOKEN=… npm run site:publish -- --dry   # list what would go
+ELTES_PUBLISH_TOKEN=… npm run site:publish            # upload, upsert, report
+```
+
+`supabase/functions/site-publish` needs `ELTES_PUBLISH_TOKEN` set in Edge Function secrets; it refuses every call without it and publishes only pages, `assets/` and `downloads/` — never the SQL, the tests or the desktop harness.
+
+The Pages workflow itself does not deploy the API functions. GitHub Pages cannot process POST requests, proxy provider calls, hold server secrets, or provide free model credits. For proxy features, deploy the separate Vercel project; otherwise use direct mode or your own local model endpoint.
 
 ## Windows launcher
 
@@ -220,6 +237,7 @@ Set **Authentication → URL Configuration** to the Pages URL and its wildcard, 
 | `supabase/migrations/0001_eltes_accounts.sql` | `profiles`, `email_events`, `suppressed_emails`, the `auth.users` trigger, RLS and `mail_consume()`. |
 | `supabase/functions/eltes-mail` | Welcome, magic link and reset letters through Resend, with the link built by the Auth admin API. |
 | `supabase/functions/email-webhook` | Svix-signed Resend webhook; bounces and complaints land on the suppression list. |
+| `supabase/functions/site-publish` | Copies the published site from GitHub into the public `eltes` Storage bucket. |
 
 The **service_role** and **Resend** keys live only in Edge Function secrets. `config.js` ships the publishable key, which is designed to be public; RLS limits it to the signed-in user's own row. Without `RESEND_API_KEY` the function sends nothing and the panel says *Not sent — Supabase has no RESEND_API_KEY yet*. See `supabase/README.md` and `docs.html#supabase`.
 

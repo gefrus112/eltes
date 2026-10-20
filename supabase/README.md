@@ -13,7 +13,8 @@ supabase/
 │   └── 0001_eltes_accounts.sql      tables, trigger, RLS, rate limits
 └── functions/
     ├── eltes-mail/index.ts          welcome · magic link · password reset
-    └── email-webhook/index.ts       Resend bounce/complaint → suppression
+    ├── email-webhook/index.ts       Resend bounce/complaint → suppression
+    └── site-publish/index.ts        the static site → public Storage bucket
 ```
 
 Both functions are a single file with no imports. They are plain JavaScript in
@@ -48,6 +49,8 @@ Set with `npx supabase secrets set …` or in **Project Settings → Edge Functi
 | `ELTES_REPLY_TO` | optional | `Reply-To` header. |
 | `RESEND_WEBHOOK_SECRET` | optional | `whsec_…`; when set, the webhook requires a valid Svix signature. |
 | `ELTES_WEBHOOK_TOKEN` | optional | Fallback shared token (`?token=…`) when no Svix secret is configured. |
+| `ELTES_PUBLISH_TOKEN` | for `site-publish` | Long random string; the only way to trigger a mirror upload. |
+| `ELTES_BUCKET` | optional | Bucket name for the mirror. Defaults to `eltes`. |
 
 `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are injected by the platform.
 
@@ -56,7 +59,7 @@ Set with `npx supabase secrets set …` or in **Project Settings → Edge Functi
 ```bash
 npx supabase link --project-ref <ref>
 npx supabase db push
-npm run supabase:deploy          # both functions, --no-verify-jwt
+npm run supabase:deploy          # all three functions, --no-verify-jwt
 ```
 
 `--no-verify-jwt` is deliberate: a sign-up has no session yet, and the mail
@@ -97,6 +100,33 @@ Then create an account on the site: the panel reports what actually happened —
 `sent`, `already_sent`, `suppressed`, `no_mail_provider`, `rate_limited` or the
 provider's own error. `select * from public.email_events order by created_at desc
 limit 20;` shows the same thing from the database side.
+
+## The site lives here too
+
+The same files that GitHub Pages serves are also published into a **public
+Storage bucket** in this project, so the site, its accounts and its mail share
+one deployment:
+
+```
+https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html
+```
+
+This is a public bucket, not a static-site product (Supabase has none) and not
+a custom domain. Objects are uploaded with their real content types, so pages
+render and `assets/…` resolves exactly as on Pages. Only pages, `assets/` and
+`downloads/` are published — the SQL, the tests and the desktop harness never
+leave the repository.
+
+```bash
+ELTES_PUBLISH_TOKEN=… npm run site:publish -- --dry   # list, upload nothing
+ELTES_PUBLISH_TOKEN=… npm run site:publish            # upsert everything
+ELTES_PUBLISH_TOKEN=… npm run site:publish -- --path=index.html
+```
+
+`site-publish` reads the repository through the GitHub API, so push to `main`
+first. It is guarded by `ELTES_PUBLISH_TOKEN` (Edge Function secret): no token
+means `503 publish_token_not_configured`, a wrong one means `401 bad_token`.
+Rotate the secret and redeploy to revoke publishing.
 
 ## Free-tier reality
 

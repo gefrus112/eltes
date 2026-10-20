@@ -1,0 +1,392 @@
+/* ==========================================================================
+   Eltes AI — deep-space skin
+   --------------------------------------------------------------------------
+   A living galaxy sits behind the marketing and documentation pages: a fixed
+   canvas (assets/js/galaxy.js) paints the nebula, dust and parallax stars over
+   the base gradient declared here. Everything else in this file is the polish
+   that ties the site to it — glass navigation, a sheen on primary actions,
+   slow-moving gradient headlines, translucent chrome and gentler reveals.
+   ========================================================================== */
+
+:root {
+  --space-0: #010208;
+  --space-1: #03060f;
+  --space-2: #060b18;
+  --glow-blue: rgba(64, 118, 255, 0.55);
+  --glow-violet: rgba(139, 124, 255, 0.34);
+  --glow-teal: rgba(55, 214, 160, 0.22);
+}
+
+html {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -8%, #0a1630 0%, transparent 62%),
+    radial-gradient(ellipse 60% 45% at 88% 105%, #0a1a2c 0%, transparent 66%),
+    var(--space-0);
+}
+
+/* The canvas paints above the root background, below every page element. */
+body.galaxy-page {
+  background: transparent;
+  color: var(--text);
+}
+
+.galaxy {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+  /* A painted approximation: what shows before the canvas boots, and for
+     readers with JavaScript disabled. */
+  background:
+    radial-gradient(58% 42% at 32% 24%, rgba(74, 108, 206, 0.24), transparent 70%),
+    radial-gradient(44% 34% at 74% 30%, rgba(126, 94, 224, 0.18), transparent 72%),
+    radial-gradient(56% 46% at 52% 82%, rgba(34, 92, 176, 0.16), transparent 74%),
+    radial-gradient(38% 30% at 12% 78%, rgba(46, 196, 176, 0.07), transparent 76%),
+    #010208;
+}
+.galaxy-canvas,
+.galaxy-backdrop {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.galaxy-canvas {
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1.4s var(--ease);
+}
+.galaxy--ready .galaxy-canvas { opacity: 1; }
+/* No-javascript fallback: the painted backdrop still carries the scene. */
+.galaxy--static .galaxy-canvas { opacity: 0.75; }
+
+.galaxy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% -14%, transparent 44%, rgba(1, 2, 8, 0.58) 100%),
+    radial-gradient(ellipse 72% 52% at 50% 108%, rgba(1, 2, 8, 0.5), transparent 72%);
+  opacity: 0.95;
+}
+
+/* ------------------------------- navigation ------------------------------ */
+
+body.galaxy-page .nav {
+  background: linear-gradient(180deg, rgba(2, 5, 12, 0.72), rgba(2, 5, 12, 0.24));
+  border-bottom-color: rgba(140, 176, 236, 0.09);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+body.galaxy-page .nav.scrolled {
+  background: linear-gradient(180deg, rgba(2, 5, 12, 0.9), rgba(3, 7, 15, 0.72));
+  border-bottom-color: rgba(140, 176, 236, 0.13);
+  box-shadow: 0 18px 40px -30px rgba(0, 0, 0, 0.9);
+}
+body.galaxy-page .brand-mark {
+  filter: drop-shadow(0 0 12px rgba(55, 214, 160, 0.34));
+}
+body.galaxy-page .nav-links a {
+  position: relative;
+  border: 1px solid transparent;
+}
+body.galaxy-page .nav-links a:hover {
+  border-color: rgba(140, 176, 236, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+body.galaxy-page .nav-links a.active {
+  color: #fff;
+  border-color: rgba(140, 176, 236, 0.14);
+  background: linear-gradient(180deg, rgba(88, 138, 255, 0.14), rgba(88, 138, 255, 0.04));
+}
+body.galaxy-page .nav-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 16px;
+  height: 2px;
+  margin-left: -8px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, #8fb7ff, transparent);
+  box-shadow: 0 0 12px rgba(122, 168, 255, 0.7);
+}
+
+/* --------------------------------- buttons ------------------------------- */
+
+body.galaxy-page .btn {
+  isolation: isolate;
+  overflow: hidden;
+}
+body.galaxy-page .btn-primary {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 46%),
+    linear-gradient(180deg, #4f8bff 0%, #2a63ee 62%, #2453d6 100%);
+  border-color: rgba(170, 203, 255, 0.36);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.26) inset,
+    0 14px 32px -16px rgba(56, 118, 255, 0.9);
+}
+body.galaxy-page .btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: -60% -30%;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.32) 50%, transparent 62%);
+  transform: translateX(-130%);
+  transition: transform 0.75s var(--ease);
+}
+body.galaxy-page .btn-primary:hover::after { transform: translateX(130%); }
+body.galaxy-page .btn-primary:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 20px 44px -18px rgba(56, 118, 255, 0.95),
+    0 0 0 1px rgba(160, 196, 255, 0.28);
+}
+body.galaxy-page .btn-ghost {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.014));
+  border-color: rgba(140, 176, 236, 0.18);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+}
+body.galaxy-page .btn-ghost:hover {
+  border-color: rgba(160, 195, 255, 0.32);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
+}
+
+/* --------------------------- hero, quieted down -------------------------- */
+
+/* The canvas already supplies colour, so the static glow blobs step back. */
+body.galaxy-page .hero::before { opacity: 0.55; }
+body.galaxy-page .hero .aura { opacity: 0.35 !important; filter: blur(6px); }
+body.galaxy-page .hero::after {
+  background-image: radial-gradient(rgba(150, 185, 245, 0.06) 1px, transparent 1px);
+  opacity: 0.8;
+}
+body.galaxy-page .docs-hero::before { opacity: 0.6; }
+body.galaxy-page .docs-hero::after { opacity: 0.55; }
+body.galaxy-page .news-hero::before { opacity: 0.5; }
+body.galaxy-page .cta-inner,
+body.galaxy-page .showcase-shell { backdrop-filter: blur(6px); }
+
+/* -------------------------------- headings ------------------------------- */
+
+body.galaxy-page .hero h1 .line-2,
+body.galaxy-page .docs-hero h1,
+body.galaxy-page .news-hero h1 {
+  background-size: 200% 100%;
+  animation: cosmic-shimmer 22s ease-in-out infinite alternate;
+}
+@keyframes cosmic-shimmer {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+
+body.galaxy-page .section-head h2 {
+  background: linear-gradient(178deg, #ffffff 8%, #dbe7fb 54%, #a9c1e6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.galaxy-page .eyebrow {
+  color: #9cc0ff;
+  text-shadow: 0 0 26px rgba(88, 138, 255, 0.45);
+}
+
+/* --------------------------------- surfaces ------------------------------ */
+
+body.galaxy-page .card,
+body.galaxy-page .model-tile {
+  transition: border-color 0.28s, transform 0.32s var(--ease), background 0.28s, box-shadow 0.32s;
+}
+body.galaxy-page .card:hover,
+body.galaxy-page .model-tile:hover {
+  box-shadow:
+    0 26px 60px -34px rgba(56, 118, 255, 0.6),
+    0 0 0 1px rgba(150, 188, 255, 0.14);
+}
+body.galaxy-page .news-feature,
+body.galaxy-page .shot {
+  box-shadow: 0 34px 80px -46px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(150, 188, 255, 0.06);
+}
+body.galaxy-page .news-feature:hover {
+  border-color: rgba(150, 188, 255, 0.26);
+}
+
+body.galaxy-page .footer {
+  background: linear-gradient(180deg, rgba(2, 5, 12, 0.35), rgba(1, 2, 7, 0.86));
+  border-top-color: rgba(140, 176, 236, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Thin living rail at the very top of documentation and news pages. */
+body.galaxy-page .scroll-progress {
+  position: fixed;
+  z-index: 100;
+  inset: 0 0 auto;
+  height: 2px;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.025);
+}
+body.galaxy-page .scroll-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: left center;
+  background: linear-gradient(90deg, #4b80f5, #78a7ff 55%, #6de0b5);
+  box-shadow: 0 0 12px rgba(83, 141, 255, 0.44);
+}
+
+/* ------------------------------- fine detail ----------------------------- */
+
+/* A soft dark halo under body copy keeps contrast high wherever the band
+   drifts behind the text, without boxing the layout in. */
+body.galaxy-page p,
+body.galaxy-page li,
+body.galaxy-page .doc p,
+body.galaxy-page .news-sum,
+body.galaxy-page .shot figcaption {
+  text-shadow: 0 1px 2px rgba(1, 3, 9, 0.7), 0 0 16px rgba(1, 3, 9, 0.55);
+}
+
+body.galaxy-page ::selection {
+  background: rgba(88, 138, 255, 0.35);
+  color: #fff;
+}
+
+body.galaxy-page :focus-visible {
+  outline: 2px solid rgba(122, 168, 255, 0.85);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+body.galaxy-page h1,
+body.galaxy-page h2,
+body.galaxy-page h3 {
+  text-wrap: balance;
+}
+body.galaxy-page p,
+body.galaxy-page li {
+  text-wrap: pretty;
+}
+
+body.galaxy-page ::-webkit-scrollbar { width: 10px; height: 10px; }
+body.galaxy-page ::-webkit-scrollbar-track { background: rgba(4, 8, 16, 0.6); }
+body.galaxy-page ::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  background-color: rgba(122, 152, 205, 0.28);
+}
+body.galaxy-page ::-webkit-scrollbar-thumb:hover { background-color: rgba(138, 172, 235, 0.42); }
+
+/* A soft halo behind the hero headline, so type and space meet gently. */
+body.galaxy-page .hero-inner::before,
+body.galaxy-page .docs-hero .wrap::before,
+body.galaxy-page .news-hero .wrap::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -80px;
+  width: min(860px, 96vw);
+  height: 420px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(38, 86, 196, 0.18), transparent 72%);
+  filter: blur(12px);
+}
+body.galaxy-page .hero-inner::before { top: -110px; height: 520px; }
+
+/* Reduced motion: keep the beauty, drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  body.galaxy-page .hero h1 .line-2,
+  body.galaxy-page .docs-hero h1,
+  body.galaxy-page .news-hero h1 {
+    animation: none;
+    background-position: 30% 50%;
+  }
+  body.galaxy-page .btn-primary::after { display: none; }
+  body.galaxy-page .card:hover,
+  body.galaxy-page .model-tile:hover { transform: none; }
+}
+
+/* Forced colours: never let the gradient headings vanish. */
+@media (forced-colors: active) {
+  body.galaxy-page .section-head h2,
+  body.galaxy-page .hero h1 .line-2,
+  body.galaxy-page .docs-hero h1,
+  body.galaxy-page .news-hero h1 {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
+  body.galaxy-page .galaxy { display: none; }
+}
+
+@media (max-width: 720px) {
+  body.galaxy-page .nav {
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
+  body.galaxy-page .hero-inner::before,
+  body.galaxy-page .docs-hero .wrap::before,
+  body.galaxy-page .news-hero .wrap::before { display: none; }
+}
+
+/* ------------------------------ rhythm & links --------------------------- */
+
+/* A hairline between sections reads as a horizon line over the sky. */
+body.galaxy-page .section { position: relative; }
+body.galaxy-page .section + .section::before {
+  content: "";
+  position: absolute;
+  inset: 0 8% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(140, 176, 236, 0.16), transparent);
+  pointer-events: none;
+}
+
+body.galaxy-page .footer-col a,
+body.galaxy-page .footer-bottom a {
+  transition: color 0.15s, letter-spacing 0.2s var(--ease);
+}
+body.galaxy-page .footer-col a:hover { letter-spacing: 0.012em; color: #fff; }
+
+body.galaxy-page .hero-stats > div {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.014));
+  border-color: rgba(150, 188, 255, 0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+body.galaxy-page .hero-stats strong {
+  background: linear-gradient(180deg, #ffffff, #b9cdf0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+body.galaxy-page .hero-stats span { color: #8fa6c8; }
+
+body.galaxy-page .badge {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Code blocks and tables sit on glass so they stay legible over the stars. */
+body.galaxy-page .doc-code,
+body.galaxy-page .table-scroll {
+  background: rgba(4, 8, 15, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.galaxy-page .footer-col a:hover { letter-spacing: normal; }
+}

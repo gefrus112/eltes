@@ -13,7 +13,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 | `auth.html` | Local profile and provider-key utilities; it is not a hosted identity service |
 | `docs.html` | App, local-model, proxy, deployment, privacy, and troubleshooting guide |
 | `studio.html` | Coding workspace: file tree, editor, live preview and a real local terminal |
-| `news.html` | Release notes with screenshots of the effects library, the workflow guide, Studio and the chat theme |
+| `news.html` | Release notes with screenshots of the galaxy backdrop, the effects library, the workflow guide, Studio and the chat theme |
 
 ## Features
 
@@ -30,6 +30,10 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
 - **Model catalogue:** 65 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, and custom endpoints.
 - **Interface:** Graphite (neutral grey) by default with Midnight blue as an option under Settings → General, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports. The theme is tokenised in `assets/css/app.css` and stored in `eltes.settings.v1`.
+
+## The galaxy backdrop
+
+The marketing and documentation pages sit in front of a live galaxy drawn by `assets/js/galaxy.js`: a tilted band with a dust lane and a warm core, three parallax star layers, pointer lean, warp trails when you scroll fast, and the occasional meteor. It is one `<canvas>` with no libraries and no image files; the static backdrop is painted once, stars run at 30 fps with a capped pixel ratio, the loop stops in a hidden tab, and `prefers-reduced-motion` gets a single still frame. The chat workspace and Studio keep their clean surfaces on purpose. `node tools/capture-galaxy.mjs` re-captures the still shown in the release notes (requires `npm install --no-save @napi-rs/canvas`). Details: [docs.html#look](docs.html#look).
 
 ## Run the app and local API
 

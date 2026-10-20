@@ -14,9 +14,15 @@
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
   <link rel="stylesheet" href="assets/css/news.css" />
+  <link rel="stylesheet" href="assets/css/galaxy.css" />
 </head>
-<body>
-  <a class="skip" href="#r310">Skip to the latest release</a>
+<body class="galaxy-page">
+  <div class="galaxy" aria-hidden="true">
+    <canvas class="galaxy-backdrop" data-galaxy-backdrop aria-hidden="true"></canvas>
+    <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
+  <a class="skip" href="#r311">Skip to the latest release</a>
 
   <header class="nav" id="nav">
     <div class="wrap">
@@ -64,13 +70,14 @@
         <h1>Every release, with the screen to prove it.</h1>
         <p class="lede">Notes from the Eltes build: the effects library that draws its own imagery, the five-step website workflow, Studio's editor and Linux terminal, and the Graphite chat theme. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.10.0</span>
+          <span class="badge"><span class="dot"></span>v3.11.0</span>
           <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
-          <span class="badge"><span data-icon="image" data-icon-size="12"></span>4 screenshots</span>
+          <span class="badge"><span data-icon="image" data-icon-size="12"></span>5 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r310" class="active">v3.10 · Effects from code</a>
+          <a href="#r311" class="active">v3.11 · Living galaxy</a>
+          <a href="#r310">v3.10 · Effects from code</a>
           <a href="#r39">v3.9 · Website workflow</a>
           <a href="#r38">v3.8 · Studio</a>
           <a href="#r371">v3.7.1 · Graphite theme</a>
@@ -79,36 +86,36 @@
     </section>
 
     <!-- =========================== latest =============================== -->
-    <section class="news-feed" id="r310" aria-labelledby="h-r310">
+    <section class="news-feed" id="r311" aria-labelledby="h-r311">
       <div class="wrap">
         <article class="news-feature reveal">
           <figure class="shot">
-            <a href="assets/img/news/effects.svg" target="_blank" rel="noreferrer" aria-label="Open the effects library screenshot at full size">
-              <img src="assets/img/news/effects.svg" alt="The Eltes Studio effects dialog: six cards with live previews of a gradient mesh, a particle field, aurora ribbons, a halftone pattern, a glowing orb and a generative poster." width="1280" height="760" />
+            <a href="assets/img/news/galaxy.jpg" target="_blank" rel="noreferrer" aria-label="Open the galaxy still at full size">
+              <img src="assets/img/news/galaxy.jpg" alt="The Eltes galaxy background: a tilted band of stars with a warm core, dust lanes and a dusting of faint blue stars over deep space." width="1280" height="760" />
               <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
             </a>
             <figcaption>
-              <span>Studio → Effects: six recipes, each one a self-contained HTML page. “Create &amp; preview” writes the file and reloads the pane.</span>
-              <span class="tag">effects.svg</span>
+              <span>A still from the live canvas: the band, the dust lanes and the star field are all painted in the browser.</span>
+              <span class="tag">galaxy.jpg · canvas capture</span>
             </figcaption>
           </figure>
 
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.10.0</span>
+              <span class="news-ver latest">v3.11.0</span>
               <span class="news-kind">Latest release</span>
             </div>
-            <h2 id="h-r310">Draw the imagery. Don't download it.</h2>
-            <p class="news-sum">A new effects library turns CSS gradients, SVG filters and canvas into finished visuals — and writes each one into your project as readable code, ready for the preview.</p>
+            <h2 id="h-r311">The whole site now floats through space.</h2>
+            <p class="news-sum">Every marketing and documentation page sits in front of a moving galaxy: a tilted band of stars with a warm core, dust lanes, drifting star layers and the occasional meteor. It is drawn in one canvas — no video, no image files, no libraries.</p>
             <ul class="news-points">
-              <li><strong>Six recipes</strong> — gradient mesh, particles, aurora, halftone, orb and poster.</li>
-              <li><strong>One click, one file</strong> — <code>effects/&lt;name&gt;.html</code> in the tree, open in the editor, loaded in the preview.</li>
-              <li><strong>Real documentation</strong> — a new guide section walks from the first gradient to a built <code>dist/</code>.</li>
-              <li><strong>Build-aware</strong> — the starter <code>build.mjs</code> now copies subfolders, so <code>effects/</code> ships with the site.</li>
+              <li><strong>Real depth</strong> — three parallax star layers drift at different speeds and lean with the pointer.</li>
+              <li><strong>Scroll is travel</strong> — fast scrolling stretches the stars into short warp trails.</li>
+              <li><strong>Cheap by design</strong> — the backdrop is painted once, stars animate at 30 fps, DPR capped, nothing runs in a hidden tab.</li>
+              <li><strong>Respectful</strong> — a single still frame under <code>prefers-reduced-motion</code>, and the app and Studio keep their clean surfaces.</li>
             </ul>
             <div class="news-links">
-              <a class="primary" href="studio.html"><span data-icon="sparkles" data-icon-size="14"></span>Open the effects library</a>
-              <a href="docs.html#effects">Read the guide<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a class="primary" href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See it on the homepage</a>
+              <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
             </div>
           </div>
         </article>
@@ -118,6 +125,35 @@
     <!-- ============================= feed =============================== -->
     <div class="news-feed">
       <div class="wrap">
+        <article class="news-item reveal" id="r310" aria-labelledby="h-r310">
+          <div class="news-item-head">
+            <span class="news-ver">v3.10.0</span>
+            <span class="news-kind">Effects</span>
+          </div>
+          <h2 id="h-r310">Draw the imagery. Don't download it.</h2>
+          <p class="news-sum">A library of six code-generated visuals — gradient mesh, particles, aurora, halftone, orb and poster — each written into your project as a readable HTML file and previewed in Studio.</p>
+          <figure class="shot">
+            <a href="assets/img/news/effects.svg" target="_blank" rel="noreferrer" aria-label="Open the effects library screenshot at full size">
+              <img src="assets/img/news/effects.svg" alt="The Eltes Studio effects dialog: six cards with live previews of a gradient mesh, a particle field, aurora ribbons, a halftone pattern, a glowing orb and a generative poster." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>Studio → Effects: six recipes, each one a self-contained HTML page. “Create &amp; preview” writes the file and reloads the pane.</span>
+              <span class="tag">effects.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>One click, one file</strong> — <code>effects/&lt;name&gt;.html</code> in the tree, open in the editor, loaded in the preview.</li>
+            <li><strong>Real documentation</strong> — a full guide section from the first gradient to a built <code>dist/</code>.</li>
+            <li><strong>Build-aware</strong> — the starter <code>build.mjs</code> copies subfolders, so <code>effects/</code> ships with the site.</li>
+            <li><strong>Honest progress</strong> — generating an effect ticks the workflow's create and preview steps.</li>
+          </ul>
+          <div class="news-links">
+            <a href="studio.html"><span data-icon="sparkles" data-icon-size="14"></span>Open the effects library</a>
+            <a href="docs.html#effects">Read the guide<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          </div>
+        </article>
+
         <article class="news-item reveal" id="r39" aria-labelledby="h-r39">
           <div class="news-item-head">
             <span class="news-ver">v3.9.0</span>
@@ -261,6 +297,7 @@
     </div>
   </footer>
 
+  <script src="assets/js/galaxy.js"></script>
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/brands.js"></script>
   <script src="assets/js/models.js"></script>

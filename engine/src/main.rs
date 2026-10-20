@@ -77,7 +77,7 @@ fn run(prompt: &str, json: bool, show_intent: bool) {
             escape(&result.text)
         );
     } else if show_intent {
-        println!("{}\n\n{}", result.intent.as_str(), result.text);
+        println!("{}", result.intent.as_str());
     } else {
         println!("{}", result.text);
     }

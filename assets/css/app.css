@@ -1931,3 +1931,79 @@ details.think-panel[open] .think-chev { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) {
   .think-spinner, .trace-wave i, .think-steps li.running .think-dot { animation: none; }
 }
+
+/* ============================ web search switch =========================== */
+
+/* The Web chip is a plain on/off switch; "Web on" is stated in words so the
+   state is never ambiguous. */
+#webChip.on {
+  background: rgba(57, 220, 162, 0.12);
+  border-color: rgba(57, 220, 162, 0.28);
+  color: #8ff0c8;
+}
+#webChip.on .icon { color: #8ff0c8; }
+
+.composer-hint .hint-web {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(57, 220, 162, 0.24);
+  background: rgba(57, 220, 162, 0.1);
+  color: #8ff0c8;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.composer-hint .hint-web.warn {
+  border-color: rgba(255, 190, 84, 0.3);
+  background: rgba(255, 190, 84, 0.1);
+  color: #ffd08a;
+}
+.composer-hint .hint-web i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.web-notice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 7px 9px 7px 10px;
+  border: 1px solid rgba(255, 190, 84, 0.24);
+  border-radius: 9px;
+  background: rgba(255, 190, 84, 0.07);
+  color: #ffd39a;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+.web-notice[hidden] { display: none; }
+.web-notice .wn-icon { display: inline-flex; color: #ffc46b; }
+.web-notice .wn-text { flex: 1; min-width: 140px; }
+.web-notice .wn-action {
+  padding: 3px 9px;
+  border: 1px solid rgba(255, 196, 107, 0.36);
+  border-radius: 6px;
+  background: rgba(255, 196, 107, 0.14);
+  color: #ffe0b5;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.16s;
+}
+.web-notice .wn-action:hover { background: rgba(255, 196, 107, 0.24); }
+.web-notice .wn-close {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 4px;
+  color: #b9986a;
+  transition: color 0.16s, background 0.16s;
+}
+.web-notice .wn-close:hover { color: #ffd39a; background: rgba(255, 255, 255, 0.06); }

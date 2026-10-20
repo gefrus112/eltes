@@ -563,7 +563,7 @@ unit_intent <- function(text) {
 
   for (index in seq_len(count)) {
     piece <- split_number(list_words[index])
-    if (is.null(split)) next
+    if (is.null(piece)) next
 
     if (piece$suffix == "") {
       if (index + 1 > count) next

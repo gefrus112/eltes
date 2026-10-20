@@ -86,7 +86,7 @@ function digit_after(chars::Vector{Char}, index::Int)
     return false
 end
 
-function prepare(source::String)
+function prepare(source::AbstractString)
     text = replace(source,
         "×" => "*", "✕" => "*", "✖" => "*",
         "÷" => "/",
@@ -104,7 +104,7 @@ function prepare(source::String)
     return String(take!(out))
 end
 
-function tokenize(source::String)
+function tokenize(source::AbstractString)
     text = prepare(source)
     chars = collect(text)
     tokens = Token[]

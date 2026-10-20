@@ -562,6 +562,17 @@ test('the migration creates the tables, the trigger and the policies', () => {
   assert.match(sql, /security definer/);
 });
 
+test('the Pages workflow ships every file the cloud path needs', () => {
+  const workflow = read('.github/workflows/pages.yml');
+  assert.match(workflow, /config\.js/, 'config.js is copied into _site');
+  assert.match(workflow, /cp -R assets/, 'the client script is copied');
+  for (const page of ['auth.html', 'index.html', 'app.html']) {
+    const html = read(page);
+    assert.match(html, /src="config\.js"/, `${page} loads the config`);
+    assert.match(html, /src="assets\/js\/supabase\.js"/, `${page} loads the client`);
+  }
+});
+
 test('both functions are self-contained, deployable Deno modules', () => {
   const mail = read('supabase/functions/eltes-mail/index.ts');
   const hook = read('supabase/functions/email-webhook/index.ts');

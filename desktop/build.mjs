@@ -274,6 +274,7 @@ export function electronBuilderConfig(options = {}) {
     buildDependenciesFromSource: false,
     removePackageScripts: true,
     publish: null,
+    npmRebuild: false,
     protocols: [{ name: 'Eltes link', schemes: ['eltes'] }],
     artifactName: 'Eltes-${version}-${os}-${arch}.${ext}'
   };
@@ -436,7 +437,9 @@ async function run() {
   console.log(`  ${join(ROOT, 'node_modules', '.bin', 'electron-builder')} ${flags.join(' ')}`);
   const code = await new Promise((resolveCode) => {
     const child = spawn(process.execPath, [cli, ...flags], {
-      cwd: BUILD_DIR,
+      /* electron-builder reads the project package.json from its working
+         directory; the app itself lives in BUILD_DIR/app via directories.app. */
+      cwd: ROOT,
       stdio: 'inherit',
       env: {
         ...process.env,

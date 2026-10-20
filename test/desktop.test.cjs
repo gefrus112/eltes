@@ -101,13 +101,16 @@ test('the site directory resolves for a checkout and for a packaged app', () => 
     core.resolveSiteDir({ packaged: false, appDir: join(root, 'desktop') }),
     root
   );
-  assert.equal(
-    core.resolveSiteDir({ packaged: true, resourcesPath: '/opt/Eltes/resources', appDir: '/opt/Eltes/resources/app.asar' }),
-    resolve('/opt/Eltes/resources/site')
+  /* path separators and drive letters differ per platform — compare suffixes */
+  assert.ok(
+    core.resolveSiteDir({ packaged: true, resourcesPath: join('/opt', 'Eltes', 'resources'), appDir: join('/opt', 'Eltes', 'resources', 'app.asar') })
+      .endsWith(join('Eltes', 'resources', 'site')),
+    'packaged apps serve resources/site next to the asar'
   );
-  assert.equal(
-    core.resolveSiteDir({ packaged: true, resourcesPath: '/x', override: '/tmp/site' }),
-    resolve('/tmp/site')
+  assert.ok(
+    core.resolveSiteDir({ packaged: true, resourcesPath: '/x', override: join('/tmp', 'site') })
+      .endsWith(join('tmp', 'site')),
+    'an explicit override wins'
   );
   assert.throws(() => core.resolveSiteDir({ packaged: false }), /appDir/);
 

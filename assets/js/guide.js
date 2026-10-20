@@ -326,6 +326,11 @@
 
   const ROUTES = [
     {
+      keys: ['free', 'free tier', 'no cost', 'ollama', 'lm studio', 'local model', 'local weights', 'offline model'],
+      text: 'Three ways to pay nothing: **CAI** runs in the tab, **your own weights** run on your machine through Ollama or LM Studio, and a **provider free tier** costs nothing while the quota lasts. The docs spell out each one.',
+      actions: [{ label: 'Read the free-models guide', href: 'docs.html#free' }]
+    },
+    {
       keys: ['pricing', 'price', 'cost', 'plan', 'subscription', 'paid', 'credits', 'waitlist'],
       text: '**Pricing** is below the comparison table. BYOK is free — you pay your provider directly. Hosted plans are still in design, with a waitlist you can join; nothing is charged.',
       actions: [

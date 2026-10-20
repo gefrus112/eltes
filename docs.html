@@ -96,6 +96,7 @@
 
         <div class="nav-sep"></div>
         <h5>Reference</h5>
+        <a href="#free"><span data-icon="sparkles" data-icon-size="14"></span>Free models</a>
         <a href="#pricing"><span data-icon="gift" data-icon-size="14"></span>Pricing</a>
         <a href="#downloads"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</a>
         <a href="#self-host"><span data-icon="hard-drive" data-icon-size="14"></span>Self-hosting</a>
@@ -608,6 +609,59 @@ eltes.bat --port 8080</code></pre>
           <div class="callout tip">
             <span data-icon="download" data-icon-size="15"></span>
             <span><strong>Update by replacing files.</strong> Copy a new build over the old folder and keep <code>localStorage</code>. Chats, keys and your profile live in the browser, not in the download.</span>
+          </div>
+        </section>
+
+        <section id="free">
+          <h2>Free models <a class="anchor" href="#free" aria-label="Link to free models" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Nothing in Eltes is locked behind a payment, but a hosted model still costs money somewhere — either your provider bills you, or the model runs on hardware you already own. These are the three routes that cost nothing beyond what you have.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Route</th><th>Needs a key?</th><th>Where the model runs</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Eltes CAI</strong></td><td>No</td><td>In this tab. Rules and a curated knowledge set, no weights.</td></tr>
+              <tr><td><strong>Your own weights</strong></td><td>No</td><td>On your machine via Ollama, LM Studio, llama.cpp or vLLM.</td></tr>
+              <tr><td><strong>A provider's free tier</strong></td><td>Yes — a free key</td><td>On that provider's servers.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>1. Run weights you already have</h3>
+          <p>Point <strong>Settings → API keys → Custom endpoint</strong> at a local server. Both buttons below fill the form for you; press <em>Save</em> and pick <em>Custom endpoint</em> in the model picker.</p>
+
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>Ollama, on this machine</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># install once, then pull a small model</span>
+ollama pull llama3.1
+ollama serve
+
+<span class="c"># in Eltes, open the app → Settings → API keys</span>
+<span class="c"># or press "Use Ollama" — it fills:</span>
+<span class="c">Base URL   http://localhost:11434/v1</span>
+<span class="c">Model id   llama3.1</span></code></pre>
+          </div>
+
+          <div class="callout">
+            <span data-icon="info" data-icon-size="15"></span>
+            <span><strong>Local means local.</strong> Prompts go to the server on your machine over <code>http://localhost</code>, not to Eltes. Nothing is uploaded, so a local model works offline once the weights are on disk.</span>
+          </div>
+
+          <div class="callout warn">
+            <span data-icon="triangle-alert" data-icon-size="15"></span>
+            <span><strong>HTTPS pages cannot call HTTP endpoints.</strong> A page served over HTTPS will block <code>http://localhost</code> as mixed content. Run Eltes locally (<code>npm start</code>) when you use a local model, or put the model behind HTTPS.</span>
+          </div>
+
+          <h3>2. Use a provider's free tier, if it still has one</h3>
+          <p>Some providers hand out a limited free quota — Google AI Studio and Groq have both offered one, and OpenRouter lists models marked <code>:free</code>. Those terms change without notice, so Eltes does not promise a particular model is free today and does not check your eligibility. Open the provider's pricing page, create a key, and paste it into <strong>Settings → API keys</strong>. If the quota is gone, you will see the provider's <code>429</code> and nothing is charged by Eltes.</p>
+
+          <h3>3. Use CAI when you have no key at all</h3>
+          <p><strong>Eltes CAI-1</strong> answers arithmetic, percentages, unit and temperature conversions, and questions about Eltes itself, entirely in the tab. It is a deterministic rules engine, not a language model, so it will refuse open-ended writing instead of inventing an answer. That refusal is the feature: <a class="inline-link" href="index.html#compare">the comparison</a> spells out what it can and cannot do.</p>
+
+          <div class="callout">
+            <span data-icon="key-round" data-icon-size="15"></span>
+            <span><strong>What Eltes never does.</strong> It does not supply model credits, proxy your traffic to a free pool, rotate shared keys, or hide the provider's bill. “Free” here means <em>no charge from Eltes</em> — the model is either yours or on someone else's free quota.</span>
           </div>
         </section>
 

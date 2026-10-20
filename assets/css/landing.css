@@ -3276,3 +3276,67 @@ body {
   .guide-dock.is-dragging .guide-orb { transform: none; }
   .guide-target { box-shadow: inset 0 0 120px -34px rgba(76, 140, 255, 0.45); }
 }
+
+/* ==========================================================================
+   v4.4 — free routes strip under pricing
+   ========================================================================== */
+
+.free-routes {
+  margin: 26px auto 22px;
+  padding: 18px 20px;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border: 1px solid rgba(122, 162, 226, 0.16);
+  border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(58, 112, 226, 0.14), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.012));
+}
+.free-routes-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--text-2);
+}
+.free-routes-head .icon { color: #8fb6f2; }
+.free-routes-head strong { font-weight: 600; color: var(--text-1); }
+
+.free-routes ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.free-routes li {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+.free-routes li .icon { flex: none; margin-top: 2px; color: #7fa4d8; }
+.free-routes li strong { color: var(--text-2); font-weight: 600; }
+
+.free-routes .inline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: end;
+  padding-top: 2px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .free-routes { grid-template-columns: 1fr; }
+  .free-routes ul { grid-template-columns: 1fr; gap: 9px; }
+  .free-routes .inline-link { justify-self: start; }
+}

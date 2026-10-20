@@ -62,6 +62,26 @@ The app browser calls the local runner directly. Configure the runner's CORS/ori
 
 Eltes CAI is not a substitute for a large language model. It has no neural checkpoint, training corpus, or training pipeline; its chat retrieval is limited to the active conversation text supplied to the current turn, not every saved chat. A tokenizer vocabulary is not a knowledge base: adding four million word entries would not by itself teach meanings or prevent incorrect answers. Reliable knowledge expansion needs a curated, licensed source corpus, retrieval with traceable sources, abstention when evidence is weak, and an evaluation set. Eltes does not train a frontier or otherwise powerful model from scratch. Running an open-weight model requires downloading its weights and enough RAM/VRAM; fine-tuning requires a separate model-specific dataset, training stack, and compute. The custom endpoint connects to an already-running inference server; it does not perform training.
 
+## Run for free
+
+There are three ways to use Eltes without paying anyone, plus one honest
+caveat: Eltes does not sell or supply model credits.
+
+| Route | Key needed | Where inference happens |
+| --- | --- | --- |
+| Eltes CAI | no | In the tab — rules and a curated knowledge set, no weights |
+| Your own weights | no | Your machine, through Ollama / LM Studio / llama.cpp / vLLM |
+| A provider's free tier | a free key | The provider's servers, while the quota lasts |
+
+Settings now has **Use Ollama** and **Use LM Studio** buttons that fill the
+custom-endpoint form for you, so a local model is two clicks away. The
+[documentation](docs.html#free) explains the trade-offs and why an HTTPS page
+cannot call `http://localhost`.
+
+A free tier can disappear or change its limits at any time; Eltes does not
+check your eligibility and never bills you. If a quota runs out you will see
+the provider's `429`.
+
 ## Optional Vercel proxy
 
 GitHub Pages remains a static host. The separate `api/` functions are for Vercel, or can run locally through `npm start`.
@@ -118,4 +138,9 @@ Storage is per browser and origin. Export chats before clearing site data.
 
 ## License and reuse
 
-This release is distributed under the restrictive terms in [`LICENSE`](LICENSE), not MIT. The source is publicly viewable because the repository is public; that does not grant permission to copy, redistribute, modify, or publish a clone. The license cannot technically prevent downloading or forking public files. The prior MIT-licensed versions remain subject to the rights granted with those releases; this change is not retroactive. Third-party assets retain their own licenses in [`NOTICE.md`](NOTICE.md). This is a project notice, not legal advice.
+The **Rust engine in [`engine/`](engine/)** is MIT-licensed and can be reused
+freely — see [`engine/LICENSE`](engine/LICENSE). It is a separate work from the
+site: the landing page, workspace, copy and design remain covered by the
+restrictive terms below.
+
+The site itself is distributed under the restrictive terms in [`LICENSE`](LICENSE), not MIT. The source is publicly viewable because the repository is public; that does not grant permission to copy, redistribute, modify, or publish a clone. The license cannot technically prevent downloading or forking public files. The prior MIT-licensed versions remain subject to the rights granted with those releases; this change is not retroactive. Third-party assets retain their own licenses in [`NOTICE.md`](NOTICE.md). This is a project notice, not legal advice.

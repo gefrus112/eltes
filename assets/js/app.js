@@ -1508,6 +1508,21 @@
     } catch (error) { toast('Backend saved, but health check failed', 'triangle-alert'); }
   });
 
+  const LOCAL_PRESETS = {
+    ollama: { url: 'http://localhost:11434/v1', model: 'llama3.1' },
+    lmstudio: { url: 'http://localhost:1234/v1', model: 'local-model' }
+  };
+  document.querySelectorAll('[data-local-preset]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const preset = LOCAL_PRESETS[button.dataset.localPreset];
+      if (!preset) return;
+      $('#customBaseUrl').value = preset.url;
+      $('#customModel').value = preset.model;
+      $('#customKey').value = '';
+      $('#customSave').click();
+    });
+  });
+
   $('#customSave').addEventListener('click', () => {
     const url = ($('#customBaseUrl').value || '').trim().replace(/\/+$/, '');
     if (url && !/^https?:\/\//i.test(url)) { toast('Base URL must start with http:// or https://', 'triangle-alert'); return; }

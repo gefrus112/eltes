@@ -1162,6 +1162,10 @@ select option { background: #070d17; color: var(--text); }
 .key-input input::placeholder { color: var(--text-4); letter-spacing: 0; font-family: var(--font); }
 .key-input .icon-btn { width: 24px; height: 24px; border-radius: 5px; }
 .key-actions { display: flex; gap: 6px; flex: none; }
+.local-presets { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.local-presets-label { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-4); }
+.local-presets .btn { height: 28px; padding: 0 10px; font-size: 11px; }
+
 .key-help { display: flex; align-items: center; gap: 5px; margin-top: 7px; font-size: 10.5px; color: var(--text-4); }
 .key-help a { color: #7ea9ee; }
 

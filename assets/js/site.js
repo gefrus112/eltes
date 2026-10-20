@@ -48,6 +48,59 @@
     });
   }
 
+  /* ---------------------------- scroll details --------------------------- */
+  function updateScrollProgress() {
+    const doc = document.documentElement;
+    const range = Math.max(1, doc.scrollHeight - window.innerHeight);
+    const progress = clamp(window.scrollY / range, 0, 1);
+    doc.style.setProperty('--scroll-progress', progress.toFixed(4));
+  }
+  updateScrollProgress();
+  window.addEventListener('scroll', updateScrollProgress, { passive: true });
+  window.addEventListener('resize', updateScrollProgress);
+
+  const navAnchors = $$('.nav-links a[href^="#"]');
+  if ('IntersectionObserver' in window && navAnchors.length) {
+    const sectionRatios = new Map();
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) sectionRatios.set(entry.target.id, entry.intersectionRatio);
+        else sectionRatios.delete(entry.target.id);
+      });
+      const current = Array.from(sectionRatios.entries()).sort((a, b) => b[1] - a[1])[0];
+      navAnchors.forEach((link) => {
+        const active = !!current && link.hash === `#${current[0]}`;
+        link.classList.toggle('active', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }, { rootMargin: '-24% 0px -62% 0px', threshold: [0, 0.08, 0.25, 0.5] });
+    navAnchors.forEach((link) => {
+      const section = $(link.hash);
+      if (section) sectionObserver.observe(section);
+    });
+  }
+
+  $$('.stagger').forEach((group) => {
+    Array.from(group.children).forEach((child, index) => {
+      if (!child.style.getPropertyValue('--d')) child.style.setProperty('--d', `${Math.min(index * 55, 330)}ms`);
+    });
+  });
+
+  const hero = $('.hero');
+  if (hero && !reduceMotion() && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let pointerFrame = 0;
+    hero.addEventListener('pointermove', (event) => {
+      if (pointerFrame) return;
+      pointerFrame = requestAnimationFrame(() => {
+        pointerFrame = 0;
+        const rect = hero.getBoundingClientRect();
+        hero.style.setProperty('--hero-x', `${((event.clientX - rect.left) / rect.width * 100).toFixed(1)}%`);
+        hero.style.setProperty('--hero-y', `${((event.clientY - rect.top) / Math.max(1, rect.height) * 100).toFixed(1)}%`);
+      });
+    }, { passive: true });
+  }
+
   /* -------------------------------- account ------------------------------- */
   function renderAccountNav() {
     const box = $('#navAccount');
@@ -284,6 +337,65 @@
   ];
 
   const ACCOUNT_PROVIDERS = ['openai', 'anthropic', 'deepseek'];
+
+  function renderHeroModelPreview(modelId, focusTab = false) {
+    const panel = $('#previewPanel');
+    const tabs = $$('[data-preview-model]');
+    if (!panel || !window.EltesModels || !tabs.length) return;
+    const model = window.EltesModels.byId(modelId);
+    const provider = window.EltesModels.providerOf(model);
+    const local = window.EltesModels.isLocal(model);
+    const apiName = local ? 'On-device' : provider.api === 'anthropic' ? 'Messages' : 'OpenAI-compatible';
+    const selectedTab = tabs.find((tab) => tab.dataset.previewModel === model.id) || tabs[0];
+
+    tabs.forEach((tab) => {
+      const selected = tab === selectedTab;
+      tab.classList.toggle('active', selected);
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    panel.setAttribute('aria-labelledby', selectedTab.id);
+    panel.dataset.local = String(local);
+
+    const logo = $('#previewLogo');
+    if (logo && window.EltesBrandSvg) {
+      logo.dataset.brand = provider.brand;
+      logo.dataset.brandReady = '1';
+      logo.innerHTML = window.EltesBrandSvg(provider.brand, 22);
+      logo.setAttribute('aria-hidden', 'true');
+    }
+    const setText = (selector, value) => { const node = $(selector); if (node) node.textContent = value; };
+    setText('#previewProvider', provider.name.toUpperCase());
+    setText('#previewName', model.name);
+    setText('#previewTier', model.tier.toUpperCase());
+    setText('#previewBlurb', model.blurb || 'Connect this model through your own provider account.');
+    setText('#previewApi', apiName);
+    setText('#previewContext', model.context);
+    setText('#previewTools', model.tools ? 'Available' : 'Chat only');
+    setText('#flowCredential', local ? 'No key needed' : 'Your key');
+    setText('#flowStorage', local ? 'Runs in this browser' : 'Stored in this browser');
+    setText('#flowDestination', local ? 'This device' : 'Provider API');
+    setText('#flowRoute', local ? 'No network request' : 'Direct or trusted proxy');
+    const open = $('#previewOpen');
+    if (open) open.href = `app.html?model=${encodeURIComponent(model.id)}`;
+    if (focusTab) selectedTab.focus();
+  }
+
+  $$('[data-preview-model]').forEach((tab, index, tabs) => {
+    tab.addEventListener('click', () => renderHeroModelPreview(tab.dataset.previewModel));
+    tab.addEventListener('keydown', (event) => {
+      let next = index;
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      renderHeroModelPreview(tabs[next].dataset.previewModel, true);
+    });
+  });
+  renderHeroModelPreview('claude-sonnet-5-5');
+
   function wallLink(p) {
     if (p.local || !ACCOUNT_PROVIDERS.includes(p.provider)) return p.href;
     return `auth.html?provider=${p.provider}&mode=signup&next=${encodeURIComponent(p.href)}`;
@@ -307,7 +419,10 @@
     ).join('');
     hydrateBrands(wall);
     if (window.EltesIcons) window.EltesIcons.hydrate(wall);
-    wall.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+    wall.querySelectorAll('.reveal').forEach((el, index) => {
+      el.style.setProperty('--d', `${Math.min(index * 45, 360)}ms`);
+      el.classList.add('in');
+    });
   }
 
   function renderMiniProviders() {

@@ -1,129 +1,121 @@
 # Eltes AI
 
-One workspace, every real model — plus our own model running on your device.
+A local-first AI workspace for real provider APIs, user-run open models, and an honest on-device assistant.
 
-Eltes is a local-first, browser-only AI agent workspace. It speaks directly to real provider APIs with
-your own account, streams every answer, shows its tool calls, and keeps chats, profile and settings in
-your browser. There is no Eltes server and no telemetry. Hosted answers are live from the model you
-picked, failures are explicit, and **Eltes CAI** answers locally when you have no key at all.
+Eltes is a static browser app by default. Hosted requests can go directly from your browser to a provider, or through an optional Vercel/local proxy that forwards your own key for one request and does not persist it. Chats, keys, profiles, and preferences stay in browser storage. There are no simulated hosted-model replies.
 
 ## Pages
 
 | Page | What it is |
 | --- | --- |
-| `index.html` | Landing page: scroll-driven block field, 13-provider model wall, feature bento, agent terminal, comparison, provider accounts, downloads, pricing (not announced) |
-| `app.html` | The workspace: dark-blue theme, streaming chat, block field, step timeline, tool cards, model picker, provider accounts, command palette, settings, export |
-| `auth.html` | Sign up or in with OpenAI, Anthropic or DeepSeek — or keep a local profile. OAuth contract plus honest key fallback; no GitHub button |
-| `docs.html` | 16 sections: quickstart, accounts, provider keys, CORS, custom endpoints, models, CAI, provider streaming, tools, chats, settings, shortcuts, downloads, pricing, self-hosting, privacy, FAQ |
-
-## What is new in v3.2
-
-- **Green-cloud brand** — one eye closed, one open. Inline SVG mark, favicon, `.ico`, Apple touch icon,
-  192/512 PNGs and a maskable manifest icon.
-- **Provider accounts** — sign up or in with OpenAI, Anthropic or DeepSeek. On a static copy the panel
-  verifies and stores a real provider key; with `window.ELTES_CONFIG.authEndpoint` it performs a real
-  OAuth redirect. GitHub sign-up is gone.
-- **Dark-blue chat, black accounts** — the workspace is a deeper blue with a scroll-reactive block
-  field; the account pages are black with solid block geometry.
-- **Eltes CAI** — three on-device models (`Eltes CAI-1`, `CAI-1 Fast`, `CAI Docs`) built in
-  `assets/js/cai.js`. No key, no network, and honest about the limits of what they know.
-- **Claude Sonnet streaming** — Anthropic Messages API SSE with a stored provider key, live token painting
-  and first-token metrics. OpenAI-compatible providers stream through their chat-completions endpoint.
-- **Downloads** — `downloads/eltes-windows.zip` ships `eltes.bat`, `Start-Eltes.ps1`, a Windows README
-  and the whole static site. Unzip, double-click, browser opens. macOS/Linux use any static server.
-- **Catalogue refresh** — 36 models across 13 providers, including Claude Sonnet 5.5, GPT‑6 Sol/Luna,
-  DeepSeek V4.1 Flash / V4 Pro, NVIDIA NIM and Eltes CAI.
-- **Docs completion** — every section is written; nothing is marked “coming soon”.
+| `index.html` | Landing page and model catalogue |
+| `app.html` | Chat workspace, streaming, local history, settings, custom endpoints |
+| `auth.html` | Local profile and provider-key utilities; it is not a hosted identity service |
+| `docs.html` | App, local-model, proxy, deployment, privacy, and troubleshooting guide |
 
 ## Features
 
-- **Real streaming only** — native Anthropic Messages API and OpenAI-compatible SSE, with a
-  non-streaming fallback. Missing keys, `401`, `403`, `429`, `404`, CORS failures and offline states each
-  get a typed card with retry and a key shortcut. No simulated answers.
-- **On-device fallback** — CAI handles Eltes help, model choice, arithmetic, percentages, units, dates,
-  word counts and AI definitions. It states plainly when a question needs a hosted model.
-- **Agent loop with real tools** — `calculate`, `current_time` and `search_history` execute locally and
-  feed results back to the model, up to four rounds. Every call renders as a card with arguments,
-  result and runtime.
-- **Designed chat surface** — step timeline, model/provider/on-device chips, first-token latency, total
-  time, tokens in/out, tokens per second, copyable and downloadable code, sandboxed HTML previews,
-  editable prompts and retry.
-- **Bring your own key** — keys live in `localStorage` and go straight from the tab to the provider.
-  Exports exclude them. A custom endpoint covers Ollama, vLLM, LiteLLM and local gateways.
-- **Local history you own** — grouped by date, pin, rename, clear, search with `⌘K`, export Markdown or
-  JSON, import a backup. Chats are normalised on load, so stale or malformed data cannot break the app.
-- **Optional accounts** — a local profile with editable bio and PNG/JPEG/WebP/GIF avatar plus per-provider
-  connection state, shared across pages via the `eltes:account` event. GitHub OAuth is intentionally not
-  enabled on the static build; do not paste personal access tokens into the browser.
-- **Honest pricing** — Eltes is free as a static workspace; hosted model calls need a provider key and
-  may be billed by that provider. CAI is local and key-free. No hosted Eltes plan is currently available.
-- **No emoji, no icon fonts** — inline Lucide vectors and real provider marks; Inter and JetBrains Mono
-  are bundled locally.
+- **Actual provider requests:** native Anthropic Messages API and OpenAI-compatible chat-completions APIs. Responses stream when enabled; errors are shown with retry guidance. Provider availability, model access, quotas, and billing are controlled by each provider.
+- **Bring your own key:** keys are stored in this browser's `localStorage`. Direct mode sends them from the tab to the selected provider. Optional proxy mode sends a key over HTTPS to the Vercel backend for that request; Eltes's function code does not persist or log the key. Use only a backend you trust. See [BYOK and proxy privacy](#byok-and-proxy-privacy).
+- **Local open models:** connect Ollama, LM Studio, vLLM, or another OpenAI-compatible server using the Custom endpoint setting. Model weights and inference stay on your own computer/server, subject to that runner's configuration.
+- **Eltes CAI:** a small deterministic, on-device helper for Eltes guidance, arithmetic, conversions, dates, and similar bounded tasks. It is not a powerful general-purpose LLM and does not train models.
+- **Local-first workspace:** chat history, profiles, settings, and exports are controlled in your browser. No analytics or telemetry are included.
+- **Agent tools:** local calculation, clock, and chat-history search can be offered to compatible hosted models. Tool results are sent back as part of the model request.
+- **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
 
-## Models
+## Run the app and local API
 
-36 entries across 13 providers: Anthropic, OpenAI, Google, Z.ai, DeepSeek, xAI, Qwen, Mistral, Groq,
-OpenRouter, NVIDIA NIM, Eltes CAI and a custom OpenAI-compatible endpoint. The picker marks every hosted model that
-has a connected account, streaming Claude entries with a live token dot, and CAI as `on-device`.
-
-## Publish on GitHub Pages
-
-The repository includes a GitHub Actions workflow that assembles the static site and deploys it to Pages
-on every push to `main`. The app confirms that a key is saved before a call; only the provider can confirm account access or free-tier eligibility. In the repository’s **Settings → Pages**, select **GitHub Actions** as the build
-and deployment source once. No API keys belong in GitHub Actions: browser keys stay in local storage and
-are sent directly from the user's browser to the selected provider. GitHub Pages serves static files; it
-cannot proxy provider API calls or provide free hosted model credits.
-
-## Run it locally
-
-No build step. Any static server works:
-
-```bash
-python3 -m http.server 4173
-# open http://127.0.0.1:4173/app.html
-```
-
-Or with npm:
+Requires Node.js 18 or newer. No build step is needed.
 
 ```bash
 npm install
 npm start
+# open http://localhost:4173/app.html
 ```
 
-Then either chat with **Eltes CAI-1** immediately or connect a provider under **Accounts** or
-**Settings → API keys**. Claude Sonnet 5.5 streams after an Anthropic key is saved. Eltes checks for a
-saved key before sending and offers a connect prompt when one is missing. There is no sample conversation.
+`npm start` serves the site and local API routes together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, and `/api/chat`. Stop the server with Ctrl+C. The local server has no user authentication; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`.
 
-### Windows
+For a static-only preview, Python also works:
 
-Download `downloads/eltes-windows.zip`, unzip it, and double-click `eltes.bat`. The launcher finds
-Python 3 or Node 18+, serves the folder on `127.0.0.1:4173` and opens the workspace. Optional flags:
-`--port 8080`, `--shortcut`, `--no-browser`. It is a readable batch file — no installer, no service, no
-registry writes.
+```bash
+python3 -m http.server 4173
+```
 
-## Validate
+A static-only server does not implement API routes; hosted keys go directly to providers unless you configure a separate proxy in **Settings → API keys**. The included Windows `.bat` launcher continues to serve the static site only; configure a Vercel backend in settings if you need proxy/key-test features there.
+
+## Connect a local open model
+
+The custom endpoint is compatible with common OpenAI-style chat-completions servers. For example, with Ollama installed:
+
+```bash
+ollama pull qwen3:8b
+ollama serve
+```
+
+In another terminal, run Eltes with `npm start`, then open **Settings → API keys → Custom endpoint** and set:
+
+- Base URL: `http://localhost:11434/v1`
+- Model ID: the model name exposed by your runner, such as `qwen3:8b`
+- Key: leave blank if the runner does not require one
+
+The app browser calls the local runner directly. Configure the runner's CORS/origin allowlist to permit the exact Eltes origin (for example, `http://localhost:4173`). A hosted HTTPS page generally cannot call a plain-HTTP localhost endpoint because browsers block mixed content; run Eltes locally instead. Keep the runner bound to loopback unless you intentionally want other devices to reach it.
+
+Eltes CAI is not a substitute for a large language model. Eltes does not train a frontier or otherwise powerful model from scratch. Running an open-weight model requires downloading its weights and enough RAM/VRAM for that model; fine-tuning requires a separate model-specific dataset, training stack, and compute. The custom endpoint connects to an already-running inference server; it does not perform training.
+
+## Optional Vercel proxy
+
+GitHub Pages remains a static host. The separate `api/` functions are for Vercel, or can run locally through `npm start`.
+
+1. Import this repository into a Vercel project with the root directory set to the repository root.
+2. Set the Vercel environment variable `ELTES_ALLOWED_ORIGINS` to a comma-separated list of exact allowed browser **origins**, with no paths or trailing slashes. Example:
+   `https://gefrus112.github.io,http://localhost:4173`
+3. Deploy the project. Vercel exposes `/api/health`, `/api/key-check`, and `/api/chat`.
+4. In Eltes **Settings → API keys → Optional Vercel/local backend**, enter the deployed origin, such as `https://your-project.vercel.app`, save, and check that the health test succeeds.
+5. Use **Test key** beside a saved provider key, or send a hosted-model message. Clear the backend URL to return to direct browser-to-provider mode.
+
+The proxy supports only provider hosts and provider/model pairs in `lib/providers.cjs`; it does not accept arbitrary upstream URLs. CORS is not authentication, and an origin allowlist only controls browser cross-origin use. Treat your Vercel project as trusted infrastructure, set provider spending limits, and monitor function usage. No provider key is configured in Vercel: each user supplies their own key with each request. The server code does not persist or log that key, but the key necessarily transits the backend and is visible to the backend platform while the request is processed. Do not use the proxy if you do not trust its operator/platform.
+
+The proxy cannot grant credits, confirm free-tier eligibility, or bypass provider account permissions. Provider pricing and access rules apply to every hosted request. GitHub Pages itself cannot run these functions.
+
+## BYOK and proxy privacy
+
+- Browser storage is local to the site origin and is not encrypted by Eltes. Anyone with access to the browser profile may be able to inspect it. Remove keys and clear site storage on shared devices.
+- Direct mode sends the key from your browser to the configured provider.
+- Proxy mode sends the key in an HTTPS request header to your chosen Vercel/local backend, then forwards it to the fixed provider endpoint. The API code does not write keys to files, databases, or logs. Vercel and the provider still process the request under their own infrastructure and policies.
+- Prompts, conversation history, and any enabled tool definitions/results are sent to the selected model service. Avoid sending sensitive content unless you accept that provider's terms.
+- Never add provider keys to source code, GitHub Pages, GitHub Actions, screenshots, issue reports, or a shared Vercel environment variable.
+
+## GitHub Pages
+
+The `.github/workflows/pages.yml` workflow publishes the static site. It does not deploy the API functions. GitHub Pages cannot process POST requests, proxy provider calls, hold server secrets, or provide free model credits. For proxy features, deploy the separate Vercel project; otherwise use direct mode or your own local model endpoint.
+
+## Windows launcher
+
+`downloads/eltes-windows.zip` includes the `.bat` launcher, PowerShell helper, static site, and documentation. Unzip and run `eltes.bat`; it opens the local workspace and serves only files. It does not start the Node API proxy. To use key testing and the proxy on Windows, configure a Vercel backend in Eltes settings. The launcher requires Windows 10/11 plus Python 3 or Node 18+.
+
+## Validate and rebuild
 
 ```bash
 npm install
 npm run validate:html
 npm run validate:css
+npm test
+npm run downloads:build
 ```
 
-Optional jsdom suites live outside the repo; the v3 pass covers landing, workspace, accounts, docs and
-the local CAI engine.
+The Windows ZIP is generated from the current source/docs and includes the current `LICENSE` and third-party `NOTICE.md`.
 
 ## Storage
 
-| Key | Contents |
+| Browser key | Contents |
 | --- | --- |
-| `eltes.account.v1` | Local profile |
 | `eltes.chats.v1` | Conversations |
-| `eltes.settings.v1` | Model, keys, preferences |
+| `eltes.settings.v1` | Model, provider keys, proxy URL, preferences |
 | `eltes.active.v1` | Open conversation |
-| `eltes.waitlist.v1` | Pricing waitlist emails (local only) |
+| `eltes.account.v1` | Optional local profile |
 
-Nothing is uploaded. Clearing site data removes all of it, so export a backup first.
+Storage is per browser and origin. Export chats before clearing site data.
 
-## License
+## License and reuse
 
-MIT. Third-party assets and their licenses are listed in `NOTICE.md`.
+This release is distributed under the restrictive terms in [`LICENSE`](LICENSE), not MIT. The source is publicly viewable because the repository is public; that does not grant permission to copy, redistribute, modify, or publish a clone. The license cannot technically prevent downloading or forking public files. The prior MIT-licensed versions remain subject to the rights granted with those releases; this change is not retroactive. Third-party assets retain their own licenses in [`NOTICE.md`](NOTICE.md). This is a project notice, not legal advice.

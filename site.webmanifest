@@ -1,7 +1,7 @@
 {
   "name": "Eltes AI — one workspace, every model",
   "short_name": "Eltes",
-  "description": "A local-first, browser-only AI agent workspace with real provider streaming, tool calling and bring-your-own-key.",
+  "description": "A local-first AI workspace with real provider streaming, optional BYOK proxy, and local open-model endpoints.",
   "id": "./",
   "start_url": "./app.html",
   "scope": "./",

@@ -37,9 +37,10 @@ OPTIONS
 
 OFFLINE AND PRIVACY
 -------------------
-The site is fully local: HTML, CSS, JavaScript and fonts. It contacts nothing
-except the model provider you connect. If a port is busy, the launcher picks the
-next free one and prints the URL.
+The launcher serves the static HTML, CSS, JavaScript and fonts locally. Hosted
+requests contact the provider you connect, or the Vercel backend if you configure
+one in Eltes settings. If a port is busy, the launcher picks the next free one
+and prints the URL. This static launcher does not run the local API proxy.
 
 Chat history, settings and provider keys live in your browser's localStorage.
 Replacing this folder with a newer build keeps them. Clearing site data removes
@@ -56,4 +57,5 @@ Browser blocks an API     Some providers refuse direct browser calls (CORS).
 Firewall prompt            The server listens on 127.0.0.1 only. Denying public
                            network access is fine.
 
-Eltes is open source. See LICENSE and NOTICE.md in this folder.
+The source is publicly viewable, but reuse is governed by LICENSE. Third-party
+components have their own terms in NOTICE.md.

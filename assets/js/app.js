@@ -42,6 +42,8 @@
     customBaseUrl: '',
     customModel: '',
     customKey: '',
+    backendUrl: '',
+    backendDisabled: false,
     stream: true,
     sendKey: 'enter',
     tools: false,
@@ -137,6 +139,38 @@
   const connectedKeyCount = () =>
     Object.values(state.settings.keys).filter(Boolean).length + (state.settings.customBaseUrl ? 1 : 0);
   const anyKeyConnected = () => connectedKeyCount() > 0;
+  let discoveredBackend = '';
+  function normalizeBackendUrl(value) {
+    const input = String(value || '').trim();
+    if (!input) return '';
+    try {
+      const url = new URL(input);
+      const localHost = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+      if ((!localHost && url.protocol !== 'https:') || (localHost && !['http:', 'https:'].includes(url.protocol)) ||
+          url.username || url.password || url.pathname !== '/' || url.search || url.hash) return null;
+      return url.origin;
+    } catch (error) { return null; }
+  }
+  function backendBase() {
+    const raw = String(state.settings.backendUrl || '').trim();
+    if (raw) return normalizeBackendUrl(raw) || '';
+    if (state.settings.backendDisabled) return '';
+    if (discoveredBackend) return discoveredBackend;
+    if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && location.port === '4173') return location.origin;
+    return '';
+  }
+  const proxyEnabled = (providerId) => !!backendBase() && providerId !== 'custom';
+  const backendPath = (path) => `${backendBase()}${path}`;
+  if (!state.settings.backendUrl && !state.settings.backendDisabled) {
+    fetch('/api/health', { credentials: 'omit' }).then((response) => response.ok ? response.json() : null)
+      .then((health) => {
+        if (health && health.service === 'eltes-byok-proxy' && !state.settings.backendUrl && !state.settings.backendDisabled) {
+          discoveredBackend = location.origin;
+          const hint = $('#backendHint');
+          if (hint) hint.textContent = `Local or same-origin proxy active: ${location.origin}`;
+        }
+      }).catch(() => {});
+  }
 
   const fmtMs = (ms) => (ms == null ? '—' : ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`);
   const fmtNum = (n) => (n == null ? '—' : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
@@ -1238,6 +1272,9 @@
     const customUrl = $('#customBaseUrl'); if (customUrl) customUrl.value = s.customBaseUrl || '';
     const customKey = $('#customKey'); if (customKey) customKey.value = s.customKey || '';
     const customModel = $('#customModel'); if (customModel) customModel.value = s.customModel || '';
+    const backendUrl = $('#backendUrl'); if (backendUrl) backendUrl.value = s.backendUrl || '';
+    const backendHint = $('#backendHint');
+    if (backendHint) backendHint.textContent = backendBase() ? `Proxy active: ${backendBase()}` : 'Proxy off — hosted requests go directly from this browser to the provider.';
     const defaultLabel = $('#defaultModelLabel');
     if (defaultLabel) defaultLabel.textContent = M.byId(s.model).name;
     document.body.classList.toggle('compact', s.density === 'compact');
@@ -1304,10 +1341,12 @@
             </label>
             <div class="key-actions">
               <button class="btn btn-ghost btn-sm" data-save-key="${id}">Save</button>
+              ${connected ? `<button class="btn btn-ghost btn-sm" type="button" data-test-key="${id}">Test key</button>` : ''}
               ${connected ? `<button class="icon-btn" data-remove-key="${id}" aria-label="Remove key" title="Remove">${ic('trash-2', 14)}</button>` : ''}
             </div>
           </div>
           <div class="key-help"><span data-icon="lock" data-icon-size="10"></span>Stored locally · ${p.keyUrl ? `<a href="${p.keyUrl}" target="_blank" rel="noreferrer">get a ${esc(p.name.split(' · ')[0])} key</a>` : 'your own endpoint'}</div>
+          ${connected ? `<div class="key-help" data-test-status="${id}" aria-live="polite"></div>` : ''}
         </div>`;
       })
       .join('');
@@ -1324,7 +1363,30 @@
     if (btn) btn.click();
   });
 
-  els.keyList.addEventListener('click', (e) => {
+  els.keyList.addEventListener('click', async (e) => {
+    const test = e.target.closest('[data-test-key]');
+    if (test) {
+      const id = test.dataset.testKey;
+      const status = els.keyList.querySelector(`[data-test-status="${id}"]`);
+      const base = backendBase();
+      if (!base) { toast('Configure a Vercel proxy, or run the local backend, to test keys', 'triangle-alert'); return; }
+      test.disabled = true;
+      if (status) status.textContent = 'Checking with the provider…';
+      try {
+        const response = await fetch(backendPath('/api/key-check'), {
+          method: 'POST', headers: { 'content-type': 'application/json', 'x-eltes-provider-key': state.settings.keys[id] || '' },
+          body: JSON.stringify({ provider: id }), credentials: 'omit'
+        });
+        const result = await response.json();
+        const message = result.message || (response.ok ? 'The provider responded.' : 'Key check failed.');
+        if (status) status.textContent = message;
+        toast(message, result.valid ? 'check' : 'triangle-alert');
+      } catch (error) {
+        if (status) status.textContent = 'Could not reach the configured backend.';
+        toast('Could not reach the configured backend', 'triangle-alert');
+      } finally { test.disabled = false; }
+      return;
+    }
     const reveal = e.target.closest('[data-reveal]');
     if (reveal) {
       const input = els.keyList.querySelector(`[data-key-input="${reveal.dataset.reveal}"]`);
@@ -1365,6 +1427,22 @@
       renderModelList(els.modelSearch.value);
       toast(`${M.PROVIDERS[remove.dataset.removeKey].name} key removed`, 'trash-2');
     }
+  });
+
+  $('#backendSave').addEventListener('click', async () => {
+    const input = ($('#backendUrl').value || '').trim();
+    const raw = normalizeBackendUrl(input);
+    if (raw === null) { toast('Use an HTTPS backend origin, or HTTP only for localhost (no path)', 'triangle-alert'); return; }
+    state.settings.backendUrl = raw;
+    state.settings.backendDisabled = !raw;
+    persistNow();
+    applySettingsToUI();
+    if (!backendBase()) { toast('Direct browser-to-provider mode enabled', 'check'); return; }
+    try {
+      const response = await fetch(backendPath('/api/health'), { credentials: 'omit' });
+      if (!response.ok) throw new Error('Backend returned an error');
+      toast('Backend connected', 'check');
+    } catch (error) { toast('Backend saved, but health check failed', 'triangle-alert'); }
   });
 
   $('#customSave').addEventListener('click', () => {
@@ -2347,7 +2425,7 @@
       return {
         title: `Could not reach ${p.name}.`,
         detail: 'Browsers block some direct API calls. This is usually CORS, an ad-blocker or an offline network.',
-        hint: 'Your key stays local. Try again, use another provider, or point a custom endpoint at a proxy.',
+        hint: 'Your key remains in this browser. Retry, use another provider, or configure the optional Vercel/local backend in Settings → API keys.',
         provider: model.provider
       };
     }
@@ -2378,12 +2456,18 @@
 
     const headers = { 'content-type': 'application/json' };
     if (key) headers.authorization = `Bearer ${key}`;
-    if (provider.name === 'OpenRouter') {
+    const proxied = proxyEnabled(model.provider);
+    if (proxied) {
+      headers['x-eltes-provider-key'] = key;
+      delete headers.authorization;
+      body.provider = model.provider;
+    }
+    if (!proxied && provider.name === 'OpenRouter') {
       headers['HTTP-Referer'] = location.origin;
       headers['X-Title'] = 'Eltes';
     }
 
-    const res = await fetch(`${base}/chat/completions`, {
+    const res = await fetch(proxied ? backendPath('/api/chat') : `${base}/chat/completions`, {
       method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal,
       mode: 'cors', credentials: 'omit'
     });
@@ -2467,13 +2551,11 @@
     if (tools) {
       body.tools = TOOL_DEFS.map((t) => ({ name: t.name, description: t.description, input_schema: t.parameters }));
     }
-    const headers = {
-      'content-type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    };
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const proxied = proxyEnabled('anthropic');
+    const headers = { 'content-type': 'application/json' };
+    if (proxied) { headers['x-eltes-provider-key'] = key; body.provider = 'anthropic'; }
+    else Object.assign(headers, { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' });
+    const res = await fetch(proxied ? backendPath('/api/chat') : 'https://api.anthropic.com/v1/messages', {
       method: 'POST', headers, body: JSON.stringify(body), signal: controller.signal,
       mode: 'cors', credentials: 'omit'
     });
@@ -2558,11 +2640,17 @@
     }
     const headers = { 'content-type': 'application/json' };
     if (key) headers.authorization = `Bearer ${key}`;
-    if (provider.name === 'OpenRouter') {
+    const proxied = proxyEnabled(model.provider);
+    if (proxied) {
+      headers['x-eltes-provider-key'] = key;
+      delete headers.authorization;
+      body.provider = model.provider;
+    }
+    if (!proxied && provider.name === 'OpenRouter') {
       headers['HTTP-Referer'] = location.origin;
       headers['X-Title'] = 'Eltes';
     }
-    const res = await fetch(`${base}/chat/completions`, {
+    const res = await fetch(proxied ? backendPath('/api/chat') : `${base}/chat/completions`, {
       method: 'POST', headers, body: JSON.stringify(body), mode: 'cors', credentials: 'omit', signal: controller.signal
     });
     if (!res.ok) throw await httpError(res);
@@ -2588,13 +2676,11 @@
     if (tools) {
       body.tools = TOOL_DEFS.map((t) => ({ name: t.name, description: t.description, input_schema: t.parameters }));
     }
-    const headers = {
-      'content-type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    };
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const proxied = proxyEnabled('anthropic');
+    const headers = { 'content-type': 'application/json' };
+    if (proxied) { headers['x-eltes-provider-key'] = key; body.provider = 'anthropic'; }
+    else Object.assign(headers, { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' });
+    const res = await fetch(proxied ? backendPath('/api/chat') : 'https://api.anthropic.com/v1/messages', {
       method: 'POST', headers, body: JSON.stringify(body), mode: 'cors', credentials: 'omit', signal: controller.signal
     });
     if (!res.ok) throw await httpError(res);

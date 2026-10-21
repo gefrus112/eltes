@@ -288,3 +288,26 @@ test('the MCP client stays out of the page until it is asked', () => {
   assert.equal(/eval\(|new Function/.test(source), false, 'no dynamic evaluation');
   assert.equal(source.includes('localStorage.setItem'), false, 'storage is injected, not global');
 });
+
+test('every published surface ships the bridges and the Studio plugin', async () => {
+  const pages = fs.readFileSync(path.join(ROOT, '.github/workflows/pages.yml'), 'utf8');
+  assert.match(pages, /cp -R assets downloads mcp _site\//, 'Pages must copy mcp/ next to assets/');
+
+  const build = await import(path.join(ROOT, 'desktop/build.mjs'));
+  assert.ok(build.SITE_ENTRIES.includes('mcp'), 'the desktop installer serves the same MCP tab');
+
+  const edge = fs.readFileSync(path.join(ROOT, 'supabase/functions/site-publish/index.ts'), 'utf8');
+  assert.match(edge, /\^mcp\\\//, 'the Supabase mirror must accept mcp/ paths');
+});
+
+test('the connector copy points at a file the site actually ships', () => {
+  const app = fs.readFileSync(path.join(ROOT, 'assets/js/app.js'), 'utf8');
+  assert.match(app, /const SITE_ORIGIN = 'https:\/\/gefrus112\.github\.io\/eltes'/);
+  assert.match(app, /\$\{SITE_ORIGIN\}\/mcp\/\$\{file\}/, 'the .bat/.sh fetch from this site');
+  for (const file of ['eltes-mcp-bridge.mjs', 'eltes-roblox-bridge.mjs']) {
+    assert.ok(app.includes(file), `${file} is offered as a preset bridge`);
+    assert.ok(fs.existsSync(path.join(ROOT, 'mcp', file)), `${file} must exist in mcp/`);
+  }
+  assert.match(app, /href="mcp\/EltesRobloxBridge\.lua"/, 'the plugin is a direct download');
+  assert.ok(fs.existsSync(path.join(ROOT, 'mcp/EltesRobloxBridge.lua')), 'the plugin exists');
+});

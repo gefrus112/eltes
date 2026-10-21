@@ -25,7 +25,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html app.html auth.html docs.html news.html studio.html train.html 404.html site.webmanifest config.js _site/
-          cp -R assets downloads _site/
+          cp -R assets downloads mcp _site/
           touch _site/.nojekyll
           REPO_NAME="${GITHUB_REPOSITORY##*/}"
           if [[ "$REPO_NAME" == *.github.io ]]; then PAGES_BASE="/"; else PAGES_BASE="/${REPO_NAME}/"; fi

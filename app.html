@@ -203,7 +203,7 @@
     <div class="dlg welcome-setup-body">
       <div class="dlg-head">
         <span class="welcome-cloud-mark" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-        <div><h3 id="welcomeSetupTitle">Set up your workspace</h3><div class="sub">Choose how to start, then make Eltes yours.</div></div>
+        <div><h3 id="welcomeSetupTitle">Set up your workspace</h3><div class="sub">Choose how to start, then explicitly connect the files and tools you want.</div></div>
         <span class="grow"></span>
         <button class="icon-btn" data-close="welcomeSetupDialog" aria-label="Close quick setup" data-icon="x" data-icon-size="17"></button>
       </div>
@@ -220,7 +220,12 @@
         </section>
         <section class="welcome-setup-step">
           <span class="welcome-step-number">03</span>
-          <div class="welcome-step-copy"><strong>Your workspace, your choice</strong><span>Chats, settings, and keys stay in this browser. Use Files to select one folder; only files you add to the draft are shared when you send. Hosted prompts go to that provider. Terminal runs through a separate local runner, not inside an existing ChromeOS Terminal session.</span></div>
+          <div class="welcome-step-copy"><strong>Connect files and local commands</strong><span>Installing Eltes does not grant blanket access to your computer. Choose a folder to add files to drafts, or set up the opt-in local runner for approved commands. It cannot attach to an existing ChromeOS Terminal session.</span></div>
+          <div class="welcome-step-actions"><button id="setupOpenFilesBtn" class="btn btn-ghost btn-sm" type="button"><span data-icon="folder-open" data-icon-size="13"></span>Choose files</button><button id="setupOpenTerminalBtn" class="btn btn-ghost btn-sm" type="button"><span data-icon="terminal" data-icon-size="13"></span>Set up local commands</button></div>
+        </section>
+        <section class="welcome-setup-step">
+          <span class="welcome-step-number">04</span>
+          <div class="welcome-step-copy"><strong>Your workspace, your choice</strong><span>Chats, settings, and keys stay in this browser. Only files you add to the draft are shared when you send. Hosted prompts go to that provider. Local commands run under the local server account after your approval.</span></div>
         </section>
         <div class="welcome-setup-footer"><span>Reopen with <span class="kbd">⌘</span><span class="kbd">K</span> → “Quick setup”.</span><button id="finishWelcomeSetupBtn" class="btn btn-primary btn-sm" type="button">Finish setup</button></div>
       </div>
@@ -637,7 +642,7 @@
       </div>
       <div class="local-shell-content">
         <div class="local-shell-warning"><span data-icon="triangle-alert" data-icon-size="15" aria-hidden="true"></span><span>Commands can read, change, or delete files with the server user’s permissions. Every command is shown for approval first. Output is returned to the selected model. Use only on a computer you control.</span></div>
-        <p class="local-shell-setup">Start the Eltes Node server locally with shell support enabled. Bash/macOS/Linux: <code>ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start</code>. PowerShell: <code>$env:ELTES_ENABLE_SHELL=1; $env:HOST='127.0.0.1'; npm start</code>. On Chromebook, start it from the Linux development terminal and use the local Eltes page, not the hosted PWA. Copy the one-time token printed by the server. It runs new commands as the server user; it does not attach to or read an existing terminal session. After connecting, turn on Tools and use a hosted model. This runner is unavailable on GitHub Pages or Vercel.</p>
+        <p class="local-shell-setup">Start the Eltes Node server locally with shell support enabled. Bash/macOS/Linux: <code>ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start</code>. PowerShell: <code>$env:ELTES_ENABLE_SHELL=1; $env:HOST='127.0.0.1'; npm start</code>. On Chromebook, start it from the Linux development terminal and use the local Eltes page, not the hosted PWA. Copy the one-time token printed by the server. It runs new commands as the server user; it does not attach to or read an existing terminal session. Python commands such as <code>python3 --version</code> work only if Python is installed in that same environment; each command starts a new process, not an interactive Python session. After connecting, turn on Tools and use a hosted model. This runner is unavailable on GitHub Pages or Vercel.</p>
         <label class="local-shell-label" for="localShellToken">One-time pairing token</label>
         <input id="localShellToken" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste token from your local server terminal" />
         <div class="local-shell-actions">

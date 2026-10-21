@@ -1250,12 +1250,27 @@
     closeDialog(welcomeSetupDialog);
     openConnect();
   });
+  $('#setupOpenFilesBtn').addEventListener('click', () => {
+    closeDialog(welcomeSetupDialog);
+    $('#workspaceFilesBtn').click();
+  });
+  $('#setupOpenTerminalBtn').addEventListener('click', () => {
+    closeDialog(welcomeSetupDialog);
+    $('#localShellBtn').click();
+  });
 
   const setupInstallButton = $('#setupInstallPwaBtn');
   const setupInstallStatus = $('#setupInstallStatus');
+  const POST_INSTALL_SETUP_KEY = 'eltes.pwa.local-access-setup.v1';
   const isStandaloneApp = () => !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   if (isStandaloneApp()) {
-    setupInstallStatus.textContent = 'Eltes is already installed as an app on this device.';
+    setupInstallStatus.textContent = 'Eltes is installed. Installation does not grant file or terminal access; choose those connections below.';
+    try {
+      if (localStorage.getItem(POST_INSTALL_SETUP_KEY) !== '1') {
+        localStorage.setItem(POST_INSTALL_SETUP_KEY, '1');
+        setTimeout(openWelcomeSetup, 450);
+      }
+    } catch { /* The setup guide remains available from Quick setup. */ }
   }
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
@@ -1285,7 +1300,9 @@
   window.addEventListener('appinstalled', () => {
     installPromptEvent = null;
     setupInstallButton.hidden = true;
-    setupInstallStatus.textContent = 'Eltes is installed. Open it from your app launcher.';
+    setupInstallStatus.textContent = 'Eltes is installed. Open it from your app launcher, then choose files or set up the opt-in local runner below. Installation grants no computer access by itself.';
+    try { localStorage.setItem(POST_INSTALL_SETUP_KEY, '1'); } catch { /* This page can still show the guide. */ }
+    openWelcomeSetup();
   });
 
   $('#agentInstructionsBtn').addEventListener('click', () => {

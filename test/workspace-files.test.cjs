@@ -27,4 +27,7 @@ test('terminal guidance does not claim hosted-PWA access or attachment to an exi
   assert.match(html, /does not attach to or read an existing terminal session/i);
   assert.match(docs, /does not attach to or read an existing Terminal session/i);
   assert.match(docs, /installed hosted PWA uses the same origin as the website and cannot run Chromebook terminal commands itself/i);
+  assert.match(html, /python3 --version/);
+  assert.match(html, /not an interactive Python session/);
+  assert.match(docs, /Python commands work only if Python is installed in the same Linux environment/);
 });

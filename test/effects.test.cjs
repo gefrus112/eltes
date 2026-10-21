@@ -226,7 +226,7 @@ test('the news page shows screenshots of the current project', async () => {
 
 test('version is bumped and the new stylesheet is validated', async () => {
   const pkg = JSON.parse(await read('package.json'));
-  assert.equal(pkg.version, '3.19.0');
+  assert.equal(pkg.version, '3.20.0');
   assert.match(pkg.scripts['validate:html'], /news\.html/);
   assert.match(pkg.scripts['validate:css'], /news\.css/);
   await read('assets/css/news.css');

@@ -40,6 +40,30 @@ window.EltesReelUI = (function () {
   let cancelExport = false;
   let onExit = null;
 
+  // Pane filters and the free-music bench (kept out of the project document:
+  // browsing the library is not an edit).
+  const lookFilter = { family: 'all' };
+  const titleFilter = { family: 'all' };
+  const freeCache = new Map();
+  let tuneAudio = null;
+  let tunePlaying = '';
+
+  // A colour script per family, so every look card gets its own little scene.
+  // Hues drift with the card index, then the look's own filter is applied on
+  // top — the same maths the canvas runs, so the card previews the edit.
+  const LOOK_ART = {
+    cinema: { sky: [206, 32, 44], sun: [38, 84, 72], ground: [206, 26, 16], ink: [210, 22, 7] },
+    retro: { sky: [32, 76, 62], sun: [44, 94, 78], ground: [18, 42, 30], ink: [22, 32, 10] },
+    neon: { sky: [258, 58, 24], sun: [318, 90, 66], ground: [232, 58, 13], ink: [252, 54, 5] },
+    film: { sky: [38, 26, 42], sun: [42, 66, 64], ground: [28, 22, 22], ink: [30, 18, 9] },
+    golden: { sky: [34, 86, 60], sun: [48, 96, 78], ground: [22, 58, 28], ink: [24, 42, 9] },
+    arctic: { sky: [196, 60, 60], sun: [186, 76, 84], ground: [208, 46, 42], ink: [212, 42, 16] },
+    mono: { sky: [220, 6, 52], sun: [220, 8, 88], ground: [220, 5, 26], ink: [220, 5, 8] },
+    dream: { sky: [286, 56, 63], sun: [318, 84, 84], ground: [252, 44, 38], ink: [268, 40, 12] },
+    glitch: { sky: [174, 60, 30], sun: [320, 88, 62], ground: [198, 56, 15], ink: [202, 44, 6] },
+    vivid: { sky: [212, 84, 55], sun: [46, 96, 68], ground: [142, 58, 33], ink: [204, 44, 9] }
+  };
+
   /* ------------------------------ persistence ----------------------------- */
 
   function loadProject() {
@@ -317,7 +341,10 @@ window.EltesReelUI = (function () {
       const source = sources.get(clip.mediaId);
       const video = source && source.el;
       if (!video || video.readyState < 2) continue;
-      const target = clamp((clip.in || 0) + (time - clip.start), 0, Math.max(0, (video.duration || 0) - 0.05));
+      const target = clamp(R().sourceTime(clip, time), 0, Math.max(0, (video.duration || 0) - 0.05));
+      if (video.playbackRate !== R().clipSpeed(clip)) {
+        try { video.playbackRate = R().clipSpeed(clip); } catch (error) { /* the browser caps it */ }
+      }
       if (Math.abs(video.currentTime - target) > 0.22) {
         try { video.currentTime = target; } catch (error) { /* not seekable yet */ }
       }
@@ -393,6 +420,7 @@ window.EltesReelUI = (function () {
 
   function play() {
     if (playing) return;
+    stopTunePreview();
     el.side.classList.remove('open');
     el.inspector.classList.remove('open');
     playing = true;
@@ -524,7 +552,7 @@ window.EltesReelUI = (function () {
     }
     el.musicList.innerHTML = project.music.map((track) => {
       const source = sources.get(track.mediaId);
-      const name = source ? source.file.name : (project.media.find((m) => m.id === track.mediaId) || {}).name || track.name;
+      const name = track.name || (source ? source.file.name : '') || (project.media.find((m) => m.id === track.mediaId) || {}).name || 'Music';
       return `<article class="reel-track-item" data-track-id="${track.id}">
         <span class="reel-media-thumb">${icon('volume-2', 15)}</span>
         <span class="reel-media-main"><strong>${escapeHtml(name)}</strong>
@@ -663,6 +691,22 @@ window.EltesReelUI = (function () {
       </div>
       ${clip.kind === 'video' ? `<label class="reel-row single">Source in<input class="reel-input" type="number" min="0" step="0.1" id="insIn" value="${Number(clip.in || 0).toFixed(2)}" /></label>` : ''}
     </div>`);
+
+    if (clip.kind === 'video') {
+      const speed = R().clipSpeed(clip);
+      const source = sources.get(clip.mediaId);
+      const available = source && source.duration ? source.duration : 0;
+      const used = (Number(clip.duration) || 0) * speed;
+      parts.push(`<div class="reel-group"><h5>Speed <em class="reel-count">${speed.toFixed(2)}×</em></h5>
+        <div class="reel-speed-row">
+          ${SPEEDS.map((value) => `<button type="button" class="reel-chip${Math.abs(speed - value) < 0.001 ? ' on' : ''}" data-speed="${value}">${value}×</button>`).join('')}
+        </div>
+        <label class="reel-slider"><span>Custom</span>
+          <input class="reel-input" type="range" id="insSpeed" min="${R().SPEED_MIN}" max="${R().SPEED_MAX}" step="0.05" value="${speed}" />
+          <output>${speed.toFixed(2)}×</output></label>
+        <p class="reel-hint">${available ? `This clip uses ${used.toFixed(1)} s of a ${available.toFixed(1)} s source.` : 'Speed squeezes or stretches the source.'} Changing it re-times the clip so the same stretch of footage stays on screen.</p>
+      </div>`);
+    }
 
     if (clip.kind === 'text') {
       const text = clip.text || {};
@@ -874,7 +918,7 @@ window.EltesReelUI = (function () {
         presets.addEventListener('click', (event) => {
           const button = event.target.closest('[data-fx]');
           if (!button) return;
-          const preset = R().EFFECT_PRESETS.find((entry) => entry.id === button.dataset.fx);
+          const preset = R().look(button.dataset.fx);
           if (!preset) return;
           commit(() => {
             clip.filter = Object.assign({}, R().FILTER_DEFAULTS, preset.filter);
@@ -957,6 +1001,32 @@ window.EltesReelUI = (function () {
         before = null;
       });
     }
+    const speedRange = el.inspector.querySelector('#insSpeed');
+    if (speedRange) {
+      let beforeSpeed = null;
+      const output = speedRange.parentElement.querySelector('output');
+      const snapSpeed = () => { beforeSpeed = snapshot(); };
+      speedRange.addEventListener('pointerdown', snapSpeed);
+      speedRange.addEventListener('keydown', snapSpeed);
+      speedRange.addEventListener('input', () => {
+        if (!setClipSpeed(clip, Number(speedRange.value))) return;
+        if (output) output.textContent = `${R().clipSpeed(clip).toFixed(2)}×`;
+        draw(playhead);
+        renderTimeline();
+        updateTransport();
+      });
+      speedRange.addEventListener('change', () => {
+        if (beforeSpeed && snapshot() !== beforeSpeed) {
+          undoStack.push(beforeSpeed);
+          if (undoStack.length > 60) undoStack.shift();
+          redoStack.length = 0;
+          save();
+        }
+        beforeSpeed = null;
+        renderInspector();
+      });
+    }
+
     once('#insAnimIn', (value) => { clip.animation.in = value; });
     once('#insAnimOut', (value) => { clip.animation.out = value; });
     once('#insInDur', (value) => { clip.animation.inDur = value; });
@@ -1063,7 +1133,7 @@ window.EltesReelUI = (function () {
         const applied = clamp(delta, -original.start, maxDelta);
         item.start = original.start + applied;
         item.duration = original.duration - applied;
-        if (!drag.music && item.kind !== 'text') item.in = Math.max(0, (original.in || 0) + applied);
+        if (!drag.music && item.kind !== 'text') item.in = Math.max(0, (original.in || 0) + applied * R().clipSpeed(original));
       } else {
         const next = R().snapTime(Math.max(original.start + 0.2, original.start + original.duration + dx), points, 6 / pxPerSec(), settings.snap);
         item.duration = Math.max(0.2, next - original.start);
@@ -1116,6 +1186,307 @@ window.EltesReelUI = (function () {
     }
   }
 
+  /* --------------------------- the library panes --------------------------- */
+
+  const hsl = (h, s, l) => `hsl(${Math.round(((h % 360) + 360) % 360)} ${Math.round(clamp(s, 0, 100))}% ${Math.round(clamp(l, 0, 100))}%)`;
+
+  /** The inline style that gives a look card its own little picture. */
+  function lookArtStyle(look, index) {
+    const art = LOOK_ART[look.family] || LOOK_ART.cinema;
+    const drift = (index % 9) - 4;
+    const shift = (Number(look.filter && look.filter.hue) || 0) * 0.5;
+    const overlay = look.overlay || {};
+    return [
+      `--sky:${hsl(art.sky[0] + drift * 2.5 + shift, art.sky[1] + drift, art.sky[2] + drift * 1.6)}`,
+      `--sun:${hsl(art.sun[0] + drift * 1.5 + shift, art.sun[1], art.sun[2] + drift)}`,
+      `--ground:${hsl(art.ground[0] + drift * 2 + shift, art.ground[1], art.ground[2] + drift)}`,
+      `--ink:${hsl(art.ink[0] + shift, art.ink[1], art.ink[2])}`,
+      `--vig:${Number(overlay.vignette) || 0}`,
+      `--leak:${Number(overlay.leak) || 0}`,
+      `--scan:${Number(overlay.scanline) || 0}`,
+      `--grain:${Number(overlay.grain) || 0}`,
+      `filter:${R().effectFilter(look.filter)}`
+    ].join(';');
+  }
+
+  function buildLooks() {
+    if (!el.looks) return;
+    const looks = R().looks();
+    const lib = window.EltesReelLibrary;
+    const families = (lib && Array.isArray(lib.EFFECT_FAMILIES)) ? lib.EFFECT_FAMILIES : [];
+    if (el.lookFamilies) {
+      el.lookFamilies.innerHTML = `<button type="button" class="reel-chip on" data-look-family="all">All <b>${looks.length}</b></button>`
+        + families.map((family) => `<button type="button" class="reel-chip" data-look-family="${family.id}">${escapeHtml(family.name)} <b>${looks.filter((look) => look.family === family.id).length}</b></button>`).join('');
+    }
+    el.looks.innerHTML = looks.map((look, index) => `<button type="button" class="reel-look" data-look="${look.id}" data-family="${look.family || 'classic'}" data-name="${escapeAttr(look.name.toLowerCase())}" title="${escapeAttr(`${look.name} — ${look.familyName || 'look'}`)}">
+        <span class="reel-look-art" style="${lookArtStyle(look, index)}"><i class="leak"></i><i class="scan"></i><i class="grain"></i></span>
+        <span class="reel-look-name">${escapeHtml(look.name)}</span>
+      </button>`).join('');
+    filterLooks();
+  }
+
+  function filterLooks() {
+    if (!el.looks) return;
+    const query = String(el.lookSearch ? el.lookSearch.value : '').trim().toLowerCase();
+    let shown = 0;
+    el.looks.querySelectorAll('.reel-look').forEach((card) => {
+      const match = (lookFilter.family === 'all' || card.dataset.family === lookFilter.family)
+        && (!query || card.dataset.name.includes(query) || card.dataset.family.includes(query));
+      card.hidden = !match;
+      if (match) shown += 1;
+    });
+    if (el.lookCount) el.lookCount.textContent = `${shown} of ${R().looks().length}`;
+    if (el.lookFamilies) {
+      el.lookFamilies.querySelectorAll('[data-look-family]').forEach((chip) => {
+        const on = chip.dataset.lookFamily === lookFilter.family;
+        chip.classList.toggle('on', on);
+        chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+  }
+
+  function titleCardStyle(text) {
+    const style = [
+      `color:${text.color || '#ffffff'}`,
+      `font-family:${text.font === 'JetBrains Mono' ? "'JetBrains Mono', ui-monospace, monospace" : 'Inter, system-ui, sans-serif'}`,
+      `font-weight:${Number(text.weight) || 600}`,
+      `font-size:${Math.round(clamp(8 + (Number(text.size) || 0.05) * 32, 9, 15))}px`,
+      `letter-spacing:${Number(text.spacing) || 0}em`,
+      `text-transform:${text.uppercase ? 'uppercase' : 'none'}`,
+      `text-align:${text.align || 'center'}`
+    ];
+    if (text.bg) style.push(`background:${text.bg}`, 'padding:4px 8px', 'border-radius:5px');
+    if (Number(text.stroke) > 0) style.push(`-webkit-text-stroke:${Math.max(1, Math.round(Number(text.stroke) * 26))}px ${text.strokeColor || '#000000'}`);
+    if (Number(text.shadow) > 0) style.push(`text-shadow:0 2px 8px rgba(0,0,0,${Number(text.shadow)})`);
+    return style.join(';');
+  }
+
+  function buildTitles() {
+    if (!el.titles) return;
+    const list = R().titles();
+    const families = window.EltesReelLibrary && Array.isArray(window.EltesReelLibrary.TITLE_FAMILIES)
+      ? window.EltesReelLibrary.TITLE_FAMILIES
+      : [];
+    if (el.titleFamilies) {
+      el.titleFamilies.innerHTML = `<button type="button" class="reel-chip on" data-title-family="all">All <b>${list.length}</b></button>`
+        + families.map((family) => `<button type="button" class="reel-chip" data-title-family="${family.id}">${escapeHtml(family.name)} <b>${list.filter((title) => title.family === family.id).length}</b></button>`).join('');
+    }
+    el.titles.innerHTML = list.map((preset) => `<button type="button" class="reel-title" data-text="${preset.id}" data-family="${preset.family}" data-name="${escapeAttr(`${preset.name} ${preset.familyName} ${preset.sample}`.toLowerCase())}" title="${escapeAttr(preset.name)}">
+        <span class="reel-title-art"><span style="${escapeAttr(titleCardStyle(preset.text || {}))}">${escapeHtml(preset.sample)}</span></span>
+        <span class="reel-title-meta"><strong>${escapeHtml(preset.name)}</strong><small>${escapeHtml(preset.familyName)} · ${escapeHtml((preset.animation || {}).in || 'fade')}</small></span>
+      </button>`).join('');
+    filterTitles();
+  }
+
+  function filterTitles() {
+    if (!el.titles) return;
+    const query = String(el.titleSearch ? el.titleSearch.value : '').trim().toLowerCase();
+    let shown = 0;
+    el.titles.querySelectorAll('.reel-title').forEach((card) => {
+      const match = (titleFilter.family === 'all' || card.dataset.family === titleFilter.family)
+        && (!query || card.dataset.name.includes(query));
+      card.hidden = !match;
+      if (match) shown += 1;
+    });
+    if (el.titleCount) el.titleCount.textContent = `${shown} of ${R().titles().length}`;
+    if (el.titleFamilies) {
+      el.titleFamilies.querySelectorAll('[data-title-family]').forEach((chip) => {
+        const on = chip.dataset.titleFamily === titleFilter.family;
+        chip.classList.toggle('on', on);
+        chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+  }
+
+  function buildTemplates() {
+    if (!el.templates) return;
+    const list = R().templates();
+    const lib = window.EltesReelMusic;
+    el.templates.innerHTML = list.map((tpl) => {
+      const aspect = tpl.width > tpl.height ? '16:9' : (tpl.width === tpl.height ? '1:1' : '9:16');
+      const track = lib && lib.trackById(tpl.music);
+      return `<button type="button" class="reel-template" data-template="${tpl.id}" data-name="${escapeAttr(`${tpl.name} ${tpl.tag} ${tpl.blurb}`.toLowerCase())}" style="--tpl:${tpl.background || '#05060a'}">
+          <span class="reel-template-art" aria-hidden="true"><i style="--w:64%;--y:32%"></i><i style="--w:42%;--y:50%"></i><i style="--w:28%;--y:64%"></i></span>
+          <span class="reel-template-main">
+            <strong>${escapeHtml(tpl.name)}</strong>
+            <small>${escapeHtml(tpl.tag)} · ${aspect}${track ? ` · ${escapeHtml(track.name)}` : ''}</small>
+            <em>${escapeHtml(tpl.blurb)}</em>
+          </span>
+          <span class="reel-template-go">Use</span>
+        </button>`;
+    }).join('');
+    if (el.templateCount) el.templateCount.textContent = `${list.length} free`;
+    filterTemplates();
+  }
+
+  function filterTemplates() {
+    if (!el.templates) return;
+    const query = String(el.templateSearch ? el.templateSearch.value : '').trim().toLowerCase();
+    el.templates.querySelectorAll('.reel-template').forEach((card) => {
+      card.hidden = !!query && !card.dataset.name.includes(query);
+    });
+  }
+
+  function renderBench() {
+    if (!el.bench) return;
+    const lib = window.EltesReelMusic;
+    if (!lib || !Array.isArray(lib.TRACKS)) {
+      el.bench.innerHTML = '<p class="reel-hint">The free music bench did not load.</p>';
+      return;
+    }
+    el.bench.innerHTML = lib.TRACKS.map((track) => `<article class="reel-tune" data-tune="${track.id}" style="--tune:${track.color || '#39dca2'}">
+        <span class="reel-tune-art" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="reel-tune-main">
+          <strong>${escapeHtml(track.name)}</strong>
+          <small>${escapeHtml(track.mood)} · ${track.bpm} BPM · ${lib.durationOf(track).toFixed(0)} s</small>
+          <em>${escapeHtml(track.desc || '')}</em>
+        </span>
+        <span class="reel-tune-acts">
+          <button type="button" data-act="tune-preview" data-id="${track.id}" title="Preview — rendered in this tab">${icon('play', 12)}</button>
+          <button type="button" data-act="tune-add" data-id="${track.id}" title="Add to the timeline">${icon('plus', 12)} Add</button>
+        </span>
+      </article>`).join('');
+    if (el.tuneCount) el.tuneCount.textContent = `${lib.TRACKS.length} tracks`;
+  }
+
+  /** Render one free track to a cached WAV File. Rendering is pure maths. */
+  function freeTrackEntry(track) {
+    const lib = window.EltesReelMusic;
+    if (!lib || !track) return null;
+    const cached = freeCache.get(track.id);
+    if (cached) return cached;
+    let bytes = null;
+    try { bytes = lib.wavBytes(track); } catch (error) { bytes = null; }
+    if (!bytes) { toast('This browser could not render the track'); return null; }
+    const blob = new Blob([bytes], { type: 'audio/wav' });
+    const file = new File([blob], `${track.name}.wav`, { type: 'audio/wav' });
+    const entry = { blob, file, url: URL.createObjectURL(blob) };
+    freeCache.set(track.id, entry);
+    if (freeCache.size > 4) {
+      const oldest = freeCache.keys().next().value;
+      const drop = freeCache.get(oldest);
+      if (drop && drop.url) URL.revokeObjectURL(drop.url);
+      freeCache.delete(oldest);
+    }
+    return entry;
+  }
+
+  const rendering = new Set();
+
+  function addFreeTrack(id, options) {
+    const lib = window.EltesReelMusic;
+    const track = lib && lib.trackById(id);
+    if (!track || rendering.has(id)) return;
+    const config = options || {};
+    const cached = freeCache.has(id);
+    const requested = Number(config.start);
+    const start = Number.isFinite(requested) ? Math.max(0, requested) : playhead;
+    rendering.add(id);
+    // Rendering a bed is a few hundred milliseconds of arithmetic. Say so
+    // first, yield a frame, then do the work and hand the file to the importer.
+    if (!cached && !config.silent) toast(`Rendering ${track.name}…`);
+    setTimeout(() => {
+      try {
+        const entry = freeTrackEntry(track);
+        if (!entry) return;
+        const seconds = Math.max(2, Math.round(lib.durationOf(track) * 10) / 10);
+        const name = `${R().sanitizeName(track.name)}.wav`;
+        let added = false;
+        commit(() => {
+          let media = project.media.find((item) => item.name === name && item.kind === 'audio' && sources.has(item.id));
+          if (!media) {
+            media = { id: R().uid('m'), name, kind: 'audio', size: entry.file.size, duration: seconds };
+            project.media.push(media);
+            bindSource(media, entry.file);
+          }
+          project.music.push(R().createMusic(media.id, track.name, {
+            start, duration: seconds, volume: 0.75, fadeIn: 0.6, fadeOut: 1.4
+          }));
+          added = true;
+        });
+        if (added && !config.silent) toast(`${track.name} added — generated here, no download`);
+      } finally {
+        rendering.delete(id);
+      }
+    }, 40);
+  }
+
+  function stopTunePreview() {
+    if (tuneAudio) {
+      try { tuneAudio.pause(); } catch (error) { /* already stopped */ }
+    }
+    tuneAudio = null;
+    tunePlaying = '';
+    if (el.bench) el.bench.querySelectorAll('[data-tune]').forEach((card) => card.classList.remove('playing'));
+  }
+
+  function previewTune(id) {
+    const lib = window.EltesReelMusic;
+    const track = lib && lib.trackById(id);
+    if (!track) return;
+    if (tunePlaying === id) { stopTunePreview(); return; }
+    stopTunePreview();
+    toast(`Rendering ${track.name}…`);
+    setTimeout(() => {
+      const entry = freeTrackEntry(track);
+      if (!entry) return;
+      tuneAudio = new Audio(entry.url);
+      tuneAudio.volume = 0.8;
+      tuneAudio.addEventListener('ended', () => {
+        tunePlaying = '';
+        tuneAudio = null;
+        if (el.bench) el.bench.querySelectorAll('[data-tune]').forEach((card) => card.classList.remove('playing'));
+      }, { once: true });
+      tuneAudio.play().catch(() => toast('Playback was blocked — press Preview again'));
+      tunePlaying = id;
+      if (el.bench) el.bench.querySelectorAll('[data-tune]').forEach((card) => card.classList.toggle('playing', card.dataset.tune === id));
+    }, 40);
+  }
+
+  /** The clip a look should land on: the selection, or the picture at the playhead. */
+  function pictureUnderPlayhead() {
+    if (selectedId) {
+      const selected = R().findClip(project, selectedId);
+      if (selected && selected.kind !== 'text') return selected;
+    }
+    const visible = R().clipsAt(project, playhead).filter((clip) => clip.kind !== 'text');
+    return visible.length ? visible[visible.length - 1] : null;
+  }
+
+  const SPEEDS = [0.25, 0.5, 1, 1.5, 2, 3, 4];
+
+  /** Change speed and carry the source range with it. */
+  function setClipSpeed(clip, value) {
+    const speed = clamp(Number(value) || 1, R().SPEED_MIN, R().SPEED_MAX);
+    const previous = R().clipSpeed(clip);
+    if (Math.abs(previous - speed) < 0.001) return false;
+    const span = (Number(clip.duration) || 0) * previous;
+    clip.speed = Math.round(speed * 100) / 100;
+    clip.duration = Math.max(0.2, Math.round((span / speed) * 100) / 100);
+    return true;
+  }
+
+  function freezeFrame() {
+    const canvas = el.canvas;
+    if (!canvas || !R().clipsAt(project, playhead).length) {
+      toast('Move the playhead onto a picture first');
+      return;
+    }
+    draw(playhead);
+    const at = playhead;
+    const name = `freeze-${R().formatTime(at).replace(/[:.]/g, '-')}.png`;
+    canvas.toBlob(async (blob) => {
+      if (!blob) { toast('This browser could not snapshot the frame'); return; }
+      const file = new File([blob], name, { type: 'image/png' });
+      await importFiles([file]);
+      const media = project.media.find((item) => item.name === name);
+      if (!media) return;
+      const clip = R().createClip('image', { mediaId: media.id, name: 'Freeze frame', start: at, duration: 2 });
+      commit(() => { project.clips.push(clip); selectedId = clip.id; });
+      toast('Freeze frame added — two seconds, still');
+    }, 'image/png');
+  }
+
   /* ---------------------------------- panes ------------------------------- */
 
   function pane(name) {
@@ -1126,10 +1497,12 @@ window.EltesReelUI = (function () {
   }
 
   function addText(presetId) {
-    const preset = R().TEXT_PRESETS.find((entry) => entry.id === presetId) || R().TEXT_PRESETS[0];
-    const clip = R().createTextClip(presetId, { start: playhead, duration: 4 });
+    const preset = R().titlePreset(presetId);
+    if (!preset) return;
+    const clip = R().createTextClip(preset, { start: playhead, duration: 4 });
     commit(() => { project.clips.push(clip); selectedId = clip.id; });
     pane('text');
+    toast(`${preset.name} title added`);
   }
 
   /* --------------------------------- export ------------------------------- */
@@ -1260,7 +1633,10 @@ window.EltesReelUI = (function () {
             const active = time >= clip.start && time < R().clipEnd(clip);
             if (!active) { if (!video.paused) video.pause(); continue; }
             if (video.paused) video.play().catch(() => {});
-            const target = (clip.in || 0) + (time - clip.start);
+            if (video.playbackRate !== R().clipSpeed(clip)) {
+              try { video.playbackRate = R().clipSpeed(clip); } catch (error) { /* the browser caps it */ }
+            }
+            const target = R().sourceTime(clip, time);
             if (Math.abs(video.currentTime - target) > 0.25) {
               try { video.currentTime = target; } catch (error) { /* ignore */ }
             }
@@ -1344,42 +1720,38 @@ window.EltesReelUI = (function () {
   }
 
   function applyTemplate(id) {
+    const built = R().template(id);
+    if (!built) { toast('That starter is not available'); return; }
+    const empty = !project.clips.length && !project.music.length;
+    const offset = empty ? 0 : R().projectLength(project);
+    for (const clip of built.clips) clip.start += offset;
     commit(() => {
-      if (id === 'title') {
-        project.background = '#05060a';
-        const title = R().createTextClip('title', { start: 0.3, duration: 4.4 });
-        title.text.value = 'YOUR TITLE';
-        const subtitle = R().createTextClip('caption', { start: 0.9, duration: 3.8 });
-        subtitle.text.value = 'A subtitle, a date or a credit';
-        subtitle.y = 0.6;
-        project.clips.push(title, subtitle);
-        selectedId = title.id;
-      } else if (id === 'lyric') {
-        project.background = '#08090d';
-        ['FIRST LINE', 'SECOND LINE', 'THIRD LINE'].forEach((line, index) => {
-          const clip = R().createTextClip('title', { start: index * 3, duration: 3 });
-          clip.text.value = line;
-          clip.text.size = 0.085;
-          clip.animation.in = 'type';
-          clip.animation.inDur = 0.45;
-          clip.animation.out = 'fade';
-          project.clips.push(clip);
-        });
-        selectedId = project.clips[0].id;
-      } else if (id === 'vertical') {
-        project.width = 1080;
-        project.height = 1920;
-        project.name = R().sanitizeName(`${project.name} vertical`);
-        const caption = R().createTextClip('caption', { start: 0, duration: 3 });
-        caption.text.value = 'Add your clip here';
-        caption.y = 0.5;
-        project.clips.push(caption);
-        selectedId = caption.id;
+      if (empty) {
+        project.width = built.width;
+        project.height = built.height;
+        project.background = built.background;
+        el.canvas.width = project.width;
+        el.canvas.height = project.height;
       }
+      for (const clip of built.clips) project.clips.push(clip);
+      selectedId = built.clips[0] ? built.clips[0].id : null;
     });
-    if (id === 'vertical') toast('Canvas set to 9:16');
-    else if (id === 'lyric') toast('Three lines added — add a song to the music lane');
-    else if (id === 'title') toast('Title card added — edit the words on the canvas');
+    if (empty) {
+      playhead = 0;
+      draw(playhead);
+      updateTransport();
+      positionPlayhead();
+      toast(`${built.name} — drop your clips on the slots`);
+    } else {
+      seek(Math.min(offset, R().projectLength(project)));
+      toast(`${built.name} added at ${R().formatTime(offset)}`);
+    }
+    // The bed is generated, not fetched; give the UI a beat to paint first.
+    if (built.music && !project.music.length) {
+      const bed = built.music;
+      setTimeout(() => { if (!project.music.length) addFreeTrack(bed, { start: offset }); }, 80);
+    }
+    pane('starter');
   }
 
   /* ---------------------------------- DOM --------------------------------- */
@@ -1409,8 +1781,9 @@ window.EltesReelUI = (function () {
         <aside class="reel-side">
           <div class="reel-pane-tabs" role="tablist">
             <button type="button" data-pane="media" class="on" role="tab">Media</button>
-            <button type="button" data-pane="text" role="tab">Text</button>
-            <button type="button" data-pane="fx" role="tab">Effects</button>
+            <button type="button" data-pane="starter" role="tab">Starter</button>
+            <button type="button" data-pane="text" role="tab">Titles</button>
+            <button type="button" data-pane="fx" role="tab">Looks</button>
             <button type="button" data-pane="music" role="tab">Music</button>
           </div>
 
@@ -1424,31 +1797,45 @@ window.EltesReelUI = (function () {
             <p class="reel-note">Files are read from disk and kept in this tab. Nothing is uploaded.</p>
           </section>
 
+          <section class="reel-pane" data-pane="starter" hidden>
+            <div class="reel-pane-head"><strong>Free starters</strong><span class="reel-count" id="reelTemplateCount"></span></div>
+            <label class="reel-search">
+              <input type="search" id="reelTemplateSearch" placeholder="Search templates" autocomplete="off" aria-label="Search templates" />
+            </label>
+            <div class="reel-template-list" id="reelTemplates"></div>
+            <p class="reel-note">Every starter is made of ordinary, editable clips and text — nothing is locked. Placeholder slots take any video or photo you drop on them.</p>
+          </section>
+
           <section class="reel-pane" data-pane="text" hidden>
-            <div class="reel-pane-head"><strong>Text</strong></div>
-            <div class="reel-text-presets">
-              ${R().TEXT_PRESETS.map((preset) => `<button type="button" class="reel-text-preset" data-text="${preset.id}">
-                <span>${escapeHtml(preset.name)}</span><small>${escapeHtml(preset.sample)}</small></button>`).join('')}
-            </div>
-            <p class="reel-note">A text clip lands at the playhead. Drag it on the canvas to place it, then set its animation in the inspector.</p>
+            <div class="reel-pane-head"><strong>Titles</strong><span class="reel-count" id="reelTitleCount"></span></div>
+            <label class="reel-search">
+              <input type="search" id="reelTitleSearch" placeholder="Search 200 titles" autocomplete="off" aria-label="Search titles" />
+            </label>
+            <div class="reel-family-chips" id="reelTitleFamilies"></div>
+            <div class="reel-title-grid" id="reelTitles"></div>
+            <p class="reel-note">A title lands at the playhead with its animation already set. Edit the words, colour and timing in the inspector.</p>
           </section>
 
           <section class="reel-pane" data-pane="fx" hidden>
-            <div class="reel-pane-head"><strong>Looks</strong></div>
-            <div class="reel-fx-grid">
-              ${R().EFFECT_PRESETS.map((preset) => `<button type="button" class="reel-fx" data-fx="${preset.id}">
-                <span class="reel-fx-swatch ${preset.id}"></span><span>${preset.name}</span></button>`).join('')}
-            </div>
-            <p class="reel-note">Select a video or image clip first; the look applies to that clip. Fine-tune it in the inspector.</p>
+            <div class="reel-pane-head"><strong>Looks</strong><span class="reel-count" id="reelLookCount"></span></div>
+            <label class="reel-search">
+              <input type="search" id="reelLookSearch" placeholder="Search 400 looks" autocomplete="off" aria-label="Search looks" />
+            </label>
+            <div class="reel-family-chips" id="reelLookFamilies"></div>
+            <label class="reel-check reel-look-all"><input type="checkbox" id="reelLookAll" /> Apply to every picture clip</label>
+            <div class="reel-look-grid" id="reelLooks"></div>
+            <p class="reel-note">Select a video or image clip, or park the playhead over one, then pick a card. Every card shows that look on the same little scene; fine-tune the recipe in the inspector.</p>
           </section>
 
           <section class="reel-pane" data-pane="music" hidden>
-            <div class="reel-pane-head">
-              <strong>Music</strong><span class="grow"></span>
+            <div class="reel-pane-head"><strong>Free music</strong><span class="reel-count" id="reelTuneCount"></span></div>
+            <div class="reel-bench" id="reelBench"></div>
+            <div class="reel-pane-head reel-pane-head-split">
+              <strong>Your tracks</strong><span class="grow"></span>
               <button type="button" class="reel-btn small" data-act="import">${icon('plus', 13)} Add audio</button>
             </div>
             <div id="reelMusic"></div>
-            <p class="reel-note">Volume and fades are written into the export.</p>
+            <p class="reel-note">The bench is synthesised in this tab: no downloads, no sample packs, no licence to clear. Volume and fades are written into the export.</p>
           </section>
         </aside>
 
@@ -1460,9 +1847,10 @@ window.EltesReelUI = (function () {
                 <strong>Start an edit</strong>
                 <p>Drop a video, image or song anywhere, or begin with a template.</p>
                 <div class="reel-starter-grid">
-                  <button type="button" data-template="title"><b>Title card</b><span>Title + subtitle · 5 s</span></button>
-                  <button type="button" data-template="lyric"><b>Lyric video</b><span>Three typed lines · 9 s</span></button>
-                  <button type="button" data-template="vertical"><b>Vertical 9:16</b><span>Reels and Shorts canvas</span></button>
+                  ${R().templates().slice(0, 6).map((tpl) => {
+                    const aspect = tpl.width > tpl.height ? '16:9' : (tpl.width === tpl.height ? '1:1' : '9:16');
+                    return `<button type="button" data-template="${tpl.id}"><b>${escapeHtml(tpl.name)}</b><span>${escapeHtml(tpl.tag)} · ${aspect}</span></button>`;
+                  }).join('')}
                 </div>
                 <small>Everything stays in this browser.</small>
               </div>
@@ -1474,6 +1862,7 @@ window.EltesReelUI = (function () {
             <span class="reel-clock" id="reelTime">0:00.0 / 0:00.0</span>
             <input class="reel-scrub" id="reelScrub" type="range" min="0" max="1000" value="0" aria-label="Scrub" />
             <span class="reel-meta" id="reelMeta"></span>
+            <button type="button" class="reel-ghost" data-act="freeze" title="Freeze this frame into a two-second still">${icon('copy', 14)} Freeze</button>
             <button type="button" class="reel-ghost" data-act="frame" title="Save the current frame as a PNG">${icon('image', 14)} Frame</button>
           </div>
         </main>
@@ -1624,6 +2013,20 @@ window.EltesReelUI = (function () {
       file: q('#reelFile'),
       projectFile: q('#reelProjectFile'),
       starter: q('#reelStarter'),
+      looks: q('#reelLooks'),
+      lookSearch: q('#reelLookSearch'),
+      lookFamilies: q('#reelLookFamilies'),
+      lookCount: q('#reelLookCount'),
+      lookAll: q('#reelLookAll'),
+      titles: q('#reelTitles'),
+      titleSearch: q('#reelTitleSearch'),
+      titleFamilies: q('#reelTitleFamilies'),
+      titleCount: q('#reelTitleCount'),
+      templates: q('#reelTemplates'),
+      templateSearch: q('#reelTemplateSearch'),
+      templateCount: q('#reelTemplateCount'),
+      bench: q('#reelBench'),
+      tuneCount: q('#reelTuneCount'),
       toast: q('#reelToast'),
       exportDialog: q('#reelExportDialog'),
       shortcutsDialog: q('#reelShortcutsDialog'),
@@ -1649,18 +2052,64 @@ window.EltesReelUI = (function () {
       save();
     });
 
+    if (el.lookSearch) el.lookSearch.addEventListener('input', filterLooks);
+    if (el.titleSearch) el.titleSearch.addEventListener('input', filterTitles);
+    if (el.templateSearch) el.templateSearch.addEventListener('input', filterTemplates);
+
     root.addEventListener('click', (event) => {
       const paneButton = event.target.closest('[data-pane]');
       if (paneButton && paneButton.closest('.reel-pane-tabs')) { pane(paneButton.dataset.pane); return; }
 
+      const templateButton = event.target.closest('[data-template]');
+      if (templateButton) { applyTemplate(templateButton.dataset.template); return; }
+
       const textButton = event.target.closest('[data-text]');
       if (textButton) { addText(textButton.dataset.text); return; }
+
+      const lookButton = event.target.closest('[data-look]');
+      if (lookButton) {
+        const clip = pictureUnderPlayhead();
+        if (!clip) { toast('Select a video or image clip first'); return; }
+        selectedId = clip.id;
+        const look = R().look(lookButton.dataset.look);
+        if (!look) return;
+        const all = !!(el.lookAll && el.lookAll.checked);
+        const targets = all ? project.clips.filter((item) => item.kind !== 'text') : [clip];
+        commit(() => {
+          for (const target of targets) {
+            target.filter = Object.assign({}, R().FILTER_DEFAULTS, look.filter);
+            target.overlay = Object.assign({}, R().OVERLAY_DEFAULTS, look.overlay);
+          }
+        }, { keepSelection: true });
+        el.looks.querySelectorAll('[data-look]').forEach((card) => card.classList.toggle('on', card === lookButton));
+        renderInspector();
+        toast(all ? `${look.name} applied to ${targets.length} clip${targets.length === 1 ? '' : 's'}` : `${look.name} applied`);
+        return;
+      }
+
+      const lookFamily = event.target.closest('[data-look-family]');
+      if (lookFamily) { lookFilter.family = lookFamily.dataset.lookFamily; filterLooks(); return; }
+
+      const titleFamily = event.target.closest('[data-title-family]');
+      if (titleFamily) { titleFilter.family = titleFamily.dataset.titleFamily; filterTitles(); return; }
+
+      const speedButton = event.target.closest('[data-speed]');
+      if (speedButton) {
+        const clip = selectedId ? R().findClip(project, selectedId) : null;
+        if (!clip || clip.kind !== 'video') return;
+        commit(() => setClipSpeed(clip, Number(speedButton.dataset.speed)), { keepSelection: true });
+        renderInspector();
+        renderTimeline();
+        draw(playhead);
+        return;
+      }
 
       const fxButton = event.target.closest('[data-fx]');
       if (fxButton) {
         const clip = selectedId ? R().findClip(project, selectedId) : null;
         if (!clip || clip.kind === 'text') { toast('Select a video or image clip first'); return; }
-        const preset = R().EFFECT_PRESETS.find((entry) => entry.id === fxButton.dataset.fx);
+        const preset = R().look(fxButton.dataset.fx);
+        if (!preset) return;
         commit(() => {
           clip.filter = Object.assign({}, R().FILTER_DEFAULTS, preset.filter);
           clip.overlay = Object.assign({}, R().OVERLAY_DEFAULTS, preset.overlay);
@@ -1682,7 +2131,10 @@ window.EltesReelUI = (function () {
       const action = event.target.closest('[data-act]');
       if (!action) return;
       const act = action.dataset.act;
-      if (act === 'import') el.file.click();
+      if (act === 'tune-add') addFreeTrack(action.dataset.id);
+      else if (act === 'tune-preview') previewTune(action.dataset.id);
+      else if (act === 'freeze') freezeFrame();
+      else if (act === 'import') el.file.click();
       else if (act === 'back') close();
       else if (act === 'undo') undo();
       else if (act === 'redo') redo();
@@ -1742,13 +2194,6 @@ window.EltesReelUI = (function () {
         .then((text) => loadProjectData(JSON.parse(text)))
         .catch(() => toast('That file is not readable JSON'));
     });
-
-    if (el.starter) {
-      el.starter.addEventListener('click', (event) => {
-        const button = event.target.closest('[data-template]');
-        if (button) applyTemplate(button.dataset.template);
-      });
-    }
 
     const drop = root.querySelector('#reelDrop');
     drop.addEventListener('dragover', (event) => { event.preventDefault(); drop.classList.add('over'); });
@@ -1926,6 +2371,7 @@ window.EltesReelUI = (function () {
 
   function close(options) {
     pause();
+    stopTunePreview();
     save();
     root.hidden = true;
     if (!(options && options.silent) && typeof onExit === 'function') onExit();
@@ -1938,6 +2384,10 @@ window.EltesReelUI = (function () {
     project = loadProject();
     root.innerHTML = template();
     cache();
+    buildLooks();
+    buildTitles();
+    buildTemplates();
+    renderBench();
     bind();
     el.zoom.textContent = `${Math.round(settings.zoom * 100)}%`;
     renderAll();

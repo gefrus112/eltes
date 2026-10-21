@@ -21,7 +21,7 @@ window.EltesMCP = (function () {
   'use strict';
 
   const PROTOCOL_VERSION = '2025-06-18';
-  const CLIENT_INFO = { name: 'Eltes', version: '3.18.0' };
+  const CLIENT_INFO = { name: 'Eltes', version: '3.19.0' };
   const STORAGE_KEY = 'eltes.mcp.v1';
   const TIMEOUT_MS = 12000;
 

@@ -22,7 +22,7 @@
     <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
   </div>
   <div class="scroll-progress" aria-hidden="true"><span></span></div>
-  <a class="skip" href="#r315">Skip to the latest release</a>
+  <a class="skip" href="#r319">Skip to the latest release</a>
 
   <header class="nav" id="nav">
     <div class="wrap">
@@ -72,13 +72,14 @@
         <h1>Every release, with the screen to prove it.</h1>
         <p class="lede">Notes from the Eltes build: the site served from Supabase Storage as well as GitHub Pages, real accounts on the static site, the welcome email your own Supabase project sends through Resend, the desktop apps for Windows, macOS and Linux, the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
         <div class="news-meta">
-          <span class="badge"><span class="dot"></span>v3.18.0</span>
-          <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
+          <span class="badge"><span class="dot"></span>v3.19.0</span>
+          <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 21 Oct 2026</span>
           <span class="badge"><span data-icon="image" data-icon-size="12"></span>7 screenshots</span>
           <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
         </div>
         <nav class="news-jump" aria-label="Releases">
-          <a href="#r318" class="active">v3.18 · Supabase mirror</a>
+          <a href="#r319" class="active">v3.19 · Reel video editor</a>
+          <a href="#r318">v3.18 · Supabase mirror</a>
           <a href="#r317">v3.17 · Cloud accounts</a>
           <a href="#r316">v3.16 · Welcome email</a>
           <a href="#r315">v3.15 · Desktop</a>
@@ -95,13 +96,40 @@
     </section>
 
     <!-- =========================== latest =============================== -->
+    <section class="news-feed" id="r319" aria-labelledby="h-r319">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver latest">v3.19.0</span>
+              <span class="news-kind">Latest release</span>
+            </div>
+            <h2 id="h-r319">The video editor is on the front page now.</h2>
+            <p class="news-sum"><strong>Reel</strong> — Studio's browser video editor — has an entry in the landing navigation, a card in the features grid, a link in the footer and a button next to Studio in the workspace. <code>studio.html?tools=reel</code> opens it directly instead of dropping you in the file tree, Studio pins a <strong>Video editor</strong> tab in front of your open files, and the account form on the landing page now creates a <strong>real Supabase account</strong> with an email and a password.</p>
+            <ul class="news-points">
+              <li><strong>Transitions and keyframes</strong> — crossfade, slide, zoom, wipe and flash between clips; Ken Burns motion on stills; X, Y, scale, rotation and opacity keyed at the playhead with linear, ease and hold easing.</li>
+              <li><strong>A real editor, not a preview</strong> — snapping timeline, ripple delete, decoded waveforms on the music lane, title/lyric/vertical templates, project JSON you can save and reopen, and a real <code>.webm</code> file recorded from the canvas. Export stays real-time and honest about it.</li>
+              <li><strong>Accounts were broken and are fixed</strong> — the live project had never had the accounts migration applied, so <code>profiles</code>, the new-user trigger and the welcome-email lookup were missing. The schema is applied now, the trigger fires on every new sign-up, and the three existing accounts were backfilled. The docs list where each API value lives.</li>
+              <li><strong>Sign up where you are</strong> — the landing card asks for a name, an email and a password, calls Supabase Auth, mirrors the session locally and opens the workspace. A failure says what failed; a confirmation-required project says to check the inbox.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="studio.html?tools=reel"><span data-icon="film" data-icon-size="14"></span>Open the video editor</a>
+              <a href="docs.html#other-tools">How Reel works<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="index.html#account">Create an account<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
     <section class="news-feed" id="r318" aria-labelledby="h-r318">
       <div class="wrap">
         <article class="news-feature reveal">
           <div class="news-feature-body">
             <div class="news-item-head">
-              <span class="news-ver latest">v3.18.0</span>
-              <span class="news-kind">Latest release</span>
+              <span class="news-ver">v3.18.0</span>
+              <span class="news-kind">Supabase mirror</span>
             </div>
             <h2 id="h-r318">The same site, in two places.</h2>
             <p class="news-sum">Eltes is now published from <strong>GitHub Pages</strong> and from <strong>Supabase Storage</strong> — the same files, the same look, the same sign-up and the same welcome email. The Supabase copy lives in the very project that holds the accounts, so the site, its database and its mail are one deployment.</p>

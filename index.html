@@ -46,6 +46,7 @@
           <a href="#models">Models</a>
           <a href="#web-search">Search</a>
           <a href="studio.html">Studio</a>
+          <a href="studio.html?tools=reel">Video editor</a>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="#downloads">Downloads</a>
@@ -68,6 +69,7 @@
     <a href="#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#web-search">Web search <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="studio.html">Studio <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="studio.html?tools=reel">Video editor <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#downloads">Downloads <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
@@ -99,6 +101,10 @@
           <a class="btn btn-primary btn-lg" href="app.html">
             Open the workspace
             <span data-icon="arrow-right" data-icon-size="17"></span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="studio.html?tools=reel">
+            <span data-icon="film" data-icon-size="16"></span>
+            Video editor
           </a>
           <a class="btn btn-ghost btn-lg" href="#web-search">
             See how search works
@@ -483,6 +489,32 @@
               </div>
             </div>
           </article>
+
+          <article class="card span-6 reveal studio-card" id="video-editor">
+            <div class="studio-card-copy">
+              <div class="card-icon" data-icon="film" data-icon-size="19"></div>
+              <h3>Reel: a video editor that runs in this tab</h3>
+              <p>Import clips and songs, cut on a snapping timeline, add crossfades, keyframed motion and animated text, then record a real video file. Nothing is uploaded and no account is needed — the project stays in this browser.</p>
+              <div class="studio-card-links">
+                <a class="btn btn-ghost btn-sm" href="studio.html?tools=reel">
+                  Open the video editor
+                  <span data-icon="arrow-right" data-icon-size="13"></span>
+                </a>
+                <a class="studio-card-workflow" href="docs.html#other-tools">How it works</a>
+              </div>
+            </div>
+            <div class="card-visual">
+              <div class="code-mini">
+                <div class="head"><span data-icon="film" data-icon-size="10"></span>reel · 1920×1080 · 30 fps</div>
+                <div class="body">
+                  <span class="fn">crossfade</span> 0.6s · <span class="fn">zoom</span> 12%<br />
+                  <span class="pr">title</span> “Night drive” <span class="cm">· 4 keyframes</span><br />
+                  <span class="st">music</span> waveform · fade in 1.2s<br />
+                  <span class="cm">▸ export webm · recorded in real time</span>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -629,8 +661,10 @@
             <span class="eyebrow"><span data-icon="user-plus" data-icon-size="14"></span>Accounts</span>
             <h2>Sign in with<br />the account you use.</h2>
             <p>Eltes connects OpenAI, Anthropic and DeepSeek directly. Sign up with the provider that already
-              pays for your models, or keep a local profile with no account at all. The profile lives in this
-              browser. Hosted model requests may optionally use a Vercel/local proxy that you configure; the profile itself remains in this browser.</p>
+              pays for your models, or create an Eltes account with an email and password — a real row in our
+              Supabase project, guarded by row-level security — or keep a local profile with no account at all.
+              Model keys never go to that database. Hosted model requests may optionally use a Vercel/local proxy
+              that you configure.</p>
             <div class="account-actions">
               <a class="btn btn-ghost account-provider" href="auth.html?provider=openai&amp;mode=signup&amp;next=app.html">
                 <span class="p-logo sm" data-brand="openai" data-brand-size="15"></span>OpenAI
@@ -656,9 +690,9 @@
               <span class="p-logo" data-brand="anthropic"></span>
               <span class="p-logo" data-brand="deepseek"></span>
               <span class="p-logo" data-brand="eltes"></span>
-              <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px"><span data-icon="shield-check" data-icon-size="11"></span>local</span>
+              <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px"><span data-icon="shield-check" data-icon-size="11"></span><span id="quickMode">local</span></span>
             </div>
-            <strong style="font-size:13px;display:block;margin-bottom:12px">Create a local profile</strong>
+            <strong id="quickTitle" style="font-size:13px;display:block;margin-bottom:12px">Create a local profile</strong>
             <form id="quickSignup" novalidate>
               <label class="auth-field">
                 <span data-icon="user" data-icon-size="14"></span>
@@ -668,9 +702,13 @@
                 <span data-icon="mail" data-icon-size="14"></span>
                 <input type="email" name="email" placeholder="you@domain.com" autocomplete="email" required />
               </label>
-              <button class="btn btn-primary" type="submit">Create profile<span data-icon="arrow-right" data-icon-size="14"></span></button>
+              <label class="auth-field" id="quickPasswordField" hidden>
+                <span data-icon="lock" data-icon-size="14"></span>
+                <input type="password" name="password" id="quickPassword" placeholder="Password, 6 characters or more" autocomplete="new-password" minlength="6" />
+              </label>
+              <button class="btn btn-primary" type="submit" id="quickSubmit">Create profile<span data-icon="arrow-right" data-icon-size="14"></span></button>
             </form>
-            <p class="tiny">No password. The welcome email is sent by your own Eltes server, if you run one. Provider keys stay in this browser.
+            <p class="tiny" id="quickNote">No password. The welcome email is sent by your own Eltes server, if you run one. Provider keys stay in this browser.
               <a href="docs.html#accounts">How accounts work</a></p>
           </div>
         </div>
@@ -779,6 +817,7 @@
         <div class="footer-col">
           <h4>Product</h4>
           <a href="app.html">Open the app</a>
+          <a href="studio.html?tools=reel">Video editor</a>
           <a href="#models">Models</a>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>

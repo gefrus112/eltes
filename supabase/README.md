@@ -10,7 +10,8 @@ The reference deployment is project **`ripcraft`** (`odemzfpgercjitrrdlvk`,
 ```
 supabase/
 ├── migrations/
-│   └── 0001_eltes_accounts.sql      tables, trigger, RLS, rate limits
+│   ├── 0001_eltes_accounts.sql      tables, trigger, RLS, rate limits
+│   └── 0002_eltes_accounts_backfill.sql  profiles for accounts created before 0001
 └── functions/
     ├── eltes-mail/index.ts          welcome · magic link · password reset
     ├── email-webhook/index.ts       Resend bounce/complaint → suppression
@@ -31,10 +32,34 @@ Both functions are a single file with no imports. They are plain JavaScript in
 | `public.mail_rate` + `mail_consume()` | Atomic fixed-window counter: 6 messages per network and 3 per address per 10 minutes. |
 | `public.mail_overview` | A `security_invoker` view the signed-in user can read: their own letters only. |
 
+`0002` exists because the reference project was live for a while with **no
+schema at all**: sign-ups reached `auth.users`, but `public.profiles` did not
+exist, so the welcome email had no row to address and the account panel had
+nothing to read. It inserts the missing profile for every existing auth user
+and is safe to run repeatedly. Check it:
+
+```sql
+select (select count(*) from auth.users) as users,
+       (select count(*) from public.profiles) as profiles;
+```
+
 Row-level security is on for every table. `anon` has no privileges at all;
 `authenticated` may read its own profile and email events and update only
 `display_name` and `bio`. Mail state is written by the service role, never by
 the browser.
+
+## Where the API values come from
+
+Project **Settings → API**. Only the first two are shipped in `config.js`;
+the rest stay in Edge Function secrets.
+
+| Value | Goes to | Visible to browsers |
+| --- | --- | --- |
+| Project URL (`https://<ref>.supabase.co`) | `config.js` → `supabaseUrl` | yes, it is an address |
+| Publishable key (`sb_publishable_…`) | `config.js` → `supabaseAnonKey` | yes, by design; RLS decides what it can touch |
+| `service_role` JWT | `SUPABASE_SERVICE_ROLE_KEY` secret | **never** |
+| Anon/legacy JWT | optional fallback for old clients | equivalent to the publishable key |
+| `RESEND_API_KEY` | Edge Function secret | never |
 
 ## Secrets
 

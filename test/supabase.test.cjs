@@ -733,6 +733,14 @@ test('the migration creates the tables, the trigger and the policies', () => {
   assert.match(sql, /security definer/);
 });
 
+test('a second migration backfills profiles for accounts that predate the schema', () => {
+  const sql = read('supabase/migrations/0002_eltes_accounts_backfill.sql');
+  assert.match(sql, /insert into public\.profiles/);
+  assert.match(sql, /from auth\.users/);
+  assert.match(sql, /on conflict \(id\) do nothing/);
+  assert.ok(!/drop table/i.test(sql), 'a backfill never drops anything');
+});
+
 test('the Pages workflow ships every file the cloud path needs', () => {
   const workflow = read('.github/workflows/pages.yml');
   assert.match(workflow, /config\.js/, 'config.js is copied into _site');

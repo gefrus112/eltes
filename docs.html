@@ -67,7 +67,7 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.18.0</span>
+          <span class="badge"><span class="dot"></span>v3.19.0</span>
           <span class="badge"><span data-icon="clock" data-icon-size="12"></span>25 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
@@ -369,7 +369,7 @@ npm run mail unsuppress you@example.com   <span class="c"># let that address rec
 
         <section id="supabase">
           <h2>Cloud accounts <a class="anchor" href="#supabase" aria-label="Link to the cloud accounts section" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>The sign-up form can create a real account in <strong>your own Supabase project</strong> and keep working on a static host. There is no Eltes account server in the middle: the browser talks to your project's Auth API, the project stores the profile, and an Edge Function in the same project sends the welcome email through Resend. The publishable key in <code>config.js</code> is the only credential the site ships — row-level security decides what it may touch.</p>
+          <p>The sign-up form can create a real account in <strong>your own Supabase project</strong> and keep working on a static host. There are two doors to it: <a href="index.html#account">the card on the landing page</a> (name, email, password, straight to the workspace) and the full <a href="auth.html?mode=signup">auth page</a> with magic links, password reset and provider-key connections. There is no Eltes account server in the middle: the browser talks to your project's Auth API, the project stores the profile, and an Edge Function in the same project sends the welcome email through Resend. The publishable key in <code>config.js</code> is the only credential the site ships — row-level security decides what it may touch.</p>
 
           <div class="doc-callout">
             <span data-icon="info" data-icon-size="15"></span>
@@ -402,6 +402,22 @@ npm run mail unsuppress you@example.com   <span class="c"># let that address rec
             <li><code>supabase/functions/email-webhook/index.ts</code> — Resend's Svix-signed webhook; hard bounces and complaints land in <code>suppressed_emails</code>.</li>
             <li><code>supabase/functions/site-publish/index.ts</code> — copies the published site into the project's public Storage bucket, so the same files are also served from Supabase.</li>
           </ul>
+
+          <h3 id="supabase-keys">Where the API values come from</h3>
+          <p>Everything the browser needs is on the project's <em>Settings → API</em> page. Only the first two go into the repository. This checkout's <code>config.js</code> already points at the reference project (<code>odemzfpgercjitrrdlvk</code>), so the deployed site signs up against it — replace the two values to use your own.</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Value</th><th>Where it lives</th><th>Who may see it</th></tr></thead>
+              <tbody>
+                <tr><td>Project URL</td><td><code>config.js</code> → <code>supabaseUrl</code> · <code>https://&lt;ref&gt;.supabase.co</code></td><td>Public. It is just an address.</td></tr>
+                <tr><td>Publishable key</td><td><code>config.js</code> → <code>supabaseAnonKey</code> · <code>sb_publishable_…</code> (or the legacy anon JWT)</td><td>Public by design. Row-level security decides what it may read or write.</td></tr>
+                <tr><td><code>service_role</code> key</td><td>Edge Function secrets only — <code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Never in the page, never in Git. It bypasses RLS, so it stays server-side.</td></tr>
+                <tr><td><code>RESEND_API_KEY</code></td><td>Edge Function secrets</td><td>Never in the page. Without it the mail function reports <em>unconfigured</em> instead of sending.</td></tr>
+                <tr><td><code>ELTES_PUBLISH_TOKEN</code></td><td>Edge Function secrets</td><td>Never in the page. Used by <code>site-publish</code>.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The project's public schema holds <code>profiles</code>, <code>email_events</code>, <code>suppressed_emails</code> and <code>mail_rate</code>; every table has RLS on, and signed-in users can only read their own row. A fresh project needs the migration before sign-up will work — <code>npx supabase db push</code>, or paste <code>0001_eltes_accounts.sql</code> into the SQL editor. If the migration is missing, Supabase Auth still creates the auth user but no profile exists, so the welcome email has nobody to address.</p>
 
           <h3>Wire it up</h3>
           <div class="doc-code">
@@ -979,7 +995,8 @@ npm run build
           <p>Opened as a plain static page, Studio falls back to a browser-only project stored in <code>localStorage</code>. The editor, file creation, preview and zip export still work: the preview is assembled in the browser with local CSS and JavaScript inlined. The terminal explains that commands need <code>npm start</code> instead of pretending to run.</p>
 
           <h3 id="other-tools">Other tools: Reel, frames and palette</h3>
-          <p>The last tab in Studio's tab bar — <strong>Other tools</strong> — opens an overlay that has nothing to do with the file tree: <strong>Reel</strong>, a video editor that runs in the page, a frame grabber and a CSS gradient builder. The workspace stays open underneath; <kbd>Esc</kbd> steps back one level at a time.</p>
+          <p>Studio pins two tabs in front of your open files: <strong>Video editor</strong>, which opens <strong>Reel</strong> directly, and <strong>Other tools</strong>, which opens an overlay that has nothing to do with the file tree — the same Reel, a frame grabber and a CSS gradient builder. The workspace stays open underneath; <kbd>Esc</kbd> steps back one level at a time.</p>
+          <p>You do not have to go through Studio to find it. <a href="studio.html?tools=reel"><strong>studio.html?tools=reel</strong></a> opens Reel directly (the same works with <code>?tool=reel</code>, <code>#reel</code> or <code>#tools=reel</code>, and <code>frame</code> / <code>palette</code> for the other two). The landing page links to it from the navigation, the hero, the features grid and the footer, and the workspace has its own film button.</p>
 
           <h4>Reel</h4>
           <ul>

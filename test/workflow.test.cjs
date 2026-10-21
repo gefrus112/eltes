@@ -69,3 +69,34 @@ test('README points at Studio and the workflow', async () => {
   assert.match(readme, /npm run build|terminal/);
   assert.match(readme, /\.studio\//);
 });
+
+test('the video editor is reachable from the pages people land on', async () => {
+  const index = await read('index.html');
+  const app = await read('app.html');
+  const news = await read('news.html');
+  const docs = await read('docs.html');
+
+  // The landing page names it in the navigation, the hero and a feature card.
+  assert.ok((index.match(/href="studio\.html\?tools=reel"/g) || []).length >= 3, 'index links to Reel in several places');
+  assert.match(index, /<a href="studio\.html\?tools=reel">Video editor<\/a>/, 'nav entry');
+  assert.match(index, /id="video-editor"/, 'feature card has an anchor');
+  assert.match(app, /id="reelBtn"[^>]*studio\.html\?tools=reel/, 'workspace toolbar button');
+  assert.match(news, /studio\.html\?tools=reel/, 'release notes link to it');
+  assert.match(docs, /\?tool=reel/, 'docs document the other spellings');
+});
+
+test('the landing page signs up for real when a project is configured', async () => {
+  const index = await read('index.html');
+  const site = await read('assets/js/site.js');
+
+  assert.match(index, /id="quickPassword"/, 'a password field exists');
+  assert.match(index, /id="quickPasswordField" hidden/, 'hidden until config.js says cloud accounts are on');
+  assert.match(index, /src="config\.js"/, 'the landing page loads the config');
+  assert.match(index, /src="assets\/js\/supabase\.js"/, 'and the client');
+  assert.match(site, /Cloud\.signUp\(\{ email, password, name \}\)/, 'the form calls Supabase Auth');
+  assert.match(site, /provider: 'supabase'/, 'the session is mirrored into the local account');
+  assert.match(site, /result\.needsConfirm/, 'a confirmation-required project is reported, not hidden');
+  assert.match(site, /window\.location\.href = 'app\.html'/, 'a successful sign-up continues into the workspace');
+  // No credential may be written into the page.
+  assert.ok(!/service_role/.test(index), 'the landing page never carries the service role key');
+});

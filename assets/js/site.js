@@ -548,6 +548,41 @@
   /* ----------------------------- quick signup ----------------------------- */
   const quick = $('#quickSignup');
   if (quick) {
+    const Cloud = window.EltesCloud;
+    const cloudOn = !!(Cloud && Cloud.enabled);
+    const quickPassword = $('#quickPassword');
+    const quickPasswordField = $('#quickPasswordField');
+    const quickTitle = $('#quickTitle');
+    const quickNote = $('#quickNote');
+    const quickSubmit = $('#quickSubmit');
+    const quickMode = $('#quickMode');
+
+    /* Tell the truth about which kind of account this form creates. With a
+       Supabase project in config.js it is a real account: an auth row, a
+       profile row and a password. Without one it is the local profile. */
+    if (cloudOn) {
+      if (quickPasswordField) quickPasswordField.hidden = false;
+      if (quickTitle) quickTitle.textContent = 'Create your Eltes account';
+      if (quickSubmit) quickSubmit.firstChild.textContent = 'Create account';
+      if (quickMode) quickMode.textContent = 'Supabase';
+      if (quickNote) {
+        quickNote.innerHTML = 'A real account: Supabase Auth stores the address and a hashed password, and row-level security keeps the profile yours. Model keys never go there. Already signed up? <a href="auth.html?mode=signin">Sign in</a>.';
+      }
+    }
+
+    function mirrorCloud(session, fallback) {
+      const user = (session && session.user) || null;
+      const meta = (user && user.user_metadata) || {};
+      const created = user && user.created_at ? Date.parse(user.created_at) : NaN;
+      return window.EltesAccount.create({
+        id: user && user.id ? user.id : undefined,
+        name: (fallback && fallback.name) || meta.display_name || meta.name || 'Eltes user',
+        email: (fallback && fallback.email) || (user && user.email) || '',
+        provider: 'supabase',
+        createdAt: Number.isFinite(created) ? created : undefined
+      });
+    }
+
     quick.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = new FormData(quick);
@@ -561,17 +596,51 @@
         toast('Enter a valid email address', 'triangle-alert');
         return;
       }
-      /* With a Supabase project configured, the landing form is a shortcut to
-         the real sign-up page: an account needs a password, and that page is
-         where the honest state of the welcome email is shown. */
-      const Cloud = window.EltesCloud;
-      if (Cloud && Cloud.enabled) {
-        const url = new URL('auth.html', location.href);
-        url.searchParams.set('mode', 'signup');
-        url.searchParams.set('next', 'app.html');
-        url.searchParams.set('email', email);
-        if (name) url.searchParams.set('name', name);
-        window.location.href = url.href;
+
+      if (cloudOn) {
+        const password = (data.get('password') || '').toString();
+        if (password.length < 6) {
+          toast('Use at least six characters for the password', 'triangle-alert');
+          if (quickPassword) quickPassword.focus();
+          return;
+        }
+        if (quickSubmit) quickSubmit.disabled = true;
+        if (quickNote) quickNote.textContent = 'Creating the account…';
+        try {
+          const result = await Cloud.signUp({ email, password, name });
+          if (result.needsConfirm) {
+            if (quickNote) quickNote.textContent = `Account created. Open the link sent to ${email} to confirm it, then sign in.`;
+            toast('Account created — confirm the address from the email', 'mail');
+            // The welcome letter is also the confirmation link when the
+            // project has confirmation switched on, so it goes out either way.
+            const sent = await Cloud.welcome({
+              email,
+              name,
+              userId: (result.user && result.user.id) || ''
+            });
+            if (sent && sent.status === 'sent') toast(`Welcome email sent to ${email}`, 'mail');
+            else if (sent && sent.status === 'suppressed') toast('Welcome email skipped — that address bounced before', 'mail');
+          } else {
+            mirrorCloud(result.session, { name, email });
+            toast(`Welcome, ${name.split(' ')[0]} — account created`, 'user-check');
+            const sent = await Cloud.welcome({
+              email,
+              name,
+              userId: (result.session && result.session.user && result.session.user.id) || ''
+            });
+            if (sent && sent.status === 'sent') toast(`Welcome email sent to ${email}`, 'mail');
+            else if (sent && sent.status === 'suppressed') toast('Welcome email skipped — that address bounced before', 'mail');
+            if (quickNote) quickNote.textContent = 'Account created. Opening the workspace…';
+            setTimeout(() => { window.location.href = 'app.html'; }, 500);
+            return;
+          }
+        } catch (error) {
+          const message = error && error.message ? error.message : 'Something went wrong.';
+          if (quickNote) quickNote.textContent = message;
+          toast(message, 'triangle-alert');
+        } finally {
+          if (quickSubmit) quickSubmit.disabled = false;
+        }
         return;
       }
 

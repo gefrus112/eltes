@@ -29,6 +29,27 @@ window.EltesTools = (function () {
     }
   ];
 
+  const TOOL_IDS = ['hub', 'reel', 'frame', 'palette'];
+
+  /* Deep links: studio.html?tools=reel, ?tool=reel, or #reel / #tools=reel.
+     The landing page and the workspace both use this to open Reel directly
+     instead of leaving the editor three clicks inside Studio. */
+  function toolFromLocation(search, hash) {
+    let wanted = '';
+    try {
+      const params = new URLSearchParams(String(search || ''));
+      wanted = String(params.get('tools') || params.get('tool') || '').trim().toLowerCase();
+    } catch (error) {
+      wanted = '';
+    }
+    if (!wanted) {
+      const raw = String(hash || '').replace(/^#/, '').trim().toLowerCase();
+      const match = raw.match(/^(?:tools=)?(hub|reel|frame|palette)$/);
+      if (match) wanted = match[1];
+    }
+    return TOOL_IDS.includes(wanted) ? wanted : '';
+  }
+
   let screen = null;
   let reel = null;
   let current = 'hub';
@@ -124,6 +145,16 @@ window.EltesTools = (function () {
 
   /* ------------------------------- navigation ----------------------------- */
 
+  /* Two pinned tabs point at this overlay: "Video editor" opens Reel, "Other
+     tools" opens the hub. Both light up according to where you are. */
+  function syncTabs() {
+    const hubTab = document.getElementById('btnTools');
+    const reelTab = document.getElementById('btnReel');
+    const isOpen = !!(screen && !screen.hidden);
+    if (hubTab) hubTab.classList.toggle('on', isOpen && current !== 'reel');
+    if (reelTab) reelTab.classList.toggle('on', isOpen && current === 'reel');
+  }
+
   function show(tool) {
     current = tool;
     screen.querySelectorAll('.tools-tabs [data-tool]').forEach((node) => {
@@ -134,6 +165,7 @@ window.EltesTools = (function () {
     });
     if (tool === 'reel' && reel) reel.open();
     else if (reel) reel.close({ silent: true });
+    syncTabs();
   }
 
   function open(tool) {
@@ -146,6 +178,7 @@ window.EltesTools = (function () {
     if (reel) reel.close({ silent: true });
     screen.hidden = true;
     document.body.classList.remove('tools-open');
+    syncTabs();
   }
 
   /* -------------------------------- palette ------------------------------- */
@@ -318,10 +351,10 @@ window.EltesTools = (function () {
     });
 
     document.addEventListener('click', (event) => {
-      if (!event.target.closest('[data-tools-open]')) return;
-      open('hub');
-      const b = document.getElementById('btnTools');
-      if (b) b.classList.add('on');
+      const trigger = event.target.closest('[data-tools-open]');
+      if (!trigger) return;
+      const wanted = String(trigger.dataset.toolsOpen || '').trim().toLowerCase();
+      open(TOOL_IDS.includes(wanted) ? wanted : 'hub');
     });
 
     document.addEventListener('keydown', (event) => {
@@ -332,8 +365,17 @@ window.EltesTools = (function () {
     const button = document.getElementById('btnTools');
     if (button) {
       button.addEventListener('click', () => {
-        if (screen.hidden) open('hub'); else close();
-        button.classList.toggle('on', !screen.hidden);
+        if (screen.hidden) open('hub');
+        else if (current === 'hub' || current === 'frame' || current === 'palette') close();
+        else show('hub');
+      });
+    }
+
+    const reelButton = document.getElementById('btnReel');
+    if (reelButton) {
+      reelButton.addEventListener('click', () => {
+        if (!screen.hidden && current === 'reel') close();
+        else open('reel');
       });
     }
 
@@ -347,10 +389,14 @@ window.EltesTools = (function () {
 
     bindPalette();
     bindFrame();
+
+    // A shared link opens straight into the tool it names.
+    const requested = toolFromLocation(window.location.search, window.location.hash);
+    if (requested) open(requested);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  return { open, close: () => close(), show, TOOLS };
+  return { open, close: () => close(), show, TOOLS, toolFromLocation };
 })();

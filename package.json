@@ -1,6 +1,6 @@
 {
   "name": "starter-site",
-  "version": "3.18.0",
+  "version": "3.19.0",
   "description": "Eltes AI — a local-first workspace with live web search, cited sources, a search-thinking trace, 66 models across 14 providers, Eltes Lab (train a language model in the browser), a built-in Studio, and desktop builds for Windows, macOS and Linux.",
   "main": "index.html",
   "scripts": {

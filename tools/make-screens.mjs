@@ -396,7 +396,7 @@ function mcpScreen() {
     b.push(icon(ic, D.x + 22, y + 9, 16, active ? C.text : C.text3));
     b.push(text(D.x + 47, y + 22, label, { size: 12.5, fill: active ? '#e8eaee' : C.text2, weight: active ? 500 : 400 }));
   });
-  b.push(text(D.x + 20, D.y + D.h - 58, 'Eltes v3.18.0 · BYOK', { size: 10, fill: C.text4 }));
+  b.push(text(D.x + 20, D.y + D.h - 58, 'Eltes v3.19.0 · BYOK', { size: 10, fill: C.text4 }));
   b.push(text(D.x + 20, D.y + D.h - 44, 'Optional proxy. No telemetry.', { size: 10, fill: C.text4 }));
   b.push(text(D.x + 20, D.y + D.h - 30, 'What’s new →', { size: 10, fill: C.text3 }));
 

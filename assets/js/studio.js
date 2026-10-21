@@ -327,6 +327,15 @@ button.addEventListener('click', () => {
     el.tabs = $('#tabs');
     el.code = $('#code');
     el.gutter = $('#gutter');
+    el.findBar = $('#findBar');
+    el.findInput = $('#findInput');
+    el.findCount = $('#findCount');
+    el.findPrev = $('#findPrev');
+    el.findNext = $('#findNext');
+    el.findClose = $('#findClose');
+    el.replaceInput = $('#replaceInput');
+    el.replaceOne = $('#replaceOne');
+    el.replaceAll = $('#replaceAll');
     el.editorEmpty = $('#editorEmpty');
     el.statusPath = $('#statusPath');
     el.statusSaved = $('#statusSaved');
@@ -461,6 +470,7 @@ button.addEventListener('click', () => {
       state.tabs.push(path);
     }
     state.active = path;
+    if (el.findBar && !el.findBar.hidden) closeFind(true);
     renderTabs();
     renderFileList();
     renderEditor();
@@ -595,11 +605,140 @@ button.addEventListener('click', () => {
     onEdit();
   }
 
+  /* ------------------------------ find & replace -------------------------- */
+
+  let findHits = [];
+  let findAt = -1;
+
+  function collectFind() {
+    const needle = el.findInput.value;
+    findHits = [];
+    if (!needle) return;
+    const haystack = el.code.value.toLowerCase();
+    const target = needle.toLowerCase();
+    let at = haystack.indexOf(target);
+    while (at !== -1) {
+      findHits.push(at);
+      at = haystack.indexOf(target, at + Math.max(1, target.length));
+    }
+  }
+
+  function paintFindCount() {
+    const total = findHits.length;
+    const hasText = el.findInput.value.length > 0;
+    el.findCount.textContent = !hasText ? '' : (total ? `${findAt >= 0 ? findAt + 1 : 0}/${total}` : '0/0');
+    el.findPrev.disabled = !total;
+    el.findNext.disabled = !total;
+    el.replaceOne.disabled = !total;
+    el.replaceAll.disabled = !total;
+  }
+
+  function scrollToHit() {
+    const needle = el.findInput.value;
+    const start = findHits[findAt];
+    if (!needle || start == null) return;
+    el.code.setSelectionRange(start, start + needle.length);
+    const line = el.code.value.slice(0, start).split('\n').length - 1;
+    const lineHeight = parseFloat(getComputedStyle(el.code).lineHeight) || 20;
+    const want = line * lineHeight;
+    const view = el.code.clientHeight || 240;
+    if (want < el.code.scrollTop + lineHeight || want > el.code.scrollTop + view - lineHeight * 2) {
+      el.code.scrollTop = Math.max(0, want - view / 2);
+      el.gutter.scrollTop = el.code.scrollTop;
+    }
+  }
+
+  function refreshFind(useCaret) {
+    collectFind();
+    findAt = -1;
+    if (findHits.length) {
+      if (useCaret) {
+        const caret = el.code.selectionStart;
+        const exact = findHits.indexOf(caret);
+        findAt = exact !== -1 ? exact : findHits.findIndex((pos) => pos >= caret);
+        if (findAt === -1) findAt = 0;
+      } else {
+        findAt = 0;
+      }
+    }
+    paintFindCount();
+    if (findAt >= 0) scrollToHit();
+  }
+
+  function openFind() {
+    if (!el.findBar || el.code.disabled) return;
+    el.findBar.hidden = false;
+    const picked = el.code.value.slice(el.code.selectionStart, el.code.selectionEnd);
+    if (picked && !picked.includes('\n')) el.findInput.value = picked;
+    el.findInput.focus();
+    el.findInput.select();
+    refreshFind(false);
+  }
+
+  function closeFind(keepFocus) {
+    if (!el.findBar) return;
+    el.findBar.hidden = true;
+    findHits = [];
+    findAt = -1;
+    if (el.findCount) el.findCount.textContent = '';
+    if (!keepFocus && !el.code.disabled) el.code.focus({ preventScroll: true });
+  }
+
+  function stepFind(direction) {
+    if (el.findBar.hidden) return;
+    collectFind();
+    if (!findHits.length) { findAt = -1; paintFindCount(); return; }
+    findAt = (findAt + direction + findHits.length) % findHits.length;
+    paintFindCount();
+    scrollToHit();
+  }
+
+  function replaceCurrent() {
+    const needle = el.findInput.value;
+    if (!needle) return;
+    const from = el.code.selectionStart;
+    const to = el.code.selectionEnd;
+    collectFind();
+    if (findHits.includes(from) && to === from + needle.length) {
+      const replacement = el.replaceInput.value;
+      el.code.value = el.code.value.slice(0, from) + replacement + el.code.value.slice(to);
+      const caret = from + replacement.length;
+      el.code.selectionStart = el.code.selectionEnd = caret;
+      onEdit();
+      refreshFind(true);
+    } else {
+      stepFind(1);
+    }
+  }
+
+  function replaceAllMatches() {
+    const needle = el.findInput.value;
+    if (!needle) return;
+    collectFind();
+    const count = findHits.length;
+    if (!count) return;
+    const pattern = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const replacement = el.replaceInput.value;
+    el.code.value = el.code.value.replace(new RegExp(pattern, 'gi'), () => replacement);
+    onEdit();
+    refreshFind(false);
+    toast(`${count} replaced`, 'ok');
+  }
+
   function editorKeydown(event) {
     const mod = event.metaKey || event.ctrlKey;
     if (mod && event.key.toLowerCase() === 's') {
       event.preventDefault();
       saveActive();
+      return;
+    }
+    if (mod && event.key.toLowerCase() === 'f') {
+      event.preventDefault();
+      openFind();
+      return;
+    }
+    if (event.key === 'Escape' && el.findBar && !el.findBar.hidden) {
+      closeFind();
       return;
     }
     if (mod && event.key.toLowerCase() === 'p') {
@@ -1741,6 +1880,27 @@ Swap \`build.mjs\` for Vite or any other tool whenever you want one.
 
     el.code.addEventListener('input', onEdit);
     el.code.addEventListener('keydown', editorKeydown);
+
+    el.findInput.addEventListener('input', () => refreshFind(true));
+    el.findNext.addEventListener('click', () => stepFind(1));
+    el.findPrev.addEventListener('click', () => stepFind(-1));
+    el.findClose.addEventListener('click', () => closeFind());
+    el.replaceOne.addEventListener('click', replaceCurrent);
+    el.replaceAll.addEventListener('click', replaceAllMatches);
+    el.findBar.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') { event.preventDefault(); closeFind(); return; }
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      if (event.target === el.replaceInput) replaceCurrent();
+      else stepFind(event.shiftKey ? -1 : 1);
+    });
+    document.addEventListener('keydown', (event) => {
+      const mod = event.metaKey || event.ctrlKey;
+      if (!mod || event.key.toLowerCase() !== 'f' || event.defaultPrevented) return;
+      if (!el.code || el.code.disabled) return;
+      event.preventDefault();
+      openFind();
+    });
     el.code.addEventListener('click', updateStatus);
     el.code.addEventListener('keyup', updateStatus);
     el.code.addEventListener('scroll', () => { el.gutter.scrollTop = el.code.scrollTop; });

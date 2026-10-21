@@ -91,6 +91,26 @@
         <div class="st-code">
           <div class="st-gutter" id="gutter" aria-hidden="true">1</div>
           <textarea id="code" aria-label="Code" spellcheck="false" autocomplete="off" autocapitalize="off" disabled></textarea>
+          <div class="st-find" id="findBar" hidden>
+            <div class="st-find-row">
+              <input class="st-find-input" id="findInput" type="text" placeholder="Find" aria-label="Find in the open file" spellcheck="false" autocomplete="off" />
+              <output class="st-find-count" id="findCount" aria-live="polite"></output>
+              <button type="button" class="st-icon-btn" id="findPrev" aria-label="Previous match" title="Previous (Shift+Enter)">
+                <span data-icon="arrow-up" data-icon-size="12"></span>
+              </button>
+              <button type="button" class="st-icon-btn" id="findNext" aria-label="Next match" title="Next (Enter)">
+                <span data-icon="arrow-down" data-icon-size="12"></span>
+              </button>
+              <button type="button" class="st-icon-btn" id="findClose" aria-label="Close find" title="Close (Esc)">
+                <span data-icon="x" data-icon-size="12"></span>
+              </button>
+            </div>
+            <div class="st-find-row">
+              <input class="st-find-input" id="replaceInput" type="text" placeholder="Replace with" aria-label="Replace with" spellcheck="false" autocomplete="off" />
+              <button type="button" class="st-find-btn" id="replaceOne">Replace</button>
+              <button type="button" class="st-find-btn" id="replaceAll">All</button>
+            </div>
+          </div>
           <div class="st-editor-empty" id="editorEmpty">
             <div>
               <strong>Pick a file to start</strong>

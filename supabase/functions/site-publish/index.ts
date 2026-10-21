@@ -39,7 +39,7 @@ const CORS = {
 
 // What the site is made of. Tests, migrations and the desktop harness are not
 // published — only pages, their assets and the Windows launcher zip.
-const PUBLISHED = [/^[a-z0-9-]+\.html$/i, /^config\.js$/, /^site\.webmanifest$/, /^assets\//, /^downloads\//];
+const PUBLISHED = [/^[a-z0-9-]+\.html$/i, /^config\.js$/, /^site\.webmanifest$/, /^assets\//, /^downloads\//, /^mcp\//];
 
 const TYPES = {
   html: 'text/html; charset=utf-8',

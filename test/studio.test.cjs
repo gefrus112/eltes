@@ -222,3 +222,23 @@ test('previewMime serves the right content types', () => {
   assert.equal(previewMime('/x/shot.png'), 'image/png');
   assert.equal(previewMime('/x/blob.bin'), 'application/octet-stream');
 });
+
+
+test('the editor page ships find and replace', async () => {
+  const { readFile } = require('node:fs/promises');
+  const { join } = require('node:path');
+  const html = await readFile(join(__dirname, '..', 'studio.html'), 'utf8');
+  for (const id of ['findBar', 'findInput', 'findCount', 'findNext', 'findPrev', 'replaceInput', 'replaceOne', 'replaceAll']) {
+    assert.ok(html.includes(`id="${id}"`), `#${id} exists`);
+  }
+  assert.match(html, /id="findInput"[^>]*type="text"/, 'the find field declares its type');
+  assert.match(html, /id="replaceInput"[^>]*type="text"/, 'the replace field declares its type');
+
+  const js = await readFile(join(__dirname, '..', 'assets', 'js', 'studio.js'), 'utf8');
+  for (const fn of ['openFind', 'closeFind', 'stepFind', 'replaceCurrent', 'replaceAllMatches']) {
+    assert.match(js, new RegExp(`function ${fn}\\(`), `${fn} is defined`);
+  }
+  assert.match(js, /key\.toLowerCase\(\) === 'f'/, 'Ctrl/Cmd+F is wired');
+  assert.match(js, /addEventListener\('click', replaceAllMatches\)/, 'replace all is bound');
+  assert.match(js, /findBar\.addEventListener\('keydown'/, 'the find bar owns its keys');
+});

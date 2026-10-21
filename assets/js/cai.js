@@ -5,6 +5,9 @@
    weights. It handles bounded Eltes help, model choice, arithmetic, units,
    dates, glossary terms and active-chat excerpts. It can still be wrong.
    No network and no key; unsupported questions should receive an abstention.
+   v3.4 — improved agent: expanded glossary, time units, date arithmetic,
+   median/sum/product natural language, Kelvin handling, safer fallbacks,
+   and a code-aware streaming chunker.
    ========================================================================== */
 window.EltesCAI = (function () {
   'use strict';
@@ -49,6 +52,103 @@ window.EltesCAI = (function () {
     };
   }
 
+  // ---- date arithmetic helpers ----
+  function parseNaturalDate(str, now) {
+    const s = String(str || '').trim().toLowerCase();
+    if (!s) return null;
+    if (s === 'today' || s === 'now') return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (s === 'tomorrow') { const d = new Date(now); d.setDate(d.getDate() + 1); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+    if (s === 'yesterday') { const d = new Date(now); d.setDate(d.getDate() - 1); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+    // ISO YYYY-MM-DD or YYYY/MM/DD
+    let m = s.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/);
+    if (m) { const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])); if (!isNaN(d)) return d; }
+    // US M/D/YYYY
+    m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+    if (m) { const d = new Date(Number(m[3]), Number(m[1]) - 1, Number(m[2])); if (!isNaN(d)) return d; }
+    // Month name D YYYY  e.g. jan 5 2024, january 5, 2024
+    m = s.match(/^(jan|january|feb|february|mar|march|apr|april|may|jun|june|jul|july|aug|august|sep|sept|september|oct|october|nov|november|dec|december)\s+(\d{1,2})(?:,)?\s+(\d{4})$/);
+    if (m) {
+      const months = { jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2, apr: 3, april: 3, may: 4, jun: 5, june: 5, jul: 6, july: 6, aug: 7, august: 7, sep: 8, sept: 8, september: 8, oct: 9, october: 9, nov: 10, november: 10, dec: 11, december: 11 };
+      const d = new Date(Number(m[3]), months[m[1]], Number(m[2]));
+      if (!isNaN(d)) return d;
+    }
+    // Fallback: Date.parse but clamp to date-only
+    const parsed = new Date(s);
+    if (!isNaN(parsed)) {
+      // Only accept if string contained a year to avoid ambiguous parses
+      if (/\d{4}/.test(s)) return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    }
+    return null;
+  }
+
+  function dateMathIntent(text, now) {
+    const t = norm(text);
+    // days between X and Y
+    let m = t.match(/(?:how many )?days (?:between|from)\s+(.+?)\s+and\s+(.+?)(?:\?)?$/);
+    if (m) {
+      const a = parseNaturalDate(m[1].trim(), now);
+      const b = parseNaturalDate(m[2].trim(), now);
+      if (a && b) {
+        const diff = Math.round((b - a) / 86400000);
+        const abs = Math.abs(diff);
+        const dir = diff >= 0 ? 'after' : 'before';
+        const aStr = a.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        const bStr = b.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        return {
+          intent: 'date-math',
+          text: `**${abs} day${abs === 1 ? '' : 's'}** between **${aStr}** and **${bStr}**.\n\n\`${aStr} → ${bStr} = ${diff} days\` (${abs} days ${dir}). Calculated from your device calendar — no network.`
+        };
+      }
+    }
+    // what is X days from Y / in X days / X days from today
+    m = t.match(/(?:what(?:'s| is)?\s+)?(?:what date is\s+)?(?:in\s+)?(-?\d+)\s+days?\s+(?:from\s+(.+?)|after\s+(.+?)|ago)(?:\?)?$/);
+    if (m) {
+      const n = Number(m[1]);
+      const baseStr = (m[2] || m[3] || '').trim() || 'today';
+      const base = parseNaturalDate(baseStr, now);
+      if (base && Number.isFinite(n)) {
+        const out = new Date(base);
+        out.setDate(out.getDate() + n);
+        const baseFmt = base.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const outFmt = out.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const sign = n >= 0 ? '+' : '';
+        return {
+          intent: 'date-math',
+          text: `**${outFmt}**\n\n\`${baseFmt} ${sign}${n} days = ${outFmt}\``
+        };
+      }
+    }
+    // how many days until X / days since X
+    m = t.match(/how many days (?:until|till|to)\s+(.+?)(?:\?)?$/);
+    if (m) {
+      const target = parseNaturalDate(m[1].trim(), now);
+      if (target) {
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const diff = Math.round((target - today) / 86400000);
+        const targetFmt = target.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        if (diff === 0) return { intent: 'date-math', text: `**Today** is **${targetFmt}** — 0 days away.` };
+        if (diff > 0) return { intent: 'date-math', text: `**${diff} day${diff === 1 ? '' : 's'} until ${targetFmt}** from today.` };
+        return { intent: 'date-math', text: `**${Math.abs(diff)} day${Math.abs(diff) === 1 ? '' : 's'} since ${targetFmt}**.` };
+      }
+    }
+    // weeks/months helpers: "how many weeks between"
+    m = t.match(/how many (weeks|months|years) between\s+(.+?)\s+and\s+(.+?)(?:\?)?$/);
+    if (m) {
+      const unit = m[1];
+      const a = parseNaturalDate(m[2].trim(), now);
+      const b = parseNaturalDate(m[3].trim(), now);
+      if (a && b) {
+        const days = Math.abs(Math.round((b - a) / 86400000));
+        let value, label;
+        if (unit === 'weeks') { value = (days / 7); label = 'weeks'; }
+        else if (unit === 'months') { value = (days / 30.44); label = 'months (~30.44-day avg)'; }
+        else { value = (days / 365.25); label = 'years (~365.25-day avg)'; }
+        return { intent: 'date-math', text: `**${cleanNumber(value)} ${label}** — ${days} days between the two dates.` };
+      }
+    }
+    return null;
+  }
+
   /* --------------------------------- maths -------------------------------- */
 
   const MATH_FUNCTIONS = Object.freeze({
@@ -73,6 +173,7 @@ window.EltesCAI = (function () {
     max: { min: 1, max: Infinity, run: (a) => Math.max(...a) },
     sum: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total + n, 0) },
     mean: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total + n, 0) / a.length },
+    median: { min: 1, max: Infinity, run: (a) => { const s = [...a].sort((x, y) => x - y); const mid = Math.floor(s.length / 2); return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2; } },
     product: { min: 1, max: Infinity, run: (a) => a.reduce((total, n) => total * n, 1) },
     pow: { min: 2, max: 2, run: (a) => Math.pow(a[0], a[1]) }
   });
@@ -311,8 +412,20 @@ window.EltesCAI = (function () {
       .replace(/²/g, '^2')
       .replace(/³/g, '^3');
 
+    // natural language aggregates: average/mean, sum, product, min, max, median
     const average = candidate.match(/^(?:average|mean)\s+of\s+(.+)$/);
     if (average) candidate = `mean(${average[1].replace(/\s+and\s+/g, ',')})`;
+    const sumMatch = candidate.match(/^(?:sum|total)\s+of\s+(.+)$/);
+    if (sumMatch) candidate = `sum(${sumMatch[1].replace(/\s+and\s+/g, ',')})`;
+    const prodMatch = candidate.match(/^(?:product)\s+of\s+(.+)$/);
+    if (prodMatch) candidate = `product(${prodMatch[1].replace(/\s+and\s+/g, ',')})`;
+    const minMatch = candidate.match(/^min(?:imum)?\s+of\s+(.+)$/);
+    if (minMatch) candidate = `min(${minMatch[1].replace(/\s+and\s+/g, ',')})`;
+    const maxMatch = candidate.match(/^max(?:imum)?\s+of\s+(.+)$/);
+    if (maxMatch) candidate = `max(${maxMatch[1].replace(/\s+and\s+/g, ',')})`;
+    const medMatch = candidate.match(/^median\s+of\s+(.+)$/);
+    if (medMatch) candidate = `median(${medMatch[1].replace(/\s+and\s+/g, ',')})`;
+
     candidate = candidate
       .replace(/\bsquare root of\s+(-?(?:\d+(?:\.\d+)?|pi|e))\b/g, 'sqrt($1)')
       .replace(/\bcube root of\s+(-?(?:\d+(?:\.\d+)?|pi|e))\b/g, 'cbrt($1)')
@@ -330,7 +443,7 @@ window.EltesCAI = (function () {
 
     if (!candidate || !/^[a-z0-9+\-*/^%().,!×÷\s]+$/i.test(candidate)) return null;
     if (!/[0-9]/.test(candidate) && !/\b(?:pi|e)\b/.test(candidate)) return null;
-    if (!/[-+*/^%×÷!()]|(?:\d\s*x\s*\d|\bx\b)|\b(?:sqrt|cbrt|abs|sin|cos|tan|asin|acos|atan|ln|log|log10|log2|exp|floor|ceil|round|min|max|sum|mean|product|pi|e)\b/i.test(candidate)) return null;
+    if (!/[-+*/^%×÷!()]|(?:\d\s*x\s*\d|\bx\b)|\b(?:sqrt|cbrt|abs|sin|cos|tan|asin|acos|atan|ln|log|log10|log2|exp|floor|ceil|round|min|max|sum|mean|median|product|pi|e)\b/i.test(candidate)) return null;
     try {
       const value = evaluate(candidate);
       if (!Number.isFinite(value)) return 'That expression does not produce a finite number (for example, division by zero, an invalid function domain or numeric overflow), so I will not present it as a normal result.';
@@ -365,14 +478,23 @@ window.EltesCAI = (function () {
     // data → bytes
     b: { kind: 'data', f: 1 }, kb: { kind: 'data', f: 1000 }, mb: { kind: 'data', f: 1e6 },
     gb: { kind: 'data', f: 1e9 }, tb: { kind: 'data', f: 1e12 }, kib: { kind: 'data', f: 1024 },
-    mib: { kind: 'data', f: 1048576 }, gib: { kind: 'data', f: 1073741824 },
+    mib: { kind: 'data', f: 1048576 }, gib: { kind: 'data', f: 1073741824 }, tib: { kind: 'data', f: 1099511627776 },
     // speed → m/s
     'km/h': { kind: 'speed', f: 0.277777778 }, kph: { kind: 'speed', f: 0.277777778 },
     mph: { kind: 'speed', f: 0.44704 }, 'm/s': { kind: 'speed', f: 1 },
     // area → m²
     'm2': { kind: 'area', f: 1 }, 'km2': { kind: 'area', f: 1e6 }, 'ft2': { kind: 'area', f: 0.09290304 },
     'sqft': { kind: 'area', f: 0.09290304 }, acre: { kind: 'area', f: 4046.8564224 },
-    hectare: { kind: 'area', f: 10000 }, ha: { kind: 'area', f: 10000 }
+    hectare: { kind: 'area', f: 10000 }, ha: { kind: 'area', f: 10000 },
+    // time → seconds
+    ms: { kind: 'time', f: 0.001 }, millisecond: { kind: 'time', f: 0.001 }, milliseconds: { kind: 'time', f: 0.001 },
+    s: { kind: 'time', f: 1 }, sec: { kind: 'time', f: 1 }, secs: { kind: 'time', f: 1 }, second: { kind: 'time', f: 1 }, seconds: { kind: 'time', f: 1 },
+    min: { kind: 'time', f: 60 }, mins: { kind: 'time', f: 60 }, minute: { kind: 'time', f: 60 }, minutes: { kind: 'time', f: 60 },
+    h: { kind: 'time', f: 3600 }, hr: { kind: 'time', f: 3600 }, hrs: { kind: 'time', f: 3600 }, hour: { kind: 'time', f: 3600 }, hours: { kind: 'time', f: 3600 },
+    day: { kind: 'time', f: 86400 }, days: { kind: 'time', f: 86400 },
+    week: { kind: 'time', f: 604800 }, weeks: { kind: 'time', f: 604800 },
+    month: { kind: 'time', f: 2629746 }, months: { kind: 'time', f: 2629746 },
+    year: { kind: 'time', f: 31557600 }, years: { kind: 'time', f: 31557600 }
   };
 
   function temperature(value, from, to) {
@@ -380,12 +502,21 @@ window.EltesCAI = (function () {
     return to === 'c' ? c : to === 'f' ? c * 9 / 5 + 32 : c + 273.15;
   }
 
+  // Shared by the agent: convert between units of the same kind, or return null.
+  function convertUnits(value, from, to) {
+    const a = UNITS[String(from || '').toLowerCase()];
+    const b = UNITS[String(to || '').toLowerCase()];
+    if (!a || !b || a.kind !== b.kind) return null;
+    return { value: (Number(value) * a.f) / b.f, kind: a.kind };
+  }
+
   function unitIntent(text) {
     const t = norm(text).replace(/degrees?|°|celsius|centigrade/g, (m) => (/fahrenheit/.test(m) ? 'f' : 'c'));
-    let m = t.match(/(-?\d+(?:\.\d+)?)\s*(?:°\s*)?(f|c)\b(?:\s*(?:to|in|into)\s*)(?:°\s*)?(f|c)\b/);
+    // Support C, F, K short forms — Kelvin has no degree symbol
+    let m = t.match(/(-?\d+(?:\.\d+)?)\s*(?:°\s*)?(f|c|k)\b(?:\s*(?:to|in|into)\s*)(?:°\s*)?(f|c|k)\b/);
     if (m) {
-      const from = m[2] === 'f' ? 'f' : 'c';
-      const to = m[3] === 'f' ? 'f' : 'c';
+      const from = m[2].toLowerCase();
+      const to = m[3].toLowerCase();
       if (from === to) return `${cleanNumber(Number(m[1]))} °${from.toUpperCase()} is the same in °${to.toUpperCase()}.`;
       const out = temperature(Number(m[1]), from, to);
       return `**${cleanNumber(out)} °${to.toUpperCase()}**\n\n\`${m[1]} °${from.toUpperCase()} → ${cleanNumber(out)} °${to.toUpperCase()}\``;
@@ -394,6 +525,7 @@ window.EltesCAI = (function () {
     if (m) {
       const key = (w) => (w[0] === 'f' ? 'f' : w[0] === 'c' ? 'c' : 'k');
       const from = key(m[2]); const to = key(m[3]);
+      if (from === to) return `${cleanNumber(Number(m[1]))} °${from.toUpperCase()} is the same in °${to.toUpperCase()}.`;
       const out = temperature(Number(m[1]), from, to);
       return `**${cleanNumber(out)} °${to.toUpperCase()}**`;
     }
@@ -403,13 +535,14 @@ window.EltesCAI = (function () {
     if (!a || !b || a.kind !== b.kind) return null;
     const value = Number(m[1]);
     const out = (value * a.f) / b.f;
-    return `**${cleanNumber(out)} ${m[3]}**\n\n\`${cleanNumber(value)} ${m[2]} = ${cleanNumber(out)} ${m[3]}\`\n\n${a.kind === 'data' ? 'Using decimal units (1 KB = 1,000 bytes).' : 'Exact conversion factors.'}`;
+    const kindNote = a.kind === 'data' ? 'Using decimal units (1 KB = 1,000 bytes; use KiB for 1,024).' : a.kind === 'time' ? 'Time conversion using 1 day = 24 h, 1 year ≈ 365.25 days.' : 'Exact conversion factors.';
+    return `**${cleanNumber(out)} ${m[3]}**\n\n\`${cleanNumber(value)} ${m[2]} = ${cleanNumber(out)} ${m[3]}\`\n\n${kindNote}`;
   }
 
   /* ------------------------------- counting ------------------------------- */
 
   function countIntent(text) {
-    const quoted = text.match(/["“']([\s\S]+)["”']/);
+    const quoted = text.match(/[\"“']([\s\S]+)[\"”']/);
     if (!quoted) return null;
     if (!/(count|how many)\s+(words?|characters?|chars?|letters?)/i.test(text) && !/word count|character count/i.test(text)) return null;
     const body = quoted[1];
@@ -417,6 +550,115 @@ window.EltesCAI = (function () {
     const chars = body.length;
     const noSpaces = body.replace(/\s/g, '').length;
     return `That text has **${words} word${words === 1 ? '' : 's'}**, **${chars} characters** (including spaces) and **${noSpaces}** without spaces.`;
+  }
+
+  /* -------------------------- base conversion ------------------------- */
+  function baseIntent(text) {
+    const t = norm(text);
+    // hex/bin/octal conversion: "255 to hex", "0xFF to decimal", "0b1010 in decimal", "convert 42 to binary"
+    let m = t.match(/^(?:convert\s+)?(0x[0-9a-f]+|0b[01]+|0o[0-7]+|-?\d+)\s*(?:to|in|into|as)\s*(hex|hexadecimal|binary|bin|octal|oct|decimal|dec|base\s*16|base\s*2|base\s*10|base\s*8)\b/);
+    if (!m) {
+      // also handle "255 in hex" without 0x prefix detection already covered
+      m = t.match(/^(?:what is\s+)?(0x[0-9a-f]+|0b[01]+|-?\d+)\s+in\s+(hex|hexadecimal|binary|bin|octal|oct|decimal|dec)\b/);
+    }
+    if (!m) return null;
+    const src = m[1];
+    let target = m[2].replace(/\s+/g, '');
+    if (target === 'hexadecimal') target = 'hex';
+    if (target === 'bin') target = 'binary';
+    if (target === 'oct') target = 'octal';
+    if (target === 'dec') target = 'decimal';
+    if (target === 'base16') target = 'hex';
+    if (target === 'base2') target = 'binary';
+    if (target === 'base8') target = 'octal';
+    if (target === 'base10') target = 'decimal';
+    let value;
+    try {
+      if (/^0x/i.test(src)) value = parseInt(src, 16);
+      else if (/^0b/i.test(src)) value = parseInt(src.slice(2), 2);
+      else if (/^0o/i.test(src)) value = parseInt(src.slice(2), 8);
+      else value = parseInt(src, 10);
+      if (!Number.isFinite(value) || Math.abs(value) > 0x7fffffff) return null;
+    } catch (e) { return null; }
+    let out, label;
+    if (target === 'hex') { out = (value < 0 ? '-' : '') + '0x' + Math.abs(value).toString(16).toUpperCase(); label = 'hexadecimal'; }
+    else if (target === 'binary') { out = (value < 0 ? '-' : '') + '0b' + Math.abs(value).toString(2); label = 'binary'; }
+    else if (target === 'octal') { out = (value < 0 ? '-' : '') + '0o' + Math.abs(value).toString(8); label = 'octal'; }
+    else { out = String(value); label = 'decimal'; }
+    const srcLabel = /^0x/i.test(src) ? 'hex' : /^0b/i.test(src) ? 'binary' : /^0o/i.test(src) ? 'octal' : 'decimal';
+    return { intent: 'base', text: `**${out}** (${label})\n\n\`${src} (${srcLabel}) → ${out} (${label})\`` };
+  }
+
+  function textTransformIntent(text) {
+    // text transforms on quoted strings: uppercase, lowercase, reverse, titlecase, sort
+    const t = String(text || '');
+    let m = t.match(/^\s*(uppercase|lowercase|titlecase|title case|reverse|sort|alphabetize)\s*[: ]\s*[\"“']([\s\S]+)[\"”']\s*$/i);
+    if (!m) m = t.match(/^\s*(uppercase|lowercase|reverse)\s+[\"“']([\s\S]+)[\"”']\s*$/i);
+    if (!m) {
+      // without quotes: uppercase hello world
+      const mq = t.match(/^\s*(uppercase|lowercase|reverse)\s+(.+)$/i);
+      if (mq && mq[2].length < 200 && !/[?]$/.test(mq[2].trim())) {
+        m = mq;
+      }
+    }
+    if (!m) {
+      // sort words: apple banana cherry
+      const ms = t.match(/^\s*(?:sort|alphabetize)\s+(?:words:?)?\s*(.+)$/i);
+      if (ms && ms[1].split(/\s+/).length >= 2 && ms[1].length < 300) {
+        const words = ms[1].trim().split(/\s+/).filter(Boolean);
+        if (words.length >= 2 && words.length <= 30) {
+          const sorted = [...words].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+          return { intent: 'text-transform', text: `**${sorted.join(' ')}**\n\nSorted ${words.length} words alphabetically.` };
+        }
+      }
+      return null;
+    }
+    const op = m[1].toLowerCase().replace(/\s+/g, '');
+    const body = m[2];
+    if (body.length > 800) return null;
+    let out;
+    if (op === 'uppercase') out = body.toUpperCase();
+    else if (op === 'lowercase') out = body.toLowerCase();
+    else if (op === 'titlecase' || op === 'title case') out = body.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+    else if (op === 'reverse') out = body.split('').reverse().join('');
+    else if (op === 'sort' || op === 'alphabetize') {
+      const words = body.trim().split(/\s+/).filter(Boolean);
+      out = [...words].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).join(' ');
+    } else return null;
+    return { intent: 'text-transform', text: `**${out}**\n\n\`${op}: \"${body.slice(0, 80)}\" → \"${out.slice(0, 80)}\"\`` };
+  }
+
+  function randomIntent(text) {
+    const t = norm(text);
+    if (/^(flip a coin|coin flip|flip coin)$/.test(t)) {
+      const side = Math.random() < 0.5 ? 'Heads' : 'Tails';
+      return { intent: 'random', text: `**${side}**\n\nCoin flip — random from your device (not cryptographic).` };
+    }
+    let m = t.match(/^(?:roll a dice|roll dice|roll a d(\d+)|roll d(\d+))$/);
+    if (m) {
+      const sides = Number(m[1] || m[2] || 6);
+      if (sides < 2 || sides > 100) return { intent: 'random', text: 'Use a dice with 2–100 sides, e.g. “roll a d20”.' };
+      const roll = Math.floor(Math.random() * sides) + 1;
+      return { intent: 'random', text: `**${roll}**\n\nRolled a d${sides} (1–${sides}) — device RNG.` };
+    }
+    m = t.match(/^(?:random number between|random between|pick a number between)\s+(-?\d+)\s+and\s+(-?\d+)$/);
+    if (!m) m = t.match(/^random (-?\d+)\s+(-?\d+)$/);
+    if (m) {
+      let a = Number(m[1]); let b = Number(m[2]);
+      if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+      if (a > b) [a, b] = [b, a];
+      if (b - a > 1000000) return { intent: 'random', text: 'Range too large — keep it within 1,000,000 numbers.' };
+      const n = Math.floor(Math.random() * (b - a + 1)) + a;
+      return { intent: 'random', text: `**${n}**\n\nRandom integer between ${a} and ${b} (inclusive).` };
+    }
+    if (/^pick (?:a )?random (?:item|word|choice) from/i.test(t)) {
+      const items = text.split(/[,]/).map(s => s.trim()).filter(Boolean);
+      if (items.length >= 2) {
+        const pick = items[Math.floor(Math.random() * items.length)];
+        return { intent: 'random', text: `**${pick}**\n\nPicked randomly from ${items.length} options.` };
+      }
+    }
+    return null;
   }
 
   /* -------------------------- Eltes knowledge base ------------------------- */
@@ -472,7 +714,7 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['tools', 'tool calling', 'agent', 'tool loop', 'search history', 'current time'],
-      a: `## Agent mode\n\nAgent mode is **on by default** — the **Agent** chip in the composer toggles it. Eltes offers six real functions, all executed in this page:\n\n- \`calculate\` — arithmetic, functions and factorials through the CAI parser\n- \`convert_units\` — length, mass, volume, data, speed, area, temperatures\n- \`percent\` — percent of a number, a discount, or the change between two values\n- \`date_math\` — days between dates, weekday of a date, days until a date\n- \`current_time\` — the device clock, with timezone\n- \`search_history\` — search this browser's saved chats\n\nWith a hosted model the loop runs up to four rounds. With Eltes CAI-1 the agent plans the run on-device: it splits the message on \`then\`, matches each clause to a tool and chains follow-ups like \`then multiply by 3\`, up to six steps. Every call is drawn as a card with arguments, result, error state and runtime.`
+      a: `## Agent tools\n\nEnable the wrench chip in the composer (or \`⌘K → Toggle tools\`). Eltes then offers the model three real functions:\n\n- \`current_time\` — the device clock, with timezone\n- \`calculate\` — arithmetic evaluated in a sandboxed parser\n- \`search_history\` — search this browser's saved chats\n\nTool calls appear as cards with arguments, output and runtime. Eltes loops up to four rounds, then stops. Models without tool support hide the toggle.\n\nFor unit conversions, date math and definitions, CAI handles those directly on-device without a hosted model.`
     },
     {
       keys: ['export', 'import', 'backup', 'share', 'json', 'markdown'],
@@ -493,6 +735,14 @@ window.EltesCAI = (function () {
     {
       keys: ['reset', 'clear data', 'delete everything', 'wipe', 'logout', 'sign out'],
       a: `## Clearing data\n\nSettings → Data → **Delete local data** removes chats, settings and keys from this browser after a confirmation.\n\nSigning out only removes the profile; chats and keys stay. Export first if you want a backup.`
+    },
+    {
+      keys: ['troubleshoot', 'not working', 'not responding', 'bug', 'issue', 'fix'],
+      a: `## Troubleshooting\n\n- **No reply?** Check you picked a model that matches a connected key, or switch to **Eltes CAI-1** (no key needed). For hosted models, verify the key in **Settings → API keys** and that streaming is enabled.\n- **Network/CORS error?** The provider may block browser calls. Try another provider or configure the optional proxy in **Settings → API keys → Optional Vercel/local backend**.\n- **Rate limit 429?** Wait briefly, check provider billing/quota, then retry or switch models.\n- **Custom endpoint not connecting?** Confirm the base URL ends with \`/v1\`, the model id matches the runner, and CORS allows your Eltes origin.\n- **Still stuck?** Open \`docs.html\` and search for your error message.`
+    },
+    {
+      keys: ['slash', 'slash command', 'chat features', 'chat command', '/help', 'chat help', 'commands'],
+      a: `## Chat features & slash commands\n\nEltes chat has built-in slash commands — no key needed:\n\n- \`/help\` — show all commands\n- \`/clear\` — clear current conversation\n- \`/export\` — download chat as Markdown\n- \`/model <id>\` — switch model (e.g. \`/model gpt-4o\`)\n- \`/calc <expr>\` — calculate (e.g. \`/calc sqrt(81) + 2*3\`)\n- \`/convert <value> <from> to <to>\` — units (e.g. \`/convert 5 mi to km\`)\n- \`/define <term>\` — glossary (e.g. \`/define RAG\`)\n- \`/time\` — current device time\n- \`/coin\` / \`/dice\` / \`/random 1 100\` — quick random utilities\n\nCAI also handles **base conversion** (\`255 to hex\`, \`0xFF to decimal\`, \`42 to binary\`), **text transforms** (\`uppercase \"hello\"\`, \`reverse \"eltes\"\`, \`sort apple banana\`) and **date math** (\`days between 2024-01-01 and 2024-02-01\`). Type \`/help\` in the composer to see them.`
     }
   ];
 
@@ -502,14 +752,14 @@ window.EltesCAI = (function () {
     models: 'docs.html#models', 'which model should': 'docs.html#models', account: 'docs.html#accounts',
     pricing: 'docs.html#pricing', privacy: 'docs.html#privacy', download: 'docs.html#downloads',
     tools: 'docs.html#agent', export: 'docs.html#chat', 'custom endpoint': 'docs.html#custom-endpoint',
-    shortcut: 'docs.html#shortcuts', docs: 'docs.html', reset: 'docs.html#settings'
+    shortcut: 'docs.html#shortcuts', docs: 'docs.html', reset: 'docs.html#settings', troubleshoot: 'docs.html#providers'
   });
 
   const GLOSSARY = {
     'llm': 'A **large language model** is a neural network trained to process and generate text. It learns statistical patterns from training data; it is not a verified database, and its answers can be wrong.',
     'token': 'A **token** is a unit produced by a model tokenizer, often a word piece, punctuation mark or other text fragment. Some providers bill by tokens; billing rules vary.',
     'context window': 'The **context window** is the maximum number of tokens a model can process in one request, including instructions, conversation and generated output. The limit and its exact accounting are model-specific.',
-    'agent': 'An **agent** is a model given tools and a loop: it plans, calls a tool, reads the result and continues. Eltes caps hosted loops at four rounds and the on-device planner at six steps.',
+    'agent': 'An **agent** is a model given tools and a loop: it plans, calls a tool, reads the result and continues. Eltes caps the loop at four rounds.',
     'cors': '**CORS** is a browser rule: a page can only read a cross-origin response when the server sends the right headers. A missing header looks like a network failure, even though the request may have reached the API.',
     'byok': '**BYOK** means bring your own key. Your provider account is billed under its terms. In direct mode Eltes sends requests to that provider; with an optional proxy, requests also transit the configured backend.',
     'api key': 'An **API key** is a secret that identifies your account to a provider. Treat it like a password: never commit it, and rotate it if it leaks.',
@@ -549,13 +799,23 @@ window.EltesCAI = (function () {
     'epoch': 'An **epoch** is one pass through the training examples. More epochs are not automatically better; too many can overfit the data.',
     'data leakage': '**Data leakage** occurs when evaluation information unintentionally influences training or model selection, making reported test performance overly optimistic.',
     'tf-idf': '**TF-IDF** scores terms by how frequent they are in a document and how uncommon they are across the collection. It is a simple lexical retrieval method, not a language model.',
-    'top-k': '**Top-k retrieval** returns the k highest-ranked results for a query. A high rank is a relevance estimate, not proof that the result is evidence.'
+    'top-k': '**Top-k retrieval** returns the k highest-ranked results for a query. A high rank is a relevance estimate, not proof that the result is evidence.',
+    'rag': '**RAG (retrieval-augmented generation)** retrieves relevant documents at query time and grounds the answer in that evidence. It uses a curated corpus, retrieval with traceable sources, and abstains when evidence is weak. It is not the same as a tokenizer entry, and adding a vocabulary list does not create retrieval capability.',
+    'embedding': 'An **embedding** is a dense numeric vector representing text, images or other data so that similar meanings are near each other in vector space. Embeddings power semantic search, clustering and many retrieval systems; they still require a curated corpus and evaluation.',
+    'fine-tuning': '**Fine-tuning** continues training an existing model on a smaller, task-specific dataset. It can adapt tone, format and some behaviors, but does not reliably inject large new knowledge bases or guarantee factual correctness. Retrieval is often more reliable for changing facts.',
+    'attention': '**Attention** is the mechanism in a transformer that lets each token weigh every other token in context. **Self-attention** computes those weights from the same sequence; it is powerful but computationally expensive at very long contexts.',
+    'prompt': 'A **prompt** is the input text that instructs a model — including system, user and any retrieved context. Prompt clarity often matters more than model size for bounded tasks.',
+    'overfitting': '**Overfitting** is when a model memorizes training details and generalizes poorly. It is managed with held-out evaluation, regularization and limiting training epochs.',
+    'self-attention': '**Self-attention** is the core operation in a transformer where each position attends to all positions in the same sequence, learning contextual relationships between tokens.'
   };
 
   const GLOSSARY_ALIASES = {
     'retrieval augmented generation': 'rag',
     'retrieval-augmented generation': 'rag',
     'retrieval augmentation': 'rag',
+    'rag': 'rag',
+    'embeddings': 'embedding',
+    'vector embeddings': 'embedding',
     'vector db': 'vector database',
     'context': 'context window',
     'context length': 'context window',
@@ -576,7 +836,8 @@ window.EltesCAI = (function () {
     'training corpus': 'training data',
     'test set': 'evaluation',
     'eval': 'evaluation',
-    'tf idf': 'tf-idf'
+    'tf idf': 'tf-idf',
+    'retrieval-augmented generation': 'rag'
   };
 
   function modelAdvice(text) {
@@ -668,7 +929,7 @@ window.EltesCAI = (function () {
   }
 
   function trainingAnswer() {
-    return `## CAI training and the “4,000,000 vocabulary”\n\nI have not trained model weights. In this repository, CAI is a deterministic JavaScript rules-and-knowledge system; there is no neural checkpoint, training corpus or training pipeline to run.\n\nA tokenizer vocabulary is a set of text pieces, not a measure of how much verified knowledge a model has. A four-million-word list would not by itself teach meanings or stop wrong answers, and it is not a sensible substitute for training data.\n\nA practical reliability path is to use a suitable existing open-weight model, retrieve answers from curated documents with source references, abstain when evidence is weak, and evaluate it against a test set that includes ambiguous and out-of-scope questions. Fine-tuning can shape behavior but does not guarantee factual accuracy; retrieval is usually the better way to add changing facts.\n\nThis CAI update can retrieve exact evidence from the active chat and is more conservative about unsupported questions. It is not a training run or a four-million-entry knowledge base.`;
+    return `## CAI training and the “4,000,000 vocabulary”\n\nI have not trained model weights. In this repository, CAI is a deterministic JavaScript rules-and-knowledge system; there is no neural checkpoint, training corpus or training pipeline to run.\n\nA tokenizer vocabulary is a set of text pieces, not a measure of how much verified knowledge a model has. A four-million-word list would not by itself teach meanings or stop wrong answers, and it is not a sensible substitute for training data.\n\nA practical reliability path is to use a suitable existing open-weight model, retrieve answers from curated documents with source references, abstain when evidence is weak, and evaluate it against a test set that includes ambiguous and out-of-scope questions. Fine-tuning can shape behavior but does not guarantee factual accuracy; retrieval is usually the better way to add changing facts.\n\nEltes CAI now handles **date arithmetic, time-unit conversions, median/sum/product phrasing and Kelvin correctly**, retrieves exact evidence from the active chat and is more conservative about unsupported questions. It is not a training run or a four-million-entry knowledge base.`;
   }
 
   function historyIntent(prompt, history) {
@@ -706,6 +967,23 @@ window.EltesCAI = (function () {
     return null;
   }
 
+  /* --------------------- safety / sensitive-domain fallbacks --------------------- */
+  function sensitiveFallback(text) {
+    const t = norm(text);
+    const medical = /(antibiotic|dosage|diagnos|symptom|treatment|disease|infection|should i take|medical|doctor|prescri)/.test(t);
+    const legal = /(lawsuit|sue|legal advice|contract|lawyer|attorney|copyright|liability|terms of service)/.test(t);
+    const financial = /(invest|stock price|buy.*stock|portfolio|crypto.*invest|financial advice)/.test(t);
+    if (medical || legal || financial) {
+      const domain = medical ? 'medical' : legal ? 'legal' : 'financial';
+      const who = medical ? 'a qualified medical professional' : legal ? 'a qualified legal professional' : 'a qualified financial professional';
+      return {
+        intent: 'fallback',
+        text: `I want to be straight with you: **CAI-1 is a small on-device model**, and that ${domain} question is outside what I can answer reliably.\n\nI will not provide specific ${domain} advice or instructions. For ${domain} decisions, speak to ${who} and check authoritative sources.\n\nI am solid on:\n\n- Eltes setup, keys, accounts and downloads\n- picking a model from the catalogue\n- arithmetic, percentages, unit and date conversions\n- dates, definitions and short factual checks from the active chat\n\nSwitch to a hosted model in the picker for open-ended writing, code review or live information. The thread follows you, so nothing is lost.`
+      };
+    }
+    return null;
+  }
+
   /* ----------------------------- answer builder ---------------------------- */
 
   function buildAnswer(modelId, prompt, history, now) {
@@ -727,7 +1005,7 @@ window.EltesCAI = (function () {
       const part = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
       return {
         intent: 'greeting',
-        text: `Good ${part}. I am **Eltes CAI-1**, running on this device.\n\nI can help with:\n\n- Eltes itself — setup, keys, accounts, downloads\n- choosing between the ${M.MODELS.length} models in the catalogue\n- arithmetic, common math functions, simple equations, unit conversions, dates and definitions\n\nWhat do you want to work on?`
+        text: `Good ${part}. I am **Eltes CAI-1**, running on this device.\n\nI can help with:\n\n- Eltes itself — setup, keys, accounts, downloads\n- choosing between the ${M.MODELS.length} models in the catalogue\n- arithmetic, common math functions (sqrt, log, trig, median…), simple equations, unit conversions, date math\n- definitions from the built-in AI glossary (${Object.keys(GLOSSARY).length} terms)\n\nWhat do you want to work on?`
       };
     }
 
@@ -742,26 +1020,42 @@ window.EltesCAI = (function () {
     if (hasAny(t, /who are you|what are you|are you (chatgpt|claude|gpt|openai)|your name|what model are you/)) {
       return {
         intent: 'identity',
-        text: `I am **Eltes CAI-1**, a deterministic on-device assistant built into this workspace. I am not ChatGPT, Claude or Gemini, and I do not call any API.\n\nMy strengths are narrow and honest: Eltes product help, model selection, arithmetic, units, dates and AI definitions. For open-ended writing or deep reasoning, switch to a hosted model — that is what the model picker is for.`
+        text: `I am **Eltes CAI-1**, a deterministic on-device assistant built into this workspace. I am not ChatGPT, Claude or Gemini, and I do not call any API.\n\nMy strengths are narrow and honest: Eltes product help, model selection, arithmetic with scientific functions, units including time, dates and date arithmetic, and AI definitions. For open-ended writing or deep reasoning, switch to a hosted model — that is what the model picker is for.`
       };
     }
 
-    if (hasAny(t, /what can you do|help me|capabilit|what do you know|how do you work/)) {
+    if (hasAny(t, /what can you do|help me|capabilit|what do you know|how do you work|slash commands|chat features/)) {
       return {
         intent: 'capabilities',
-        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue\n- calculator expressions, common math functions and simple linear/quadratic equations\n- unit and temperature conversions\n- the current date and time in your timezone\n- word and character counts\n- short definitions from its built-in AI glossary\n- exact retrieval of relevant messages included in this chat\n\n**Out of range:** arbitrary symbolic math and proofs, live facts, news, browsing and long-form originality. CAI is rule-based and may miss intent or contain outdated product facts; verify important answers. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
+        text: `**On this device, right now:**\n\n- Eltes setup, provider keys, accounts, CORS, downloads and troubleshooting\n- model recommendations from the live catalogue (${M.MODELS.length} models, ${Object.keys(M.PROVIDERS).length} providers)\n- calculator expressions, common math functions (sqrt, log, trig, median, sum…) and simple linear/quadratic equations\n- unit and temperature conversions (including Kelvin and time: seconds → years)\n- **base conversion** (hex/binary/octal/decimal: “255 to hex”, “0b1010 to decimal”)\n- **date arithmetic**: days between dates, date plus N days, days until a date\n- **text tools**: uppercase/lowercase/reverse/sort, word counts, base transforms\n- **random utilities**: flip a coin, roll a dice, random number between X and Y\n- **slash commands** in chat: \`/help\`, \`/calc\`, \`/convert\`, \`/define\`, \`/model\`, \`/time\`, \`/export\`\n- the current date and time in your timezone\n- short definitions from its built-in AI glossary (${Object.keys(GLOSSARY).length} terms, including RAG, embeddings, attention)\n- exact retrieval of relevant messages included in this chat\n\n**Out of range:** arbitrary symbolic math and proofs, live facts, news, browsing and long-form originality. CAI is rule-based and may miss intent or contain outdated product facts; verify important answers. Switch to a hosted model for those — Eltes keeps the same thread when you do.`
       };
     }
 
     if (hasAny(t, /what time|current time|what date|today'?s date|what day is it|time is it/)) {
+      // date math should be checked before generic time, but generic time still wins for simple queries
+      const dateMath = dateMathIntent(text, now);
+      if (dateMath) return dateMath;
       return { intent: 'time', ...answerTime(now) };
     }
+
+    // date arithmetic takes precedence over generic time when pattern matches
+    const dateMathEarly = dateMathIntent(text, now);
+    if (dateMathEarly) return dateMathEarly;
 
     const count = countIntent(text);
     if (count) return { intent: 'count', text: count };
 
     const units = unitIntent(text);
     if (units) return { intent: 'units', text: units };
+
+    const base = baseIntent(text);
+    if (base) return base;
+
+    const tform = textTransformIntent(text);
+    if (tform) return tform;
+
+    const rand = randomIntent(text);
+    if (rand) return rand;
 
     const equation = equationIntent(text);
     if (equation) return equation;
@@ -772,7 +1066,7 @@ window.EltesCAI = (function () {
     if (/weather|news|stock price|score|who won|latest|today'?s headlines|browse|search the web/.test(t)) {
       return {
         intent: 'live',
-        text: `I cannot check live information — CAI has no network access, and I will not invent an answer.\n\nSwitch to a connected hosted model for current facts, or paste the source text here and I will help you reason about it.`
+        text: `I cannot check live information on my own — CAI has no network access, and I will not invent an answer.\n\nIf web search is set up, turn on the **Web** chip (or use \`/web <query>\`) and I will return live links with excerpts. You can also switch to a connected hosted model, or paste the source text here and I will help you reason about it.`
       };
     }
 
@@ -794,7 +1088,11 @@ window.EltesCAI = (function () {
 
     const gloss = glossaryLookup(text);
     if (gloss) {
-      return { intent: 'glossary', text: `**${gloss.term.replace(/\b\w/g, (c) => c.toUpperCase())}**\n\n${gloss.text}` };
+      // Many entries already open with the canonical term in bold (e.g. **RAG …**).
+      // Only add a heading when the entry does not, so acronyms keep their casing.
+      const alreadyTitled = /^\*\*/.test(gloss.text);
+      const heading = gloss.term.replace(/\b\w/g, (c) => c.toUpperCase());
+      return { intent: 'glossary', text: alreadyTitled ? gloss.text : `**${heading}**\n\n${gloss.text}` };
     }
 
     if (docsOnly) {
@@ -804,9 +1102,12 @@ window.EltesCAI = (function () {
       };
     }
 
+    const sensitive = sensitiveFallback(text);
+    if (sensitive) return sensitive;
+
     return {
       intent: 'fallback',
-      text: `I want to be straight with you: **CAI-1 is a small on-device model**, and that question is outside what I can answer reliably.\n\nI am solid on:\n\n- Eltes setup, keys, accounts and downloads\n- picking a model from the catalogue\n- arithmetic, percentages and unit conversions\n- dates, definitions and short factual checks\n\nSwitch to a hosted model in the picker for open-ended writing, code review or live information. The thread follows you, so nothing is lost.`
+      text: `I want to be straight with you: **CAI-1 is a small on-device model**, and that question is outside what I can answer reliably.\n\nI am solid on:\n\n- Eltes setup, keys, accounts and downloads\n- picking a model from the catalogue\n- arithmetic, percentages, unit and date conversions\n- definitions and short factual checks from the active chat\n\nSwitch to a hosted model in the picker for open-ended writing, code review or live information. The thread follows you, so nothing is lost.`
     };
   }
 
@@ -821,16 +1122,49 @@ window.EltesCAI = (function () {
   /* -------------------------------- streaming ------------------------------ */
 
   function chunker(text) {
-    // split into small, stable pieces so streaming feels live without breaking words
-    const parts = text.match(/\s*\S+/g) || [text];
+    // Code-aware chunker: avoid splitting inside fenced blocks, and keep words intact
+    const fences = [];
+    let protectedText = text.replace(/```[\s\S]*?```/g, (m) => {
+      const idx = fences.length;
+      fences.push(m);
+      return `\u0000F${idx}\u0000`;
+    });
+    const parts = protectedText.match(/\s*\S+/g) || [protectedText];
     const out = [];
     let buf = '';
     parts.forEach((p) => {
       buf += p;
-      if (buf.length >= 14 || /[.!?\n]$/.test(buf.trim())) { out.push(buf); buf = ''; }
+      if (buf.length >= 18 || /[.!?\n]$/.test(buf.trim())) { out.push(buf); buf = ''; }
     });
     if (buf) out.push(buf);
-    return out;
+    // restore fences, split large fences into their own chunks for smoother streaming
+    const restored = [];
+    out.forEach((chunk) => {
+      if (chunk.includes('\u0000F')) {
+        // split around fence markers
+        const segs = chunk.split(/(\u0000F\d+\u0000)/g);
+        segs.forEach((seg) => {
+          const m = seg.match(/\u0000F(\d+)\u0000/);
+          if (m) {
+            const fence = fences[Number(m[1])];
+            // emit fence in 3 pieces: open, body lines, close
+            const lines = fence.split('\n');
+            if (lines.length > 6) {
+              restored.push(lines.slice(0, 2).join('\n') + '\n');
+              for (let i = 2; i < lines.length - 2; i += 4) {
+                restored.push(lines.slice(i, i + 4).join('\n') + '\n');
+              }
+              restored.push(lines.slice(-2).join('\n'));
+            } else {
+              restored.push(fence);
+            }
+          } else if (seg) restored.push(seg);
+        });
+      } else {
+        restored.push(chunk);
+      }
+    });
+    return restored;
   }
 
   async function stream({ modelId, messages, onToken, signal, onMeta }) {
@@ -840,10 +1174,10 @@ window.EltesCAI = (function () {
     const started = (typeof performance !== 'undefined' ? performance.now() : Date.now());
     const now = new Date();
 
-    await new Promise((r) => setTimeout(r, 60)); // local compute beat, not a fake network delay
+    await new Promise((r) => setTimeout(r, 35)); // local compute beat, not a fake network delay
     const { text, intent } = buildAnswer(model, prompt, history, now);
     const parts = chunker(text);
-    const delay = model === 'eltes-cai-1-fast' ? 9 : 15;
+    const delay = model === 'eltes-cai-1-fast' ? 9 : 14;
     let full = '';
     let firstAt = 0;
 
@@ -876,16 +1210,10 @@ window.EltesCAI = (function () {
     answer: (modelId, prompt) => buildAnswer(modelId, prompt, [], new Date()).text,
     build: buildAnswer,
     stream,
-    // Deterministic primitives used by the agent (assets/js/agent.js).
-    evaluate: (expression) => evaluate(expression),
-    formatNumber: (value) => cleanNumber(value),
-    temperature: (value, from, to) => temperature(value, from, to),
-    convertUnits: (value, from, to) => {
-      const source = UNITS[String(from || '').toLowerCase()];
-      const target = UNITS[String(to || '').toLowerCase()];
-      if (!source || !target || source.kind !== target.kind) return null;
-      return { value: (value * source.f) / target.f, kind: source.kind };
-    },
+    evaluate,
+    formatNumber: cleanNumber,
+    temperature,
+    convertUnits,
     kbEntries: KB.length,
     glossaryTerms: Object.keys(GLOSSARY).length
   };

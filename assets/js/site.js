@@ -55,6 +55,7 @@
     const progress = clamp(window.scrollY / range, 0, 1);
     doc.style.setProperty('--scroll-progress', progress.toFixed(4));
   }
+  // The galaxy script follows the scroll itself; this only feeds the rail.
   updateScrollProgress();
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
   window.addEventListener('resize', updateScrollProgress);
@@ -249,9 +250,9 @@
       // 0 when entering, 0.5 at centre, 1 when leaving
       const t = clamp((vh - rect.top) / (vh + rect.height), 0, 1);
       const assembled = Math.abs(Math.cos(Math.PI * t));
-      const p = 0.16 + 0.84 * Math.pow(assembled, 0.85);
+      const p = 0.03 + 0.97 * Math.pow(assembled, 0.85);
       el.style.setProperty('--p', p.toFixed(3));
-      el.style.setProperty('--label-o', (0.74 + 0.26 * p).toFixed(3));
+      el.style.setProperty('--label-o', clamp((p - 0.32) / 0.6, 0, 1).toFixed(3));
     });
 
     parallaxEls.forEach((el) => {
@@ -288,31 +289,31 @@
     },
     {
       provider: 'openai', brand: 'openai', name: 'OpenAI', meta: 'api.openai.com · streamed responses',
-      models: ['GPT‑6 Sol', 'GPT‑6.1 Sol', 'GPT‑6 Luna', 'GPT‑4.1'], href: 'app.html?model=gpt-6-sol'
+      models: ['GPT‑6 Sol', 'GPT‑4o', 'o3-mini', 'GPT‑4.1'], href: 'app.html?model=gpt-6-sol'
     },
     {
       provider: 'anthropic', brand: 'claude', name: 'Anthropic', meta: 'Native Messages API',
-      models: ['Claude Sonnet 5.5', 'Claude Opus 5.5', 'Claude Haiku 5.5'], href: 'app.html?model=claude-sonnet-5-5'
+      models: ['Claude Sonnet 5.5', 'Claude Opus 5.5', 'Claude Haiku 4', 'Sonnet 4'], href: 'app.html?model=claude-sonnet-5-5'
     },
     {
       provider: 'deepseek', brand: 'deepseek', name: 'DeepSeek', meta: 'deepseek.com · 1M context',
-      models: ['V4.1 Flash', 'V4 Pro'], href: 'app.html?model=deepseek-flash'
+      models: ['V4.1 Flash', 'V4 Pro', 'Reasoner', 'Chat'], href: 'app.html?model=deepseek-flash'
     },
     {
       provider: 'google', brand: 'gemini', name: 'Google Gemini', meta: 'OpenAI-compatible endpoint',
-      models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash'], href: 'app.html?model=gemini-2-5-pro'
+      models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash', 'Gemini 2.0 Flash', 'Gemini 1.5 Pro'], href: 'app.html?model=gemini-2-5-pro'
     },
     {
       provider: 'zai', brand: 'glm', name: 'Z.ai · GLM', meta: 'api.z.ai · tool calling',
-      models: ['GLM-4.6', 'GLM-4.5', 'GLM-4.5 Air'], href: 'app.html?model=glm-4-6'
+      models: ['GLM-4.7', 'GLM-4.6', 'GLM-4.5 Air'], href: 'app.html?model=glm-4-6'
     },
     {
       provider: 'xai', brand: 'grok', name: 'xAI Grok', meta: 'api.x.ai',
-      models: ['Grok 4', 'Grok 3'], href: 'app.html?model=grok-4'
+      models: ['Grok 4', 'Grok 4 Fast', 'Grok 3 Mini'], href: 'app.html?model=grok-4'
     },
     {
       provider: 'qwen', brand: 'qwen', name: 'Qwen · Alibaba', meta: 'Model Studio',
-      models: ['Qwen3 Max', 'Qwen3 Coder Plus'], href: 'app.html?model=qwen3-max'
+      models: ['Qwen3 Max', 'Qwen3 Coder Plus', 'Qwen2.5 32B'], href: 'app.html?model=qwen3-max'
     },
     {
       provider: 'groq', brand: 'llama', name: 'Llama · Meta', meta: 'via Groq or OpenRouter',
@@ -320,15 +321,19 @@
     },
     {
       provider: 'groq', brand: 'groq', name: 'Groq', meta: 'api.groq.com · Llama + Qwen',
-      models: ['Llama 3.3 70B', 'Llama 4 Scout', 'Qwen 3'], href: 'app.html?model=llama-3-3-70b'
+      models: ['Llama 3.3 70B', 'Llama 4 Scout', 'Llama 3.1 8B', 'Qwen3 32B'], href: 'app.html?model=llama-3-3-70b'
     },
     {
       provider: 'mistral', brand: 'mistral', name: 'Mistral', meta: 'api.mistral.ai',
-      models: ['Mistral Large', 'Codestral'], href: 'app.html?model=mistral-large'
+      models: ['Mistral Large', 'Mistral Small', 'Codestral', 'Pixtral'], href: 'app.html?model=mistral-large'
     },
     {
       provider: 'nvidia', brand: 'nvidia', name: 'NVIDIA NIM', meta: 'NVIDIA-hosted · key required',
-      models: ['Llama 3.3 70B', 'Nemotron Ultra'], href: 'app.html?model=nvidia-llama-3-3'
+      models: ['Llama 3.3 70B', 'Nemotron Ultra', 'DeepSeek R1'], href: 'app.html?model=nvidia-llama-3-3'
+    },
+    {
+      provider: 'cohere', brand: 'cohere', name: 'Cohere', meta: 'api.cohere.ai · RAG and tools',
+      models: ['Command A', 'Command R+'], href: 'app.html?model=command-a'
     },
     {
       provider: 'openrouter', brand: 'openrouter', name: 'OpenRouter', meta: 'one key · 200+ models',
@@ -405,14 +410,13 @@
     const wall = $('#modelWall');
     if (!wall) return;
     wall.innerHTML = WALL.map(
-      (p) => `<a class="model-tile reveal" data-kind="${p.local ? 'local' : 'hosted'}" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : ACCOUNT_PROVIDERS.includes(p.provider) ? '— connect your account' : 'models'}">
+      (p) => `<a class="model-tile reveal" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : ACCOUNT_PROVIDERS.includes(p.provider) ? '— connect your account' : 'models'}">
         <span class="mt-top">
           <span class="p-logo lg" data-brand="${p.brand}" data-brand-size="22"></span>
-          <span class="mt-copy">
+          <span>
             <span class="mt-name">${escapeHtml(p.name)}</span>
             <span class="mt-meta">${escapeHtml(p.meta)}</span>
           </span>
-          ${p.local ? '<span class="mt-badge">on-device</span>' : ''}
         </span>
         <ul>${p.models.map((m) => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
         <span class="mt-link">${p.local ? 'Run on-device' : ACCOUNT_PROVIDERS.includes(p.provider) ? 'Connect account' : 'Open with a key'} <span data-icon="arrow-right" data-icon-size="11"></span></span>
@@ -424,52 +428,15 @@
       el.style.setProperty('--d', `${Math.min(index * 45, 360)}ms`);
       el.classList.add('in');
     });
-    wireWallFilter();
-  }
-
-  function wireWallFilter() {
-    const filter = $('#wallFilter');
-    const wall = $('#modelWall');
-    if (!filter || !wall) return;
-    const tiles = Array.from(wall.querySelectorAll('.model-tile'));
-    const hosted = tiles.filter((el) => el.dataset.kind === 'hosted').length;
-    const local = tiles.filter((el) => el.dataset.kind === 'local').length;
-    const setCount = (id, value) => { const el = $(id); if (el) el.textContent = String(value); };
-    setCount('#wfAll', tiles.length);
-    setCount('#wfHosted', hosted);
-    setCount('#wfLocal', local);
-
-    const apply = (kind) => {
-      filter.querySelectorAll('.wf').forEach((btn) => {
-        const on = btn.dataset.filter === kind;
-        btn.classList.toggle('active', on);
-        btn.setAttribute('aria-pressed', String(on));
-      });
-      tiles.forEach((tile) => {
-        const show = kind === 'all' || tile.dataset.kind === kind;
-        tile.classList.toggle('filtered-out', !show);
-      });
-    };
-    filter.addEventListener('click', (event) => {
-      const btn = event.target.closest('.wf');
-      if (btn) apply(btn.dataset.filter);
-    });
-    apply('all');
   }
 
   function renderMiniProviders() {
-    const box = $('#logoMarquee');
+    const box = $('#miniProviders');
     if (!box) return;
-    const items = WALL.map(
-      (p) => `<span class="mp" role="listitem"><span class="p-logo sm" data-brand="${p.brand}" data-brand-size="14"></span>${escapeHtml(p.name.replace(' · Alibaba', ''))}</span>`
+    box.innerHTML = WALL.map(
+      (p) => `<span class="mp"><span class="p-logo sm" data-brand="${p.brand}" data-brand-size="14"></span>${escapeHtml(p.name.replace(' · Alibaba', ''))}</span>`
     ).join('');
-    // the second pass only exists to make the loop seamless — hide it from AT
-    const echo = WALL.map(
-      (p) => `<span class="mp" aria-hidden="true"><span class="p-logo sm" data-brand="${p.brand}" data-brand-size="14"></span>${escapeHtml(p.name.replace(' · Alibaba', ''))}</span>`
-    ).join('');
-    box.innerHTML = `<div class="marquee-track">${items}${echo}</div>`;
     hydrateBrands(box);
-    if (window.EltesIcons) window.EltesIcons.hydrate(box);
   }
 
   /* --------------------------------- year --------------------------------- */
@@ -581,7 +548,7 @@
   /* ----------------------------- quick signup ----------------------------- */
   const quick = $('#quickSignup');
   if (quick) {
-    quick.addEventListener('submit', (e) => {
+    quick.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = new FormData(quick);
       const name = (data.get('name') || '').toString().trim();
@@ -594,66 +561,35 @@
         toast('Enter a valid email address', 'triangle-alert');
         return;
       }
-      window.EltesAccount.create({ name, email, provider: 'local' });
+      /* With a Supabase project configured, the landing form is a shortcut to
+         the real sign-up page: an account needs a password, and that page is
+         where the honest state of the welcome email is shown. */
+      const Cloud = window.EltesCloud;
+      if (Cloud && Cloud.enabled) {
+        const url = new URL('auth.html', location.href);
+        url.searchParams.set('mode', 'signup');
+        url.searchParams.set('next', 'app.html');
+        url.searchParams.set('email', email);
+        if (name) url.searchParams.set('name', name);
+        window.location.href = url.href;
+        return;
+      }
+
+      const account = window.EltesAccount.create({ name, email, provider: 'local' });
       toast(`Welcome, ${name.split(' ')[0]} — profile saved locally`, 'user-check');
-      setTimeout(() => { window.location.href = 'app.html'; }, 700);
+
+      /* The welcome email is sent by the server on this machine; on a static
+         host there is none, and the toast says that instead of guessing. */
+      const mail = await window.EltesAccount.welcome(account, { timeout: 2500 });
+      if (mail.status === 'sent') toast(`Welcome email sent to ${email}`, 'mail');
+      else if (mail.status === 'outbox') toast('Welcome email saved to the local outbox', 'mail');
+      else if (mail.status === 'suppressed') toast('Welcome email skipped — that address bounced before', 'mail');
+
+      setTimeout(() => { window.location.href = 'app.html'; }, mail.status === 'unavailable' ? 700 : 400);
     });
   }
 
-  /* ------------------------------- tour tabs ------------------------------ */
-  const tourTabs = $$('.tour-tab');
-  if (tourTabs.length) {
-    const sideItems = $$('.tour-side-item');
-    const activate = (name) => {
-      tourTabs.forEach((tab) => {
-        const on = tab.dataset.tour === name;
-        tab.classList.toggle('active', on);
-        tab.setAttribute('aria-selected', String(on));
-      });
-      $$('.tour-panel').forEach((panel) => {
-        panel.classList.toggle('active', panel.dataset.panel === name);
-      });
-      sideItems.forEach((item) => item.classList.toggle('active', item.dataset.for === name));
-    };
-    tourTabs.forEach((tab) => tab.addEventListener('click', () => activate(tab.dataset.tour)));
-    activate(tourTabs[0].dataset.tour);
-  }
-
-  /* ------------------------------ stat counters --------------------------- */
-  function animateCount(el) {
-    const target = Number(el.dataset.count || 0);
-    if (!target || reduceMotion()) { el.textContent = String(target); return; }
-    const started = performance.now();
-    const duration = 1100;
-    const step = (now) => {
-      const p = clamp((now - started) / duration, 0, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = String(Math.round(target * eased));
-      if (p < 1) requestAnimationFrame(step);
-      else el.textContent = String(target);
-    };
-    el.textContent = '0';
-    requestAnimationFrame(step);
-  }
-
-  const heroStats = $('#heroStats');
-  if (heroStats) {
-    const counters = $$('[data-count]', heroStats);
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          counters.forEach(animateCount);
-          io.disconnect();
-        });
-      }, { threshold: 0.4 });
-      io.observe(heroStats);
-    } else {
-      counters.forEach((el) => { el.textContent = String(Number(el.dataset.count || 0)); });
-    }
-  }
-
-  /* ------------------------------- boot ---------------------------------- */
+  /* -------------------------------- boot ---------------------------------- */
   renderAccountNav();
   renderMiniProviders();
   renderModelWall();

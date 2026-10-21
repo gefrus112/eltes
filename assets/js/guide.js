@@ -350,8 +350,8 @@
     },
     {
       keys: ['agent', 'tool', 'tools', 'tool loop', 'function calling'],
-      text: 'The **agent** section explains the tool loop: the model asks, your browser runs the call, the result goes back. With Eltes CAI-1 there is no model — the on-device agent plans the run. Six tools, no shell, no server-side execution.',
-      actions: [{ label: 'Walk me through it', go: '#agent' }]
+      text: '**Agent mode** is on by default. Hosted models ask through native function calling; with Eltes CAI-1 a deterministic planner runs in the tab, up to six steps. Eight tools, no shell, no server-side execution — the docs page has the full table.',
+      actions: [{ label: 'Open the agent docs', href: 'docs.html#agent' }]
     },
     {
       keys: ['download', 'downloads', 'install', 'windows', 'desktop', 'chromebook', 'zip', 'offline'],
@@ -370,8 +370,8 @@
     },
     {
       keys: ['preview', 'look inside', 'interface', 'inside'],
-      text: 'The **look inside** tour shows the composer, tool loop and metrics panels. It is a static preview — nothing is sent.',
-      actions: [{ label: 'Show the tour', go: '#tour' }]
+      text: 'The **features** grid shows the workspace surfaces: the agent trace, live search with sources, Studio, the Lab you train in the tab, and the local history panel.',
+      actions: [{ label: 'Show features', go: '#features' }]
     },
     {
       keys: ['key', 'keys', 'privacy', 'private', 'safe', 'security', 'stored', 'local'],
@@ -394,10 +394,9 @@
   ];
 
   const TOUR = [
-    { sel: '#tour', title: 'the interface tour', text: 'composer, tool loop and metrics in one surface.' },
-    { sel: '#models', title: 'the model wall', text: 'thirteen providers, thirty-six routes, filterable by hosted or on-device.' },
-    { sel: '#features', title: 'workspace features', text: 'comparing labs, local history, key handling and real error states.' },
-    { sel: '#agent', title: 'the tool loop', text: 'what runs where, and why your browser does the executing.' },
+    { sel: '#models', title: 'the model wall', text: 'hosted providers and on-device models in one filterable grid.' },
+    { sel: '#web-search', title: 'live search', text: 'your own search key, numbered sources and citations.' },
+    { sel: '#features', title: 'workspace features', text: 'the agent trace, Studio, the Lab and local history.' },
     { sel: '#pricing', title: 'pricing', text: 'BYOK is free; hosted plans are still being designed.' },
     { sel: '#downloads', title: 'downloads', text: 'Windows launcher, macOS/Linux command and web-app install.' }
   ];

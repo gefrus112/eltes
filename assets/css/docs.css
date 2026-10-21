@@ -522,3 +522,98 @@
   html { scroll-behavior: auto; }
   .faq summary .chev { transition: none; }
 }
+
+/* keyboard keys in Studio docs */
+.doc kbd {
+  display: inline-block;
+  min-width: 17px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.04);
+  font: 10.5px/1.5 var(--mono);
+  color: var(--text-2);
+  text-align: center;
+}
+
+/* ------------------------------ workflow section -------------------------- */
+
+.workflow-steps {
+  margin: 22px 0 26px;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+  position: relative;
+}
+.workflow-steps::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 14px;
+  bottom: 22px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(91, 149, 255, 0.4), rgba(91, 149, 255, 0.06));
+}
+.workflow-steps > li {
+  position: relative;
+  padding: 0 0 22px 46px;
+}
+.workflow-steps > li:last-child { padding-bottom: 0; }
+.ws-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.ws-num {
+  position: absolute;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border-radius: 9px;
+  border: 1px solid rgba(116, 164, 255, 0.32);
+  background: #0a1424;
+  color: #cbe0ff;
+  font: 600 12px/1 var(--mono);
+  box-shadow: 0 0 0 4px #05080f;
+}
+.ws-head h3 {
+  margin: 0;
+  font-size: 15.5px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.workflow-steps p { margin: 0 0 10px; }
+.workflow-steps p:last-child { margin-bottom: 0; }
+.workflow-steps ul { margin: 8px 0 0; }
+.workflow-steps .doc-code { margin: 10px 0 10px; }
+.workflow-steps .doc-code pre { font-size: 11px; }
+.ws-meta {
+  padding-left: 11px;
+  border-left: 2px solid rgba(140, 172, 235, 0.22);
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.ws-meta code, .workflow-steps p code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.035);
+  font: 10.5px var(--mono);
+  color: #c3d6f5;
+}
+.workflow-steps kbd {
+  display: inline-block;
+  min-width: 17px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.04);
+  font: 10.5px/1.5 var(--mono);
+  color: var(--text-2);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .workflow-steps > li { padding-left: 38px; }
+  .workflow-steps::before { left: 13px; }
+  .ws-num { width: 27px; height: 27px; border-radius: 8px; font-size: 11px; }
+}

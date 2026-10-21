@@ -16,9 +16,18 @@
   const ic = (n, size = 14) => I.icon(n, { size });
   const params = new URLSearchParams(location.search);
   const config = window.ELTES_CONFIG || {};
+  const Cloud = window.EltesCloud;
+  const cloudOn = !!(Cloud && Cloud.enabled);
   const SETTINGS_KEY = 'eltes.settings.v1';
   const PROVIDERS = ['openai', 'anthropic', 'deepseek'];
   const nextUrl = sanitizeNext(params.get('next'));
+
+  /* Cloud accounts are the default when config.js points at a Supabase
+     project. "Local" stays one click away and is the only mode when there is
+     no config — the desktop and offline builds keep working unchanged. */
+  let localMode = !cloudOn;
+  let cloudSession = null;
+  let pendingRecovery = false;
 
   const els = {
     flow: $('#authFlow'),
@@ -29,6 +38,19 @@
     nameField: $('#nameField'),
     nameInput: $('#nameInput'),
     emailInput: $('#emailInput'),
+    passwordField: $('#passwordField'),
+    passwordInput: $('#passwordInput'),
+    passwordReveal: $('#passwordReveal'),
+    passwordErr: $('#passwordErr'),
+    cloudLinks: $('#cloudLinks'),
+    localLinks: $('#localLinks'),
+    cloudStatus: $('#cloudStatus'),
+    cloudStatusText: $('#cloudStatusText'),
+    magicLinkBtn: $('#magicLinkBtn'),
+    forgotBtn: $('#forgotBtn'),
+    localModeBtn: $('#localModeBtn'),
+    cloudModeBtn: $('#cloudModeBtn'),
+    terms: $('#authTerms'),
     submit: $('#submitBtn'),
     submitLabel: $('#submitLabel'),
     error: $('#authError'),
@@ -58,6 +80,7 @@
     siConnections: $('#siConnections'),
     siId: $('#siId'),
     siCreated: $('#siCreated'),
+    siMail: $('#siMail'),
     siContinue: $('#siContinue'),
     toastStack: $('#toastStack'),
     blocks: $('#authBlocks')
@@ -177,20 +200,49 @@
   /* ------------------------------- mode switch ---------------------------- */
 
   function setMode(next, push) {
-    mode = next === 'signin' ? 'signin' : 'signup';
+    mode = next === 'signin' ? 'signin' : next === 'recover' ? 'recover' : 'signup';
+    if (mode !== 'recover') pendingRecovery = false;
     els.tabs.forEach((tab) => {
       const on = tab.dataset.mode === mode;
       tab.setAttribute('aria-selected', String(on));
       tab.tabIndex = on ? 0 : -1;
     });
-    if (els.title) els.title.textContent = mode === 'signup' ? 'Create your account' : 'Sign in to Eltes';
-    if (els.sub) {
-      els.sub.textContent = mode === 'signup'
-        ? 'Connect a provider, or keep a local profile.'
-        : 'Restore this browser’s profile and its connections.';
+
+    const local = localMode || !cloudOn;
+    const emailHint = $('#emailHint');
+
+    if (els.title) {
+      els.title.textContent = local
+        ? (mode === 'signup' ? 'Create your account' : 'Sign in to Eltes')
+        : (mode === 'recover' ? 'Choose a new password' : mode === 'signup' ? 'Create your Eltes account' : 'Sign in to Eltes');
     }
-    if (els.submitLabel) els.submitLabel.textContent = mode === 'signup' ? 'Create local profile' : 'Continue';
+    if (els.sub) {
+      els.sub.textContent = local
+        ? (mode === 'signup' ? 'Connect a provider, or keep a local profile.' : 'Restore this browser’s profile and its connections.')
+        : (mode === 'recover'
+          ? 'The link confirmed this address. Set a password to finish.'
+          : mode === 'signup' ? 'One account for chat, Studio and Eltes Lab. Free, no card.' : 'Pick up where you left off.');
+    }
+    if (els.submitLabel) {
+      els.submitLabel.textContent = local
+        ? (mode === 'signup' ? 'Create local profile' : 'Continue')
+        : (mode === 'recover' ? 'Save new password' : mode === 'signup' ? 'Create account' : 'Sign in');
+    }
     if (els.nameField) els.nameField.hidden = mode !== 'signup';
+    if (els.passwordField) els.passwordField.hidden = local;
+    if (els.passwordInput) els.passwordInput.autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
+    if (els.cloudLinks) els.cloudLinks.hidden = local;
+    if (els.localLinks) els.localLinks.hidden = !cloudOn || !localMode;
+    if (emailHint) emailHint.textContent = local ? 'stays on this device' : 'used for sign-in and mail';
+    if (els.terms) {
+      els.terms.innerHTML = local
+        ? `No password. This profile stays in local storage; the welcome email is sent by
+           <em>your own</em> Eltes server when one is running — never by Eltes.
+           <a href="docs.html#email">How email works</a>`
+        : `Your account lives in Supabase. The welcome email is sent from this project's own
+           Edge Function through Resend — free, no card, and only after you sign up.
+           <a href="docs.html#supabase">How cloud accounts work</a>`;
+    }
     if (els.emailInput) els.emailInput.placeholder = mode === 'signup' ? 'ada@example.com' : 'the email for this profile';
     clearErrors();
     if (push) {
@@ -425,11 +477,12 @@
     setFieldState(els.emailInput, emailValid(v), 'Use a valid email address.');
   });
 
-  els.form.addEventListener('submit', (e) => {
+  els.form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors();
     const name = els.nameInput.value.trim();
     const email = els.emailInput.value.trim();
+    const password = els.passwordInput ? els.passwordInput.value : '';
     let firstInvalid = null;
 
     if (mode === 'signup' && name.length < 2) {
@@ -442,9 +495,21 @@
       firstInvalid = firstInvalid || els.emailInput;
     } else setFieldState(els.emailInput, true);
 
+    if (cloudOn && !localMode) {
+      if (password.length < 6) {
+        setFieldState(els.passwordInput, false, 'At least six characters.');
+        firstInvalid = firstInvalid || els.passwordInput;
+      } else setFieldState(els.passwordInput, true);
+    }
+
     if (firstInvalid) {
-      showError(mode === 'signup' ? 'Check the highlighted fields to continue.' : 'Enter the email for this profile.');
+      showError(mode === 'signup' ? 'Check the highlighted fields to continue.' : 'Enter the email and password for this account.');
       firstInvalid.focus();
+      return;
+    }
+
+    if (cloudOn && !localMode) {
+      await cloudSubmit({ name, email, password });
       return;
     }
 
@@ -466,7 +531,257 @@
     });
     toast(mode === 'signup' ? 'Profile created in this browser' : 'Local profile created', 'check');
     renderSignedIn(account);
+    if (mode === 'signup') sendWelcomeEmail(account);
   });
+
+  /* ----------------------------- cloud accounts ---------------------------- */
+
+  function setCloudStatus(text) {
+    if (!els.cloudStatus || !els.cloudStatusText) return;
+    els.cloudStatus.hidden = !text;
+    els.cloudStatusText.textContent = text || '';
+  }
+
+  /* Keep one shape for the UI whether the account came from Supabase or from
+     this browser. The Supabase user id becomes the profile id. */
+  function mirror(session, fallback) {
+    const user = (session && session.user) || null;
+    const meta = (user && user.user_metadata) || {};
+    const email = (fallback && fallback.email) || (user && user.email) || '';
+    const name = (fallback && fallback.name) || meta.display_name || meta.name || '';
+    const existing = Account.get();
+    const created = user && user.created_at ? Date.parse(user.created_at) : NaN;
+    return Account.create({
+      id: user && user.id ? user.id : (existing && existing.id) || undefined,
+      name: name || (existing && existing.name) || 'Eltes user',
+      email,
+      username: '',
+      provider: 'supabase',
+      createdAt: Number.isFinite(created) ? created : undefined
+    });
+  }
+
+  async function signOutEverywhere() {
+    if (cloudOn && Cloud.session()) {
+      try { await Cloud.signOut(); } catch (error) { /* local session is what matters */ }
+    }
+    Account.signOut();
+    setCloudStatus('');
+  }
+
+  function mailState(result, email) {
+    const cell = els.siMail;
+    const answer = result || {};
+    const say = (text) => {
+      if (cell) cell.textContent = text;
+      setCloudStatus(text);
+    };
+    if (answer.status === 'sent') {
+      say(`Welcome email sent to ${email} via ${answer.provider || 'Resend'}`);
+      toast(`Welcome email sent to ${email}`, 'mail');
+      return;
+    }
+    if (answer.status === 'already') {
+      say('Welcome email was already delivered to this address');
+      return;
+    }
+    if (answer.status === 'unconfigured') {
+      say('Not sent — Supabase has no RESEND_API_KEY yet');
+      toast('Welcome email not sent: add RESEND_API_KEY in Supabase → Edge Functions → Secrets', 'triangle-alert');
+      return;
+    }
+    if (answer.status === 'suppressed') {
+      say('Not sent — that address bounced or complained before');
+      return;
+    }
+    if (answer.status === 'rate-limited') {
+      say(answer.detail || 'Not sent — too many messages just now');
+      return;
+    }
+    if (answer.status === 'no-account') {
+      say('Not sent — no account uses that address');
+      return;
+    }
+    if (answer.status === 'outbox') {
+      say('Welcome email saved to the local outbox');
+      return;
+    }
+    if (answer.status === 'unavailable') {
+      say('Not sent — no mail server answered');
+      return;
+    }
+    if (answer.status === 'no-email') {
+      say('No address on this profile');
+      return;
+    }
+    say('Welcome email not sent');
+    if (answer.error) toast(`Welcome email not sent: ${answer.error}`, 'circle-alert');
+  }
+
+  async function sendWelcomeEmail(account) {
+    const target = account || Account.get();
+    if (!target || !target.email) {
+      if (els.siMail) els.siMail.textContent = 'No address on this profile';
+      return;
+    }
+    if (els.siMail) els.siMail.textContent = 'Sending…';
+    if (cloudOn && target.provider === 'supabase') {
+      const result = await Cloud.welcome({
+        email: target.email,
+        name: target.name,
+        userId: target.id
+      });
+      mailState(result, target.email);
+      return;
+    }
+    mailState(await Account.welcome(target, { timeout: 8000 }), target.email);
+  }
+
+  async function cloudSubmit(input) {
+    const label = els.submitLabel ? els.submitLabel.textContent : '';
+    const saved = label;
+    if (els.submit) els.submit.disabled = true;
+    if (els.submitLabel) {
+      els.submitLabel.textContent = mode === 'recover' ? 'Saving…' : mode === 'signup' ? 'Creating account…' : 'Signing in…';
+    }
+    try {
+      if (mode === 'recover') {
+        await Cloud.updatePassword(input.password);
+        pendingRecovery = false;
+        if (els.passwordInput) els.passwordInput.value = '';
+        renderSignedIn(mirror(Cloud.session(), input));
+        toast('New password saved — you are signed in', 'check');
+        return;
+      }
+
+      if (mode === 'signup') {
+        const result = await Cloud.signUp({ email: input.email, password: input.password, name: input.name });
+        if (result.needsConfirm) {
+          setMode('signin', true);
+          els.emailInput.value = input.email;
+          setCloudStatus('Account created — check your inbox to confirm it, then sign in.');
+          toast('Account created — confirm the address from the email we just sent', 'mail');
+          const sent = await Cloud.welcome({ email: input.email, name: input.name, userId: (result.user && result.user.id) || '' });
+          mailState(sent, input.email);
+          return;
+        }
+        renderSignedIn(mirror(result.session, input));
+        toast('Account created — welcome aboard', 'user-check');
+        const sent = await Cloud.welcome({
+          email: input.email,
+          name: input.name,
+          userId: (result.session && result.session.user && result.session.user.id) || ''
+        });
+        mailState(sent, input.email);
+        return;
+      }
+
+      const result = await Cloud.signIn({ email: input.email, password: input.password });
+      renderSignedIn(mirror(result.session, input));
+      setCloudStatus('');
+      toast('Signed in', 'user-check');
+    } catch (error) {
+      showError(error && error.message ? error.message : 'Something went wrong.');
+    } finally {
+      if (els.submit) els.submit.disabled = false;
+      if (els.submitLabel) els.submitLabel.textContent = saved;
+    }
+  }
+
+  function linkResult(result, email, kind) {
+    const answer = result || {};
+    if (answer.status === 'sent') {
+      setCloudStatus(kind === 'recovery'
+        ? `Reset link sent to ${email} — it expires in about an hour`
+        : `Sign-in link sent to ${email} — it expires in about an hour`);
+      toast(kind === 'recovery' ? 'Password reset link sent' : 'Sign-in link sent', 'mail');
+      return;
+    }
+    if (answer.status === 'no-account') {
+      showError('No Eltes account uses that address yet — create one above.');
+      return;
+    }
+    if (answer.status === 'unconfigured') {
+      showError('Mail is not wired up yet: add RESEND_API_KEY in Supabase → Edge Functions → Secrets.');
+      return;
+    }
+    if (answer.status === 'suppressed') {
+      showError('That address bounced or complained before, so we stopped writing to it.');
+      return;
+    }
+    if (answer.status === 'rate-limited') {
+      showError(answer.detail || 'Too many messages just now — try again in a few minutes.');
+      return;
+    }
+    showError(answer.error || 'The mail function did not answer. Is it deployed?');
+  }
+
+  if (els.magicLinkBtn) {
+    els.magicLinkBtn.addEventListener('click', async () => {
+      clearErrors();
+      const email = els.emailInput.value.trim();
+      if (!emailValid(email)) {
+        setFieldState(els.emailInput, false, 'Use a valid email address.');
+        els.emailInput.focus();
+        return;
+      }
+      els.magicLinkBtn.disabled = true;
+      setCloudStatus('Asking Supabase for a sign-in link…');
+      try {
+        linkResult(await Cloud.magicLink(email), email, 'magiclink');
+      } catch (error) {
+        showError(error.message || 'Could not reach Supabase.');
+      } finally {
+        els.magicLinkBtn.disabled = false;
+      }
+    });
+  }
+
+  if (els.forgotBtn) {
+    els.forgotBtn.addEventListener('click', async () => {
+      clearErrors();
+      const email = els.emailInput.value.trim();
+      if (!emailValid(email)) {
+        setFieldState(els.emailInput, false, 'Use a valid email address.');
+        els.emailInput.focus();
+        return;
+      }
+      els.forgotBtn.disabled = true;
+      setCloudStatus('Asking Supabase for a reset link…');
+      try {
+        linkResult(await Cloud.recover(email), email, 'recovery');
+      } catch (error) {
+        showError(error.message || 'Could not reach Supabase.');
+      } finally {
+        els.forgotBtn.disabled = false;
+      }
+    });
+  }
+
+  if (els.localModeBtn) {
+    els.localModeBtn.addEventListener('click', () => {
+      localMode = true;
+      setMode(mode === 'recover' ? 'signup' : mode, false);
+      setCloudStatus('');
+    });
+  }
+
+  if (els.cloudModeBtn) {
+    els.cloudModeBtn.addEventListener('click', () => {
+      localMode = false;
+      setMode(mode === 'recover' ? 'signin' : mode, false);
+    });
+  }
+
+  if (els.passwordReveal) {
+    els.passwordReveal.addEventListener('click', () => {
+      const input = els.passwordInput;
+      if (!input) return;
+      const hidden = input.type === 'password';
+      input.type = hidden ? 'text' : 'password';
+      els.passwordReveal.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+    });
+  }
 
   /* ------------------------------ signed in ------------------------------- */
 
@@ -507,6 +822,9 @@
       : a.provider === 'local' || !M.PROVIDERS[a.provider] ? 'Local profile' : escapeHtml(providerMeta(a.provider).name)}`;
     els.siId.textContent = a.id;
     els.siCreated.textContent = new Date(a.createdAt).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
+    const storage = $('#siStorage');
+    if (storage) storage.textContent = a.provider === 'supabase' ? 'Supabase · this browser' : 'This browser';
+    if (els.siMail) els.siMail.textContent = '—';
     els.siContinue.setAttribute('href', nextUrl);
 
     els.siConnections.innerHTML = PROVIDERS.map(connectionHtml).join('') + `
@@ -554,8 +872,8 @@
     }
   });
 
-  $('#siSignOut').addEventListener('click', () => {
-    Account.signOut();
+  $('#siSignOut').addEventListener('click', async () => {
+    await signOutEverywhere();
     els.signedIn.hidden = true;
     els.flow.hidden = false;
     els.providerGrid.hidden = false;
@@ -566,7 +884,7 @@
   });
 
   let deleteArmed = false;
-  $('#siDelete').addEventListener('click', (e) => {
+  $('#siDelete').addEventListener('click', async (e) => {
     if (!deleteArmed) {
       deleteArmed = true;
       e.currentTarget.innerHTML = `${ic('trash-2', 12)}Click again to delete the profile`;
@@ -577,14 +895,17 @@
       }, 4000);
       return;
     }
-    Account.signOut();
+    const wasCloud = (Account.get() || {}).provider === 'supabase';
+    await signOutEverywhere();
     deleteArmed = false;
     e.currentTarget.innerHTML = `${ic('trash-2', 12)}Delete this profile`;
     els.signedIn.hidden = true;
     els.flow.hidden = false;
     els.providerGrid.hidden = false;
     els.form.hidden = false;
-    toast('Profile deleted from this browser — provider keys kept', 'trash-2');
+    toast(wasCloud
+      ? 'Signed out here — the Supabase account itself still exists'
+      : 'Profile deleted from this browser — provider keys kept', 'trash-2');
     setMode('signup', true);
   });
 
@@ -638,6 +959,8 @@
   /* --------------------------------- boot --------------------------------- */
 
   setMode(mode, false);
+  if (params.get('email') && emailValid(params.get('email'))) els.emailInput.value = params.get('email').trim();
+  if (params.get('name')) els.nameInput.value = params.get('name').trim().slice(0, 60);
   refreshProviderStates();
   I.hydrate(document);
   $$('#providerGrid .pb-logo, .pl-logo, .conn-logo').forEach((el) => {
@@ -648,6 +971,30 @@
   if (!params.get('account') && Account.get()) renderSignedIn(Account.get());
 
   const callbackHandled = handleCallback();
+
+  /* A Supabase session survives reloads. Restoring it also finishes the two
+     link flows: a magic link signs you in, a recovery link asks for a new
+     password before it shows the panel. */
+  if (cloudOn) {
+    const hint = params.get('intent');
+    if (hint === 'recovery') setCloudStatus('Opening your reset link…');
+    Cloud.restore().then((session) => {
+      if (!session || !session.access_token) return;
+      cloudSession = session;
+      if (session.recovered) {
+        pendingRecovery = true;
+        els.signedIn.hidden = true;
+        els.flow.hidden = false;
+        setMode('recover', false);
+        setCloudStatus('Address confirmed — choose a password to finish.');
+        if (els.passwordInput) els.passwordInput.focus();
+        return;
+      }
+      renderSignedIn(mirror(session));
+    }).catch(() => {
+      /* an expired or revoked session simply means: not signed in */
+    });
+  }
 
   if (!callbackHandled && params.get('provider')) {
     const id = params.get('provider');

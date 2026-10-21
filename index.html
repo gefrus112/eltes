@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eltes AI — one workspace for the models you choose</title>
-  <meta name="description" content="A focused AI workspace for Claude, OpenAI, Gemini, open models, and more. Bring your own key, switch models, and keep your history on your device." />
-  <meta name="theme-color" content="#02050a" />
+  <meta name="description" content="A focused AI workspace with live web search, cited sources and 66 models across 14 providers. Bring your own key, switch models, and keep your history on your device." />
+  <meta name="theme-color" content="#000003" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="site.webmanifest" />
   <meta property="og:title" content="Eltes AI — one workspace for the models you choose" />
-  <meta property="og:description" content="Switch between hosted models and local open models in a thoughtful, local-first workspace." />
+  <meta property="og:description" content="Live web search with numbered citations, 66 models and one local-first workspace." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/img/icon-512.png" />
   <meta property="og:image:alt" content="Eltes — a green cloud with one eye closed and one open" />
@@ -21,9 +21,14 @@
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
+  <link rel="stylesheet" href="assets/css/galaxy.css" />
   <noscript><style>.reveal{opacity:1;transform:none;filter:none}</style></noscript>
 </head>
-<body>
+<body class="galaxy-page">
+  <div class="galaxy" aria-hidden="true">
+    <canvas class="galaxy-backdrop" data-galaxy-backdrop aria-hidden="true"></canvas>
+    <canvas class="galaxy-canvas" data-galaxy="1.1"></canvas>
+  </div>
   <a class="skip" href="#main">Skip to content</a>
   <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
 
@@ -39,10 +44,13 @@
         </a>
         <nav class="nav-links" aria-label="Primary">
           <a href="#models">Models</a>
+          <a href="#web-search">Search</a>
+          <a href="studio.html">Studio</a>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="#downloads">Downloads</a>
           <a href="docs.html">Docs</a>
+          <a href="news.html">News</a>
         </nav>
       </div>
       <div class="nav-right">
@@ -58,10 +66,13 @@
   </header>
   <div class="mobile-menu" id="mobileMenu">
     <a href="#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="#web-search">Web search <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="studio.html">Studio <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="#downloads">Downloads <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="news.html">News <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="auth.html">Sign in <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
   </div>
@@ -74,38 +85,39 @@
       <span class="aura a3" data-parallax="-0.18"></span>
 
       <div class="wrap hero-inner">
-        <div class="hero-kicker"><span class="kicker-mark"><span></span><span></span><span></span></span><span>AN OPEN WORKSPACE FOR AI</span><span class="hero-version">v3.3</span></div>
+        <div class="hero-kicker"><span class="kicker-mark"><span></span><span></span><span></span></span>REAL-TIME WEB SEARCH · 65 MODELS · ONE THREAD</div>
         <h1>
-          The right model.
-          <span class="line-2">For this moment.</span>
+          Ask the web.
+          <span class="line-2">Keep the receipts.</span>
         </h1>
 
         <p class="hero-sub">
-          Claude, OpenAI, Gemini, open models — choose what fits, move between them without losing your thread, and keep your workspace yours.
+          Live web search with numbered citations, built into a workspace that moves between Claude, ChatGPT, Gemini, DeepSeek and 60+ more models without losing the thread.
         </p>
 
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="app.html">
-            Start with Eltes CAI
+            Open the workspace
             <span data-icon="arrow-right" data-icon-size="17"></span>
           </a>
-          <a class="btn btn-ghost btn-lg" href="#models">
-            Explore models
+          <a class="btn btn-ghost btn-lg" href="#web-search">
+            See how search works
             <span data-icon="arrow-down" data-icon-size="15"></span>
           </a>
         </div>
 
-        <div class="hero-note">
-          <span><span data-icon="key-round" data-icon-size="13"></span>Bring your own provider key</span>
-          <span><span data-icon="shield-check" data-icon-size="13"></span>Local history by default</span>
-          <span><span data-icon="cpu" data-icon-size="13"></span>Open-model ready</span>
+        <div class="hero-stats" role="list">
+          <div role="listitem"><strong>65</strong><span>models</span></div>
+          <div role="listitem"><strong>14</strong><span>providers</span></div>
+          <div role="listitem"><strong>4</strong><span>search backends</span></div>
+          <div role="listitem"><strong>0</strong><span>demo replies</span></div>
         </div>
 
-        <div class="hero-stats" id="heroStats">
-          <div class="hs"><strong data-count="36">36</strong><span>model routes</span></div>
-          <div class="hs"><strong data-count="13">13</strong><span>providers</span></div>
-          <div class="hs"><strong data-count="3">3</strong><span>on-device models</span></div>
-          <div class="hs"><strong data-count="0">0</strong><span>telemetry events</span></div>
+        <div class="hero-note">
+          <span><span data-icon="globe" data-icon-size="13"></span>Live sources, not guesses</span>
+          <span><span data-icon="key-round" data-icon-size="13"></span>Bring your own key</span>
+          <span><span data-icon="shield-check" data-icon-size="13"></span>Local history by default</span>
+          <a href="news.html"><span data-icon="sparkles" data-icon-size="13"></span>New: effects drawn in code</a>
         </div>
       </div>
 
@@ -114,7 +126,7 @@
         <div class="showcase-shell">
           <div class="showcase-top">
             <div class="showcase-brand"><span class="brand-mark sm"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span><strong>Eltes</strong><span class="showcase-slash">/</span><span>Model workspace</span></div>
-            <div class="showcase-status">Local-first · BYOK</div>
+            <div class="showcase-status"><span class="status-dot"></span>Local-first · BYOK · Web search</div>
           </div>
           <div class="showcase-layout">
             <div class="showcase-picker">
@@ -133,7 +145,7 @@
                   <span class="p-logo sm" data-brand="eltes" data-brand-size="15"></span><span class="tab-copy"><strong>Eltes CAI-1</strong><small>On-device · no key</small></span><span class="tab-check" data-icon="check" data-icon-size="13"></span>
                 </button>
               </div>
-              <div class="picker-foot"><span data-icon="layers" data-icon-size="12"></span><span>36 catalogue entries</span><a href="#models">Browse all<span data-icon="arrow-right" data-icon-size="11"></span></a></div>
+              <div class="picker-foot"><span data-icon="layers" data-icon-size="12"></span><span>66 models · 14 providers</span><a href="#models">Browse all<span data-icon="arrow-right" data-icon-size="11"></span></a></div>
             </div>
             <div class="preview-panel" id="previewPanel" role="tabpanel" aria-labelledby="preview-tab-claude" aria-live="polite">
               <div class="preview-panel-head">
@@ -144,7 +156,7 @@
               <div class="preview-facts">
                 <div><span>API</span><strong id="previewApi">Messages</strong></div>
                 <div><span>Context</span><strong id="previewContext">200K</strong></div>
-                <div><span>Tools</span><strong id="previewTools">Supported</strong></div>
+                <div><span>Agent mode</span><strong id="previewTools">On by default</strong></div>
               </div>
               <div class="privacy-flow" role="group" aria-label="Request flow">
                 <div class="flow-node"><span class="flow-number">01</span><span><strong id="flowCredential">Your key</strong><small id="flowStorage">Stored in this browser</small></span></div>
@@ -162,7 +174,7 @@
 
       <div class="wrap hero-support">
         <p>Real APIs, real keys, no demo mode</p>
-        <div class="logo-marquee" id="logoMarquee" role="list" aria-label="Supported providers"></div>
+        <div class="mini-providers" id="miniProviders"></div>
       </div>
     </section>
 
@@ -171,126 +183,110 @@
       <div class="band-label">
         <div class="inner">
           <p>Break the page apart</p>
-          <h3>Thirteen providers. <span>Thirty-six model routes.</span></h3>
+          <h3>Fourteen providers. <span>Sixty-five model routes.</span></h3>
           <div class="hint">Keep scrolling — the blocks reassemble themselves.</div>
         </div>
       </div>
     </div>
 
-    <!-- ============================ tour ============================== -->
-    <section class="section tour" id="tour">
-      <div class="wrap">
+
+    <!-- ========================== web search ========================== -->
+    <section class="section tight search-section" id="web-search">
+      <span class="aura" data-parallax="0.08" style="width:560px;height:560px;left:-120px;top:20px;background:radial-gradient(circle,rgba(64,128,255,.16),transparent 68%)"></span>
+      <div class="wrap" style="position:relative">
         <div class="section-head center reveal">
-          <span class="eyebrow"><span data-icon="layout-grid" data-icon-size="14"></span>A look inside</span>
-          <h2>One composed surface.<br class="desk-br" /> <span class="grad">Zero clutter.</span></h2>
-          <p>Composer, tool loop and live metrics live in the same quiet interface. These are static interface previews — nothing is sent.</p>
+          <span class="eyebrow"><span data-icon="globe" data-icon-size="14"></span>Live web search</span>
+          <h2>Answers with<br class="desk-br" /> receipts.</h2>
+          <p>Turn on the <strong>Web</strong> chip and Eltes searches the live web through your own search key — Brave, Tavily, Serper or Exa. You get a written answer, numbered inline citations and every source link on the page.</p>
         </div>
 
-        <div class="tour-shell reveal" style="--d:80ms">
-          <div class="tour-tabs" role="tablist" aria-label="Workspace previews">
-            <button class="tour-tab active" type="button" role="tab" aria-selected="true" data-tour="compose">
-              <span data-icon="message-square" data-icon-size="14"></span>Compose
-            </button>
-            <button class="tour-tab" type="button" role="tab" aria-selected="false" data-tour="tools">
-              <span data-icon="wrench" data-icon-size="14"></span>Tool loop
-            </button>
-            <button class="tour-tab" type="button" role="tab" aria-selected="false" data-tour="metrics">
-              <span data-icon="activity" data-icon-size="14"></span>Metrics
-            </button>
-            <span class="tour-note"><span data-icon="info" data-icon-size="12"></span>Static preview</span>
-          </div>
-
-          <div class="tour-stage">
-            <div class="tour-window">
-              <div class="tw-bar">
-                <span class="tw-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-                <span class="tw-url">eltes · workspace</span>
-                <span class="tw-live">local</span>
-              </div>
-
-              <div class="tour-panel active" data-panel="compose">
-                <div class="tp-thread">
-                  <div class="tp-user">Compare two caching strategies and pick one for a Next.js app.</div>
-                  <div class="tp-ai">
-                    <span class="tp-avatar" data-icon="cloud" data-icon-size="13"></span>
-                    <div class="tp-body">
-                      <div class="tp-meta"><strong>Eltes</strong><span class="tp-chip">Claude Sonnet 5.5</span><span class="tp-chip live">streaming</span></div>
-                      <p>Stale-while-revalidate wins for read-heavy pages; tag-based invalidation is the cleaner fit when writes are surgical. Here is the trade-off:</p>
-                      <div class="tp-code"><span class="c">// app/products/page.tsx</span><br /><span class="k">export const</span> revalidate = <span class="n">60</span>;<br /><span class="k">export default async function</span> <span class="f">Page</span>() { … }</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="tp-composer">
-                  <span class="tp-placeholder">Message Eltes…</span>
-                  <div class="tp-bar">
-                    <span class="tp-pill"><span class="p-logo sm" data-brand="claude" data-brand-size="12"></span>Claude Sonnet 5.5</span>
-                    <span class="tp-pill"><span data-icon="wrench" data-icon-size="12"></span>Tools</span>
-                    <span class="tp-tokens"><b>128</b> tok</span>
-                    <span class="tp-send" data-icon="arrow-up" data-icon-size="14"></span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="tour-panel" data-panel="tools">
-                <div class="tp-tools">
-                  <div class="tp-tool">
-                    <div class="tp-tool-head"><span class="tp-tool-ico" data-icon="clock" data-icon-size="12"></span><strong>current_time</strong><span class="tp-tool-state done">done · 12 ms</span></div>
-                    <div class="tp-tool-kv"><span>timezone</span><b>America/New_York</b></div>
-                    <div class="tp-tool-result">2026-10-20T01:24:00-04:00 (America/New_York)</div>
-                  </div>
-                  <div class="tp-tool">
-                    <div class="tp-tool-head"><span class="tp-tool-ico" data-icon="calculator" data-icon-size="12"></span><strong>calculate</strong><span class="tp-tool-state done">done · 4 ms</span></div>
-                    <div class="tp-tool-kv"><span>expression</span><b>(17 * 43) / 2</b></div>
-                    <div class="tp-tool-result">365.5</div>
-                  </div>
-                  <div class="tp-tool ghost">
-                    <div class="tp-tool-head"><span class="tp-tool-ico" data-icon="search" data-icon-size="12"></span><strong>search_history</strong><span class="tp-tool-state running"><i></i>running</span></div>
-                    <div class="tp-tool-kv"><span>query</span><b>refresh token rotation</b></div>
-                  </div>
-                </div>
-                <div class="tp-caption"><span data-icon="shield-check" data-icon-size="12"></span>Runs in your browser · no shell, no server-side execution</div>
-              </div>
-
-              <div class="tour-panel" data-panel="metrics">
-                <div class="tp-metrics">
-                  <div class="tp-metric">
-                    <span>First token</span><strong>312<small>ms</small></strong>
-                    <div class="tp-spark"><i style="--h:22%"></i><i style="--h:38%"></i><i style="--h:64%"></i><i style="--h:48%"></i><i style="--h:86%"></i><i style="--h:72%"></i><i style="--h:100%"></i><i style="--h:88%"></i><i style="--h:94%"></i><i style="--h:80%"></i></div>
-                  </div>
-                  <div class="tp-metric">
-                    <span>Total</span><strong>1.4<small>s</small></strong>
-                    <div class="tp-spark soft"><i style="--h:30%"></i><i style="--h:44%"></i><i style="--h:40%"></i><i style="--h:58%"></i><i style="--h:52%"></i><i style="--h:70%"></i><i style="--h:66%"></i><i style="--h:84%"></i><i style="--h:78%"></i><i style="--h:92%"></i></div>
-                  </div>
-                  <div class="tp-metric">
-                    <span>Throughput</span><strong>118<small>tok/s</small></strong>
-                    <div class="tp-spark green"><i style="--h:40%"></i><i style="--h:62%"></i><i style="--h:54%"></i><i style="--h:76%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i style="--h:80%"></i><i style="--h:96%"></i><i style="--h:84%"></i><i style="--h:100%"></i></div>
-                  </div>
-                  <div class="tp-metric wide">
-                    <span>Usage</span><strong>128<small>in</small> · 214<small>out</small></strong>
-                    <div class="tp-usage"><i style="--w:37%"></i><b style="--w:63%"></b></div>
-                  </div>
-                </div>
-                <div class="tp-payload">
-                  <div><span>provider</span><b>Anthropic</b></div>
-                  <div><span>request</span><b>req_8f21c4</b></div>
-                  <div><span>finish</span><b>end_turn</b></div>
-                  <div><span>stream</span><b class="ok">SSE · 42 chunks</b></div>
-                </div>
-                <div class="tp-caption"><span data-icon="gauge" data-icon-size="12"></span>Numbers come from the provider's usage payload — not estimated</div>
-              </div>
+        <div class="search-demo reveal" role="group" aria-label="Illustration of a web search answer with cited sources">
+          <div class="sd-window">
+            <div class="sd-bar">
+              <span class="sd-mark" data-icon="globe" data-icon-size="14"></span>
+              <span class="sd-query">What is WebGPU and which browsers support it?</span>
+              <span class="sd-chip"><span class="status-dot"></span>Web on</span>
             </div>
 
-            <aside class="tour-side">
-              <div class="tour-side-item" data-for="compose"><span class="tsi-ico" data-icon="message-square" data-icon-size="15"></span><div><strong>Composer that stays out of the way</strong><p>Model chip, tools, attachments and a token count in one bar. Enter sends; Shift+Enter adds a line.</p></div></div>
-              <div class="tour-side-item" data-for="tools"><span class="tsi-ico" data-icon="wrench" data-icon-size="15"></span><div><strong>A tool loop you can watch</strong><p>Every call is timed, expanded and inspectable. Stop mid-loop and keep the tokens already received.</p></div></div>
-              <div class="tour-side-item" data-for="metrics"><span class="tsi-ico" data-icon="activity" data-icon-size="15"></span><div><strong>Receipts for every reply</strong><p>Time to first token, total latency, tokens in and out, and tokens per second under each answer.</p></div></div>
+            <div class="sd-body">
+              <div class="sd-think">
+                <div class="sd-think-head">
+                  <span class="sd-spinner" aria-hidden="true"></span>
+                  <strong>Searching the web</strong>
+                  <span class="sd-provider">Brave · past week</span>
+                  <span class="sd-time">1.4 s</span>
+                </div>
+                <ol class="sd-steps">
+                  <li class="done"><i></i><span>Understanding the question</span><em>18 ms</em></li>
+                  <li class="done"><i></i><span>Searching the web · “WebGPU browser support”</span><em>720 ms</em></li>
+                  <li class="done"><i></i><span>Read 4 sources</span><em>mdn · chrome · w3.org</em></li>
+                  <li class="done"><i></i><span>Writing an answer with citations</span><em>6 ms</em></li>
+                </ol>
+              </div>
 
-              <a class="tour-side-cta" href="app.html">
-                <span class="tsi-ico" data-icon="arrow-up-right" data-icon-size="15"></span>
-                <div><strong>Open the real workspace</strong><p>These panels are previews. The app streams live with your key.</p></div>
-              </a>
-            </aside>
+              <div class="sd-answer">
+                <div class="sd-answer-head">
+                  <span class="avatar-ai"><span data-icon="cloud" data-icon-size="14"></span></span>
+                  <strong>Eltes</strong>
+                  <span class="sd-tag">cited answer</span>
+                </div>
+                <p>
+                  WebGPU is a browser API that exposes modern GPU features — compute shaders and rendering — to JavaScript
+                  <a class="cite" href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API" target="_blank" rel="noreferrer">1</a><a class="cite" href="https://www.w3.org/TR/webgpu/" target="_blank" rel="noreferrer">2</a>.
+                  It ships in current Chrome, Edge and Safari releases, with Firefox support rolling out behind flags
+                  <a class="cite" href="https://developer.chrome.com/docs/web-platform/webgpu" target="_blank" rel="noreferrer">3</a>.
+                  Check the browser support table before relying on it in production <a class="cite" href="https://caniuse.com/webgpu" target="_blank" rel="noreferrer">4</a>.
+                </p>
+
+                <div class="sd-sources">
+                  <a class="sd-source" href="https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API" target="_blank" rel="noreferrer">
+                    <span class="sd-num">1</span>
+                    <span class="sd-src-body"><strong>WebGPU API — MDN Web Docs</strong><small>developer.mozilla.org</small><em>Interface for accessing GPU hardware from web pages, with usage examples.</em></span>
+                  </a>
+                  <a class="sd-source" href="https://www.w3.org/TR/webgpu/" target="_blank" rel="noreferrer">
+                    <span class="sd-num">2</span>
+                    <span class="sd-src-body"><strong>WebGPU — W3C Working Draft</strong><small>w3.org</small><em>The specification defining the JavaScript API, WGSL and validation rules.</em></span>
+                  </a>
+                  <a class="sd-source" href="https://developer.chrome.com/docs/web-platform/webgpu" target="_blank" rel="noreferrer">
+                    <span class="sd-num">3</span>
+                    <span class="sd-src-body"><strong>WebGPU arrives in Chrome</strong><small>developer.chrome.com</small><em>Platform notes on availability, migration and feature status.</em></span>
+                  </a>
+                  <a class="sd-source" href="https://caniuse.com/webgpu" target="_blank" rel="noreferrer">
+                    <span class="sd-num">4</span>
+                    <span class="sd-src-body"><strong>WebGPU browser support</strong><small>caniuse.com</small><em>Version-by-version support table across desktop and mobile browsers.</em></span>
+                  </a>
+                </div>
+
+                <div class="sd-foot">
+                  <span><span data-icon="info" data-icon-size="11"></span>Interface illustration · real searches use your own key and return live links</span>
+                  <a href="app.html">Try a live search<span data-icon="arrow-up-right" data-icon-size="12"></span></a>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div class="search-facts stagger">
+          <article class="search-fact reveal">
+            <span class="sf-icon" data-icon="link-2" data-icon-size="17"></span>
+            <strong>Numbered, clickable citations</strong>
+            <p>Every <code>[1]</code> in an answer links to the page it refers to. A numbered source list sits underneath with the provider's own snippet.</p>
+          </article>
+          <article class="search-fact reveal" style="--d:60ms">
+            <span class="sf-icon" data-icon="search" data-icon-size="17"></span>
+            <strong>Live thinking, not theatre</strong>
+            <p>The steps above the answer are recorded as they happen — the query, the provider, how many results returned and the time each step took.</p>
+          </article>
+          <article class="search-fact reveal" style="--d:120ms">
+            <span class="sf-icon" data-icon="key-round" data-icon-size="17"></span>
+            <strong>Your index, your key</strong>
+            <p>Pick Brave, Tavily, Serper or Exa in Settings. The search key stays in this browser and goes only through the backend you configure.</p>
+          </article>
+          <article class="search-fact reveal" style="--d:180ms">
+            <span class="sf-icon" data-icon="shield-check" data-icon-size="17"></span>
+            <strong>No invented sources</strong>
+            <p>No key or no results means an explicit message, not a guess. Eltes never fabricates a URL, a snippet or a citation.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -300,14 +296,8 @@
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="layers" data-icon-size="14"></span>The model wall</span>
-          <h2>One workspace.<br class="desk-br" /> <span class="grad">Many ways to think.</span></h2>
+          <h2>One workspace.<br class="desk-br" /> Many ways to think.</h2>
           <p>Real provider logos, real endpoints, real streaming. Pick a model, paste a key, and the same conversation carries across labs.</p>
-        </div>
-
-        <div class="wall-filter" id="wallFilter" role="group" aria-label="Filter models">
-          <button class="wf active" type="button" data-filter="all" aria-pressed="true">All <span id="wfAll">12</span></button>
-          <button class="wf" type="button" data-filter="hosted" aria-pressed="false">Hosted <span id="wfHosted">11</span></button>
-          <button class="wf" type="button" data-filter="local" aria-pressed="false">On-device <span id="wfLocal">1</span></button>
         </div>
 
         <div class="model-wall stagger" id="modelWall"></div>
@@ -317,7 +307,46 @@
           <span class="sep"></span>
           <span><span data-icon="shuffle" data-icon-size="12"></span> Switch mid-conversation</span>
           <span class="sep"></span>
-          <a href="docs.html#models">See all 36 models<span data-icon="arrow-right" data-icon-size="12"></span></a>
+          <a href="docs.html#models">See all 66 models<span data-icon="arrow-right" data-icon-size="12"></span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= lab ============================== -->
+    <section class="section tight" id="lab">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow"><span data-icon="flask" data-icon-size="14"></span>Eltes Lab</span>
+          <h2>A model you train<br class="desk-br" /> in your own tab.</h2>
+          <p>Not a demo script. A real character-level network — embeddings, a hidden layer, softmax — trained by backpropagation and Adam in plain JavaScript, then saved to this browser.</p>
+        </div>
+
+        <div class="bento stagger">
+          <article class="card span-2 reveal">
+            <div class="card-icon" data-icon="brain" data-icon-size="19"></div>
+            <h3>Real gradients</h3>
+            <p>51,245 weights, hand-written backprop, dropout, weight decay, gradient clipping and Adam with bias correction. The loss falls because the maths ran.</p>
+          </article>
+          <article class="card span-2 reveal">
+            <div class="card-icon" data-icon="trending-up" data-icon-size="19"></div>
+            <h3>Curves, not claims</h3>
+            <p>Training and held-out validation loss are drawn live, with the best validation point marked. On a corpus this small the dashed line turns up — overfitting, shown rather than hidden.</p>
+          </article>
+          <article class="card span-2 reveal">
+            <div class="card-icon" data-icon="hard-drive" data-icon-size="19"></div>
+            <h3>Yours after one save</h3>
+            <p>The checkpoint lives in <code>localStorage</code>. <strong>Eltes Lab-1</strong> then appears in the workspace picker and continues your text — honestly labelled, no key, no upload.</p>
+          </article>
+        </div>
+
+        <div class="wall-foot reveal">
+          <span><span data-icon="timer" data-icon-size="12"></span> ~9 s for 1,500 steps</span>
+          <span class="sep"></span>
+          <span><span data-icon="wifi-off" data-icon-size="12"></span> zero network requests</span>
+          <span class="sep"></span>
+          <a href="train.html">Open Lab<span data-icon="arrow-right" data-icon-size="12"></span></a>
+          <span class="sep"></span>
+          <a href="docs.html#lab">Read the guide</a>
         </div>
       </div>
     </section>
@@ -327,7 +356,7 @@
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="sparkles" data-icon-size="14"></span>The workspace</span>
-          <h2>Built for people who<br class="desk-br" /> <span class="grad">switch models.</span></h2>
+          <h2>Built for people who<br class="desk-br" /> switch models.</h2>
           <p>No account walls, no model lock-in, no fake answers. A sharp interface that gets out of the way of the work.</p>
         </div>
 
@@ -355,11 +384,11 @@
 
           <article class="card span-2 reveal" style="--d:60ms">
             <div class="card-icon" data-icon="bot" data-icon-size="19"></div>
-            <h3>Agent tools that actually run</h3>
-            <p>A real tool loop, not a scripted animation: the model asks, Eltes executes in the page and feeds the result back. With Eltes CAI-1 the agent plans the run itself — no key, nothing sent.</p>
+            <h3>An agent that actually runs</h3>
+            <p>Two ways to call a tool, one trace. Hosted models ask through native function calling; Eltes CAI-1 plans the run on-device with no key and no network. Every step is timed and visible.</p>
             <div class="card-visual">
               <div class="code-mini">
-                <div class="head"><span data-icon="cpu" data-icon-size="10"></span>6 tools · runs in your browser</div>
+                <div class="head"><span data-icon="cpu" data-icon-size="10"></span>8 tools · runs in your browser</div>
                 <div class="body">
                   <span class="fn">calculate</span>(expression)<br />
                   <span class="fn">convert_units</span>(value, from, to)<br />
@@ -370,7 +399,7 @@
             </div>
           </article>
 
-          <article class="card span-3 reveal">
+          <article class="card span-2 reveal">
             <div class="card-icon" data-icon="key-round" data-icon-size="19"></div>
             <h3>Your keys, your browser</h3>
             <p>Each provider key is stored locally and attached at request time. Requests go directly to the provider by default; you may opt into your own Vercel/local proxy. Provider billing remains with the provider.</p>
@@ -386,7 +415,7 @@
             </div>
           </article>
 
-          <article class="card span-3 reveal" style="--d:60ms">
+          <article class="card span-2 reveal" style="--d:60ms">
             <div class="card-icon" data-icon="history" data-icon-size="19"></div>
             <h3>History that stays local</h3>
             <p>Threads, titles and pins live in local storage. Search them from the palette, export them as Markdown, delete them in one click.</p>
@@ -404,15 +433,10 @@
             <h3>Real numbers, not vibes</h3>
             <p>Every reply records time to first token, total latency, input and output tokens, and tokens per second straight from the provider's usage payload.</p>
             <div class="card-visual">
-              <div class="metric-board">
-                <div class="mb-top">
-                  <div class="mb-now"><span>first token</span><strong>312<small>ms</small></strong></div>
-                  <div class="mb-pills"><span>1.4s total</span><span>118 tok/s</span><span class="ok">provider usage</span></div>
-                </div>
-                <div class="mb-spark" aria-hidden="true">
-                  <i style="--h:24%"></i><i style="--h:38%"></i><i style="--h:32%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:66%"></i><i style="--h:58%"></i><i style="--h:74%"></i><i style="--h:68%"></i><i style="--h:88%"></i><i style="--h:78%"></i><i style="--h:94%"></i><i style="--h:86%"></i><i style="--h:100%"></i><i style="--h:90%"></i><i style="--h:96%"></i>
-                </div>
-                <div class="mb-axis"><span>0 s</span><span>streaming</span><span>1.4 s</span></div>
+              <div class="stat-row">
+                <div class="stat"><strong>Live</strong><span>first token</span></div>
+                <div class="stat"><strong>Measured</strong><span>total time</span></div>
+                <div class="stat"><strong>Provider</strong><span>usage data</span></div>
               </div>
             </div>
           </article>
@@ -432,22 +456,50 @@
               </div>
             </div>
           </article>
+
+          <article class="card span-6 reveal studio-card">
+            <div class="studio-card-copy">
+              <div class="card-icon" data-icon="terminal" data-icon-size="19"></div>
+              <h3>Studio: code, run and preview in one window</h3>
+              <p>A real workspace with a real shell. Open any HTML file and the preview follows it, edit and the page reloads, run <code>npm run build</code> and watch it land. The terminal runs locally with <code>npm start</code> — never on the deployed site.</p>
+              <div class="studio-card-links">
+                <a class="btn btn-ghost btn-sm" href="studio.html">
+                  Open Studio
+                  <span data-icon="arrow-right" data-icon-size="13"></span>
+                </a>
+                <a class="studio-card-workflow" href="docs.html#workflow">5-step workflow</a>
+              </div>
+            </div>
+            <div class="card-visual">
+              <div class="code-mini">
+                <div class="head"><span data-icon="terminal" data-icon-size="10"></span>~/.studio · bash</div>
+                <div class="body">
+                  <span class="cm">$</span> npm run build<br />
+                  <span class="cm">vite v6 building for production…</span><br />
+                  <span class="fn">✓</span> 12 modules transformed<br />
+                  <span class="pr">dist/</span>index.html <span class="cm">· 1.42 kB</span><br />
+                  <span class="cm">preview reloaded</span>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
     <!-- ============================ agent ============================= -->
-    <section class="section tight" id="agent">
+    <section class="section tight">
       <div class="wrap">
         <div class="agent">
           <div class="reveal">
             <span class="eyebrow"><span data-icon="bot" data-icon-size="14"></span>Agent mode</span>
-            <h2>It calls tools.<br /><span class="grad">It doesn't pretend to.</span></h2>
-            <p>Eltes runs a real tool loop: the model asks for a tool, the browser executes it, the result goes back into the conversation. With Eltes CAI-1 there is no model to ask — the on-device agent plans the run itself. Every call is timed and visible.</p>
+            <h2>It calls tools.<br />It doesn't pretend to.</h2>
+            <p>Eltes runs a real tool loop through your provider: the model requests a tool, the browser executes it, the result goes back into the conversation. Every call is timed and visible.</p>
             <ul class="check-list">
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Six local tools</strong> — arithmetic, unit and temperature conversion, percentages, calendar maths, the clock, and your own chat history.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic tool_use, streamed, up to four rounds.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Works with no key</strong> — Agent mode on Eltes CAI-1 plans and executes in the tab, so nothing is sent anywhere.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Local tools</strong> — calculate maths, convert units, read the clock, search your own chat history.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Live web search</strong> — numbered sources and inline <code>[1]</code> citations, using your own search key.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic tool_use, streamed.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Interruptible</strong> — stop mid-loop and keep every token already received.</span></li>
             </ul>
             <a class="btn btn-ghost" href="docs.html#agent">How the tool loop works<span data-icon="arrow-right" data-icon-size="15"></span></a>
           </div>
@@ -457,12 +509,12 @@
             <div class="architecture-flow">
               <div class="architecture-step">
                 <span class="step-index">01</span><span class="step-icon model" data-icon="brain" data-icon-size="17"></span>
-                <div><strong>The model requests a tool</strong><p>Arithmetic, a unit conversion, a date difference, the clock, or your chat history.</p></div><span class="step-state">MODEL</span>
+                <div><strong>The model requests a tool</strong><p>For example: calculate, read the clock, or search chat history.</p></div><span class="step-state">MODEL</span>
               </div>
               <div class="architecture-connector"><span></span><span class="connector-label">structured tool call</span></div>
               <div class="architecture-step">
                 <span class="step-index">02</span><span class="step-icon local" data-icon="cpu" data-icon-size="17"></span>
-                <div><strong>Eltes runs it in your browser</strong><p>No shell access, no arbitrary terminal commands — or, with CAI-1, a deterministic planner picks the tools itself.</p></div><span class="step-state local-state">LOCAL</span>
+                <div><strong>Eltes runs it in your browser</strong><p>No shell access. No arbitrary terminal commands. The result is shown to you.</p></div><span class="step-state local-state">LOCAL</span>
               </div>
               <div class="architecture-connector"><span></span><span class="connector-label">result returns to the conversation</span></div>
               <div class="architecture-step">
@@ -470,7 +522,7 @@
                 <div><strong>The model continues with that result</strong><p>When enabled, the provider receives the tool result to finish its answer.</p></div><span class="step-state">TRANSPARENT</span>
               </div>
             </div>
-            <div class="architecture-foot"><span>Every step is inspectable</span><a href="docs.html#agent">Read about the tool loop<span data-icon="arrow-up-right" data-icon-size="12"></span></a></div>
+            <div class="architecture-foot"><span><span class="status-dot"></span>Every step is inspectable</span><a href="docs.html#agent">Read about the tool loop<span data-icon="arrow-up-right" data-icon-size="12"></span></a></div>
           </div>
         </div>
       </div>
@@ -481,7 +533,7 @@
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="ruler" data-icon-size="14"></span>Why Eltes</span>
-          <h2>One workspace.<br /><span class="grad">Your rules.</span></h2>
+          <h2>One workspace.<br />Your rules.</h2>
           <p>Pick the model, choose how the request is sent, and keep control of your local workspace.</p>
         </div>
 
@@ -495,12 +547,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td>Model choice</td><td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>36 catalogue entries</span></td><td>Hosted providers plus your own OpenAI-compatible endpoint.</td></tr>
+              <tr><td>Model choice</td><td class="eltes-col"><span class="yes"><span data-icon="check" data-icon-size="14"></span>65 catalogue entries</span></td><td>Hosted providers plus your own OpenAI-compatible endpoint.</td></tr>
               <tr><td>Provider access</td><td class="eltes-col"><span class="yes"><span data-icon="key-round" data-icon-size="14"></span>Bring your own key</span></td><td>Direct from the browser by default; optional trusted proxy.</td></tr>
               <tr><td>Conversation continuity</td><td class="eltes-col"><span class="yes"><span data-icon="shuffle" data-icon-size="14"></span>Switch mid-thread</span></td><td>Choose a different model without discarding the chat.</td></tr>
               <tr><td>History</td><td class="eltes-col"><span class="yes"><span data-icon="hard-drive" data-icon-size="14"></span>Local by default</span></td><td>Export or clear it from this browser at any time.</td></tr>
               <tr><td>No-key option</td><td class="eltes-col"><span class="yes"><span data-icon="cpu" data-icon-size="14"></span>Eltes CAI</span></td><td>A small, bounded on-device helper—not a frontier LLM.</td></tr>
-              <tr><td>Agent tools</td><td class="eltes-col"><span class="yes"><span data-icon="workflow" data-icon-size="14"></span>Visible and local</span></td><td>Calculator, clock, and chat search; no shell access.</td></tr>
+              <tr><td>Agent tools</td><td class="eltes-col"><span class="yes"><span data-icon="workflow" data-icon-size="14"></span>Visible and local</span></td><td>Calculator, units, clock, chat search, and cited web search; no shell access.</td></tr>
               <tr><td>Usage visibility</td><td class="eltes-col"><span class="yes"><span data-icon="gauge" data-icon-size="14"></span>Latency and tokens</span></td><td>Metrics depend on what each provider reports.</td></tr>
               <tr><td>Hosted billing</td><td class="eltes-col"><span class="yes"><span data-icon="globe" data-icon-size="14"></span>Provider-controlled</span></td><td>Provider pricing and account limits still apply.</td></tr>
             </tbody>
@@ -515,7 +567,7 @@
       <div class="wrap" style="position:relative">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="gift" data-icon-size="14"></span>Pricing</span>
-          <h2>BYOK is free.<br class="desk-br" /> <span class="grad">Hosted plans are next.</span></h2>
+          <h2>BYOK is free.<br class="desk-br" /> Hosted plans are next.</h2>
           <p>The workspace is free. Hosted model replies require your provider API key and may be billed by that provider. CAI runs locally at no per-token cost. No Eltes hosted plan or free hosted credits are available yet.</p>
           <span class="pricing-banner"><span data-icon="clock" data-icon-size="12"></span>Hosted plans are not announced — join the waitlist below</span>
         </div>
@@ -527,7 +579,7 @@
             <div class="price"><strong>$0</strong><span>forever</span></div>
             <p>Connect your provider key for real streamed replies. Eltes checks for a saved key before sending; without one, use CAI locally for free.</p>
             <ul class="price-feats">
-              <li><span data-icon="check" data-icon-size="13"></span>All 36 models, 13 providers</li>
+              <li><span data-icon="check" data-icon-size="13"></span>All 66 models, 14 providers</li>
               <li><span data-icon="check" data-icon-size="13"></span>Agent tools and streaming</li>
               <li><span data-icon="check" data-icon-size="13"></span>Local history and exports</li>
               <li><span data-icon="check" data-icon-size="13"></span>No Eltes account required</li>
@@ -564,19 +616,6 @@
           </article>
         </div>
 
-        <div class="free-routes reveal">
-          <div class="free-routes-head">
-            <span data-icon="sparkles" data-icon-size="14"></span>
-            <strong>Three ways to run models for nothing</strong>
-          </div>
-          <ul>
-            <li><span data-icon="cpu" data-icon-size="13"></span><span><strong>Eltes CAI</strong> — in the tab, no key, no network.</span></li>
-            <li><span data-icon="hard-drive" data-icon-size="13"></span><span><strong>Your own weights</strong> — Ollama or LM Studio, one click in Settings.</span></li>
-            <li><span data-icon="globe" data-icon-size="13"></span><span><strong>A provider's free tier</strong> — if it still has one; we never charge you.</span></li>
-          </ul>
-          <a class="inline-link" href="docs.html#free">Read the free-models guide <span data-icon="arrow-right" data-icon-size="13"></span></a>
-        </div>
-
         <p class="price-note">Pricing is a placeholder while the beta runs. Nothing is charged, and no card is ever requested. <a href="docs.html#pricing">Read the pricing notes</a>.</p>
       </div>
     </section>
@@ -587,7 +626,7 @@
         <div class="account-split">
           <div class="reveal">
             <span class="eyebrow"><span data-icon="user-plus" data-icon-size="14"></span>Accounts</span>
-            <h2>Sign in with<br /><span class="grad">the account you use.</span></h2>
+            <h2>Sign in with<br />the account you use.</h2>
             <p>Eltes connects OpenAI, Anthropic and DeepSeek directly. Sign up with the provider that already
               pays for your models, or keep a local profile with no account at all. The profile lives in this
               browser. Hosted model requests may optionally use a Vercel/local proxy that you configure; the profile itself remains in this browser.</p>
@@ -630,7 +669,7 @@
               </label>
               <button class="btn btn-primary" type="submit">Create profile<span data-icon="arrow-right" data-icon-size="14"></span></button>
             </form>
-            <p class="tiny">No password and no email is sent. Provider keys stay in this browser.
+            <p class="tiny">No password. The welcome email is sent by your own Eltes server, if you run one. Provider keys stay in this browser.
               <a href="docs.html#accounts">How accounts work</a></p>
           </div>
         </div>
@@ -643,82 +682,61 @@
       <div class="wrap" style="position:relative">
         <div class="section-head center reveal">
           <span class="eyebrow"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</span>
-          <h2>Run Eltes<br class="desk-br" /> <span class="grad">from your desktop.</span></h2>
-          <p>The app is a static site. The Windows launcher serves the files locally and opens
-            your browser — no installer, no registry, no admin rights, no background service. An optional Node/Vercel backend supports key testing and proxying.</p>
+          <h2>Eltes as a real<br class="desk-br" /> desktop app.</h2>
+          <p>A native window with the workspace, Studio, the terminal and the local API inside it.
+            No server to install, no Node runtime to find, no browser tabs. Windows, macOS and Linux
+            builds come from the same harness and the same site.</p>
         </div>
 
         <div class="download-grid">
           <article class="download-card featured reveal">
             <div class="dl-top">
-              <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Windows</span>
-              <span class="dl-ver">v3.3.0 · portable</span>
+              <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Eltes Desktop</span>
+              <span class="dl-ver">v3.18.0 · signed builds optional</span>
             </div>
-            <h3>Eltes for Windows</h3>
-            <p>Unzip anywhere and double-click <code class="mono">eltes.bat</code>. It finds Python or Node,
-              serves the folder on <code class="mono">127.0.0.1:4173</code> and opens the workspace.</p>
-            <ul class="dl-list">
-              <li><span data-icon="check" data-icon-size="13"></span>Includes the launcher and the full site</li>
-              <li><span data-icon="check" data-icon-size="13"></span>Optional Start-menu shortcut with <code class="mono">--shortcut</code></li>
-              <li><span data-icon="check" data-icon-size="13"></span>Needs Windows 10/11 and Python 3 or Node 18+</li>
-              <li><span data-icon="shield-check" data-icon-size="13"></span>CAI works offline; keys stay in your browser</li>
+            <h3>One app, three platforms</h3>
+            <p>The shell starts the bundled local server on a free loopback port, then opens the
+              workspace in a hardened window. Chats, keys and the Studio folder stay on your machine.</p>
+            <ul class="dl-list dl-os-list">
+              <li>
+                <span class="dl-badge"><span data-icon="monitor-down" data-icon-size="14"></span></span>
+                <span><strong>Windows 10/11</strong><em>Eltes-Setup-3.18.0-x64.exe · also arm64; or the portable .exe with no install</em></span>
+              </li>
+              <li>
+                <span class="dl-badge"><span data-icon="laptop" data-icon-size="14"></span></span>
+                <span><strong>macOS 12+</strong><em>Eltes-3.18.0-arm64.dmg for Apple silicon · x64 .dmg for Intel</em></span>
+              </li>
+              <li>
+                <span class="dl-badge"><span data-icon="terminal" data-icon-size="14"></span></span>
+                <span><strong>Linux</strong><em>Eltes-3.18.0-linux-x86_64.AppImage · eltes_3.18.0_amd64.deb</em></span>
+              </li>
             </ul>
-            <a class="btn btn-primary btn-lg dl-btn" href="downloads/eltes-windows.zip" download>
+            <a class="btn btn-primary btn-lg dl-btn" href="https://github.com/gefrus112/eltes/releases/latest" target="_blank" rel="noreferrer">
               <span data-icon="download" data-icon-size="16"></span>
-              Download eltes-windows.zip
+              Get the installers
             </a>
-            <div class="dl-meta">Zip · includes <span class="mono">eltes.bat</span>, <span class="mono">Start-Eltes.ps1</span> and the site</div>
+            <div class="dl-meta">Built by GitHub Actions on Windows, macOS and Ubuntu · <a href="docs.html#desktop">how the harness works</a></div>
           </article>
 
           <div class="dl-side reveal" style="--d:80ms">
             <article class="download-card small">
-              <span class="dl-os"><span data-icon="terminal" data-icon-size="15"></span>macOS · Linux</span>
-              <h3>Serve the same files</h3>
-              <p>Clone the repository and run <code class="mono">npm install &amp;&amp; npm start</code> to serve the site with the optional local API. A static server such as Python works too, but does not run key checks or the proxy.</p>
-              <div class="cmd-row"><code class="mono">npm start</code></div>
+              <span class="dl-os"><span data-icon="monitor-down" data-icon-size="15"></span>Windows · portable zip</span>
+              <h3>No installer, just files</h3>
+              <p>Unzip and double-click <code class="mono">eltes.bat</code>. It finds Python or Node, serves the folder on <code class="mono">127.0.0.1:4173</code> and opens your browser.</p>
+              <a class="btn btn-ghost btn-sm" href="downloads/eltes-windows.zip" download>
+                <span data-icon="download" data-icon-size="13"></span>Download eltes-windows.zip
+              </a>
             </article>
             <article class="download-card small">
-              <span class="dl-os"><span data-icon="layout-grid" data-icon-size="15"></span>Chromebook · any browser</span>
-              <h3>Install as an app</h3>
-              <p>Eltes ships a web manifest. On ChromeOS, pick <strong>Install</strong> from the address-bar icon —
-                you get a launcher shortcut that opens the same sandboxed page in its own window. No package, no service.</p>
-              <a class="btn btn-ghost btn-sm" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="12"></span></a>
+              <span class="dl-os"><span data-icon="code-2" data-icon-size="15"></span>Build it yourself</span>
+              <h3>Two commands to an installer</h3>
+              <p>Clone the repository, install once, then build the installers for the platform you are on.</p>
+              <div class="cmd-row"><code class="mono">npm install &amp;&amp; npm run desktop:build</code></div>
+              <a class="btn btn-ghost btn-sm" href="docs.html#desktop">Build and signing steps<span data-icon="arrow-right" data-icon-size="12"></span></a>
             </article>
           </div>
         </div>
-
-        <div class="install-panel reveal">
-          <div class="ip-head">
-            <span class="eyebrow"><span data-icon="shield-check" data-icon-size="14"></span>What an install actually grants</span>
-            <p>Installing Eltes in Chrome or on a Chromebook makes a shortcut around the same sandboxed page. It is not a native program, and a web page has no API that can run commands on your machine.</p>
-          </div>
-          <div class="ip-cols">
-            <div class="ip-col can">
-              <h3><span data-icon="check" data-icon-size="15"></span>It can</h3>
-              <ul>
-                <li>Open in its own window and load from cache once visited</li>
-                <li>Read its own chats, settings and saved keys in this browser profile</li>
-                <li>Send requests to the provider or proxy you configure</li>
-                <li>Write an export to your Downloads folder when you ask</li>
-              </ul>
-            </div>
-            <div class="ip-col cannot">
-              <h3><span data-icon="x" data-icon-size="15"></span>It cannot</h3>
-              <ul>
-                <li>Run shell commands or start processes — no page gets that API</li>
-                <li>Open the Linux terminal or read ChromeOS system files</li>
-                <li>Read files from your disk unless you pick them in a dialog</li>
-                <li>See other tabs, other sites, or anything outside its origin</li>
-              </ul>
-            </div>
-          </div>
-          <p class="ip-foot">
-            <span data-icon="info" data-icon-size="13"></span>
-            <span><code class="mono">eltes.bat</code> is Windows-only and separate: it is a readable text file that starts a local static server as your own user — it does not run on a Chromebook, and it never asks for admin rights. Keys still live in this browser profile, which is why anyone with access to that profile can read them.</span>
-          </p>
-        </div>
-
-        <p class="dl-note">The launcher is a reviewable text file — read it before you run it. It binds to localhost and only serves files from the folder you unzipped; it does not run the optional API backend.</p>
+        <p class="dl-note">Checksums and build logs live on the release page for each tag. Unsigned Windows builds show SmartScreen’s “More info → Run anyway”; unsigned macOS builds need a right-click → Open the first time. The desktop app adds no telemetry and no update pings.</p>
       </div>
     </section>
 
@@ -729,7 +747,7 @@
           <div class="cta-inner">
             <div class="grid-bg"></div>
             <span class="eyebrow"><span data-icon="rocket" data-icon-size="14"></span>No demo mode</span>
-            <h2 style="margin-top:16px">Connect an account.<br class="desk-br" /> <span class="grad">Get a real answer.</span></h2>
+            <h2 style="margin-top:16px">Connect an account.<br class="desk-br" /> Get a real answer.</h2>
             <p>Every hosted answer comes from a live provider you connected. Or start with Eltes CAI and get
               a real on-device answer before you add a key — no simulated replies, no fake latency.</p>
             <div class="hero-cta">
@@ -739,15 +757,6 @@
             <div class="hero-note">
               <span><span data-icon="check" data-icon-size="13"></span>Runs in your browser</span>
               <span><span data-icon="clock" data-icon-size="13"></span>Setup takes 30 seconds</span>
-            </div>
-
-            <div class="cta-palette" aria-hidden="true">
-              <div class="cp-field"><span data-icon="search" data-icon-size="14"></span><span class="cp-hint">Search chats, models and commands</span><span class="kbd">⌘K</span></div>
-              <div class="cp-list">
-                <div class="cp-row active"><span data-icon="layers" data-icon-size="14"></span>Switch model<span class="cp-key">⌘M</span></div>
-                <div class="cp-row"><span data-icon="plus" data-icon-size="14"></span>New chat<span class="cp-key">⌘N</span></div>
-                <div class="cp-row"><span data-icon="download" data-icon-size="14"></span>Export conversation<span class="cp-key">⌘E</span></div>
-              </div>
             </div>
           </div>
         </div>
@@ -777,6 +786,9 @@
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="docs.html">Documentation</a>
+          <a href="train.html">Lab &amp; training</a>
+          <a href="news.html">Release notes</a>
+          <a href="studio.html">Studio &amp; terminal</a>
           <a href="docs.html#quickstart">Quickstart</a>
           <a href="docs.html#api-keys">API keys</a>
           <a href="docs.html#agent">Agent tools</a>
@@ -791,12 +803,11 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Windows build 3.3.0.</span>
-        <span class="status">Local-first workspace</span>
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser. Desktop build 3.18.0.</span>
+        <span class="status"><i></i>Local-first workspace</span>
       </div>
     </div>
   </footer>
-
 
   <!-- ======================= floating site guide ======================= -->
   <div class="guide-dock" id="guideDock">
@@ -852,6 +863,9 @@
     </section>
   </div>
 
+  <script src="config.js"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/galaxy.js"></script>
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/brands.js"></script>
   <script src="assets/js/models.js"></script>

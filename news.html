@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News — Eltes AI</title>
+  <meta name="description" content="Eltes release notes with real screenshots: the code-generated effects library, the guided build-a-website workflow, Studio's file editor, live preview and Linux terminal, and the Graphite chat theme." />
+  <meta name="theme-color" content="#000003" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="assets/css/landing.css" />
+  <link rel="stylesheet" href="assets/css/news.css" />
+  <link rel="stylesheet" href="assets/css/galaxy.css" />
+</head>
+<body class="galaxy-page">
+  <div class="galaxy" aria-hidden="true">
+    <canvas class="galaxy-backdrop" data-galaxy-backdrop aria-hidden="true"></canvas>
+    <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
+  <a class="skip" href="#r315">Skip to the latest release</a>
+
+  <header class="nav" id="nav">
+    <div class="wrap">
+      <div class="nav-left">
+        <a class="brand" href="index.html" aria-label="Eltes AI home">
+          <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          Eltes
+          <span class="brand-sub">AI agent</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html#features">Features</a>
+          <a href="index.html#models">Models</a>
+          <a href="studio.html">Studio</a>
+          <a href="train.html">Lab</a>
+          <a href="docs.html">Docs</a>
+          <a href="news.html" class="active" aria-current="page">News</a>
+          <a href="index.html#pricing">Pricing</a>
+        </nav>
+      </div>
+      <div class="nav-right">
+        <div class="nav-actions" id="navAuth">
+          <a class="icon-btn" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer" aria-label="GitHub repository" data-icon="github"></a>
+          <a class="btn btn-ghost btn-sm" href="auth.html">Sign in</a>
+          <a class="btn btn-primary btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
+        </div>
+        <div class="nav-actions" id="navAccount" hidden></div>
+        <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" data-icon="menu" data-icon-size="20"></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="studio.html">Studio <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="train.html">Lab <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="news.html">News <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
+  </div>
+
+  <main>
+    <!-- ============================== hero ============================== -->
+    <section class="news-hero">
+      <div class="wrap">
+        <span class="eyebrow"><span data-icon="activity" data-icon-size="14"></span>Newsroom</span>
+        <h1>Every release, with the screen to prove it.</h1>
+        <p class="lede">Notes from the Eltes build: the site served from Supabase Storage as well as GitHub Pages, real accounts on the static site, the welcome email your own Supabase project sends through Resend, the desktop apps for Windows, macOS and Linux, the language model you train yourself in the browser, the embers that answer your pointer on the new-chat screen, the rebuilt galaxy sky, the Obsidian black chat shell, the effects library that draws its own imagery, Studio's editor and Linux terminal, and the five-step website workflow. Each screenshot is the real interface — no mockups, no stock renders.</p>
+        <div class="news-meta">
+          <span class="badge"><span class="dot"></span>v3.18.0</span>
+          <span class="badge"><span data-icon="calendar" data-icon-size="12"></span>Updated 20 Oct 2026</span>
+          <span class="badge"><span data-icon="image" data-icon-size="12"></span>7 screenshots</span>
+          <span class="badge"><span data-icon="check" data-icon-size="12"></span>Every link in this feed is live</span>
+        </div>
+        <nav class="news-jump" aria-label="Releases">
+          <a href="#r318" class="active">v3.18 · Supabase mirror</a>
+          <a href="#r317">v3.17 · Cloud accounts</a>
+          <a href="#r316">v3.16 · Welcome email</a>
+          <a href="#r315">v3.15 · Desktop</a>
+          <a href="#r314">v3.14 · Lab</a>
+          <a href="#r313">v3.13 · Embers</a>
+          <a href="#r312">v3.12 · Deeper sky</a>
+          <a href="#r311">v3.11 · Living galaxy</a>
+          <a href="#r310">v3.10 · Effects from code</a>
+          <a href="#r39">v3.9 · Website workflow</a>
+          <a href="#r38">v3.8 · Studio</a>
+          <a href="#r371">v3.7.1 · Graphite theme</a>
+        </nav>
+      </div>
+    </section>
+
+    <!-- =========================== latest =============================== -->
+    <section class="news-feed" id="r318" aria-labelledby="h-r318">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver latest">v3.18.0</span>
+              <span class="news-kind">Latest release</span>
+            </div>
+            <h2 id="h-r318">The same site, in two places.</h2>
+            <p class="news-sum">Eltes is now published from <strong>GitHub Pages</strong> and from <strong>Supabase Storage</strong> — the same files, the same look, the same sign-up and the same welcome email. The Supabase copy lives in the very project that holds the accounts, so the site, its database and its mail are one deployment.</p>
+            <ul class="news-points">
+              <li><strong>Real URLs, no build step</strong> — <code>…/storage/v1/object/public/eltes/index.html</code> serves the pages over Supabase's CDN with proper content types, and relative <code>assets/…</code> links resolve exactly as they do on Pages.</li>
+              <li><strong>Honest about what it is</strong> — Supabase has no static-site product, so this is a public Storage bucket, not a custom domain. The docs say so, and the mirror is labelled a mirror.</li>
+              <li><strong>One command to refresh</strong> — <code>site-publish</code> copies the published files out of the repository, upserts them, and reports every failure. It refuses to run without <code>ELTES_PUBLISH_TOKEN</code>, and it never publishes the SQL, the tests or the desktop harness.</li>
+              <li><strong>The welcome email is unchanged</strong> — signing up on either address creates the account in Supabase and sends <em>Welcome to Eltes AI Workspace</em> through Resend, as long as <code>RESEND_API_KEY</code> is set. Until then every surface says so.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html" target="_blank" rel="noreferrer"><span data-icon="cloud" data-icon-size="14"></span>Open the Supabase copy</a>
+              <a href="docs.html#mirror">How the mirror works<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="https://gefrus112.github.io/eltes/" target="_blank" rel="noreferrer">GitHub Pages</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
+    <section class="news-feed" id="r317" aria-labelledby="h-r317">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver">v3.17.0</span>
+              <span class="news-kind">Accounts · mail</span>
+            </div>
+            <h2 id="h-r317">Sign up on the static site. Get a real email.</h2>
+            <p class="news-sum">The GitHub Pages copy now creates real accounts in <strong>your own Supabase project</strong> — email and password, confirmation, magic link, password reset, sign-out and a session that survives a reload. The moment an account exists, <em>Welcome to Eltes AI Workspace</em> leaves through <strong>your own Resend account</strong>, free, usually within a second.</p>
+            <ul class="news-points">
+              <li><strong>No server of your own</strong> — a Supabase Edge Function builds the single-use link and calls Resend. GitHub Pages stays a static host; the browser talks to your project directly with a publishable key, and row-level security decides what it may touch.</li>
+              <li><strong>The letter can be the confirmation</strong> — turn confirmation on and its link verifies the address before it opens the workspace; leave it off and a new account works before any mail key exists. Password resets and sign-in links are their own letters, from the same template and the same free account.</li>
+              <li><strong>Nothing pretends</strong> — with no <code>RESEND_API_KEY</code> the panel says <em>Not sent — Supabase has no RESEND_API_KEY yet</em>. A bounced address is skipped before the provider call; a second welcome is refused by a unique index in Postgres; the function allows six messages per network and three per address every ten minutes.</li>
+              <li><strong>Your local profile is still there</strong> — no <code>config.js</code>, a desktop build, or one click on <em>Use a local profile instead</em> and Eltes runs exactly as before, with the Node/desktop mail route.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="docs.html#supabase"><span data-icon="cloud" data-icon-size="14"></span>How it is wired</a>
+              <a href="auth.html">Create an account<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="https://github.com/gefrus112/eltes/tree/main/supabase" target="_blank" rel="noreferrer">The SQL and functions</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
+    <section class="news-feed" id="r316" aria-labelledby="h-r316">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver">v3.16.0</span>
+              <span class="news-kind">Mail · local server</span>
+            </div>
+            <h2 id="h-r316">The welcome email is real, and it is yours.</h2>
+            <p class="news-sum">Create a profile and <em>Welcome to Eltes AI Workspace</em> arrives in the inbox — sent by the server on your own machine through your own free provider account. Resend, Brevo and any SMTP mailbox are supported. With nothing configured, the message is written to a real <code>.eml</code> outbox instead of pretending to send.</p>
+            <ul class="news-points">
+              <li><strong>Free, no card</strong> — Resend gives 3,000 messages a month, Brevo 300 a day, and an SMTP mailbox costs whatever your host already charges. One environment variable each.</li>
+              <li><strong>No middle man</strong> — the browser posts to <code>/api/email/welcome</code> on the same origin. Eltes has no mail server, no list and no tracking pixel; the address never leaves your provider call.</li>
+              <li><strong>Bounces count</strong> — a <code>5xx</code> at <code>RCPT TO</code> is a hard bounce in the same request, provider webhooks are normalised, and hard bounces are remembered so the next send never touches the network.</li>
+              <li><strong>Honest states</strong> — <em>Sent via resend</em>, <em>Saved to the local outbox</em>, <em>No mail server on this host</em> on the static site, and the provider's own error text when it refuses.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="docs.html#email"><span data-icon="mail" data-icon-size="14"></span>Set it up</a>
+              <a href="auth.html">Create a profile<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="https://github.com/gefrus112/eltes/blob/main/lib/mail.cjs" target="_blank" rel="noreferrer">Read the mail core</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
+    <section class="news-feed" id="r315" aria-labelledby="h-r315">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver">v3.15.0</span>
+              <span class="news-kind">Desktop · harness</span>
+            </div>
+            <h2 id="h-r315">Eltes becomes a desktop app.</h2>
+            <p class="news-sum">A real harness in <code>desktop/</code> builds a Windows installer and a portable <code>.exe</code>, macOS disk images for Apple silicon and Intel, and a Linux AppImage and <code>.deb</code>. Each one is the same site in a native window, with the local server, Studio, the terminal and Eltes Lab already inside — no Node installed, no tabs, no second app to keep in sync.</p>
+            <ul class="news-points">
+              <li><strong>Self-contained</strong> — the shell starts the bundled server with its own binary (<code>ELECTRON_RUN_AS_NODE</code>) on a free loopback port, then loads the workspace from it. Nothing to install first.</li>
+              <li><strong>Hardened window</strong> — context isolation, no node integration, sandboxed renderer, five bridge calls, and navigation locked to the app's origin. Other links open in your browser.</li>
+              <li><strong>Fails loudly</strong> — if the server will not start, a recovery screen names the error, the data folder and the log, with a <strong>Try again</strong> button instead of a blank window.</li>
+              <li><strong>Built where it runs</strong> — GitHub Actions builds Windows on Windows, macOS on both Apple silicon and Intel runners, Linux on Ubuntu, and attaches every installer to the tagged release.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="https://github.com/gefrus112/eltes/releases/latest" target="_blank" rel="noreferrer"><span data-icon="download" data-icon-size="14"></span>Get the installers</a>
+              <a href="docs.html#desktop">How the harness works<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="index.html#downloads">All downloads</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
+    <section class="news-feed" id="r314" aria-labelledby="h-r314">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <figure class="shot">
+            <a href="assets/img/news/lab.jpg" target="_blank" rel="noreferrer" aria-label="Open the Lab figure at full size">
+              <img src="assets/img/news/lab.jpg" alt="A real Lab training run: orange cross-entropy loss falling from 3.9 towards zero over 1,500 steps, a dashed blue validation line bottoming out at 2.70 around step 200 and then climbing, six readouts and a sampled continuation below." width="1280" height="760" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>A real 1,500-step run of the shipped model, drawn by the page's own chart code. The dashed validation line bottoms out at 2.70 and then climbs: that is overfitting, shown rather than hidden. The text at the bottom is the model's own sample.</span>
+              <span class="tag">lab.jpg · real run</span>
+            </figcaption>
+          </figure>
+
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver">v3.14.0</span>
+              <span class="news-kind">Lab · training</span>
+            </div>
+            <h2 id="h-r314">Train the model yourself, then read the curve.</h2>
+            <p class="news-sum">Lab is a real neural network you train in the tab: 51,245 weights, hand-written backpropagation, Adam, live training and validation curves, and a checkpoint in <code>localStorage</code>. It is a character-level model, and the page is honest about what that means.</p>
+            <ul class="news-points">
+              <li><strong>It actually learns</strong> — the loss falls because the weights change, not because a script prints a nicer number. A seeded run is reproducible; the same setup draws the same curve.</li>
+              <li><strong>The honest curve</strong> — validation loss on held-out text is drawn next to training loss, with the best point marked. On a corpus this small it turns up, and the page says why.</li>
+              <li><strong>A pass-mark test</strong> — the memorisation demo trains on one paragraph until the loss reaches zero, then recites it back; match is measured character by character, usually above 90%.</li>
+              <li><strong>Yours, on-device</strong> — save the model and <strong>Eltes Lab-1</strong> appears in the workspace picker. It quotes a continuation and states its limits; no key, no upload, no network request.</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="train.html"><span data-icon="flask" data-icon-size="14"></span>Train a model</a>
+              <a href="docs.html#lab">How it works<span data-icon="arrow-right" data-icon-size="14"></span></a>
+              <a href="app.html"><span data-icon="message-square" data-icon-size="14"></span>Try it in chat</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =========================== previous ============================ -->
+    <section class="news-feed" id="r313" aria-labelledby="h-r313">
+      <div class="wrap">
+        <article class="news-feature reveal">
+          <figure class="shot">
+            <a href="assets/img/news/embers.jpg" target="_blank" rel="noreferrer" aria-label="Open the embers still at full size">
+              <img src="assets/img/news/embers.jpg" alt="The Eltes new-chat screen: orange embers and a soft warm glow around the pointer over the black workspace." width="1280" height="760" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>A still from the live effect: the pointer was swept across the pane, and the embers followed. No video, no image files.</span>
+              <span class="tag">embers.jpg · canvas capture</span>
+            </figcaption>
+          </figure>
+
+          <div class="news-feature-body">
+            <div class="news-item-head">
+              <span class="news-ver">v3.13.0</span>
+              <span class="news-kind">Embers · pointer</span>
+            </div>
+            <h2 id="h-r313">The empty chat now answers your pointer.</h2>
+            <p class="news-sum">Move the mouse across the new-chat screen and a hearth of orange embers follows it: a warm glow, eight orbiting sparks, wispy updraughts and a slow rain of embers rising from the composer. It is drawn on one canvas — no libraries, no images.</p>
+            <ul class="news-points">
+              <li><strong>Speed is heat</strong> — move faster and the glow brightens, sparks fly and the trails lengthen; stop and it settles to a gentle burn.</li>
+              <li><strong>Click to stoke it</strong> — a click throws a burst of sparks and embers.</li>
+              <li><strong>Only where it belongs</strong> — the effect fades out the moment a conversation starts, and pauses with the tab.</li>
+              <li><strong>Cheap and respectful</strong> — 30 fps, DPR capped at 1.75, a still frame under reduced motion (system or Settings → Reduce motion).</li>
+            </ul>
+            <div class="news-links">
+              <a class="primary" href="app.html"><span data-icon="sparkles" data-icon-size="14"></span>Try it on a new chat</a>
+              <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================= feed =============================== -->
+    <div class="news-feed">
+      <div class="wrap">
+        <article class="news-item reveal" id="r312" aria-labelledby="h-r312">
+          <div class="news-item-head">
+            <span class="news-ver">v3.12.0</span>
+            <span class="news-kind">Galaxy v2 · Obsidian chat</span>
+          </div>
+          <h2 id="h-r312">A deeper sky. A blacker chat.</h2>
+          <p class="news-sum">The backdrop was rebuilt from the ground up — a spiral galaxy, a globular cluster, an edge-on galaxy, coloured nebulae and diffraction spikes around the brightest stars. The chat shell went the other way: blue is gone, and Obsidian is true black from the sidebar to the composer.</p>
+          <figure class="shot">
+            <a href="assets/img/news/galaxy.jpg" target="_blank" rel="noreferrer" aria-label="Open the galaxy still at full size">
+              <img src="assets/img/news/galaxy.jpg" alt="The rebuilt Eltes sky: a diagonal river of stars with a bright cream core and dark dust lanes, a spiral galaxy in the upper right, a globular cluster upper left, an edge-on galaxy lower left and coloured stars throughout." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>The band, the spiral, the cluster, the dust and the coloured stars — all painted in the browser.</span>
+              <span class="tag">galaxy.jpg · canvas capture</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>More universe</strong> — a tilted Milky Way with a hot cream core and a dark rift, plus a spiral, a cluster and a distant lens.</li>
+            <li><strong>Obsidian chat</strong> — <code>#000</code> surfaces, silver accents, no dark blue anywhere. Graphite stays for anyone who wants grey.</li>
+          </ul>
+          <div class="news-links">
+            <a href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See the sky</a>
+            <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          </div>
+        </article>
+
+        <article class="news-item reveal" id="r311" aria-labelledby="h-r311">
+          <div class="news-item-head">
+            <span class="news-ver">v3.11.0</span>
+            <span class="news-kind">Galaxy backdrop</span>
+          </div>
+          <h2 id="h-r311">The whole site starts floating through space.</h2>
+          <p class="news-sum">Every marketing and documentation page moved in front of a living sky: a tilted band of stars, drifting parallax layers and the occasional meteor, drawn in one canvas with no video and no image files. v3.12 rebuilt the artwork on top of it.</p>
+          <div class="news-links">
+            <a href="index.html"><span data-icon="sparkles" data-icon-size="14"></span>See it on the homepage</a>
+            <a href="docs.html#look">How it is built<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          </div>
+        </article>
+
+        <article class="news-item reveal" id="r310" aria-labelledby="h-r310">
+          <div class="news-item-head">
+            <span class="news-ver">v3.10.0</span>
+            <span class="news-kind">Effects</span>
+          </div>
+          <h2 id="h-r310">Draw the imagery. Don't download it.</h2>
+          <p class="news-sum">A library of six code-generated visuals — gradient mesh, particles, aurora, halftone, orb and poster — each written into your project as a readable HTML file and previewed in Studio.</p>
+          <figure class="shot">
+            <a href="assets/img/news/effects.svg" target="_blank" rel="noreferrer" aria-label="Open the effects library screenshot at full size">
+              <img src="assets/img/news/effects.svg" alt="The Eltes Studio effects dialog: six cards with live previews of a gradient mesh, a particle field, aurora ribbons, a halftone pattern, a glowing orb and a generative poster." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>Studio → Effects: six recipes, each one a self-contained HTML page. “Create &amp; preview” writes the file and reloads the pane.</span>
+              <span class="tag">effects.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>One click, one file</strong> — <code>effects/&lt;name&gt;.html</code> in the tree, open in the editor, loaded in the preview.</li>
+            <li><strong>Real documentation</strong> — a full guide section from the first gradient to a built <code>dist/</code>.</li>
+            <li><strong>Build-aware</strong> — the starter <code>build.mjs</code> copies subfolders, so <code>effects/</code> ships with the site.</li>
+            <li><strong>Honest progress</strong> — generating an effect ticks the workflow's create and preview steps.</li>
+          </ul>
+          <div class="news-links">
+            <a href="studio.html"><span data-icon="sparkles" data-icon-size="14"></span>Open the effects library</a>
+            <a href="docs.html#effects">Read the guide<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          </div>
+        </article>
+
+        <article class="news-item reveal" id="r39" aria-labelledby="h-r39">
+          <div class="news-item-head">
+            <span class="news-ver">v3.9.0</span>
+            <span class="news-kind">Workflow</span>
+          </div>
+          <h2 id="h-r39">A guide for the whole build.</h2>
+          <p class="news-sum">The website workflow is now written down and wired into Studio. Six written steps cover the terminal, file creation, live preview and the build; the in-app Guide runs the same actions and ticks them off as they really happen.</p>
+          <figure class="shot">
+            <a href="assets/img/news/workflow.svg" target="_blank" rel="noreferrer" aria-label="Open the workflow guide screenshot at full size">
+              <img src="assets/img/news/workflow.svg" alt="The Eltes Studio guide dialog with five steps: create the project files, start the terminal, add another page, preview it live and open the page on its own. Four steps show Run again, one shows Preview page." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>The Guide: five steps, each backed by the real action. Progress is stored in the browser, not simulated.</span>
+              <span class="tag">workflow.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>Docs</strong> — open the workspace, start the terminal, create files, preview, pop out, build.</li>
+            <li><strong>Guide dialog</strong> — Create files, Run build, New file, Preview page and Open page.</li>
+            <li><strong>Honest progress</strong> — a step only ticks when the matching event fires.</li>
+            <li><strong>Tested</strong> — a contract test keeps the docs and the dialog in sync.</li>
+          </ul>
+          <div class="news-links">
+            <a href="docs.html#workflow">Read the workflow<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            <a href="studio.html">Open Studio</a>
+          </div>
+        </article>
+
+        <article class="news-item reveal" id="r38" aria-labelledby="h-r38">
+          <div class="news-item-head">
+            <span class="news-ver">v3.8.0</span>
+            <span class="news-kind">Studio</span>
+          </div>
+          <h2 id="h-r38">Files, editor, preview, terminal — one window.</h2>
+          <p class="news-sum">Eltes Studio is a coding workspace served next to the app. A real shell runs in <code>.studio/</code>, every HTML file previews at <code>/preview/</code> with its CSS and scripts intact, and saving reloads the pane.</p>
+          <figure class="shot">
+            <a href="assets/img/news/studio.svg" target="_blank" rel="noreferrer" aria-label="Open the Studio screenshot at full size">
+              <img src="assets/img/news/studio.svg" alt="Eltes Studio: the file tree with an effects folder, a code editor showing gradient-mesh.html, a live preview of the gradient mesh effect and a terminal that ran npm run build." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>Studio at 1280×760: tree, tabs, editor, preview and a real Linux shell with streaming output.</span>
+              <span class="tag">studio.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>Any HTML previews</strong> — the pane follows the file you open, not a fixed index.</li>
+            <li><strong>Auto-save, auto-reload</strong> — edits and build output both refresh the preview.</li>
+            <li><strong>Real commands</strong> — <code>ls</code>, <code>node</code>, <code>npm run build</code>, 60-second limit, <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop.</li>
+            <li><strong>Safe by default</strong> — token-protected routes confined to <code>.studio/</code>.</li>
+          </ul>
+          <div class="news-links">
+            <a href="docs.html#studio">Studio docs<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            <a href="studio.html">Open Studio</a>
+          </div>
+        </article>
+
+        <article class="news-item reveal" id="r371" aria-labelledby="h-r371">
+          <div class="news-item-head">
+            <span class="news-ver">v3.7.1</span>
+            <span class="news-kind">Interface</span>
+          </div>
+          <h2 id="h-r371">Grey chat, not blue.</h2>
+          <p class="news-sum">The workspace shipped Graphite: neutral grey shell, bubbles, accents and send button, with Midnight blue as the second theme. v3.12 replaced Midnight with Obsidian black.</p>
+          <figure class="shot">
+            <a href="assets/img/news/theme.svg" target="_blank" rel="noreferrer" aria-label="Open the Graphite theme screenshot at full size">
+              <img src="assets/img/news/theme.svg" alt="The Eltes chat interface in the Graphite theme: dark grey sidebar, grey user bubble, grey send button, a web-search thinking panel and the composer." width="1280" height="760" loading="lazy" />
+              <span class="shot-open"><span data-icon="maximize-2" data-icon-size="12"></span>Full size</span>
+            </a>
+            <figcaption>
+              <span>Graphite: accents, bubbles and composer are neutral; green stays green where it means “running”.</span>
+              <span class="tag">theme.svg</span>
+            </figcaption>
+          </figure>
+          <ul class="news-points">
+            <li><strong>Grey by default</strong> — <code>data-theme="grey"</code> on the app shell.</li>
+            <li><strong>Tokenised</strong> — accents, panels and gradients come from CSS variables.</li>
+            <li><strong>Persisted</strong> — the choice lives in <code>eltes.settings.v1</code> and updates the browser chrome colour.</li>
+            <li><strong>Reversible</strong> — switch between Graphite and Obsidian in Settings → General, no reload.</li>
+          </ul>
+          <div class="news-links">
+            <a href="app.html">Open the app<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            <a href="docs.html#settings">Theme settings</a>
+          </div>
+        </article>
+
+        <div class="news-cta">
+          <div class="txt">
+            <h3>Try the newest build</h3>
+            <p>Studio runs locally with <code>npm start</code>; the docs cover the rest.</p>
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="studio.html">Open Studio<span data-icon="arrow-right" data-icon-size="15"></span></a>
+            <a class="btn btn-ghost" href="docs.html#effects">Effects guide</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================ footer ============================ -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            Eltes
+          </a>
+          <p>A local-first AI agent workspace with real models, real keys and real tool calls. Built in the browser.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="app.html">Open the app</a>
+          <a href="index.html#models">Models</a>
+          <a href="index.html#features">Features</a>
+          <a href="studio.html">Studio</a>
+          <a href="index.html#pricing">Pricing</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="docs.html">Documentation</a>
+          <a href="train.html">Lab &amp; training</a>
+          <a href="news.html">Release notes</a>
+          <a href="docs.html#workflow">Website workflow</a>
+          <a href="docs.html#effects">Images &amp; effects</a>
+          <a href="docs.html#api-keys">API keys</a>
+        </div>
+        <div class="footer-col">
+          <h4>Project</h4>
+          <a href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="auth.html">Accounts</a>
+          <a href="docs.html#privacy">Privacy</a>
+          <a href="docs.html#faq">FAQ</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser.</span>
+        <span class="status"><i></i>Local-first workspace</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/galaxy.js"></script>
+  <script src="assets/js/icons.js"></script>
+  <script src="assets/js/brands.js"></script>
+  <script src="assets/js/models.js"></script>
+  <script src="assets/js/account.js"></script>
+  <script src="assets/js/site.js"></script>
+</body>
+</html>

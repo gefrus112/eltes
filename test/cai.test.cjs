@@ -129,3 +129,36 @@ test('math parser rejects unsupported expressions without evaluating code', () =
   assert.match(answer('3x4').text, /12/);
   assert.match(answer('1e20 * 2').text, /2e\+20/i);
 });
+
+test('converts between number bases', () => {
+  const hex = answer('255 to hex');
+  assert.equal(hex.intent, 'base');
+  assert.match(hex.text, /0xFF/);
+  assert.match(answer('0b1010 to decimal').text, /\*\*10\*\*/);
+  assert.match(answer('42 to binary').text, /0b101010/);
+  assert.match(answer('0xFF to decimal').text, /\*\*255\*\*/);
+  assert.equal(answer('255 to hex').text.includes('0xFF'), true);
+});
+
+test('handles text transforms and random utilities without network', () => {
+  assert.equal(answer('uppercase "hello world"').intent, 'text-transform');
+  assert.match(answer('uppercase "hello world"').text, /HELLO WORLD/);
+  assert.match(answer('reverse "eltes"').text, /setle/);
+  assert.match(answer('sort banana apple cherry').text, /apple banana cherry/);
+  const coin = answer('flip a coin');
+  assert.equal(coin.intent, 'random');
+  assert.match(coin.text, /Heads|Tails/);
+  const roll = answer('roll a d20');
+  assert.equal(roll.intent, 'random');
+  const num = Number((roll.text.match(/\*\*(\d+)\*\*/) || [])[1]);
+  assert.ok(num >= 1 && num <= 20);
+  assert.match(answer('random number between 5 and 5').text, /\*\*5\*\*/);
+});
+
+test('converts time units, Kelvin and date arithmetic on-device', () => {
+  assert.match(answer('convert 60 minutes to hours').text, /\*\*1 hours\*\*/);
+  assert.match(answer('32 f to c').text, /\*\*0 °C\*\*/);
+  assert.match(answer('300 k to c').text, /26\.85/);
+  assert.match(answer('how many days between 2024-01-01 and 2024-01-10').text, /\*\*9 days\*\*/);
+  assert.match(answer('what is 30 days from 2024-01-01').text, /January 31, 2024/);
+});

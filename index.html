@@ -500,6 +500,7 @@
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Works with no key</strong> — Agent mode is on by default. On CAI-1 the planner runs six of those tools in the tab, so nothing is sent anywhere.</span></li>
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic <code>tool_use</code>, streamed, up to four rounds.</span></li>
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Interruptible</strong> — stop mid-loop and keep every token already received.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>MCP servers</strong> — connect Blender or Roblox Studio and the model builds models, animations and game scaffolds in your own apps. <a class="inline-link" href="docs.html#mcp">How MCP works</a></span></li>
             </ul>
             <a class="btn btn-ghost" href="docs.html#agent">How the tool loop works<span data-icon="arrow-right" data-icon-size="15"></span></a>
           </div>
@@ -514,7 +515,7 @@
               <div class="architecture-connector"><span></span><span class="connector-label">structured tool call</span></div>
               <div class="architecture-step">
                 <span class="step-index">02</span><span class="step-icon local" data-icon="cpu" data-icon-size="17"></span>
-                <div><strong>Eltes runs it in your browser</strong><p>No shell access, no arbitrary terminal commands — and on CAI-1 the planner chose the tool itself.</p></div><span class="step-state local-state">LOCAL</span>
+                <div><strong>Eltes runs it in your browser</strong><p>No shell access, no arbitrary terminal commands — MCP tools go to apps you started, and on CAI-1 the planner chose the tool itself.</p></div><span class="step-state local-state">LOCAL</span>
               </div>
               <div class="architecture-connector"><span></span><span class="connector-label">result returns to the conversation</span></div>
               <div class="architecture-step">

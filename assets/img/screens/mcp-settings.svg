@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860" role="img">
+<defs>
+  <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#bcc0c8" /><stop offset="0.45" stop-color="#858b95" /><stop offset="1" stop-color="#a6abb4" />
+  </linearGradient>
+  <linearGradient id="btnBlue" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4785ff" /><stop offset="1" stop-color="#2a63ee" />
+  </linearGradient>
+  <linearGradient id="heroLine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#eff5ff" /><stop offset="0.36" stop-color="#a9c8ff" />
+    <stop offset="0.67" stop-color="#78a6ff" /><stop offset="1" stop-color="#80e2c0" />
+  </linearGradient>
+  <radialGradient id="shellGlow" cx="0.5" cy="0" r="0.75">
+    <stop offset="0" stop-color="#b4b8c1" stop-opacity="0.16" /><stop offset="1" stop-color="#b4b8c1" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaA" cx="0.18" cy="0.12" r="0.55">
+    <stop offset="0" stop-color="#2b6bff" stop-opacity="0.22" /><stop offset="1" stop-color="#2b6bff" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaB" cx="0.84" cy="0.05" r="0.5">
+    <stop offset="0" stop-color="#39dca2" stop-opacity="0.13" /><stop offset="1" stop-color="#39dca2" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaC" cx="0.5" cy="0.98" r="0.6">
+    <stop offset="0" stop-color="#7b5cff" stop-opacity="0.16" /><stop offset="1" stop-color="#7b5cff" stop-opacity="0" />
+  </radialGradient>
+  <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0" /><stop offset="1" stop-color="#000000" stop-opacity="0.35" />
+  </linearGradient>
+</defs>
+<rect x="0" y="0" width="1280" height="860" fill="#050506" />
+<rect x="0" y="0" width="1280" height="860" fill="url(#shellGlow)" opacity="0.5" />
+<rect x="0" y="0" width="272" height="860" fill="#030304" />
+<line x1="272" y1="0" x2="272" y2="860" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(16 19) scale(0.8333333333333334)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="44" y="37" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="600" text-anchor="start" opacity="0.5">Eltes</text>
+<rect x="313" y="12" width="236" height="34" rx="8" fill="#ffffff05" stroke="#ffffff13" />
+<g transform="translate(325 21) scale(0.625)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="347" y="33" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start" opacity="0.45">Eltes CAI-1</text>
+<rect x="0" y="0" width="1280" height="860" fill="#000000" opacity="0.58" />
+<rect x="145" y="50" width="990" height="760" rx="16" fill="#08080a" stroke="#ffffff21" stroke-width="1" />
+<rect x="145" y="50" width="990" height="64" rx="16" fill="#ffffff05" />
+<line x1="145" y1="114" x2="1135" y2="114" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(167 72) scale(0.8333333333333334)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="197" y="81" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" font-weight="600" text-anchor="start">Settings</text>
+<text x="197" y="97" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="400" text-anchor="start">Saved locally · Eltes CAI-1</text>
+<g transform="translate(1099 73) scale(0.7083333333333334)" fill="none" stroke="#787a80" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></g>
+<rect x="145" y="115" width="196" height="695" fill="#ffffff03" />
+<line x1="341" y1="115" x2="341" y2="810" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(167 135) scale(0.6666666666666666)" fill="none" stroke="#787a80" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5H3" /><path d="M12 19H3" /><path d="M14 3v4" /><path d="M16 17v4" /><path d="M21 12h-9" /><path d="M21 19h-5" /><path d="M21 5h-7" /><path d="M8 10v4" /><path d="M8 12H3" /></g>
+<text x="192" y="148" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">General</text>
+<g transform="translate(167 171) scale(0.6666666666666666)" fill="none" stroke="#787a80" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="#787a80" /></g>
+<text x="192" y="184" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">API keys</text>
+<rect x="155" y="198" width="176" height="34" rx="7" fill="#ffffff12" />
+<rect x="155" y="198" width="2" height="34" rx="1" fill="#bcbfc7" />
+<g transform="translate(167 207) scale(0.6666666666666666)" fill="none" stroke="#f2f3f5" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5" /><path d="M15 8V2" /><path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z" /><path d="M9 8V2" /></g>
+<text x="192" y="220" fill="#e8eaee" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">MCP</text>
+<g transform="translate(167 243) scale(0.6666666666666666)" fill="none" stroke="#787a80" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></g>
+<text x="192" y="256" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Models</text>
+<g transform="translate(167 279) scale(0.6666666666666666)" fill="none" stroke="#787a80" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></g>
+<text x="192" y="292" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Account</text>
+<g transform="translate(167 315) scale(0.6666666666666666)" fill="none" stroke="#787a80" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16h.01" /><path d="M2.212 11.577a2 2 0 0 0-.212.896V18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5.527a2 2 0 0 0-.212-.896L18.55 5.11A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /><path d="M21.946 12.013H2.054" /><path d="M6 16h.01" /></g>
+<text x="192" y="328" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Data</text>
+<g transform="translate(167 351) scale(0.6666666666666666)" fill="none" stroke="#787a80" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></g>
+<text x="192" y="364" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">About</text>
+<text x="165" y="752" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">Eltes v3.18.0 · BYOK</text>
+<text x="165" y="766" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">Optional proxy. No telemetry.</text>
+<text x="165" y="780" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">What’s new →</text>
+<text x="363" y="134" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="600" text-anchor="start">Model Context Protocol</text>
+<text x="363" y="152" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">MCP lets Eltes call tools that live in other programs on this machine — Blender,</text>
+<text x="363" y="169" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Roblox Studio, or any server you run. Eltes speaks HTTP only; command-based</text>
+<text x="363" y="186" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">servers go through a small bridge you start once and leave open.</text>
+<rect x="363" y="211" width="750" height="172" rx="12" fill="#ffffff06" stroke="#ffffff13" />
+<rect x="376" y="223" width="30" height="30" rx="9" fill="#7aa6ff1f" />
+<g transform="translate(383 230) scale(0.6666666666666666)" fill="none" stroke="#f2f3f5" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" /></g>
+<text x="416" y="236" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" text-anchor="start">Blender</text>
+<text x="416" y="253" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Build objects, apply materials, keyframe animation and render stills from chat.</text>
+<rect x="1010" y="224" width="90" height="30" rx="8" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><text x="1025.03" y="243.2" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="500" text-anchor="start">Reconnect</text>
+<text x="385" y="277" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">1.</text>
+<text x="399" y="277" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Install the BlenderMCP add-on in Blender (one .py file, Add-ons → Install).</text>
+<text x="385" y="293" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">2.</text>
+<text x="399" y="293" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">In Blender, open the sidebar (N) → BlenderMCP → Start MCP server.</text>
+<text x="385" y="309" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">3.</text>
+<text x="399" y="309" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Download and run connect-blender (or copy the command) on this machine.</text>
+<text x="385" y="325" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">4.</text>
+<text x="399" y="325" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Come back here and press Connect.</text>
+<rect x="376" y="345" width="99" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><g transform="translate(379.37 351.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></g><text x="398.37" y="361.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">Copy command</text>
+<rect x="481" y="345" width="50" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><g transform="translate(484.29 351.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></g><text x="503.29" y="361.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">.bat</text>
+<rect x="537" y="345" width="44" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><g transform="translate(540.3425 351.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></g><text x="559.3425" y="361.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">.sh</text>
+<circle cx="979" cy="358" r="3" fill="#39dca2" />
+<text x="1100" y="362" fill="#66e0b4" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="end" letter-spacing="0.04em">CONNECTED · 14 TOOLS</text>
+<rect x="363" y="393" width="750" height="172" rx="12" fill="#ffffff06" stroke="#ffffff13" />
+<rect x="376" y="405" width="30" height="30" rx="9" fill="#7aa6ff1f" />
+<g transform="translate(383 412) scale(0.6666666666666666)" fill="none" stroke="#f2f3f5" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" /></g>
+<text x="416" y="418" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="600" text-anchor="start">Roblox Studio</text>
+<text x="416" y="435" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Parts, model builds, Luau scripts, rig animation, effects and a playable game scaffold.</text>
+<rect x="1010" y="406" width="90" height="30" rx="8" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><text x="1025.03" y="425.2" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="500" text-anchor="start">Reconnect</text>
+<text x="385" y="459" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">1.</text>
+<text x="399" y="459" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Download the bridge script below and run it (double-click on Windows).</text>
+<text x="385" y="475" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">2.</text>
+<text x="399" y="475" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Download EltesRobloxBridge.lua and put it in your Studio Plugins folder.</text>
+<text x="385" y="491" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">3.</text>
+<text x="399" y="491" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">In Studio turn on Game Settings → Security → Allow HTTP Requests.</text>
+<text x="385" y="507" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">4.</text>
+<text x="399" y="507" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Come back here and press Connect.</text>
+<rect x="376" y="527" width="99" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><g transform="translate(379.37 533.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></g><text x="398.37" y="543.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">Copy command</text>
+<rect x="481" y="527" width="50" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><g transform="translate(484.29 533.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></g><text x="503.29" y="543.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">.bat</text>
+<rect x="537" y="527" width="44" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><g transform="translate(540.3425 533.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></g><text x="559.3425" y="543.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">.sh</text>
+<rect x="587" y="527" width="105" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><g transform="translate(590.3175 533.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></g><text x="609.3175" y="543.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">Studio plugin</text>
+<circle cx="984.55" cy="540" r="3" fill="#39dca2" />
+<text x="1100" y="544" fill="#66e0b4" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="end" letter-spacing="0.04em">CONNECTED · 8 TOOLS</text>
+<line x1="363" y1="579" x2="1113" y2="579" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<text x="363" y="593" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="600" text-anchor="start">Your servers</text>
+<text x="363" y="611" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Saved in this browser only. Nothing connects until you press Connect.</text>
+<line x1="363" y1="619" x2="1113" y2="619" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<rect x="365" y="627" width="24" height="24" rx="7" fill="#ffffff0a" />
+<g transform="translate(369 631) scale(0.625)" fill="none" stroke="#a6a8ae" stroke-width="2.720" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2" /><rect width="20" height="8" x="2" y="14" rx="2" ry="2" /><line x1="6" x2="6.01" y1="6" y2="6" /><line x1="6" x2="6.01" y1="18" y2="18" /></g>
+<text x="399" y="639" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">Blender</text>
+<text x="399" y="652" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">http://127.0.0.1:9876/mcp</text>
+<circle cx="822" cy="640" r="3" fill="#39dca2" />
+<text x="951" y="643" fill="#66e0b4" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="end" letter-spacing="0.04em">connected · 14 tools</text>
+<rect x="963" y="627" width="78" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><text x="971.475" y="643.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">Disconnect</text>
+<g transform="translate(1069 633) scale(0.5833333333333334)" fill="none" stroke="#4e5055" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></g>
+<line x1="363" y1="661" x2="1113" y2="661" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<rect x="365" y="669" width="24" height="24" rx="7" fill="#ffffff0a" />
+<g transform="translate(369 673) scale(0.625)" fill="none" stroke="#a6a8ae" stroke-width="2.720" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2" /><rect width="20" height="8" x="2" y="14" rx="2" ry="2" /><line x1="6" x2="6.01" y1="6" y2="6" /><line x1="6" x2="6.01" y1="18" y2="18" /></g>
+<text x="399" y="681" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">Roblox Studio</text>
+<text x="399" y="694" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">http://127.0.0.1:8410/mcp</text>
+<circle cx="827.9499999999999" cy="682" r="3" fill="#39dca2" />
+<text x="951" y="685" fill="#66e0b4" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="end" letter-spacing="0.04em">connected · 8 tools</text>
+<rect x="963" y="669" width="78" height="26" rx="7" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><text x="971.475" y="685.85" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">Disconnect</text>
+<g transform="translate(1069 675) scale(0.5833333333333334)" fill="none" stroke="#4e5055" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></g>
+<rect x="363" y="709" width="160" height="30" rx="8" fill="#ffffff08" stroke="#ffffff13" />
+<text x="373" y="728" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">Name, e.g. Files</text>
+<rect x="531" y="709" width="530" height="30" rx="8" fill="#ffffff08" stroke="#ffffff13" />
+<text x="541" y="728" fill="#787a80" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11.5" font-weight="400" text-anchor="start">http://127.0.0.1:9876/mcp</text>
+<rect x="1069" y="709" width="44" height="30" rx="8" fill="#ffffff08" stroke="#ffffff21" stroke-width="1" /><text x="1081.42625" y="728.025" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="500" text-anchor="start">Add</text>
+<g transform="translate(363 749) scale(0.4583333333333333)" fill="none" stroke="#4e5055" stroke-width="3.709" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></g>
+<text x="380" y="758" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">A connected server can run code on this machine. Connect only servers you trust, and keep the bridge on 127.0.0.1. </text>
+<text x="1113" y="758" fill="#c9ccd3" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="end">Read the MCP docs.</text>
+</svg>

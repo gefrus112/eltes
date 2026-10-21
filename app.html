@@ -163,6 +163,9 @@
             <button class="chip" id="agentChip" aria-pressed="false" title="Agent mode: call on-device tools and show the trace">
               <span data-icon="wrench" data-icon-size="14"></span>Agent
             </button>
+            <button class="chip" id="mcpChip" aria-pressed="true" title="MCP: use tools from Blender, Roblox Studio and other local servers">
+              <span data-icon="plug" data-icon-size="14"></span><span id="mcpChipLabel">MCP</span>
+            </button>
             <button class="chip" id="webChip" aria-pressed="false" title="Search the live web and cite sources">
               <span data-icon="globe" data-icon-size="14"></span><span id="webChipLabel">Web</span>
             </button>
@@ -279,6 +282,7 @@
         <nav class="settings-nav" aria-label="Settings sections">
           <button class="active" data-tab="general"><span data-icon="sliders-horizontal" data-icon-size="16"></span>General</button>
           <button data-tab="keys"><span data-icon="key-round" data-icon-size="16"></span>API keys</button>
+          <button data-tab="mcp"><span data-icon="plug" data-icon-size="16"></span>MCP</button>
           <button data-tab="models"><span data-icon="layers" data-icon-size="16"></span>Models</button>
           <button data-tab="account"><span data-icon="user" data-icon-size="16"></span>Account</button>
           <button data-tab="data"><span data-icon="hard-drive" data-icon-size="16"></span>Data</button>
@@ -444,6 +448,27 @@
                 <div class="key-actions"><button class="btn btn-ghost btn-sm" id="customSave">Save</button></div>
               </div>
               <div class="key-help"><span data-icon="info" data-icon-size="11"></span>Requests are sent from your browser; localhost endpoints must allow CORS.</div>
+            </div>
+          </section>
+
+          <!-- mcp -->
+          <section data-panel="mcp">
+            <div class="set-group">
+              <h4>Model Context Protocol</h4>
+              <p class="group-desc">MCP lets Eltes call tools that live in other programs on this machine — Blender, Roblox Studio, or any server you run. Eltes speaks HTTP only; command-based servers go through a small bridge you start once and leave open.</p>
+              <div class="mcp-presets" id="mcpPresets"></div>
+            </div>
+
+            <div class="set-group">
+              <h4>Your servers</h4>
+              <p class="group-desc">Saved in this browser only. Nothing connects until you press Connect.</p>
+              <div class="mcp-servers" id="mcpServers"></div>
+              <div class="mcp-add">
+                <input class="mcp-input" id="mcpName" type="text" placeholder="Name, e.g. Files" aria-label="Server name" autocomplete="off" />
+                <input class="mcp-input grow" id="mcpUrl" type="text" placeholder="http://127.0.0.1:9876/mcp" aria-label="Server URL" autocomplete="off" spellcheck="false" />
+                <button class="btn btn-ghost btn-sm" id="mcpAdd">Add</button>
+              </div>
+              <div class="key-help"><span data-icon="shield" data-icon-size="11"></span>A connected server can run code on this machine. Connect only servers you trust, and keep the bridge on 127.0.0.1. <a href="docs.html#mcp">Read the MCP docs</a>.</div>
             </div>
           </section>
 
@@ -623,6 +648,7 @@
   <script src="assets/js/search.js"></script>
   <script src="assets/js/cai.js"></script>
   <script src="assets/js/agent.js"></script>
+  <script src="assets/js/mcp.js"></script>
   <script src="assets/js/lab.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/chat-embers.js"></script>

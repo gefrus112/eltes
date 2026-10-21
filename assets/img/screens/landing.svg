@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img">
+<defs>
+  <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#bcc0c8" /><stop offset="0.45" stop-color="#858b95" /><stop offset="1" stop-color="#a6abb4" />
+  </linearGradient>
+  <linearGradient id="btnBlue" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4785ff" /><stop offset="1" stop-color="#2a63ee" />
+  </linearGradient>
+  <linearGradient id="heroLine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#eff5ff" /><stop offset="0.36" stop-color="#a9c8ff" />
+    <stop offset="0.67" stop-color="#78a6ff" /><stop offset="1" stop-color="#80e2c0" />
+  </linearGradient>
+  <radialGradient id="shellGlow" cx="0.5" cy="0" r="0.75">
+    <stop offset="0" stop-color="#b4b8c1" stop-opacity="0.16" /><stop offset="1" stop-color="#b4b8c1" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaA" cx="0.18" cy="0.12" r="0.55">
+    <stop offset="0" stop-color="#2b6bff" stop-opacity="0.22" /><stop offset="1" stop-color="#2b6bff" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaB" cx="0.84" cy="0.05" r="0.5">
+    <stop offset="0" stop-color="#39dca2" stop-opacity="0.13" /><stop offset="1" stop-color="#39dca2" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaC" cx="0.5" cy="0.98" r="0.6">
+    <stop offset="0" stop-color="#7b5cff" stop-opacity="0.16" /><stop offset="1" stop-color="#7b5cff" stop-opacity="0" />
+  </radialGradient>
+  <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0" /><stop offset="1" stop-color="#000000" stop-opacity="0.35" />
+  </linearGradient>
+</defs>
+<rect x="0" y="0" width="1440" height="900" fill="#000003" />
+<rect x="0" y="0" width="1440" height="900" fill="url(#nebulaA)" />
+<rect x="0" y="0" width="1440" height="900" fill="url(#nebulaB)" />
+<rect x="0" y="0" width="1440" height="900" fill="url(#nebulaC)" />
+<circle cx="120" cy="120" r="1.4" fill="#ffffff" />
+<circle cx="210" cy="300" r="0.9" fill="#ffffff" />
+<circle cx="330" cy="90" r="0.9" fill="#ffffff" />
+<circle cx="420" cy="220" r="1.4" fill="#ffffff" />
+<circle cx="520" cy="60" r="0.9" fill="#ffffff" />
+<circle cx="660" cy="150" r="0.9" fill="#ffffff" />
+<circle cx="780" cy="80" r="1.4" fill="#ffffff" />
+<circle cx="900" cy="190" r="0.9" fill="#ffffff" />
+<circle cx="1010" cy="70" r="0.9" fill="#ffffff" />
+<circle cx="1120" cy="160" r="1.4" fill="#ffffff" />
+<circle cx="1240" cy="110" r="0.9" fill="#ffffff" />
+<circle cx="1330" cy="250" r="0.9" fill="#ffffff" />
+<circle cx="180" cy="520" r="1.4" fill="#ffffff" />
+<circle cx="300" cy="610" r="0.9" fill="#ffffff" />
+<circle cx="520" cy="700" r="0.9" fill="#ffffff" />
+<circle cx="1240" cy="560" r="1.4" fill="#ffffff" />
+<circle cx="1350" cy="700" r="0.9" fill="#ffffff" />
+<circle cx="90" cy="760" r="0.9" fill="#ffffff" />
+<circle cx="700" cy="640" r="1.4" fill="#ffffff" />
+<circle cx="960" cy="700" r="0.9" fill="#ffffff" />
+<rect x="0" y="0" width="1440" height="68" fill="#00000399" />
+<line x1="0" y1="68" x2="1440" y2="68" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(140 24) scale(0.8333333333333334)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="168" y="39" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="600" text-anchor="start">Eltes</text>
+<text x="208" y="38" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9.5" font-weight="400" text-anchor="start" letter-spacing="0.06em">AI agent</text>
+<text x="300" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">Models</text>
+<text x="366" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">Search</text>
+<text x="428" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">Studio</text>
+<text x="492" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">Features</text>
+<text x="566" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">Pricing</text>
+<text x="628" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">Downloads</text>
+<text x="712" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">Docs</text>
+<text x="760" y="39" fill="#9aa4b5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">News</text>
+<g transform="translate(1020 26) scale(0.7083333333333334)" fill="none" stroke="#8d97a8" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S9 17.37 9 18v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></g>
+<rect x="1052" y="20" width="74" height="32" rx="9" fill="#ffffff08" stroke="#ffffff21" />
+<text x="1089" y="40" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="middle">Sign in</text>
+<rect x="1138" y="20" width="162" height="32" rx="9" fill="url(#btnBlue)" stroke="#96beff4d" />
+<text x="1219" y="40" fill="#ffffff" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="middle">Create account  →</text>
+<rect x="494" y="182" width="4" height="4" rx="1" fill="#6e89b3" />
+<rect x="501" y="178" width="4" height="8" rx="1" fill="#6e89b3" />
+<rect x="508" y="174" width="4" height="12" rx="1" fill="#80e2c0" />
+<text x="524" y="186" fill="#91a8ce" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="600" text-anchor="start" letter-spacing="0.16em">REAL-TIME WEB SEARCH · 65 MODELS · ONE THREAD</text>
+<text x="720" y="282" fill="#f4f7fb" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="82" font-weight="570" text-anchor="middle" letter-spacing="-0.065em">Ask the web.</text>
+<text x="720" y="362" fill="url(#heroLine)" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="82" font-weight="570" text-anchor="middle" letter-spacing="-0.065em">Keep the receipts.</text>
+<text x="720" y="414" fill="#aab9d1" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="400" text-anchor="middle">Live web search with numbered citations, built into a workspace that moves between</text>
+<text x="720" y="438" fill="#aab9d1" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="400" text-anchor="middle">Claude, ChatGPT, Gemini, DeepSeek and 60+ more models without losing the thread.</text>
+<rect x="516" y="478" width="214" height="50" rx="13" fill="url(#btnBlue)" stroke="#96beff4d" />
+<text x="610" y="509" fill="#ffffff" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="14.5" font-weight="550" text-anchor="middle">Open the workspace</text>
+<g transform="translate(690 496) scale(0.6666666666666666)" fill="none" stroke="#ffffff" stroke-width="3.000" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></g>
+<rect x="746" y="478" width="202" height="50" rx="13" fill="#ffffff08" stroke="#ffffff21" />
+<text x="836" y="509" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="14.5" font-weight="500" text-anchor="middle">See how search works</text>
+<g transform="translate(918 497) scale(0.625)" fill="none" stroke="#a6a8ae" stroke-width="2.720" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></g>
+<text x="450" y="592" fill="#eef3fb" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="27" font-weight="550" text-anchor="middle">65</text>
+<text x="450" y="610" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="middle" letter-spacing="0.12em">MODELS</text>
+<text x="630" y="592" fill="#eef3fb" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="27" font-weight="550" text-anchor="middle">14</text>
+<text x="630" y="610" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="middle" letter-spacing="0.12em">PROVIDERS</text>
+<text x="810" y="592" fill="#eef3fb" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="27" font-weight="550" text-anchor="middle">4</text>
+<text x="810" y="610" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="middle" letter-spacing="0.12em">SEARCH BACKENDS</text>
+<text x="990" y="592" fill="#eef3fb" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="27" font-weight="550" text-anchor="middle">0</text>
+<text x="990" y="610" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="middle" letter-spacing="0.12em">DEMO REPLIES</text>
+<g transform="translate(388 641) scale(0.5416666666666666)" fill="none" stroke="#6e89b3" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></g>
+<text x="407" y="651" fill="#71829e" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">Live sources, not guesses</text>
+<g transform="translate(575 641) scale(0.5416666666666666)" fill="none" stroke="#6e89b3" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="#6e89b3" /></g>
+<text x="594" y="651" fill="#71829e" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">Bring your own key</text>
+<g transform="translate(722 641) scale(0.5416666666666666)" fill="none" stroke="#6e89b3" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></g>
+<text x="741" y="651" fill="#71829e" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">Local history by default</text>
+<g transform="translate(894 641) scale(0.5416666666666666)" fill="none" stroke="#6e89b3" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /><path d="M20 2v4" /><path d="M22 4h-4" /><circle cx="4" cy="20" r="2" /></g>
+<text x="913" y="651" fill="#a3c2fb" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">New: effects drawn in code</text>
+<rect x="160" y="686" width="1120" height="340" rx="16" fill="#05070d" stroke="#ffffff21" />
+<rect x="160" y="686" width="1120" height="46" rx="16" fill="#ffffff05" />
+<line x1="160" y1="732" x2="1280" y2="732" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(178 699) scale(0.8333333333333334)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="206" y="714" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="600" text-anchor="start">Eltes</text>
+<text x="252" y="714" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="400" text-anchor="start">/</text>
+<text x="264" y="714" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Model workspace</text>
+<circle cx="924" cy="709" r="3" fill="#7aa6ff" />
+<text x="934" y="713" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Local-first · BYOK · Web search</text>
+<rect x="1184" y="699" width="57" height="20" rx="10" fill="#ffffff0d" stroke="#ffffff13" /><text x="1212.5" y="712.325" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9.5" font-weight="500" text-anchor="middle">Preview</text>
+<rect x="178" y="748" width="360" height="48" rx="10" fill="#ffffff0d" stroke="#ffffff21" />
+<rect x="190" y="758" width="28" height="28" rx="8" fill="#ffffff09" stroke="#ffffff13" />
+<text x="194" y="777" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="600" text-anchor="start">C</text>
+<text x="230" y="770" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">Claude Sonnet 4.5</text>
+<text x="230" y="785" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">Anthropic · 200K context</text>
+<circle cx="518" cy="764" r="2.5" fill="#39dca2" />
+<rect x="178" y="804" width="360" height="48" rx="10" fill="#ffffff04" stroke="#ffffff13" />
+<rect x="190" y="814" width="28" height="28" rx="8" fill="#ffffff09" stroke="#ffffff13" />
+<text x="194" y="833" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="600" text-anchor="start">G</text>
+<text x="230" y="826" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">GPT-5</text>
+<text x="230" y="841" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">OpenAI · 400K context</text>
+<rect x="178" y="860" width="360" height="48" rx="10" fill="#ffffff04" stroke="#ffffff13" />
+<rect x="190" y="870" width="28" height="28" rx="8" fill="#ffffff09" stroke="#ffffff13" />
+<text x="194" y="889" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="600" text-anchor="start">G</text>
+<text x="230" y="882" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">Gemini 2.5 Pro</text>
+<text x="230" y="897" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">Google · 1M context</text>
+<rect x="178" y="916" width="360" height="48" rx="10" fill="#ffffff04" stroke="#ffffff13" />
+<rect x="190" y="926" width="28" height="28" rx="8" fill="#ffffff09" stroke="#ffffff13" />
+<text x="194" y="945" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="600" text-anchor="start">D</text>
+<text x="230" y="938" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">DeepSeek V3.2</text>
+<text x="230" y="953" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">DeepSeek · 128K context</text>
+<rect x="554" y="748" width="708" height="220" rx="12" fill="#ffffff04" stroke="#ffffff13" />
+<text x="574" y="776" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="600" text-anchor="start" letter-spacing="0.1em">Selected model</text>
+<text x="574" y="802" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="17" font-weight="600" text-anchor="start">Claude Sonnet 4.5</text>
+<text x="574" y="824" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="400" text-anchor="start">Anthropic · 200K context · vision · tools</text>
+<text x="574" y="862" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="400" text-anchor="start">Each row is a real catalogue entry. Choosing one only changes the selection —</text>
+<text x="574" y="880" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="400" text-anchor="start">nothing is sent until you write a message and connect a key.</text>
+<rect x="574" y="902" width="132" height="30" rx="8" fill="#ffffff0a" stroke="#ffffff13" />
+<text x="640" y="921" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="400" text-anchor="middle">Why this model?</text>
+</svg>

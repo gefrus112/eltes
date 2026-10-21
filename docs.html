@@ -101,6 +101,7 @@
         <a href="#models"><span data-icon="layers" data-icon-size="14"></span>Models</a>
         <a href="#web-search"><span data-icon="globe" data-icon-size="14"></span>Web search</a>
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
+        <a href="#mcp"><span data-icon="plug" data-icon-size="14"></span>MCP servers</a>
         <a href="#chat-commands"><span data-icon="command" data-icon-size="14"></span>Chat commands</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
         <a href="#workflow"><span data-icon="workflow" data-icon-size="14"></span>Build a website</a>
@@ -736,6 +737,61 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <span data-icon="wrench" data-icon-size="15"></span>
             <span><strong>Nothing leaves the page for tools.</strong> Arithmetic, time and history search run locally in JavaScript. Only the model request and its tool results go to the provider.</span>
           </div>
+        </section>
+
+        <section id="mcp">
+          <h2>MCP servers <a class="anchor" href="#mcp" aria-label="Link to MCP servers" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p><strong>MCP</strong> (Model Context Protocol) is how Eltes borrows tools from programs that already run on your machine. Blender and Roblox Studio are the two shipped presets, but any server that speaks MCP over HTTP works: add its URL and press Connect.</p>
+          <p>When a server is connected, its tools join the same registry the built-in tools use, named <code>server__tool</code>. Hosted models see them in the tool list, Eltes CAI-1 can plan with them, and every call appears as a tool card with arguments, result and runtime.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Piece</th><th>Where it runs</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>assets/js/mcp.js</code></td><td>This page</td><td>The MCP client: <code>initialize</code>, <code>tools/list</code>, <code>tools/call</code> over Streamable HTTP, with an event-stream fallback and a 12 s timeout</td></tr>
+              <tr><td><code>mcp/eltes-mcp-bridge.mjs</code></td><td>Your terminal</td><td>Starts a command-based (stdio) MCP server and exposes it on <code>127.0.0.1</code>. This is how Blender’s <code>uvx blender-mcp</code> reaches the browser</td></tr>
+              <tr><td><code>mcp/eltes-roblox-bridge.mjs</code></td><td>Your terminal</td><td>A real MCP server for Roblox: it queues scene edits and hands them to the Studio plugin</td></tr>
+              <tr><td><code>mcp/EltesRobloxBridge.lua</code></td><td>Roblox Studio</td><td>A plugin that polls the bridge and applies each edit to the open place, inside an undo recording</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Add a server in 30 seconds</h3>
+          <ol>
+            <li>Open <strong>Settings → MCP</strong> (or press the <strong>MCP</strong> chip in the composer).</li>
+            <li>Pick <strong>Blender</strong> or <strong>Roblox Studio</strong>, or paste any <code>http://127.0.0.1:…/mcp</code> URL.</li>
+            <li>Press <strong>.bat</strong> (Windows) or <strong>.sh</strong> (macOS, Linux) to download a one-file connector, or <strong>Copy command</strong> if you prefer your own terminal. The connector downloads the bridge, starts it and keeps the window open.</li>
+            <li>Come back and press <strong>Connect</strong>. The chip changes to <strong>MCP · N</strong> when tools are available.</li>
+          </ol>
+
+          <h3>Blender</h3>
+          <p>Blender needs the BlenderMCP add-on, which is a single <code>.py</code> file: <em>Edit → Preferences → Add-ons → Install</em>, enable it, then open the sidebar in the 3D view (<kbd>N</kbd>) and press <strong>Start MCP server</strong>. Run the connector, press Connect in Eltes, and ask for an object, a material or a render.</p>
+
+          <h3>Roblox Studio</h3>
+          <p>Studio has no official MCP server, so Eltes ships both halves. Save <code>EltesRobloxBridge.lua</code> in your Plugins folder (<code>%LOCALAPPDATA%\Roblox\Plugins</code> on Windows, <code>~/Documents/Roblox/Plugins</code> on macOS), restart Studio, turn on <strong>Game Settings → Security → Allow HTTP Requests</strong>, run the connector, then press the <strong>Connect</strong> button on the Eltes toolbar in Studio and Connect in Eltes.</p>
+          <p>Tools you get: <code>scene_report</code>, <code>create_part</code>, <code>build_model</code>, <code>insert_script</code>, <code>animate_rig</code>, <code>add_effect</code>, <code>scaffold_game</code> and <code>set_properties</code>. Ask for “build a lighthouse with a rotating beam”, “scaffold an obby with five platforms”, or “add a fire effect to the campfire” and the model calls the tools; the plugin applies them in one undo step each.</p>
+
+          <div class="callout warn">
+            <span data-icon="shield" data-icon-size="15"></span>
+            <span><strong>This is code execution on your machine.</strong> An MCP server can do anything you can do in that app. Connect only servers you started, keep bridges bound to <code>127.0.0.1</code>, and use <code>--token</code> if other people share the computer. Eltes never connects to a server you have not explicitly connected, and the <strong>MCP</strong> chip turns the whole set off for a run.</span>
+          </div>
+
+          <h3>What this cannot do</h3>
+          <ul>
+            <li><strong>Install things for you.</strong> Blender’s add-on and Studio’s plugin are one manual step each; a browser cannot write to those folders.</li>
+            <li><strong>Drive a live Roblox game server.</strong> The plugin edits a place open in Studio on this machine. Published servers run their own code.</li>
+            <li><strong>Work without the bridge for stdio servers.</strong> Browsers cannot spawn processes. The desktop app ships the same bridge, so there the terminal step disappears.</li>
+            <li><strong>Guarantee a server is safe.</strong> Eltes shows what a tool returns, not what it did. Read before you connect.</li>
+          </ul>
+
+          <h3>Troubleshooting</h3>
+          <table class="doc-table">
+            <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr><td>“Could not reach …”</td><td>The bridge is not running, or it is on another port. Check the window you opened and the URL in Settings → MCP.</td></tr>
+              <tr><td>“Studio is not connected”</td><td>Press Connect on the Eltes toolbar in Studio and make sure <em>Allow HTTP Requests</em> is on.</td></tr>
+              <tr><td>Handshake error</td><td>That URL answered but is not an MCP endpoint. Most servers expose <code>/mcp</code>; check their docs.</td></tr>
+              <tr><td>Node not found</td><td>Install Node.js 18 or newer. The connector checks before it starts.</td></tr>
+            </tbody>
+          </table>
         </section>
 
         <section id="chat-commands">
@@ -1671,6 +1727,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#models">Models</a>
         <a href="#web-search">Web search</a>
         <a href="#agent">Agent &amp; tools</a>
+        <a href="#mcp">MCP servers</a>
         <a href="#chat">Chats &amp; export</a>
         <a href="#workflow">Build a website</a>
         <a href="#effects">Images &amp; effects</a>
@@ -1713,6 +1770,7 @@ eltes.bat --port 8080</code></pre>
           <a href="#api-keys">API keys</a>
           <a href="#providers">Providers &amp; CORS</a>
           <a href="#agent">Agent tools</a>
+          <a href="#mcp">MCP servers</a>
         </div>
         <div class="footer-col">
           <h4>Project</h4>

@@ -6,6 +6,19 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 
 **Live:** <https://gefrus112.github.io/eltes/> · **Supabase copy:** <https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html> — the same files, two hosts.
 
+## Screens
+
+<p align="center">
+  <img src="assets/img/screens/workspace.svg" alt="Eltes workspace: a Roblox Studio build with three MCP tool cards, the Luau it inserted and the MCP chip showing eight tools" width="440" />
+  <img src="assets/img/screens/mcp-settings.svg" alt="Settings, MCP tab: Blender and Roblox Studio presets with Copy command, .bat, .sh and Studio plugin buttons and a connected tool count" width="440" />
+</p>
+<p align="center">
+  <img src="assets/img/screens/landing.svg" alt="Landing page: Ask the web. Keep the receipts. with the model workspace selector" width="440" />
+  <img src="assets/img/screens/docs-mcp.svg" alt="Documentation, MCP servers: the four pieces, the four-step add flow, the bridge command and the security callout" width="440" />
+</p>
+
+<sub>Vector previews of the interface, drawn from the app's own layout, icon paths and colour tokens by <code>node tools/make-screens.mjs</code> — not screen captures; the conversation and sample data are illustrative.</sub>
+
 ## Pages
 
 | Page | What it is |
@@ -29,6 +42,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Visible search thinking:** while a search runs, the reply shows live steps — the condensed query, provider and recency, the result count and the time each step took. Nothing is pre-scripted; failed searches leave a failed step. Finished traces collapse to a summary and can be reopened; turn them off under Settings → General.
 - **Eltes Studio:** a separate page with a workspace file tree, editor, live preview and a real shell. The **Guide** button walks the build-a-website workflow — scaffold files, run the build in the terminal, add a page, preview it, open it in its own tab — and ticks steps off as the real actions happen. The written version is in [docs.html#workflow](docs.html#workflow). Any `.html` file previews at `/preview/<path>` with relative assets intact; edits and terminal builds reload it automatically. The terminal runs `/bin/bash` in `.studio/`, streams output, tracks `cd`, and stops on timeout or Ctrl+C. Without the local server the editor still works in browser-only mode with an in-browser preview and zip export.
 - **Effects from code:** the **Effects** button in Studio writes one of six dependency-free recipes — gradient mesh, canvas particles, aurora, halftone, glowing orb, generative poster — into `effects/<name>.html`, opens it in the editor and loads it in the preview. Every recipe is CSS, SVG or canvas, so there is no bitmap to export or download; the guide is in [docs.html#effects](docs.html#effects). The starter `build.mjs` walks subfolders, so the effects ship with the site. Release notes with screenshots: [news.html](news.html).
+- **MCP servers — Blender and Roblox Studio:** a real MCP client (`assets/js/mcp.js`) with a `Settings → MCP` tab and an **MCP** chip in the composer. Presets ship for **Blender** (via the BlenderMCP add-on) and **Roblox Studio** (a Luau plugin plus `mcp/eltes-roblox-bridge.mjs`), each with a downloadable `.bat` / `.sh` connector that starts the bridge for you. Connected tools are namespaced `server__tool`, join the same registry as the built-in ones, and render in the same trace cards. Details: [docs.html#mcp](docs.html#mcp).
 - **Agent mode, on by default:** eight tools — `calculate`, `convert_units`, `percentage`, `date_math`, `current_time`, `search_history`, `define_term` and (when enabled) `web_search`. Hosted models drive them through native function calling (up to four rounds). **Eltes CAI-1** has no model to ask, so a deterministic on-device planner runs the same registry itself: it splits a message on `then`, matches each clause to a tool, chains follow-ups like "then multiply by 3", and stops after six steps. It can run six of the eight tools; the glossary and web search stay with the hosted loop. Seven of the eight never touch the network, and every call is a trace card with arguments, result and runtime. Details: [docs.html#agent](docs.html#agent).
 - **Model catalogue:** 66 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, a Lab model you train in the browser, and custom endpoints.
 - **Real welcome email, from your own machine:** creating a profile in `auth.html` sends *Welcome to Eltes AI Workspace* through your own free provider account — Resend (3,000/month), Brevo (300/day) or any SMTP mailbox — from `lib/mail.cjs`, with no dependencies. With nothing configured the message is written to `.mail/outbox/*.eml` instead of pretending; hard bounces (`5xx` at `RCPT TO`, provider `4xx`, or a Brevo/Resend webhook) go on a suppression list so the address is never retried. See [Welcome email](#welcome-email) and [docs.html#email](docs.html#email).
@@ -244,6 +258,28 @@ Set **Authentication → URL Configuration** to the Pages URL and its wildcard, 
 The **service_role** and **Resend** keys live only in Edge Function secrets. `config.js` ships the publishable key, which is designed to be public; RLS limits it to the signed-in user's own row. Without `RESEND_API_KEY` the function sends nothing and the panel says *Not sent — Supabase has no RESEND_API_KEY yet*. See `supabase/README.md` and `docs.html#supabase`.
 
 Local profiles are untouched: no `config.js`, a desktop build, or one click on *Use a local profile instead* and Eltes behaves exactly as before.
+
+## MCP servers (Blender, Roblox Studio, anything else)
+
+Eltes speaks the Model Context Protocol over Streamable HTTP. The client is `assets/js/mcp.js`; the servers are yours.
+
+```text
+Settings → MCP → Blender → Add & connect
+  .bat / .sh connector → mcp/eltes-mcp-bridge.mjs → uvx blender-mcp → Blender add-on
+Settings → MCP → Roblox Studio → Add & connect
+  .bat / .sh connector → mcp/eltes-roblox-bridge.mjs → EltesRobloxBridge.lua in Studio
+```
+
+| File | Role |
+| --- | --- |
+| `assets/js/mcp.js` | Client: `initialize` → `tools/list` → `tools/call`, JSON or event-stream answers, 12 s timeout, per-server on/off |
+| `mcp/eltes-mcp-bridge.mjs` | stdio → HTTP bridge for command-based servers (Blender) |
+| `mcp/eltes-roblox-bridge.mjs` | MCP server for Roblox with a command queue |
+| `mcp/EltesRobloxBridge.lua` | Studio plugin: applies each edit inside an undo recording |
+
+Roblox tools: `scene_report`, `create_part`, `build_model`, `insert_script`, `animate_rig`, `add_effect`, `scaffold_game`, `set_properties`.
+
+Both bridges bind to `127.0.0.1` only and take an optional `--token`. Run the tests with `node --test test/mcp.test.cjs` — they spawn both bridges and simulate the Studio plugin, so no Blender or Roblox install is needed.
 
 ## Eltes CAI engine (Rust)
 

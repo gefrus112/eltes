@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860" role="img">
+<defs>
+  <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#bcc0c8" /><stop offset="0.45" stop-color="#858b95" /><stop offset="1" stop-color="#a6abb4" />
+  </linearGradient>
+  <linearGradient id="btnBlue" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4785ff" /><stop offset="1" stop-color="#2a63ee" />
+  </linearGradient>
+  <linearGradient id="heroLine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#eff5ff" /><stop offset="0.36" stop-color="#a9c8ff" />
+    <stop offset="0.67" stop-color="#78a6ff" /><stop offset="1" stop-color="#80e2c0" />
+  </linearGradient>
+  <radialGradient id="shellGlow" cx="0.5" cy="0" r="0.75">
+    <stop offset="0" stop-color="#b4b8c1" stop-opacity="0.16" /><stop offset="1" stop-color="#b4b8c1" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaA" cx="0.18" cy="0.12" r="0.55">
+    <stop offset="0" stop-color="#2b6bff" stop-opacity="0.22" /><stop offset="1" stop-color="#2b6bff" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaB" cx="0.84" cy="0.05" r="0.5">
+    <stop offset="0" stop-color="#39dca2" stop-opacity="0.13" /><stop offset="1" stop-color="#39dca2" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaC" cx="0.5" cy="0.98" r="0.6">
+    <stop offset="0" stop-color="#7b5cff" stop-opacity="0.16" /><stop offset="1" stop-color="#7b5cff" stop-opacity="0" />
+  </radialGradient>
+  <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0" /><stop offset="1" stop-color="#000000" stop-opacity="0.35" />
+  </linearGradient>
+</defs>
+<rect x="0" y="0" width="1280" height="860" fill="#030405" />
+<rect x="0" y="0" width="1280" height="860" fill="url(#shellGlow)" opacity="0.45" />
+<rect x="0" y="0" width="1280" height="62" fill="#030405cc" />
+<line x1="0" y1="62" x2="1280" y2="62" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(48 21) scale(0.8333333333333334)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="76" y="36" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" font-weight="600" text-anchor="start">Eltes</text>
+<text x="114" y="35" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start" letter-spacing="0.08em">Docs</text>
+<text x="950" y="36" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Guide</text>
+<text x="1005" y="36" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Commands</text>
+<text x="1080" y="36" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Self-host</text>
+<rect x="1155" y="16" width="82" height="30" rx="8" fill="#ffffff08" stroke="#ffffff21" />
+<text x="1196" y="35" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="middle">Open app</text>
+<rect x="0" y="63" width="260" height="797" fill="#ffffff02" />
+<line x1="260" y1="63" x2="260" y2="860" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<text x="28" y="104" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="8.5" font-weight="600" text-anchor="start" letter-spacing="0.14em">GETTING STARTED</text>
+<text x="28" y="132" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Overview</text>
+<text x="28" y="158" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Quick start</text>
+<text x="28" y="184" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Keys &amp; models</text>
+<text x="28" y="232" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="8.5" font-weight="600" text-anchor="start" letter-spacing="0.14em">WORKSPACE</text>
+<text x="28" y="260" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Chat &amp; slash commands</text>
+<text x="28" y="286" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Agent mode</text>
+<rect x="16" y="297" width="228" height="30" rx="7" fill="#ffffff0b" />
+<text x="28" y="312" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">MCP servers</text>
+<rect x="16" y="303" width="2" height="18" rx="1" fill="#c9ccd3" />
+<text x="28" y="338" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Studio</text>
+<text x="28" y="392" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="8.5" font-weight="600" text-anchor="start" letter-spacing="0.14em">CAI ENGINE</text>
+<text x="28" y="420" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">What runs locally</text>
+<text x="28" y="446" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Tools</text>
+<text x="28" y="472" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Limits</text>
+<text x="312" y="110" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">Docs / Workspace</text>
+<text x="312" y="156" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="34" font-weight="600" text-anchor="start" letter-spacing="-0.03em">MCP servers</text>
+<text x="312" y="190" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="400" text-anchor="start">Connect Eltes to tools that live in other programs — Blender, Roblox Studio, or anything</text>
+<text x="312" y="210" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="400" text-anchor="start">that speaks the Model Context Protocol. You start the server; Eltes only talks to it.</text>
+<text x="312" y="252" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" font-weight="600" text-anchor="start">The four pieces</text>
+<rect x="312" y="272" width="900" height="34" rx="7" fill="#ffffff06" stroke="#ffffff13" />
+<text x="324" y="294" fill="#cfd3d9" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">assets/js/mcp.js</text>
+<text x="558" y="294" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">Client: initialize → tools/list → tools/call over Streamable HTTP.</text>
+<rect x="312" y="310" width="900" height="34" rx="7" fill="#ffffff03" stroke="#ffffff13" />
+<text x="324" y="332" fill="#cfd3d9" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">mcp/eltes-mcp-bridge.mjs</text>
+<text x="558" y="332" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">stdio ⇄ HTTP bridge for command servers such as Blender.</text>
+<rect x="312" y="348" width="900" height="34" rx="7" fill="#ffffff06" stroke="#ffffff13" />
+<text x="324" y="370" fill="#cfd3d9" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">mcp/eltes-roblox-bridge.mjs</text>
+<text x="558" y="370" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">MCP server for Roblox with a command queue on port 8410.</text>
+<rect x="312" y="386" width="900" height="34" rx="7" fill="#ffffff03" stroke="#ffffff13" />
+<text x="324" y="408" fill="#cfd3d9" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">mcp/EltesRobloxBridge.lua</text>
+<text x="558" y="408" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">Studio plugin: applies each edit inside an undo recording.</text>
+<text x="312" y="456" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" font-weight="600" text-anchor="start">Add a server in four steps</text>
+<circle cx="323" cy="486" r="9" fill="#ffffff0a" stroke="#ffffff21" />
+<text x="323" y="490" fill="#a6a8ae" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="400" text-anchor="middle">1</text>
+<text x="344" y="490" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Press Add &amp; connect on a preset. Eltes saves the URL and downloads a .bat or .sh connector.</text>
+<circle cx="323" cy="516" r="9" fill="#ffffff0a" stroke="#ffffff21" />
+<text x="323" y="520" fill="#a6a8ae" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="400" text-anchor="middle">2</text>
+<text x="344" y="520" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Run the connector from a terminal (or double-click it). It starts the bridge on 127.0.0.1.</text>
+<circle cx="323" cy="546" r="9" fill="#ffffff0a" stroke="#ffffff21" />
+<text x="323" y="550" fill="#a6a8ae" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="400" text-anchor="middle">3</text>
+<text x="344" y="550" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Start the app side: BlenderMCP in Blender, or EltesRobloxBridge in Studio with HTTP requests on.</text>
+<circle cx="323" cy="576" r="9" fill="#ffffff0a" stroke="#ffffff21" />
+<text x="323" y="580" fill="#a6a8ae" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="400" text-anchor="middle">4</text>
+<text x="344" y="580" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Press Connect in Settings → MCP. Tools appear as server__tool in the trace and in the composer chip.</text>
+<rect x="312" y="632" width="900" height="76" rx="10" fill="#05070d" stroke="#ffffff13" />
+<text x="326" y="652" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="start" letter-spacing="0.12em">terminal</text>
+<text x="326" y="674" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11.5" font-weight="400" text-anchor="start">$</text>
+<text x="340" y="674" fill="#d7dbe2" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11.5" font-weight="400" text-anchor="start">node mcp/eltes-roblox-bridge.mjs --port 8410</text>
+<text x="326" y="694" fill="#66e0b4" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">bridge listening on http://127.0.0.1:8410/mcp · plugin polls /next</text>
+<rect x="312" y="728" width="900" height="62" rx="10" fill="#ffc2660d" stroke="#ffc26633" />
+<g transform="translate(326 742) scale(0.625)" fill="none" stroke="#ffc266" stroke-width="2.720" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></g>
+<text x="350" y="752" fill="#f0d7ad" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="600" text-anchor="start">A connected server can run code on this machine</text>
+<text x="350" y="770" fill="#9c8f7a" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">Keep bridges on 127.0.0.1, use --token when you can, and connect only servers you trust.</text>
+</svg>

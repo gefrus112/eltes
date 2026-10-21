@@ -2333,7 +2333,7 @@
 
   /* -------------------------------- attach -------------------------------- */
   const LANG_BY_EXT = {
-    js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx', ts: 'ts', tsx: 'tsx', json: 'json', php: 'php',
+    js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx', ts: 'ts', tsx: 'tsx', json: 'json', php: 'php', lua: 'lua',
     css: 'css', scss: 'css', html: 'html', xml: 'xml', py: 'python', go: 'go',
     rs: 'rust', java: 'java', c: 'c', h: 'c', cpp: 'cpp', sh: 'bash', sql: 'sql',
     yml: 'yaml', yaml: 'yaml', toml: 'toml', env: 'bash', csv: 'csv', log: 'text',
@@ -3215,7 +3215,7 @@
     if (downloadCode) {
       const code = downloadCode.closest('.code').querySelector('pre code');
       const lang = downloadCode.closest('.code').querySelector('.lang').textContent.trim().toLowerCase();
-      const ext = ({ html: 'html', htm: 'html', xhtml: 'html', js: 'js', javascript: 'js', css: 'css', python: 'py', py: 'py', json: 'json', bash: 'sh', sh: 'sh', sql: 'sql', ts: 'ts', typescript: 'ts' })[lang] || 'txt';
+      const ext = ({ html: 'html', htm: 'html', xhtml: 'html', js: 'js', javascript: 'js', css: 'css', python: 'py', py: 'py', json: 'json', bash: 'sh', sh: 'sh', sql: 'sql', ts: 'ts', typescript: 'ts', lua: 'lua' })[lang] || 'txt';
       download(`eltes-code.${ext}`, code ? code.textContent : '', ext === 'html' ? 'text/html' : 'text/plain');
       toast('Code downloaded', 'download');
       return;

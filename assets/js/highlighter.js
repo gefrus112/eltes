@@ -15,12 +15,27 @@
     'export set local then fi done of is php namespace trait implements protected final abstract readonly global ' +
     'foreach endforeach endif endfor endwhile include include_once require require_once isset empty unset die exit print yield goto'
   ).split(/\s+/));
-  const LANGS = /^(js|javascript|jsx|ts|typescript|tsx|json|py|python|bash|sh|shell|zsh|sql|css|html|xml|go|rs|rust|php|yml|yaml|toml|diff|text)$/i;
+  const LUA_KEYWORDS = new Set('and break do else elseif end false for function goto if in local nil not or repeat return then true until while'.split(/\s+/));
+  const LANGS = /^(js|javascript|jsx|ts|typescript|tsx|json|py|python|bash|sh|shell|zsh|sql|css|html|xml|go|rs|rust|php|lua|yml|yaml|toml|diff|text)$/i;
   const escapeCode = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  function highlightLua(src) {
+    const token = /--\[(=*)\[([\s\S]*?)\]\1\]|--[^\n]*|\[(=*)\[([\s\S]*?)\]\3\]|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b/g;
+    return src.replace(token, (match, ...rest) => {
+      const offset = rest[rest.length - 2];
+      if (match.startsWith('--')) return `<span class="tok-com">${match}</span>`;
+      if (match.startsWith('[') || match.startsWith('"') || match.startsWith("'")) return `<span class="tok-str">${match}</span>`;
+      if (/^\d/.test(match)) return `<span class="tok-num">${match}</span>`;
+      if (LUA_KEYWORDS.has(match)) return `<span class="tok-key">${match}</span>`;
+      if (src.slice(offset + match.length).trimStart().startsWith('(')) return `<span class="tok-fn">${match}</span>`;
+      return match;
+    });
+  }
 
   function highlight(code, lang) {
     if (!lang || !LANGS.test(lang)) return escapeCode(code);
     const src = escapeCode(code);
+    if (lang.toLowerCase() === 'lua') return highlightLua(src);
     const token = /(\/\/[^\n]*|#(?!\[)[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
     return src.replace(token, (match, comment, string, number, word, offset) => {
       if (comment) return `<span class="tok-com">${comment}</span>`;

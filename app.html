@@ -87,6 +87,9 @@
         <div class="grow"></div>
 
         <div class="topbar-right">
+          <button class="mcp-open-btn" id="mcpOpenBtn" type="button" aria-haspopup="dialog" aria-label="Manage MCP connections, 0 connected" title="Connect a remote MCP server">
+            <span data-icon="network" data-icon-size="14" aria-hidden="true"></span><span class="mcp-open-label">MCP</span><span class="mcp-count" id="mcpCount">0</span>
+          </button>
           <a class="video-tab" href="video.html" aria-label="Open video editor">
             <span data-icon="video" data-icon-size="15" aria-hidden="true"></span>
             <span class="video-tab-label">Video editor</span>
@@ -500,6 +503,50 @@
     </div>
   </dialog>
 
+  <!-- ============================ MCP connections ======================== -->
+  <dialog id="mcpDialog" class="mcp-dialog" aria-label="MCP connections">
+    <div class="dlg mcp-dialog-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="network" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3>Connect MCP</h3><div class="sub">Bring trusted Model Context Protocol tools into your chats.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="mcpDialog" aria-label="Close MCP connections" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="mcp-dialog-content">
+        <div class="mcp-security-note"><span data-icon="shield-check" data-icon-size="15" aria-hidden="true"></span><span>Remote HTTPS only. Connections run directly from this browser; URLs and bearer tokens are session-only and never saved. Review and approve every tool call before it runs.</span></div>
+        <form id="mcpConnectForm" class="mcp-connect-form">
+          <div class="mcp-form-grid">
+            <label><span>Server name <small>optional</small></span><input id="mcpServerNameInput" type="text" maxlength="64" placeholder="Research tools" autocomplete="off" /></label>
+            <label class="mcp-url-field"><span>Remote MCP endpoint</span><input id="mcpServerUrlInput" type="url" required placeholder="https://mcp.example.com/mcp" autocomplete="url" /></label>
+            <label class="mcp-token-field"><span>Bearer token <small>optional · memory-only</small></span><input id="mcpBearerInput" type="password" autocomplete="new-password" placeholder="Only if your server requires it" /></label>
+          </div>
+          <div class="mcp-form-actions"><span id="mcpConnectStatus" class="mcp-connect-status" role="status" aria-live="polite">The remote server must support Streamable HTTP and allow browser CORS.</span><button id="mcpConnectSubmit" class="btn btn-primary btn-sm" type="submit">Connect server</button></div>
+        </form>
+        <section class="mcp-connections-section" aria-labelledby="mcpConnectionsTitle">
+          <div class="mcp-connections-head"><div><h4 id="mcpConnectionsTitle">Connections</h4><p>Only enabled tools are offered to tool-capable models when Tools is on.</p></div><span class="mcp-session-tag">This tab only</span></div>
+          <div id="mcpServerList" class="mcp-server-list"></div>
+        </section>
+        <p class="mcp-footer-note">MCP servers can access data and perform actions on their own systems. Connect only servers you trust. Approved tool arguments and results are shared with the selected model as part of its reply.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ======================== MCP tool approval =========================== -->
+  <dialog id="mcpApprovalDialog" class="mcp-approval-dialog" aria-label="Review MCP tool call">
+    <div class="dlg mcp-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-approval-mark" data-icon="triangle-alert" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3>Review tool call</h3><div class="sub">The model is asking an MCP server to perform this action.</div></div>
+      </div>
+      <div class="mcp-approval-meta"><span>SERVER</span><strong id="mcpApprovalServer"></strong></div>
+      <div class="mcp-approval-meta"><span>TOOL</span><strong id="mcpApprovalTool"></strong></div>
+      <p id="mcpApprovalDescription" class="mcp-approval-description"></p>
+      <pre id="mcpApprovalArgs" class="mcp-approval-args"></pre>
+      <p class="mcp-approval-warning">Approve only if you trust this server and these arguments. Denying sends a decline result to the model.</p>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="mcpDenyBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="mcpApproveBtn" type="button">Approve this call</button></div>
+    </div>
+  </dialog>
+
   <!-- ================================ share ============================== -->
   <dialog id="shareDialog" aria-label="Share conversation">
     <div class="dlg" style="max-width:520px">
@@ -561,6 +608,7 @@
   <script src="assets/js/models.js"></script>
   <script src="assets/js/cai.js"></script>
   <script src="assets/js/account.js"></script>
+  <script src="assets/js/mcp.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

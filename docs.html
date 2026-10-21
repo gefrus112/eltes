@@ -92,6 +92,7 @@
         <h5>Using Eltes</h5>
         <a href="#models"><span data-icon="layers" data-icon-size="14"></span>Models</a>
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
+        <a href="#mcp"><span data-icon="network" data-icon-size="14"></span>MCP connections</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
         <a href="#video-editor"><span data-icon="video" data-icon-size="14"></span>Video editor</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
@@ -443,7 +444,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="agent">
           <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of three local tools. Eltes executes the call in the page, returns the result to the model, and lets it continue — up to four rounds.</p>
+          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and a supported model may call one of Eltes’ built-in local tools or tools from connected MCP servers. Eltes executes each call and returns its result to the model, then lets it continue — up to four rounds.</p>
 
           <table class="doc-table">
             <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
@@ -467,8 +468,20 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
           <div class="callout tip">
             <span data-icon="wrench" data-icon-size="15"></span>
-            <span><strong>Nothing leaves the page for tools.</strong> Arithmetic, time and history search run locally in JavaScript. Only the model request and its tool results go to the provider.</span>
+            <span><strong>Built-in tools stay local.</strong> Arithmetic, time and history search run in JavaScript. MCP calls are different: they go directly to the connected server only after approval, and their arguments and results are also shared with the selected model.</span>
           </div>
+        </section>
+
+        <section id="mcp">
+          <h2>MCP connections <a class="anchor" href="#mcp" aria-label="Link to MCP connections" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes can connect the web workspace to remote Model Context Protocol servers that support <strong>Streamable HTTP</strong>. Select <strong>MCP</strong> in the top bar, enter the server’s HTTPS endpoint and, if required, a bearer token. The server must allow browser CORS requests from the Eltes origin.</p>
+          <ul>
+            <li>Connections and bearer tokens stay in memory in the current tab; they are not saved to chat history or browser storage. Closing or refreshing the tab removes them.</li>
+            <li>Enable only the servers you want offered as tools. MCP tools are available only when <strong>Tools</strong> is on and the selected model supports tool calls.</li>
+            <li>Eltes asks for approval before every MCP tool call and displays the server, tool, and complete arguments. Declined calls are not sent to the MCP server.</li>
+            <li>Approved arguments and results are sent to both the MCP server and the selected model. Connect only servers you trust; an MCP server can access or modify data in its own environment.</li>
+          </ul>
+          <p>Some servers require authentication or do not support browser access. Eltes does not proxy MCP traffic; contact the server operator if the endpoint rejects browser CORS requests.</p>
         </section>
 
         <section id="chat">

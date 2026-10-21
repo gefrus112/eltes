@@ -1,505 +1,579 @@
-/*!
- * Eltes Agent — a small, deterministic, tool-using agent that runs in the tab.
- *
- * The agent is the part of Eltes that *acts* instead of guessing: it turns a
- * request into tool calls, runs them against the on-device CAI engine, and
- * returns both the answer and the trace of what it did. Nothing here touches
- * the network, and there is no hidden model deciding when to invent a number.
- *
- * Hosted models can drive the same tools through the function-calling loop in
- * app.js; the registry below is the single source of truth for both paths.
- *
- *     const agent = window.EltesAgent.create({ cai: window.EltesCAI });
- *     agent.runLocal('12 km to miles, then multiply by 3');
- */
+/* ==========================================================================
+   Eltes AI — on-device agent
+   A small, deterministic tool loop that runs with no key and no network.
+
+   The hosted path in app.js already lets a model call tools. This module is
+   the other half: when the selected model is Eltes CAI, there is no model to
+   ask, so this planner reads the prompt, picks tools, runs them and returns a
+   trace. Every tool is a pure function over its arguments; nothing here calls
+   fetch, XHR or WebSocket, and nothing leaves the page.
+
+   Public surface:
+     EltesAgent.create({ cai, searchHistory, now }) -> instance
+     instance.tools()             plain JSON-schema definitions
+     instance.runTool(name, args) -> { name, args, result, error, runtime }
+     instance.plan(prompt)        -> [{ name, args, reason }]
+     instance.runLocal(prompt)    -> { intent, text, steps }
+   ========================================================================== */
 window.EltesAgent = (function () {
   'use strict';
 
   const VERSION = '1.0.0';
   const MAX_STEPS = 6;
 
+  /* --------------------------------- tools -------------------------------- */
+
+  const TOOLS = [
+    {
+      name: 'calculate',
+      icon: 'calculator',
+      description: 'Evaluate an arithmetic expression with the on-device parser. Supports + - * / % ^, parentheses, sqrt, cbrt, abs, log, ln, sin, cos, tan, factorial (!), pi, e and aggregates (sum, mean, median, min, max, product).',
+      parameters: {
+        type: 'object',
+        properties: {
+          expression: { type: 'string', description: 'Math expression, e.g. "(17 * 43) / 2", "sqrt(81) + 2", "median(4,2,9)"' }
+        },
+        required: ['expression']
+      }
+    },
+    {
+      name: 'convert_units',
+      icon: 'arrow-left-right',
+      description: 'Convert a value between units of the same kind: length (mm, cm, m, km, in, ft, yd, mi), mass (mg, g, kg, oz, lb, stone), volume (ml, l, cup, gal, fl oz), data (b, kb, mb, gb, tb, kib, mib, gib), speed (m/s, km/h, mph), area (m2, km2, acre), time (ms, s, min, h, day, week, month, year) and temperature (C, F, K). Returns an error instead of guessing when units are unknown or of different kinds.',
+      parameters: {
+        type: 'object',
+        properties: {
+          value: { type: 'number', description: 'Numeric value to convert' },
+          from: { type: 'string', description: 'Source unit, e.g. "km"' },
+          to: { type: 'string', description: 'Target unit, e.g. "mi"' }
+        },
+        required: ['value', 'from', 'to']
+      }
+    },
+    {
+      name: 'percentage',
+      icon: 'percent',
+      description: 'Percentage maths with the working shown. mode "of" answers "15% of 240"; mode "off" answers "20% off 80"; mode "change" answers "percentage change from 40 to 55". A change from zero is reported as undefined rather than a made-up number.',
+      parameters: {
+        type: 'object',
+        properties: {
+          mode: { type: 'string', enum: ['of', 'off', 'change'], description: 'Which percentage question to answer' },
+          value: { type: 'number', description: 'The percentage, or the starting value for "change"' },
+          base: { type: 'number', description: 'The number the percentage applies to (for "of" and "off")' },
+          from: { type: 'number', description: 'Starting value for "change"' },
+          to: { type: 'number', description: 'Ending value for "change"' }
+        },
+        required: ['mode']
+      }
+    },
+    {
+      name: 'date_math',
+      icon: 'calendar',
+      description: 'Calendar maths on ISO dates (YYYY-MM-DD). kind "difference" counts days between two dates, "weekday" names the day a date falls on, "days_until" counts from today to a date.',
+      parameters: {
+        type: 'object',
+        properties: {
+          kind: { type: 'string', enum: ['difference', 'weekday', 'days_until'], description: 'Which calculation to run' },
+          start: { type: 'string', description: 'ISO date, e.g. 2026-01-01' },
+          end: { type: 'string', description: 'Second ISO date for kind "difference"' }
+        },
+        required: ['kind', 'start']
+      }
+    },
+    {
+      name: 'current_time',
+      icon: 'clock',
+      description: 'Read the device clock: local time, ISO timestamp and timezone. Use for any question about today, now or the current date.',
+      parameters: { type: 'object', properties: {} }
+    },
+    {
+      name: 'search_history',
+      icon: 'history',
+      description: 'Search this browser\'s saved conversations for a phrase and return matching titles with snippets. Only reads local storage.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Words to search for' }
+        },
+        required: ['query']
+      }
+    }
+  ];
+
+  const has = (list, name) => list.some((tool) => tool.name === name);
+
+  /* ------------------------------- formatting ------------------------------ */
+
+  function formatTime(date) {
+    try {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (error) {
+      return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+  }
+
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function timezoneName(date) {
+    try {
+      const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (zone) return zone;
+    } catch (error) { /* fall through */ }
+    const offset = -date.getTimezoneOffset();
+    const sign = offset >= 0 ? '+' : '-';
+    const hours = Math.floor(Math.abs(offset) / 60);
+    const minutes = Math.abs(offset) % 60;
+    return `UTC${sign}${hours}${minutes ? ':' + String(minutes).padStart(2, '0') : ''}`;
+  }
+
+  const DAY_MS = 24 * 60 * 60 * 1000;
+
+  function parseIsoDate(text) {
+    const match = String(text || '').match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (!match) return null;
+    const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    if (Number.isNaN(date.getTime())) return null;
+    // Reject 2026-02-31 and friends: Date rolls them over instead of failing.
+    if (date.getMonth() !== Number(match[2]) - 1 || date.getDate() !== Number(match[3])) return null;
+    return date;
+  }
+
   const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  function pad2(value) {
-    return String(value).padStart(2, '0');
+  function daysBetween(start, end) {
+    const a = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+    const b = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+    return Math.round((b - a) / DAY_MS);
   }
 
-  function isoOf(stamp) {
-    const date = new Date(stamp);
-    return `${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}-${pad2(date.getUTCDate())}`;
+  function plural(count, word) {
+    return `${count} ${word}${count === 1 ? '' : 's'}`;
   }
 
-  function parseISODate(text) {
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(text || '').trim());
-    if (!match) return null;
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    const stamp = Date.UTC(year, month - 1, day);
-    const check = new Date(stamp);
-    if (check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day) {
-      return null;
-    }
-    return { year, month, day, stamp, iso: match[0] };
-  }
-
-  const TEMPERATURE_UNITS = { c: 'c', f: 'f', k: 'k' };
-
-  function normaliseUnit(raw) {
-    return String(raw || '')
-      .trim()
-      .toLowerCase()
-      .replace(/^°\s*/, '')
-      .replace(/^degrees?\s+/, '')
-      .replace(/\.$/, '');
-  }
-
-  function asTemperature(unit) {
-    const key = normaliseUnit(unit);
-    if (TEMPERATURE_UNITS[key]) return key;
-    if (key === 'celsius' || key === 'centigrade') return 'c';
-    if (key === 'fahrenheit') return 'f';
-    if (key === 'kelvin') return 'k';
-    return null;
-  }
-
-  /* -------------------------------- tools --------------------------------- */
-
-  function buildTools(cai) {
-    return [
-      {
-        name: 'calculate',
-        icon: 'calculator',
-        description: 'Evaluate an arithmetic expression with + - * / % ^, parentheses, factorials and functions such as sqrt, log, min, max, mean. Use this for every calculation instead of doing the maths yourself.',
-        parameters: {
-          type: 'object',
-          properties: {
-            expression: { type: 'string', description: 'Expression to evaluate, e.g. "(17 * 43) / 2" or "sqrt(144) + 3!"' }
-          },
-          required: ['expression']
-        },
-        run(args) {
-          const expression = String((args && args.expression) || '').trim();
-          if (!expression) return { error: 'No expression was supplied.' };
-          if (!/^[0-9a-zA-Z+\-*/%^().,!×÷\s]+$/.test(expression)) {
-            return { error: 'The expression contains characters the calculator does not accept.' };
-          }
-          let value;
-          try {
-            value = cai.evaluate(expression);
-          } catch (error) {
-            return { error: 'That expression could not be evaluated.' };
-          }
-          if (!Number.isFinite(value)) return { error: 'The result is not a finite number.' };
-          const shown = cai.formatNumber(value);
-          return { result: shown, value, say: `**${shown}** — \`${expression}\`` };
-        }
-      },
-      {
-        name: 'convert_units',
-        icon: 'ruler',
-        description: 'Convert a value between compatible units: length, mass, volume, data, speed and area. Use for "12 km to miles" or "5 kg in lb".',
-        parameters: {
-          type: 'object',
-          properties: {
-            value: { type: 'number', description: 'Numeric amount to convert' },
-            from: { type: 'string', description: 'Source unit, e.g. km, kg, gb, mph' },
-            to: { type: 'string', description: 'Target unit, e.g. miles, lb, mb, km/h' }
-          },
-          required: ['value', 'from', 'to']
-        },
-        run(args) {
-          const value = Number(args && args.value);
-          const from = normaliseUnit(args && args.from);
-          const to = normaliseUnit(args && args.to);
-          if (!Number.isFinite(value)) return { error: 'The value to convert must be a number.' };
-          if (!from || !to) return { error: 'Both a source and a target unit are required.' };
-
-          const fromTemp = asTemperature(from);
-          const toTemp = asTemperature(to);
-          if (fromTemp && toTemp) {
-            if (fromTemp === toTemp) {
-              const same = cai.formatNumber(value);
-              return { result: `${same} °${toTemp.toUpperCase()}`, value, say: `${same} °${fromTemp.toUpperCase()} is the same in °${toTemp.toUpperCase()}.` };
-            }
-            const converted = cai.temperature(value, fromTemp, toTemp);
-            const shown = cai.formatNumber(converted);
-            return {
-              result: `${shown} °${toTemp.toUpperCase()}`,
-              value: converted,
-              say: `**${shown} °${toTemp.toUpperCase()}** — ${cai.formatNumber(value)} °${fromTemp.toUpperCase()} → ${shown} °${toTemp.toUpperCase()}`
-            };
-          }
-
-          const converted = cai.convertUnits(value, from, to);
-          if (!converted) {
-            return { error: `"${from}" and "${to}" are not compatible units, so no honest conversion exists.` };
-          }
-          const shown = cai.formatNumber(converted.value);
-          return {
-            result: `${shown} ${to}`,
-            value: converted.value,
-            say: `**${shown} ${to}** — ${cai.formatNumber(value)} ${from} = ${shown} ${to}`
-          };
-        }
-      },
-      {
-        name: 'percent',
-        icon: 'trending-up',
-        description: 'Percentage arithmetic: a share of a number ("15% of 240"), a discount ("20% off 80"), or the percentage change between two values.',
-        parameters: {
-          type: 'object',
-          properties: {
-            mode: { type: 'string', enum: ['of', 'off', 'change'], description: 'of = share, off = discount, change = difference between two values' },
-            value: { type: 'number', description: 'Percentage for "of"/"off" modes' },
-            base: { type: 'number', description: 'The number the percentage applies to' },
-            from: { type: 'number', description: 'Starting value for "change" mode' },
-            to: { type: 'number', description: 'Ending value for "change" mode' }
-          },
-          required: ['mode']
-        },
-        run(args) {
-          const mode = String((args && args.mode) || '').toLowerCase();
-          if (mode === 'of' || mode === 'off') {
-            const percent = Number(args.value);
-            const base = Number(args.base);
-            if (!Number.isFinite(percent) || !Number.isFinite(base)) {
-              return { error: 'Both a percentage and a base number are required.' };
-            }
-            const part = (percent / 100) * base;
-            const partText = cai.formatNumber(part);
-            if (mode === 'off') {
-              const left = cai.formatNumber(base - part);
-              return { result: left, value: base - part, say: `**${left}** after ${cai.formatNumber(percent)}% off ${cai.formatNumber(base)} (a discount of ${partText}).` };
-            }
-            return { result: partText, value: part, say: `**${partText}** — ${cai.formatNumber(percent)}% of ${cai.formatNumber(base)}` };
-          }
-          if (mode === 'change') {
-            const from = Number(args.from);
-            const to = Number(args.to);
-            if (!Number.isFinite(from) || !Number.isFinite(to)) {
-              return { error: 'Both a starting and an ending value are required.' };
-            }
-            if (from === 0) {
-              return { error: 'Percentage change from zero is undefined: the calculation divides by the starting value.' };
-            }
-            const change = ((to - from) / Math.abs(from)) * 100;
-            const shown = cai.formatNumber(change);
-            return { result: `${shown}%`, value: change, say: `**${shown}%** change from ${cai.formatNumber(from)} to ${cai.formatNumber(to)}` };
-          }
-          return { error: 'Unknown percentage mode.' };
-        }
-      },
-      {
-        name: 'date_math',
-        icon: 'calendar',
-        description: 'Calendar arithmetic on ISO dates (YYYY-MM-DD): days between two dates, the weekday of a date, or days until a date. Uses UTC dates.',
-        parameters: {
-          type: 'object',
-          properties: {
-            kind: { type: 'string', enum: ['difference', 'weekday', 'days_until'], description: 'What to compute' },
-            start: { type: 'string', description: 'Start date for a difference, as YYYY-MM-DD' },
-            end: { type: 'string', description: 'End date for a difference, as YYYY-MM-DD' },
-            date: { type: 'string', description: 'Target date for weekday or days_until, as YYYY-MM-DD' }
-          },
-          required: ['kind']
-        },
-        run(args, ctx) {
-          const kind = String((args && args.kind) || '').toLowerCase();
-          if (kind === 'difference') {
-            const start = parseISODate(args.start);
-            const end = parseISODate(args.end);
-            if (!start || !end) return { error: 'Both dates must be real ISO dates, like 2026-01-01.' };
-            const days = Math.round((end.stamp - start.stamp) / 86400000);
-            return {
-              result: `${days} days`,
-              value: days,
-              say: `**${Math.abs(days)} days** between ${start.iso} and ${end.iso}${days < 0 ? ' (the end date comes first)' : ''}.`
-            };
-          }
-          const date = parseISODate(args && args.date);
-          if (!date) return { error: 'A real ISO date, like 2026-10-20, is required.' };
-          if (kind === 'weekday') {
-            const weekday = WEEKDAYS[new Date(date.stamp).getUTCDay()];
-            return { result: weekday, say: `${date.iso} is a **${weekday}**.` };
-          }
-          if (kind === 'days_until') {
-            const today = ctx && ctx.now ? ctx.now() : new Date();
-            const todayStamp = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-            const days = Math.round((date.stamp - todayStamp) / 86400000);
-            const phrase = days === 0 ? 'is today' : days > 0 ? `is ${days} days away` : `was ${Math.abs(days)} days ago`;
-            return { result: `${days} days`, value: days, say: `${date.iso} ${phrase} (from ${isoOf(todayStamp)}).` };
-          }
-          return { error: 'Unknown date operation.' };
-        }
-      },
-      {
-        name: 'current_time',
-        icon: 'clock',
-        description: 'Return the current date and time. Use whenever an answer depends on "now".',
-        parameters: {
-          type: 'object',
-          properties: {
-            timezone: { type: 'string', description: 'Optional IANA timezone, e.g. Europe/London' }
-          }
-        },
-        run(args, ctx) {
-          const now = ctx && ctx.now ? ctx.now() : new Date();
-          const timezone = args && args.timezone;
-          try {
-            if (timezone) {
-              const formatted = new Intl.DateTimeFormat('en-GB', { timeZone: timezone, dateStyle: 'full', timeStyle: 'long' }).format(now);
-              return { result: `${formatted} (${timezone})`, say: `It is ${formatted} (${timezone}).` };
-            }
-          } catch (error) {
-            // Unknown timezone: fall through to UTC rather than guessing.
-          }
-          const stamp = `${isoOf(now)} ${pad2(now.getUTCHours())}:${pad2(now.getUTCMinutes())} UTC`;
-          return { result: stamp, say: `It is ${stamp} — a ${WEEKDAYS[now.getUTCDay()]}.` };
-        }
-      },
-      {
-        name: 'search_history',
-        icon: 'search',
-        description: 'Search the user\'s saved conversations in this browser for a phrase and return matching titles with snippets. Use when the user refers to something discussed earlier.',
-        parameters: {
-          type: 'object',
-          properties: {
-            query: { type: 'string', description: 'Words to search for' }
-          },
-          required: ['query']
-        },
-        run(args, ctx) {
-          const query = String((args && args.query) || '').trim();
-          if (!query) return { error: 'Empty query.' };
-          if (!ctx || typeof ctx.searchHistory !== 'function') {
-            return { error: 'Conversation search is only available inside the Eltes workspace.' };
-          }
-          const found = ctx.searchHistory(query);
-          if (!found) return { result: `No saved conversations match "${query}".` };
-          return { result: found, say: found };
-        }
-      }
-    ];
-  }
-
-  /* ------------------------------- planning -------------------------------- */
-
-  const PREFIX = /^(?:please\s+)?(?:can you\s+|could you\s+)?(?:what(?:'s| is)\s+the\s+)?/i;
-
-  function splitClauses(prompt) {
-    return String(prompt || '')
-      .split(/\n+|(?:[.;]\s+)|(?:\s+and\s+then\s+)|(?:\s+then\s+)/i)
-      .map((part) => part.trim())
-      .filter(Boolean);
-  }
-
-  function planClause(clause, last, ctx) {
-    const text = clause.trim();
-    const lowered = text.toLowerCase();
-    if (!text) return null;
-
-    if (/\b(?:what time|time is it|current time|what(?:'s| is) the time)\b/.test(lowered)) {
-      const zone = /(?:in|at)\s+([a-z]+\/[a-z_]+)/.exec(lowered);
-      return { name: 'current_time', args: zone ? { timezone: zone[1] } : {} };
-    }
-
-    const isoDates = text.match(/\d{4}-\d{2}-\d{2}/g) || [];
-
-    if (isoDates.length >= 2 && /\b(?:between|from)\b/.test(lowered)) {
-      return { name: 'date_math', args: { kind: 'difference', start: isoDates[0], end: isoDates[1] } };
-    }
-    if (isoDates.length === 1 && /\b(?:what|which)\s+day\b|day\s+of\s+the\s+week|\bweekday\b/.test(lowered)) {
-      return { name: 'date_math', args: { kind: 'weekday', date: isoDates[0] } };
-    }
-    if (isoDates.length === 1 && /\b(?:until|till|away|days?)\b/.test(lowered)) {
-      return { name: 'date_math', args: { kind: 'days_until', date: isoDates[0] } };
-    }
-
-    const percentMatch = /(-?\d+(?:\.\d+)?)\s*(?:%|percent)\s*(off|of)\s*(-?\d+(?:\.\d+)?)/i.exec(text);
-    if (percentMatch) {
-      return {
-        name: 'percent',
-        args: { mode: percentMatch[2].toLowerCase(), value: Number(percentMatch[1]), base: Number(percentMatch[3]) }
-      };
-    }
-    const changeMatch = /(?:percent|percentage)\s+(?:change|increase|decrease)\s*(?:from)?\s*(-?\d+(?:\.\d+)?)\s*(?:to|→)\s*(-?\d+(?:\.\d+)?)/i.exec(text);
-    if (changeMatch) {
-      return { name: 'percent', args: { mode: 'change', from: Number(changeMatch[1]), to: Number(changeMatch[2]) } };
-    }
-
-    const conversion = /(-?\d+(?:\.\d+)?)\s*(?:°\s*|degrees?\s+)?([a-zA-Z/][a-zA-Z/0-9]*)\s+(?:to|in|into|as)\s+(?:°\s*|degrees?\s+)?([a-zA-Z/][a-zA-Z/0-9]*)/i.exec(text);
-    if (conversion) {
-      return {
-        name: 'convert_units',
-        args: { value: Number(conversion[1]), from: conversion[2], to: conversion[3] }
-      };
-    }
-
-    const chained = /^(?:then\s+)?(add|plus|subtract|minus|multiply(?:\s+by)?|divide(?:\s+by)?|times)\s+(-?\d+(?:\.\d+)?)$/i.exec(text);
-    if (chained && typeof last === 'number') {
-      const word = chained[1].toLowerCase();
-      const operator = word.startsWith('add') || word === 'plus' ? '+'
-        : word.startsWith('subtract') || word === 'minus' ? '-'
-          : word.startsWith('multiply') || word === 'times' ? '*'
-            : '/';
-      return { name: 'calculate', args: { expression: `${last} ${operator} ${chained[2]}` } };
-    }
-
-    if (/\b(?:earlier|previously|last time|what did (?:we|i) (?:say|discuss)|my (?:chats|conversations))\b/.test(lowered)) {
-      const query = text.replace(PREFIX, '').replace(/\b(?:earlier|previously|last time)\b/gi, '').trim();
-      return { name: 'search_history', args: { query: query || text } };
-    }
-
-    const arithmetic = /\d/.test(text) && /[+\-*/^%×÷!]|\b(?:sqrt|cbrt|sin|cos|tan|log|ln|exp|floor|ceil|round|min|max|sum|mean|product|factorial|squared|cubed)\b/i.test(text);
-    if (arithmetic) {
-      let expression = text
-        .replace(PREFIX, '')
-        .replace(/^(?:calculate|compute|evaluate|solve)\s+/i, '')
-        .replace(/[?]+\s*$/, '')
-        .trim();
-      expression = expression
-        .replace(/\bsquared\b/gi, '^2')
-        .replace(/\bcubed\b/gi, '^3')
-        .replace(/\bplus\b/gi, '+')
-        .replace(/\bminus\b/gi, '-')
-        .replace(/\btimes\b/gi, '*')
-        .replace(/\bmultiplied by\b/gi, '*')
-        .replace(/\bdivided by\b/gi, '/')
-        .replace(/×/g, '*')
-        .replace(/÷/g, '/');
-      return { name: 'calculate', args: { expression } };
-    }
-
-    if (ctx && ctx.allowHistory === false) return null;
-    return null;
-  }
-
-  /* ------------------------------- instance ------------------------------- */
+  /* -------------------------------- instance ------------------------------- */
 
   function create(options) {
     const config = options || {};
-    const cai = config.cai;
-    if (!cai) throw new Error('EltesAgent needs the CAI engine (cai: window.EltesCAI).');
+    const cai = config.cai || (typeof window !== 'undefined' ? window.EltesCAI : null);
+    const now = typeof config.now === 'function' ? config.now : () => new Date();
+    const searchHistory = typeof config.searchHistory === 'function' ? config.searchHistory : null;
+    const format = (value) => {
+      if (cai && typeof cai.formatNumber === 'function') return cai.formatNumber(value);
+      return String(Math.round(value * 1e10) / 1e10);
+    };
 
-    const tools = buildTools(cai);
-    const registry = {};
-    tools.forEach((tool) => { registry[tool.name] = tool; });
+    /* ------------------------------- tool runs ------------------------------ */
 
-    function toolDefs() {
-      return tools.map((tool) => ({
-        name: tool.name,
-        description: tool.description,
-        parameters: tool.parameters,
-        icon: tool.icon
-      }));
-    }
-
-    function withContext(extra) {
-      return Object.assign({
-        now: config.now || (() => new Date()),
-        searchHistory: config.searchHistory || null
-      }, extra || {});
-    }
-
-    function run(name, args, extra) {
-      const tool = registry[name];
-      const started = (typeof performance !== 'undefined' ? performance.now() : Date.now());
-      if (!tool) {
-        return { name, args: args || {}, result: `Error: unknown tool "${name}"`, error: true, runtime: 0 };
-      }
-      let outcome;
+    function runCalculate(args) {
+      const expression = String((args && args.expression) || '').trim();
+      if (!expression) return { error: 'Empty expression.' };
+      if (!cai || typeof cai.evaluate !== 'function') return { error: 'The on-device parser is not loaded.' };
+      let value;
       try {
-        outcome = tool.run(args || {}, withContext(extra)) || {};
+        value = cai.evaluate(expression);
       } catch (error) {
-        outcome = { error: (error && error.message) || 'The tool failed.' };
+        return { error: `Could not evaluate ${expression}.` };
       }
-      const runtime = Math.round((typeof performance !== 'undefined' ? performance.now() : Date.now()) - started);
-      if (outcome.error) {
-        return { name, args: args || {}, result: `Error: ${outcome.error}`, error: true, runtime, say: `I could not run \`${name}\`: ${outcome.error}` };
+      if (typeof value !== 'number' || !Number.isFinite(value)) {
+        return { error: 'The result is not a finite number.' };
       }
-      return { name, args: args || {}, result: outcome.result, value: outcome.value, say: outcome.say, error: false, runtime };
+      return { result: `${format(value)}\n\nExpression: ${expression}`, value };
     }
 
-    function plan(prompt, extra) {
-      const ctx = withContext(extra);
+    function runConvertUnits(args) {
+      const value = Number(args && args.value);
+      const from = String((args && args.from) || '').trim().toLowerCase();
+      const to = String((args && args.to) || '').trim().toLowerCase();
+      if (!Number.isFinite(value)) return { error: 'Value must be a finite number.' };
+      if (!from || !to) return { error: 'Both a source and a target unit are required.' };
+      const isScale = (unit) => ['c', 'f', 'k', 'celsius', 'fahrenheit', 'kelvin'].includes(unit);
+      if (isScale(from) || isScale(to)) {
+        const scale = (unit) => unit[0];
+        return runTemperature({ value, from: scale(from), to: scale(to) });
+      }
+      if (!cai || typeof cai.convertUnits !== 'function') return { error: 'The unit table is not loaded.' };
+      const converted = cai.convertUnits(value, from, to);
+      if (!converted) {
+        return { error: `Cannot convert ${from} to ${to}: unknown unit, or units of different kinds.` };
+      }
+      return {
+        result: `${format(converted.value)} ${to}\n\n${format(value)} ${from} = ${format(converted.value)} ${to} (${converted.kind})`,
+        value: converted.value
+      };
+    }
+
+    function runTemperature(args) {
+      const value = Number(args && args.value);
+      const from = String((args && args.from) || '').trim().toLowerCase();
+      const to = String((args && args.to) || '').trim().toLowerCase();
+      if (!Number.isFinite(value)) return { error: 'Value must be a finite number.' };
+      if (!['c', 'f', 'k'].includes(from) || !['c', 'f', 'k'].includes(to)) {
+        return { error: 'Temperature scales must be c, f or k.' };
+      }
+      if (!cai || typeof cai.temperature !== 'function') return { error: 'The temperature table is not loaded.' };
+      const converted = cai.temperature(value, from, to);
+      const label = (scale) => (scale === 'k' ? 'K' : `°${scale.toUpperCase()}`);
+      if (from === to) {
+        return { result: `${format(value)} ${label(from)} is the same in ${label(to)}.`, value };
+      }
+      return {
+        result: `${format(converted)} ${label(to)}\n\n${format(value)} ${label(from)} = ${format(converted)} ${label(to)}`,
+        value: converted
+      };
+    }
+
+    function runPercentage(args) {
+      const mode = String((args && args.mode) || '').toLowerCase();
+      if (mode === 'of' || mode === 'off') {
+        const percent = Number(args.value);
+        const base = Number(args.base);
+        if (!Number.isFinite(percent) || !Number.isFinite(base)) {
+          return { error: 'A percentage and a base number are required.' };
+        }
+        const part = (percent / 100) * base;
+        if (mode === 'off') {
+          const left = base - part;
+          return {
+            result: `${format(left)}\n\n${format(base)} − ${format(part)} (that is ${format(percent)}% of ${format(base)}) = ${format(left)}`,
+            value: left
+          };
+        }
+        return {
+          result: `${format(part)}\n\n${format(base)} × ${format(percent)} / 100 = ${format(part)}`,
+          value: part
+        };
+      }
+      if (mode === 'change') {
+        const from = Number(args.from);
+        const to = Number(args.to);
+        if (!Number.isFinite(from) || !Number.isFinite(to)) {
+          return { error: 'Both a starting value and an ending value are required.' };
+        }
+        if (from === 0) {
+          return {
+            result: 'Undefined: a percentage change divides by the starting value, and the starting value is zero.',
+            value: null
+          };
+        }
+        const change = ((to - from) / Math.abs(from)) * 100;
+        return {
+          result: `${format(change)}%\n\n(${format(to)} − ${format(from)}) ÷ |${format(from)}| × 100 = ${format(change)}%`,
+          value: change
+        };
+      }
+      return { error: 'Mode must be "of", "off" or "change".' };
+    }
+
+    function runDateMath(args) {
+      const kind = String((args && args.kind) || 'difference').toLowerCase();
+      const start = parseIsoDate(args && args.start);
+      if (!start) return { error: 'Give the date as YYYY-MM-DD.' };
+      if (kind === 'weekday') {
+        return { result: `${formatDate(start)} is a ${WEEKDAYS[start.getDay()]}.`, value: start.getDay() };
+      }
+      if (kind === 'days_until') {
+        const today = now();
+        const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const days = daysBetween(todayDate, start);
+        if (days === 0) return { result: `${formatDate(start)} is today.`, value: 0 };
+        return {
+          result: days > 0
+            ? `${plural(days, 'day')} until ${formatDate(start)} (from ${formatDate(todayDate)}).`
+            : `${plural(Math.abs(days), 'day')} since ${formatDate(start)} (today is ${formatDate(todayDate)}).`,
+          value: days
+        };
+      }
+      const end = parseIsoDate(args && args.end);
+      if (!end) return { error: 'A second date (end) is required to count days between dates.' };
+      const days = daysBetween(start, end);
+      const [first, last] = days < 0 ? [end, start] : [start, end];
+      const magnitude = Math.abs(days);
+      return {
+        result: `${plural(magnitude, 'day')} between ${formatDate(first)} and ${formatDate(last)}${days < 0 ? ' (the dates were the other way round)' : ''}.`,
+        value: days
+      };
+    }
+
+    function runCurrentTime() {
+      const date = now();
+      return {
+        result: `${formatTime(date)} on ${formatDate(date)} (${timezoneName(date)})\n\nISO: ${date.toISOString()}`,
+        value: date.getTime()
+      };
+    }
+
+    function runSearchHistory(args) {
+      const query = String((args && args.query) || '').trim();
+      if (!query) return { error: 'A search phrase is required.' };
+      if (!searchHistory) return { error: 'Chat history search is not connected in this build.' };
+      let found;
+      try {
+        found = searchHistory(query);
+      } catch (error) {
+        return { error: 'Chat history search failed.' };
+      }
+      if (!found) return { result: `No saved conversations match “${query}”.` };
+      return { result: String(found) };
+    }
+
+    const RUNNERS = {
+      calculate: runCalculate,
+      convert_units: runConvertUnits,
+      percentage: runPercentage,
+      date_math: runDateMath,
+      current_time: runCurrentTime,
+      search_history: runSearchHistory
+    };
+
+    function runTool(name, args) {
+      const started = Date.now();
+      const runner = RUNNERS[name];
+      const out = runner ? runner(args || {}) : { error: `Unknown tool: ${name}` };
+      return {
+        name,
+        args: args || {},
+        result: out.error ? null : out.result,
+        error: out.error || null,
+        value: Object.prototype.hasOwnProperty.call(out, 'value') ? out.value : null,
+        runtime: Math.max(1, Date.now() - started)
+      };
+    }
+
+    /* -------------------------------- planning ------------------------------ */
+
+    const STOPWORDS = new Set([
+      'a', 'an', 'and', 'as', 'at', 'be', 'can', 'could', 'do', 'for', 'from', 'give', 'how', 'i', 'in',
+      'into', 'is', 'it', 'me', 'much', 'my', 'of', 'on', 'please', 'tell', 'that', 'the', 'then', 'this',
+      'to', 'what', 'whats', 'what\'s', 'which', 'would', 'you', 'your'
+    ]);
+
+    const FILLER = /\b(convert|calculate|compute|evaluate|work out|figure out|solve|how many|how much|what is|what's|whats|tell me|give me|please|exactly|roughly|approximately|about|now|today|currently|right now)\b/gi;
+
+    function leftover(text, matched) {
+      const rest = String(text || '')
+        .replace(matched || '', ' ')
+        .replace(FILLER, ' ')
+        .replace(/[^a-z0-9]+/gi, ' ')
+        .toLowerCase();
+      return rest.split(/\s+/).filter((word) => word && !STOPWORDS.has(word));
+    }
+
+    function classify(clause) {
+      const text = String(clause || '').trim();
+      if (!text) return null;
+
+      // 1. Temperature, before the general unit pattern, so "100 c to f" is not a length.
+      let match = text.match(/(-?\d+(?:\.\d+)?)\s*(?:°|degrees?\s*)?(c|f|k|celsius|fahrenheit|kelvin)\b\s*(?:to|in|into)\s*(?:°|degrees?\s*)?(c|f|k|celsius|fahrenheit|kelvin)\b/i);
+      if (match) {
+        const scale = (word) => word.toLowerCase()[0];
+        const from = scale(match[2]);
+        const to = scale(match[3]);
+        if (!leftover(text, match[0]).length) {
+          return { name: 'convert_units', args: { value: Number(match[1]), from, to }, reason: 'temperature conversion' };
+        }
+      }
+
+      // 2. Units.
+      match = text.match(/(-?\d+(?:\.\d+)?)\s*([a-z][a-z/ ]*?)\s*(?:to|in|into|as)\s*([a-z][a-z/ ]*)\b/i);
+      if (match) {
+        const from = match[2].trim().toLowerCase();
+        const to = match[3].trim().toLowerCase();
+        if (!['c', 'f', 'k'].includes(from) && !['c', 'f', 'k'].includes(to) && !leftover(text, match[0]).length) {
+          return { name: 'convert_units', args: { value: Number(match[1]), from, to }, reason: 'unit conversion' };
+        }
+      }
+
+      // 3. Percentage change, then percent of / off.
+      match = text.match(/(?:percent(?:age)?\s*(?:change|increase|decrease|difference)|change)\s*(?:from)?\s*(-?\d+(?:\.\d+)?)\s*(?:to)\s*(-?\d+(?:\.\d+)?)/i);
+      if (match && !leftover(text, match[0]).length) {
+        return { name: 'percentage', args: { mode: 'change', from: Number(match[1]), to: Number(match[2]) }, reason: 'percentage change' };
+      }
+      match = text.match(/(-?\d+(?:\.\d+)?)\s*(?:%|percent)\s*(of|off)\s*(-?\d+(?:\.\d+)?)/i);
+      if (match && !leftover(text, match[0]).length) {
+        return {
+          name: 'percentage',
+          args: { mode: match[2].toLowerCase(), value: Number(match[1]), base: Number(match[3]) },
+          reason: `percentage ${match[2].toLowerCase()}`
+        };
+      }
+
+      // 4. Dates.
+      const dates = text.match(/\b\d{4}-\d{1,2}-\d{1,2}\b/g) || [];
+      if (dates.length === 2) {
+        return { name: 'date_math', args: { kind: 'difference', start: dates[0], end: dates[1] }, reason: 'days between two dates' };
+      }
+      if (dates.length === 1) {
+        const kind = /\bweekday|day of (?:the )?week|what day\b/i.test(text) ? 'weekday'
+          : /\b(until|till|left|away)\b/i.test(text) ? 'days_until'
+            : 'weekday';
+        return { name: 'date_math', args: { kind, start: dates[0] }, reason: `date ${kind.replace('_', ' ')}` };
+      }
+
+      // 5. Clock.
+      if (/\b(what(?:'s| is)?\s+(?:the\s+)?(?:time|date)|what time is it|current time|time now|today'?s date)\b/i.test(text)) {
+        return { name: 'current_time', args: {}, reason: 'the device clock' };
+      }
+
+      // 6. Chat history.
+      match = text.match(/\b(?:earlier|previously|before|last time|my chats?|conversations?|history)\b(?:.*?\babout\b\s*(.+))?/i);
+      if (match && /\b(earlier|previously|before|last time|my chats?|conversations?|history)\b/i.test(text)) {
+        const query = (match[1] || text).trim();
+        return { name: 'search_history', args: { query }, reason: 'search saved conversations' };
+      }
+
+      // 7. Arithmetic. Only claim it when the expression evaluates cleanly.
+      if (/\d/.test(text) && /[-+*/^%!()]|sqrt|log|sin|cos|tan|median|mean|sum|product|factorial|\bpi\b|\be\b/i.test(text)) {
+        const expression = text
+          .replace(FILLER, ' ')
+          .replace(/[?=]+\s*$/, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .replace(/[−–—]/g, '-')
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/');
+        if (cai && typeof cai.evaluate === 'function' && expression) {
+          try {
+            const value = cai.evaluate(expression);
+            if (typeof value === 'number' && Number.isFinite(value)) {
+              return { name: 'calculate', args: { expression }, reason: 'arithmetic' };
+            }
+          } catch (error) { /* not a pure expression */ }
+        }
+      }
+      return null;
+    }
+
+    function splitClauses(prompt) {
+      return String(prompt || '')
+        .split(/\s+then\s+|\s*;\s*|\n+/i)
+        .map((clause) => clause.trim())
+        .filter(Boolean);
+    }
+
+    // "then add 3" only makes sense against the previous result, so it is
+    // recorded as an operation now and turned into an expression at run time.
+    function chainedOperation(clause) {
+      const match = String(clause || '').match(/^(?:add|plus)\s+(-?\d+(?:\.\d+)?)$/i);
+      if (match) return { op: '+', operand: match[1] };
+      const minus = String(clause || '').match(/^(?:subtract|minus|less)\s+(-?\d+(?:\.\d+)?)$/i);
+      if (minus) return { op: '-', operand: minus[1] };
+      const times = String(clause || '').match(/^(?:multiply(?:ed)?\s+by|times|x)\s+(-?\d+(?:\.\d+)?)$/i);
+      if (times) return { op: '*', operand: times[1] };
+      const divide = String(clause || '').match(/^(?:divide(?:d)?\s+by|over)\s+(-?\d+(?:\.\d+)?)$/i);
+      if (divide) return { op: '/', operand: divide[1] };
+      return null;
+    }
+
+    function plan(prompt) {
       const clauses = splitClauses(prompt);
+      if (!clauses.length) return [];
       const steps = [];
-      let last = null;
-      clauses.forEach((clause) => {
-        if (steps.length >= MAX_STEPS) return;
-        const call = planClause(clause, last, ctx);
-        if (!call) { last = null; return; }
-        const outcome = run(call.name, call.args, extra);
-        steps.push({
-          name: outcome.name,
-          args: outcome.args,
-          clause,
-          result: outcome.result,
-          error: outcome.error,
-          runtime: outcome.runtime
-        });
-        last = outcome.error ? null : (typeof outcome.value === 'number' ? outcome.value : null);
-      });
+      for (const clause of clauses) {
+        if (steps.length >= MAX_STEPS) break;
+        const chained = chainedOperation(clause);
+        if (chained) {
+          if (!steps.length) return [];
+          steps.push({ name: 'calculate', args: {}, chain: chained, reason: 'carry the previous result forward' });
+          continue;
+        }
+        const match = classify(clause);
+        if (!match) return [];
+        steps.push(match);
+      }
       return steps;
     }
 
-    function runLocal(prompt, extra) {
-      const ctx = withContext(extra);
-      const model = (extra && extra.model) || 'eltes-cai-1';
-      const history = (extra && extra.history) || [];
-      const nowDate = ctx.now();
-      const clauses = splitClauses(prompt);
+    function describe(step, run, args) {
+      if (run.error) return `**${step.name}** could not finish: ${run.error}`;
+      const first = String(run.result || '').split('\n')[0];
+      switch (step.name) {
+        case 'calculate':
+          return `**${first}** — \`${args.expression}\``;
+        case 'convert_units':
+          if (['c', 'f', 'k'].includes(String(args.from).toLowerCase())) {
+            return `**${first}** — ${format(args.value)} °${String(args.from).toUpperCase()} in °${String(args.to).toUpperCase()}`;
+          }
+          return `**${first}** — ${format(args.value)} ${args.from} to ${args.to}`;
+        case 'percentage':
+          if (args.mode === 'change') return `**${first}** — change from ${format(args.from)} to ${format(args.to)}`;
+          if (args.mode === 'off') return `**${first}** — ${format(args.value)}% off ${format(args.base)} (discount ${format((args.value / 100) * args.base)})`;
+          return `**${first}** — ${format(args.value)}% of ${format(args.base)}`;
+        case 'date_math':
+          return `**${first}** — ${args.kind.replace('_', ' ')} ${args.start}${args.end ? ` → ${args.end}` : ''}`;
+        case 'current_time':
+          return `It is **${first.split(' (')[0]}**${step.result && step.result.includes('(') ? ` (${step.result.split('(')[1].split(')')[0]})` : ''}`;
+        case 'search_history':
+          return first;
+        default:
+          return first;
+      }
+    }
+
+    function runLocal(prompt, options) {
+      const opts = options || {};
+      const planned = plan(prompt);
+      if (!planned.length) {
+        const fallback = cai && typeof cai.build === 'function'
+          ? cai.build(opts.model || 'eltes-cai-1', String(prompt || ''), opts.history || [], now())
+          : { text: 'The on-device model is not loaded.', intent: 'unavailable' };
+        return { intent: fallback.intent || 'cai', text: fallback.text, steps: [] };
+      }
+
       const steps = [];
-      const parts = [];
-      let last = null;
-
-      clauses.forEach((clause) => {
-        if (steps.length >= MAX_STEPS) return;
-        const call = planClause(clause, last, ctx);
-        if (!call) {
-          const routed = cai.build(model, clause, history, nowDate);
-          parts.push(routed.text);
-          last = null;
-          return;
+      const lines = [];
+      let failed = false;
+      let previous = null;
+      for (const step of planned) {
+        const args = step.chain
+          ? { expression: `${previous} ${step.chain.op} ${step.chain.operand}` }
+          : step.args;
+        const run = runTool(step.name, args);
+        steps.push(run);
+        if (run.error) {
+          lines.push(`**${step.name}** could not finish: ${run.error}`);
+          failed = true;
+          break;
         }
-        const outcome = run(call.name, call.args, extra);
-        steps.push({
-          name: outcome.name,
-          args: outcome.args,
-          clause,
-          result: outcome.result,
-          error: outcome.error,
-          runtime: outcome.runtime
-        });
-        if (outcome.error) {
-          parts.push(outcome.say);
-          last = null;
-          return;
-        }
-        parts.push(outcome.say || outcome.result);
-        last = typeof outcome.value === 'number' ? outcome.value : null;
-      });
+        lines.push(describe(step, run, args));
+        previous = typeof run.value === 'number' && Number.isFinite(run.value) ? run.value : null;
+      }
 
-      const text = parts.filter(Boolean).join('\n\n');
-      if (!steps.length) return { steps: [], text: '', intent: 'cai', usedTools: 0 };
-
-      const footer = `\n\n_On-device agent · ${steps.length} tool call${steps.length === 1 ? '' : 's'} · nothing left this browser._`;
-      return { steps, text: `${text}${footer}`, intent: 'agent', usedTools: steps.filter((step) => !step.error).length };
+      const footer = steps.length
+        ? `\n\n_On-device agent · ${plural(steps.length, 'tool call')} · nothing left this browser._`
+        : '';
+      const closing = failed ? '\n\nI stopped at the first failure rather than guessing the rest.' : '';
+      return {
+        intent: 'agent',
+        text: lines.join('\n\n') + closing + footer,
+        steps,
+        stopped: failed
+      };
     }
 
     return {
       version: VERSION,
       maxSteps: MAX_STEPS,
-      tools: () => tools.map((tool) => tool.name),
-      toolDefs,
-      run,
+      tools: () => TOOLS.map((tool) => ({ ...tool })),
+      toolDefs: () => TOOLS.filter((tool) => has(TOOLS, tool.name)).map((tool) => ({
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.parameters,
+        icon: tool.icon
+      })),
+      toolNames: () => TOOLS.map((tool) => tool.name),
+      hasTool: (name) => has(TOOLS, name),
+      run: runTool,
+      runTool,
       plan,
-      runLocal,
-      splitClauses,
-      planClause: (clause, last) => planClause(clause, last, withContext())
+      classify,
+      runLocal
     };
   }
 
-  return { create, VERSION, MAX_STEPS, splitClauses };
+  return { version: VERSION, maxSteps: MAX_STEPS, create };
 })();

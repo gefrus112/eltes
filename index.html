@@ -392,7 +392,7 @@
                 <div class="body">
                   <span class="fn">calculate</span>(expression)<br />
                   <span class="fn">convert_units</span>(value, from, to)<br />
-                  <span class="fn">percent</span>(mode, value, base)<br />
+                  <span class="fn">percentage</span>(mode, value, base)<br />
                   <span class="fn">date_math</span>(kind, start, end)
                 </div>
               </div>
@@ -496,8 +496,8 @@
             <h2>It calls tools.<br />It doesn't pretend to.</h2>
             <p>Eltes runs a real tool loop: the model requests a tool, the browser executes it, the result goes back into the conversation. With Eltes CAI-1 there is no model to ask — a deterministic planner picks the tools itself. Every call is timed and visible either way.</p>
             <ul class="check-list">
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Eight local tools</strong> — arithmetic, unit and temperature conversion, percentages, calendar maths, the clock, your own chat history, the glossary, and cited web search with your own key.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Works with no key</strong> — Agent mode is on by default, and on CAI-1 the planner runs and executes in the tab, so nothing is sent anywhere.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Eight tools</strong> — arithmetic, unit and temperature conversion, percentages, calendar maths, the clock, your own chat history, the glossary, and cited web search with your own key.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Works with no key</strong> — Agent mode is on by default. On CAI-1 the planner runs six of those tools in the tab, so nothing is sent anywhere.</span></li>
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic <code>tool_use</code>, streamed, up to four rounds.</span></li>
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Interruptible</strong> — stop mid-loop and keep every token already received.</span></li>
             </ul>

@@ -687,25 +687,8 @@
   }
 
   function toolConvertUnits(args) {
-    try {
-      const value = Number(args && args.value);
-      const from = String((args && args.from) || '').trim().toLowerCase();
-      const to = String((args && args.to) || '').trim().toLowerCase();
-      if (!Number.isFinite(value)) return { error: 'Value must be a finite number.' };
-      if (!from || !to) return { error: 'Both from and to units are required.' };
-      // Delegate to CAI's unit logic by faking a conversion prompt — keeps single source of truth
-      const now = new Date();
-      const prompt = `${value} ${from} to ${to}`;
-      const res = window.EltesCAI ? window.EltesCAI.build('eltes-cai-1', prompt, [], now) : null;
-      if (res && res.intent === 'units') {
-        // strip markdown ** markers for tool result clarity
-        const clean = res.text.replace(/\*\*/g, '').replace(/`/g, '');
-        return { result: clean };
-      }
-      return { error: `Cannot convert ${from} → ${to}. Supported kinds must match (e.g., km→mi, kg→lb, C→F, hours→minutes).` };
-    } catch (e) {
-      return { error: 'Conversion failed.' };
-    }
+    if (!AGENT) return { error: 'The on-device unit table is not loaded.' };
+    return viaAgent('convert_units', args);
   }
 
   function toolDefineTerm(args) {
@@ -757,19 +740,23 @@
     };
   }
 
+  // One implementation per tool: the agent runs it for the on-device planner
+  // and for a hosted model that asks for it by name.
+  function viaAgent(name, args) {
+    const run = AGENT.runTool(name, args || {});
+    return run.error ? { error: run.error } : { result: run.result };
+  }
+
   async function runTool(name, args) {
     const started = performance.now();
     let out;
-    if (name === 'calculate') out = safeCalculate(args && args.expression);
+    if (name === 'calculate') out = AGENT ? viaAgent('calculate', args) : safeCalculate(args && args.expression);
     else if (name === 'current_time') out = toolCurrentTime(args || {});
     else if (name === 'search_history') out = toolSearchHistory(args || {});
     else if (name === 'convert_units') out = toolConvertUnits(args || {});
     else if (name === 'define_term') out = toolDefineTerm(args || {});
     else if (name === 'web_search') out = await toolWebSearch(args || {});
-    else if (AGENT && AGENT.tools().includes(name)) {
-      const step = AGENT.run(name, args || {});
-      out = step.error ? { error: step.error } : { result: step.result };
-    }
+    else if (AGENT && AGENT.hasTool(name)) out = viaAgent(name, args);
     else out = { error: `Unknown tool: ${name}` };
     const text = out.error ? `Error: ${out.error}` : out.result;
     return {

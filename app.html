@@ -90,6 +90,9 @@
           <button class="mcp-open-btn" id="mcpOpenBtn" type="button" aria-haspopup="dialog" aria-label="Manage MCP connections, 0 connected" title="Connect a remote MCP server">
             <span data-icon="network" data-icon-size="14" aria-hidden="true"></span><span class="mcp-open-label">MCP</span><span class="mcp-count" id="mcpCount">0</span>
           </button>
+          <button class="mcp-open-btn" id="workspaceFilesBtn" type="button" aria-haspopup="dialog" aria-label="Open a selected local folder" title="Open a folder and add files to your draft">
+            <span data-icon="folder-open" data-icon-size="14" aria-hidden="true"></span><span class="mcp-open-label">Files</span>
+          </button>
           <button class="mcp-open-btn" id="localShellBtn" type="button" aria-haspopup="dialog" aria-label="Connect a local shell runner" title="Connect a supervised local shell runner">
             <span data-icon="terminal" data-icon-size="14" aria-hidden="true"></span><span class="mcp-open-label">Terminal</span>
           </button>
@@ -217,7 +220,7 @@
         </section>
         <section class="welcome-setup-step">
           <span class="welcome-step-number">03</span>
-          <div class="welcome-step-copy"><strong>Your workspace, your choice</strong><span>Chats, settings, and keys are stored in this browser. Prompts sent to a hosted model go to that provider. Tools are optional and require your approval for sensitive actions.</span></div>
+          <div class="welcome-step-copy"><strong>Your workspace, your choice</strong><span>Chats, settings, and keys stay in this browser. Use Files to select one folder; only files you add to the draft are shared when you send. Hosted prompts go to that provider. Terminal runs through a separate local runner, not inside an existing ChromeOS Terminal session.</span></div>
         </section>
         <div class="welcome-setup-footer"><span>Reopen with <span class="kbd">⌘</span><span class="kbd">K</span> → “Quick setup”.</span><button id="finishWelcomeSetupBtn" class="btn btn-primary btn-sm" type="button">Finish setup</button></div>
       </div>
@@ -605,18 +608,36 @@
     </div>
   </dialog>
 
+  <!-- ======================== selected local files ====================== -->
+  <dialog id="workspaceFilesDialog" class="workspace-files-dialog" aria-labelledby="workspaceFilesTitle">
+    <div class="dlg workspace-files-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="folder-open" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="workspaceFilesTitle">Selected local folder</h3><div class="sub">Eltes can only see the folder you choose here.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="workspaceFilesDialog" aria-label="Close folder access" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="workspace-files-content">
+        <div class="workspace-files-note"><span data-icon="shield-check" data-icon-size="15" aria-hidden="true"></span><span>Choose a folder to browse its top-level text and code files. File contents are added to your draft for review; nothing is sent to a model until you press Send. Access is kept in memory for this tab and is not saved by Eltes.</span></div>
+        <div class="workspace-files-actions"><button id="chooseWorkspaceFolderBtn" class="btn btn-primary btn-sm" type="button"><span data-icon="folder-open" data-icon-size="13"></span>Choose folder</button><button id="disconnectWorkspaceFolderBtn" class="btn btn-ghost btn-sm" type="button" hidden>Disconnect folder</button><span id="workspaceFilesStatus" role="status" aria-live="polite">No folder selected.</span></div>
+        <div id="workspaceFilesList" class="workspace-files-list" role="list" aria-label="Text and code files in the selected folder"><div class="workspace-files-empty">Select a folder to see supported text and code files.</div></div>
+        <p class="workspace-files-footnote">Only top-level files are listed; subfolders are not scanned. Files above 400 KB are rejected by the composer’s existing attachment limit.</p>
+      </div>
+    </div>
+  </dialog>
+
   <!-- ======================== local terminal runner ====================== -->
   <dialog id="localShellDialog" class="local-shell-dialog" aria-labelledby="localShellTitle">
     <div class="dlg local-shell-body">
       <div class="dlg-head">
         <span class="mcp-dialog-mark" data-icon="terminal" data-icon-size="17" aria-hidden="true"></span>
-        <div><h3 id="localShellTitle">Local terminal runner</h3><div class="sub">Connect only to your own Eltes server on this device.</div></div>
+        <div><h3 id="localShellTitle">Local terminal runner</h3><div class="sub">Run approved commands through your local Eltes server, not an existing terminal session.</div></div>
         <span class="grow"></span>
         <button class="icon-btn" data-close="localShellDialog" aria-label="Close terminal settings" data-icon="x" data-icon-size="17"></button>
       </div>
       <div class="local-shell-content">
         <div class="local-shell-warning"><span data-icon="triangle-alert" data-icon-size="15" aria-hidden="true"></span><span>Commands can read, change, or delete files with the server user’s permissions. Every command is shown for approval first. Output is returned to the selected model. Use only on a computer you control.</span></div>
-        <p class="local-shell-setup">Start the Eltes server locally with shell support enabled. Bash/macOS/Linux: <code>ELTES_ENABLE_SHELL=1 npm start</code>. PowerShell: <code>$env:ELTES_ENABLE_SHELL=1; npm start</code>. Copy the one-time pairing token printed by that terminal. After connecting, turn on Tools in the composer and use a hosted model with tool calling. This feature is not available on GitHub Pages or Vercel.</p>
+        <p class="local-shell-setup">Start the Eltes Node server locally with shell support enabled. Bash/macOS/Linux: <code>ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start</code>. PowerShell: <code>$env:ELTES_ENABLE_SHELL=1; $env:HOST='127.0.0.1'; npm start</code>. On Chromebook, start it from the Linux development terminal and use the local Eltes page, not the hosted PWA. Copy the one-time token printed by the server. It runs new commands as the server user; it does not attach to or read an existing terminal session. After connecting, turn on Tools and use a hosted model. This runner is unavailable on GitHub Pages or Vercel.</p>
         <label class="local-shell-label" for="localShellToken">One-time pairing token</label>
         <input id="localShellToken" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste token from your local server terminal" />
         <div class="local-shell-actions">

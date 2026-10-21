@@ -2423,6 +2423,100 @@
       toast(`${added} file${added === 1 ? '' : 's'} attached to this prompt`, 'paperclip');
     }
   }
+  let selectedWorkspaceDirectory = null;
+  let workspaceFileEntries = [];
+  function renderWorkspaceFileList() {
+    const list = $('#workspaceFilesList');
+    list.replaceChildren();
+    if (!selectedWorkspaceDirectory) {
+      const empty = document.createElement('div');
+      empty.className = 'workspace-files-empty';
+      empty.textContent = 'Select a folder to see supported text and code files.';
+      list.append(empty);
+      return;
+    }
+    if (!workspaceFileEntries.length) {
+      const empty = document.createElement('div');
+      empty.className = 'workspace-files-empty';
+      empty.textContent = 'No supported top-level text or code files were found.';
+      list.append(empty);
+      return;
+    }
+    workspaceFileEntries.forEach((entry) => {
+      const row = document.createElement('div');
+      row.className = 'workspace-file-row';
+      row.setAttribute('role', 'listitem');
+      const details = document.createElement('span');
+      details.className = 'workspace-file-details';
+      const name = document.createElement('strong');
+      name.textContent = entry.name;
+      const size = document.createElement('small');
+      size.textContent = `${entry.size.toLocaleString()} bytes`;
+      details.append(name, size);
+      const add = document.createElement('button');
+      add.className = 'btn btn-ghost btn-sm';
+      add.type = 'button';
+      add.disabled = entry.size > 400 * 1024;
+      add.textContent = entry.size > 400 * 1024 ? 'Over 400 KB' : 'Add to draft';
+      add.addEventListener('click', async () => {
+        try {
+          const file = await entry.handle.getFile();
+          await attachFiles([file]);
+        } catch (error) {
+          toast(`Could not read ${entry.name}: ${error.message || 'permission was not available.'}`, 'triangle-alert');
+        }
+      });
+      row.append(details, add);
+      list.append(row);
+    });
+  }
+  async function refreshWorkspaceFileList() {
+    const status = $('#workspaceFilesStatus');
+    if (!selectedWorkspaceDirectory) return renderWorkspaceFileList();
+    status.textContent = `Scanning top-level files in “${selectedWorkspaceDirectory.name}”…`;
+    const found = [];
+    let truncated = false;
+    try {
+      for await (const [name, handle] of selectedWorkspaceDirectory.entries()) {
+        if (handle.kind !== 'file') continue;
+        const ext = (name.split('.').pop() || '').toLowerCase();
+        if (!LANG_BY_EXT[ext]) continue;
+        if (found.length >= 80) { truncated = true; break; }
+        const file = await handle.getFile();
+        found.push({ name, size: file.size, handle });
+      }
+      workspaceFileEntries = found.sort((a, b) => a.name.localeCompare(b.name));
+      status.textContent = `${selectedWorkspaceDirectory.name} · ${found.length}${truncated ? '+' : ''} supported file${found.length === 1 ? '' : 's'}${truncated ? ' (first 80 shown)' : ''}`;
+      renderWorkspaceFileList();
+    } catch (error) {
+      selectedWorkspaceDirectory = null;
+      workspaceFileEntries = [];
+      $('#disconnectWorkspaceFolderBtn').hidden = true;
+      status.textContent = `Folder access ended: ${error.message || 'choose the folder again.'}`;
+      renderWorkspaceFileList();
+    }
+  }
+  $('#workspaceFilesBtn').addEventListener('click', () => openDialog($('#workspaceFilesDialog'), '#chooseWorkspaceFolderBtn'));
+  $('#chooseWorkspaceFolderBtn').addEventListener('click', async () => {
+    if (typeof window.showDirectoryPicker !== 'function') {
+      $('#workspaceFilesStatus').textContent = 'Folder access is not supported here. Use Attach to choose individual files instead.';
+      return;
+    }
+    try {
+      selectedWorkspaceDirectory = await window.showDirectoryPicker({ mode: 'read' });
+      $('#disconnectWorkspaceFolderBtn').hidden = false;
+      await refreshWorkspaceFileList();
+    } catch (error) {
+      if (error.name !== 'AbortError') $('#workspaceFilesStatus').textContent = `Could not open folder: ${error.message || 'try again.'}`;
+    }
+  });
+  $('#disconnectWorkspaceFolderBtn').addEventListener('click', () => {
+    selectedWorkspaceDirectory = null;
+    workspaceFileEntries = [];
+    $('#workspaceFilesStatus').textContent = 'Folder disconnected. Access is cleared for this tab.';
+    $('#disconnectWorkspaceFolderBtn').hidden = true;
+    renderWorkspaceFileList();
+  });
   $('#attachBtn').addEventListener('click', () => $('#attachInput').click());
   $('#attachInput').addEventListener('change', (e) => { attachFiles(e.target.files); e.target.value = ''; });
   const composerEl = $('#composer');

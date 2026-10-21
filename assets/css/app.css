@@ -1942,6 +1942,37 @@ body.compact .msg { padding: 9px 0; }
   .local-shell-dialog, .shell-command-approval-dialog { scroll-behavior: auto; }
 }
 
+/* User-selected local folder picker */
+.workspace-files-dialog { width: min(680px, calc(100vw - 28px)); max-height: min(86vh, 760px); padding: 0; border: 1px solid rgba(126, 159, 218, .2); border-radius: 14px; color: var(--text); background: #101b2c; box-shadow: 0 24px 90px rgba(0, 0, 0, .55); }
+.workspace-files-dialog::backdrop { background: rgba(1, 5, 12, .76); backdrop-filter: blur(5px); }
+.workspace-files-body .dlg-head { padding: 16px 18px; }
+.workspace-files-content { padding: 0 18px 18px; }
+.workspace-files-note { display: flex; align-items: flex-start; gap: 8px; padding: 11px 12px; border: 1px solid rgba(116, 164, 255, .16); border-radius: 9px; color: #aabbd4; background: rgba(56, 99, 162, .08); font-size: 10px; line-height: 1.65; }
+.workspace-files-note .icon { flex: 0 0 auto; color: #8fb8fb; }
+.workspace-files-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 13px 0 9px; }
+#workspaceFilesStatus { color: #899bb5; font-size: 9px; line-height: 1.5; }
+.workspace-files-list { display: flex; max-height: min(40vh, 330px); flex-direction: column; overflow: auto; border: 1px solid rgba(138, 166, 212, .14); border-radius: 9px; background: rgba(1, 5, 11, .35); }
+.workspace-files-empty { padding: 20px 12px; color: #798ba5; font-size: 10px; text-align: center; }
+.workspace-file-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 10px; border-bottom: 1px solid rgba(138, 166, 212, .09); }
+.workspace-file-row:last-child { border-bottom: 0; }
+.workspace-file-details { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.workspace-file-details strong { overflow: hidden; color: #d3e0f3; font-size: 10px; font-weight: 550; text-overflow: ellipsis; white-space: nowrap; }
+.workspace-file-details small { color: #788ba5; font: 8px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.workspace-file-row .btn { flex: 0 0 auto; }
+.workspace-files-footnote { margin: 9px 0 0; color: #7e8fa7; font-size: 9px; line-height: 1.55; }
+@media (max-width: 640px) {
+  .workspace-files-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 20px); }
+  .workspace-files-body .dlg-head { padding: 14px 12px; }
+  .workspace-files-content { padding: 0 12px 12px; }
+  .workspace-files-actions { align-items: flex-start; }
+  #workspaceFilesStatus { flex-basis: 100%; }
+  .workspace-file-row { gap: 7px; padding: 8px; }
+  .workspace-file-row .btn { padding-right: 8px; padding-left: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-files-dialog { scroll-behavior: auto; }
+}
+
 /* First-run workspace setup and PWA install guide */
 .empty-setup-button { margin: 13px auto 0; }
 .welcome-setup-dialog { width: min(680px, calc(100vw - 28px)); max-height: min(88vh, 760px); padding: 0; border: 1px solid rgba(126, 159, 218, .2); border-radius: 14px; color: var(--text); background: #101b2c; box-shadow: 0 24px 90px rgba(0, 0, 0, .55); }

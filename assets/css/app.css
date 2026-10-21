@@ -594,6 +594,7 @@ body.app {
 }
 .code pre code { font: inherit; white-space: pre; }
 .tok-key { color: #8b99ff; }
+.tok-var { color: #d7a8ff; }
 .tok-str { color: #74d6b0; }
 .tok-num { color: #f0b47c; }
 .tok-com { color: #4a5d7c; font-style: italic; }

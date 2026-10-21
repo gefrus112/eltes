@@ -192,35 +192,7 @@
   }
 
   /* ------------------------------- markdown ------------------------------- */
-  const KEYWORDS = new Set(
-    ('const let var function return if else for while await async import from export default new class extends ' +
-      'try catch finally throw typeof instanceof this super null undefined true false def elif in not and or None ' +
-      'True False lambda with as pass raise select where join order by group limit insert update delete create ' +
-      'table index on primary key foreign references begin commit rollback pub fn use mut impl struct enum match ' +
-      'switch case break continue do interface type public private static void int string bool float echo cd ' +
-      'export set local then fi done of is').split(/\s+/)
-  );
-  const LANGS = /^(js|javascript|jsx|ts|typescript|tsx|json|py|python|bash|sh|shell|zsh|sql|css|html|xml|go|rs|rust|yml|yaml|toml|diff|text)$/i;
-  const escapeCode = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-  function highlight(code, lang) {
-    if (!lang || !LANGS.test(lang)) return escapeCode(code);
-    const src = escapeCode(code);
-    const re = /(\/\/[^\n]*|#[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
-    return src.replace(re, (match, comment, str, num, word, offset) => {
-      if (comment) return `<span class="tok-com">${comment}</span>`;
-      if (str) return `<span class="tok-str">${str}</span>`;
-      if (num) return `<span class="tok-num">${num}</span>`;
-      if (word) {
-        if (KEYWORDS.has(word)) return `<span class="tok-key">${word}</span>`;
-        const after = src.slice(offset + word.length, offset + word.length + 2);
-        if (/^[A-Z]/.test(word)) return `<span class="tok-tag">${word}</span>`;
-        if (after.startsWith('(')) return `<span class="tok-fn">${word}</span>`;
-        return word;
-      }
-      return match;
-    });
-  }
+  const highlight = window.EltesCodeHighlighter.highlight;
 
   function inline(md) {
     const codes = [];
@@ -2118,7 +2090,7 @@
 
   /* -------------------------------- attach -------------------------------- */
   const LANG_BY_EXT = {
-    js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx', ts: 'ts', tsx: 'tsx', json: 'json',
+    js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx', ts: 'ts', tsx: 'tsx', json: 'json', php: 'php',
     css: 'css', scss: 'css', html: 'html', xml: 'xml', py: 'python', go: 'go',
     rs: 'rust', java: 'java', c: 'c', h: 'c', cpp: 'cpp', sh: 'bash', sql: 'sql',
     yml: 'yaml', yaml: 'yaml', toml: 'toml', env: 'bash', csv: 'csv', log: 'text',

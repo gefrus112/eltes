@@ -163,6 +163,7 @@ window.EltesReel = (function () {
       start: 0,
       duration: kind === 'text' ? 4 : 5,
       in: 0,
+      speed: 1,
       x: 0.5,
       y: 0.5,
       scale: 1,
@@ -181,7 +182,9 @@ window.EltesReel = (function () {
   }
 
   function createTextClip(presetId, patch) {
-    const preset = TEXT_PRESETS.find((entry) => entry.id === presetId) || TEXT_PRESETS[0];
+    const preset = presetId && typeof presetId === 'object'
+      ? presetId
+      : (TEXT_PRESETS.find((entry) => entry.id === presetId) || TEXT_PRESETS[0]);
     const clip = createClip('text', {
       name: preset.name,
       x: preset.x,
@@ -206,6 +209,22 @@ window.EltesReel = (function () {
   }
 
   const clipEnd = (clip) => (Number(clip.start) || 0) + (Number(clip.duration) || 0);
+
+  const SPEED_MIN = 0.25;
+  const SPEED_MAX = 4;
+
+  /** Playback speed of a clip, clamped to what a video element accepts. */
+  function clipSpeed(clip) {
+    const value = num(clip && clip.speed, 1);
+    return clamp(value, SPEED_MIN, SPEED_MAX);
+  }
+
+  /** Where the source should be at `time` for a clip, honouring its speed. */
+  function sourceTime(clip, time) {
+    const local = Math.max(0, num(time, 0) - (Number(clip.start) || 0));
+    return (Number(clip.in) || 0) + local * clipSpeed(clip);
+  }
+
   const musicEnd = (track) => (Number(track.start) || 0) + (Number(track.duration) || 0);
 
   function projectLength(project) {
@@ -242,7 +261,7 @@ window.EltesReel = (function () {
     right.id = uid(clip.kind === 'text' ? 't' : 'c');
     right.start = time;
     right.duration = clip.duration - offset;
-    right.in = (clip.in || 0) + offset;
+    right.in = (clip.in || 0) + offset * (Number(clip.speed) || 1);
     right.animation = Object.assign({}, clip.animation, { in: 'none', inDur: 0 });
     if (clip.kind === 'text') {
       right.animation.out = clip.animation.out;
@@ -876,9 +895,70 @@ window.EltesReel = (function () {
 
   const extensionFor = (mime) => (/mp4/i.test(mime) ? 'mp4' : 'webm');
 
+  /* ------------------------------ the libraries --------------------------- */
+
+  const library = () => (typeof window !== 'undefined' && window.EltesReelLibrary) || null;
+
+  /** The eight built-in looks, then the four hundred library looks. */
+  function looks() {
+    const lib = library();
+    const extra = lib && Array.isArray(lib.EFFECT_LIBRARY) ? lib.EFFECT_LIBRARY : [];
+    return EFFECT_PRESETS.concat(extra);
+  }
+
+  /** Look up a look by id across the built-in set and the library. */
+  function look(id) {
+    const found = EFFECT_PRESETS.find((entry) => entry.id === id);
+    if (found) return found;
+    const lib = library();
+    return (lib && lib.effectById(id)) || null;
+  }
+
+  /** The five built-in text styles, then the two hundred library titles. */
+  function titles() {
+    const lib = library();
+    const extra = lib && Array.isArray(lib.TITLE_LIBRARY) ? lib.TITLE_LIBRARY : [];
+    return TEXT_PRESETS.concat(extra);
+  }
+
+  function titlePreset(id) {
+    const found = TEXT_PRESETS.find((entry) => entry.id === id);
+    if (found) return found;
+    const lib = library();
+    return (lib && lib.titleById(id)) || null;
+  }
+
+  /** Starter templates, as plain descriptions for the pane. */
+  function templates() {
+    const lib = library();
+    return lib && Array.isArray(lib.TEMPLATES) ? lib.TEMPLATES : [];
+  }
+
+  /**
+   * Build a template into project-ready pieces. The caller owns the project:
+   * it sets the canvas, replaces the background, pushes the clips and offers
+   * to add `music` (which lives in the free-music bench, not the model).
+   */
+  function template(id) {
+    const lib = library();
+    if (!lib || typeof lib.buildTemplate !== 'function') return null;
+    const built = lib.buildTemplate(id, api);
+    if (!built) return null;
+    return {
+      id: built.id,
+      name: built.name,
+      width: built.width,
+      height: built.height,
+      background: built.background,
+      music: built.music,
+      clips: built.clips,
+      duration: projectLength({ clips: built.clips, music: [] })
+    };
+  }
+
   /* ------------------------------ public API ------------------------------ */
 
-  return {
+  const api = {
     VERSION,
     STORAGE_KEY,
     SETTINGS_KEY,
@@ -888,6 +968,10 @@ window.EltesReel = (function () {
     createTextClip,
     createMusic,
     clipEnd,
+    clipSpeed,
+    sourceTime,
+    SPEED_MIN,
+    SPEED_MAX,
     musicEnd,
     projectLength,
     clipsAt,
@@ -939,7 +1023,16 @@ window.EltesReel = (function () {
     TEXT_PRESETS,
     ANIMATIONS,
     TRANSITIONS,
+    // libraries
+    looks,
+    look,
+    titles,
+    titlePreset,
+    templates,
+    template,
     // filled in by reel-ui.js
     mount: null
   };
+
+  return api;
 })();

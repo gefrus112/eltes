@@ -9,9 +9,10 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 | Page | What it is |
 | --- | --- |
 | `index.html` | Landing page and model catalogue |
-| `app.html` | Chat workspace, streaming, local history, settings, custom endpoints |
+| `app.html` | Chat workspace, streaming, local history, settings, custom endpoints, and a video-editor tab |
+| `video.html` | On-device single-clip video trimming, color adjustments, text overlays, and browser export |
 | `auth.html` | Local profile and provider-key utilities; it is not a hosted identity service |
-| `docs.html` | App, local-model, proxy, deployment, privacy, and troubleshooting guide |
+| `docs.html` | App, video editor, local-model, proxy, deployment, privacy, and troubleshooting guide |
 
 ## Features
 
@@ -22,6 +23,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Local-first workspace:** chat history, profiles, settings, and exports are controlled in your browser. No analytics or telemetry are included.
 - **Agent tools:** local calculation, clock, and chat-history search can be offered to compatible hosted models. Tool results are sent back as part of the model request.
 - **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
+- **Video editor:** browser-local single-clip trimming, brightness/contrast/saturation controls and presets, configurable title/caption overlays, and MediaRecorder export when supported by the browser. Video is not uploaded; codec and audio-capture support vary by browser.
 
 ## Run the app and local API
 
@@ -91,7 +93,7 @@ The `.github/workflows/pages.yml` workflow publishes the static site. It does no
 
 ## Windows launcher
 
-`downloads/eltes-windows.zip` includes the `.bat` launcher, PowerShell helper, static site, and documentation. Unzip and run `eltes.bat`; it opens the local workspace and serves only files. It does not start the Node API proxy. To use key testing and the proxy on Windows, configure a Vercel backend in Eltes settings. The launcher requires Windows 10/11 plus Python 3 or Node 18+.
+`downloads/eltes-windows.zip` includes the `.bat` launcher, PowerShell helper, static site (including `video.html`), and documentation. Unzip and run `eltes.bat`; it opens the local workspace and serves only files. The video editor also runs locally in the browser and does not upload source footage. It does not start the Node API proxy. To use key testing and the proxy on Windows, configure a Vercel backend in Eltes settings. The launcher requires Windows 10/11 plus Python 3 or Node 18+.
 
 ## Validate and rebuild
 

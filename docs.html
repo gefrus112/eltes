@@ -30,6 +30,7 @@
         <nav class="nav-links" aria-label="Primary">
           <a href="index.html#features">Features</a>
           <a href="index.html#models">Models</a>
+          <a href="video.html">Video editor</a>
           <a href="docs.html" class="active" aria-current="page">Docs</a>
           <a href="index.html#pricing">Pricing</a>
         </nav>
@@ -47,6 +48,7 @@
   <div class="mobile-menu" id="mobileMenu">
     <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="video.html">Video editor <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
@@ -91,6 +93,7 @@
         <a href="#models"><span data-icon="layers" data-icon-size="14"></span>Models</a>
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
+        <a href="#video-editor"><span data-icon="video" data-icon-size="14"></span>Video editor</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
 
@@ -531,6 +534,30 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <p class="dim" style="margin-top:12px;font-size:12.5px">On Windows and Linux, use <code>Ctrl</code> wherever <code>⌘</code> is shown. The interface relabels the modifier automatically.</p>
         </section>
 
+        <section id="video-editor">
+          <h2>Video editor <a class="anchor" href="#video-editor" aria-label="Link to video editor" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes Video Editor is a lightweight, browser-native tool for quick cuts. Open <a class="inline-link" href="video.html">the video editor</a> from the workspace tab or this link. Choose a video file or drop it onto the preview; the file is read locally and is not uploaded to an Eltes service.</p>
+
+          <h3>Make a quick edit</h3>
+          <ol>
+            <li><strong>Load a clip.</strong> Select a video your browser can play. MP4 with H.264 and WebM are common compatible choices; support for other containers and codecs varies by browser.</li>
+            <li><strong>Set the trim.</strong> Enter the start and end times in seconds, or use the preview scrubber to find a moment. Only the selected range is exported.</li>
+            <li><strong>Adjust the look.</strong> Choose Original, Cinema, Mono or Warm, then fine-tune brightness, contrast and saturation. Presets are starting points and can be adjusted freely.</li>
+            <li><strong>Add a title or caption.</strong> Type up to 120 characters, choose Inter, Georgia or monospace, and set the size, color, vertical position, alignment and backdrop. The overlay appears in the preview and is rendered into the export for the selected trim.</li>
+            <li><strong>Export.</strong> Pick Standard or High quality and select Export video. The browser renders the clip on-device; keep the page open until the download begins.</li>
+          </ol>
+
+          <div class="callout">
+            <span data-icon="shield-check" data-icon-size="15"></span>
+            <span><strong>Local processing.</strong> The editor uses a local file URL, canvas filters and the browser's MediaRecorder API. It does not send video to an AI provider or upload it to an Eltes backend. Your original file is not modified.</span>
+          </div>
+
+          <h3>Export and compatibility</h3>
+          <p>Export format is selected from formats supported by the current browser, usually WebM and sometimes MP4. The quality menu changes the recording bitrate, not the source resolution; exports are capped at 1920 pixels on the longest side. Audio is carried through when the browser exposes the video's audio track to the recorder. Browser support for canvas capture, audio capture, MediaRecorder and codecs differs, so an export can be silent or unavailable on some browser and codec combinations. If a file will not load or export, try a current Chrome, Edge or Firefox build and a browser-playable MP4 or WebM.</p>
+          <p class="dim">This is a focused single-clip tool, not a multitrack editor: it does not mix audio, add transitions, combine clips or save a project file. Large or high-resolution videos can use substantial memory and processor time. The current edit is kept in the open page; export or record your settings before leaving.</p>
+          <p><a class="btn btn-ghost btn-sm" href="video.html"><span data-icon="video" data-icon-size="14"></span>Open the video editor</a></p>
+        </section>
+
         <section id="downloads">
           <h2>Downloads <a class="anchor" href="#downloads" aria-label="Link to downloads" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>Everything Eltes ships is static. The Windows download is the same site wrapped in a portable launcher, so the only requirement is a way to serve files locally.</p>
@@ -548,6 +575,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 ├── app.html
 ├── auth.html
 ├── docs.html
+├── video.html          <span class="c"># local video editor</span>
 └── assets/ …           <span class="c"># css, js, fonts, icons</span></code></pre>
           </div>
 
@@ -751,6 +779,7 @@ eltes.bat --port 8080</code></pre>
         <a href="#models">Models</a>
         <a href="#agent">Agent &amp; tools</a>
         <a href="#chat">Chats &amp; export</a>
+        <a href="#video-editor">Video editor</a>
         <a href="#settings">Settings</a>
         <a href="#shortcuts">Shortcuts</a>
         <a href="#downloads">Downloads</a>
@@ -775,6 +804,7 @@ eltes.bat --port 8080</code></pre>
         <div class="footer-col">
           <h4>Product</h4>
           <a href="app.html">Open the app</a>
+          <a href="video.html">Video editor</a>
           <a href="index.html#models">Models</a>
           <a href="index.html#features">Features</a>
           <a href="index.html#pricing">Pricing</a>
@@ -785,6 +815,7 @@ eltes.bat --port 8080</code></pre>
           <a href="#api-keys">API keys</a>
           <a href="#providers">Providers &amp; CORS</a>
           <a href="#agent">Agent tools</a>
+          <a href="#video-editor">Video editor guide</a>
         </div>
         <div class="footer-col">
           <h4>Project</h4>

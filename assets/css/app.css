@@ -1682,3 +1682,39 @@ body.compact .msg { padding: 9px 0; }
 }
 .code-head .code-preview { width: 27px; min-width: 27px; justify-content: center; padding: 0; color: #9bbcff; }
 .code-head .code-preview:hover { color: #d9e6ff; background: rgba(94,144,255,.12); }
+
+/* Lightweight browser-based video editor entry point */
+.video-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(105, 149, 232, .2);
+  border-radius: 8px;
+  color: #b9c9e8;
+  background: rgba(72, 114, 192, .09);
+  font-size: 11px;
+  font-weight: 550;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+.video-tab:hover, .video-tab:focus-visible {
+  color: #e0eaff;
+  border-color: rgba(123, 164, 244, .4);
+  background: rgba(72, 114, 192, .17);
+}
+.video-tab:focus-visible { outline: 2px solid #7ca6ff; outline-offset: 2px; }
+.video-tab[aria-current="page"] {
+  color: #dce8ff;
+  border-color: rgba(123, 164, 244, .34);
+  background: rgba(72, 114, 192, .2);
+}
+@media (max-width: 700px) {
+  .video-tab { width: 34px; min-width: 34px; justify-content: center; padding: 0; }
+  .video-tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .video-tab { transition: none; }
+}

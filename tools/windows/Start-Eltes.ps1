@@ -10,12 +10,14 @@
     powershell -ExecutionPolicy Bypass -File .\Start-Eltes.ps1 -Port 8080
     powershell -ExecutionPolicy Bypass -File .\Start-Eltes.ps1 -Shortcut
     powershell -ExecutionPolicy Bypass -File .\Start-Eltes.ps1 -NoBrowser
+    powershell -ExecutionPolicy Bypass -File .\Start-Eltes.ps1 -EnableShell  # risky, opt-in
 #>
 [CmdletBinding()]
 param(
   [int]$Port = 4173,
   [switch]$Shortcut,
-  [switch]$NoBrowser
+  [switch]$NoBrowser,
+  [switch]$EnableShell
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,17 +70,26 @@ foreach ($candidate in @('python', 'py')) {
   }
 }
 
-$node = (Get-Command node -ErrorAction SilentlyContinue)
-$serve = $null
-if ($python) { $serve = 'python' }
-elseif ($node) {
-  $serve = 'node'
+$node = Get-Command node -ErrorAction SilentlyContinue
+if ($node) {
+  try {
+    $nodeVersionText = (& $node.Source --version 2>&1 | Out-String).Trim().TrimStart('v')
+    if ($LASTEXITCODE -ne 0 -or [version]$nodeVersionText -lt [version]'18.0') { $node = $null }
+  } catch { $node = $null }
 }
+$serve = $null
+if ($node) { $serve = 'node' }
+elseif ($python) { $serve = 'python' }
 
 if (-not $serve) {
   Write-Warn2 "Eltes needs Python 3 or Node.js 18+ to serve its files."
   Write-Warn2 "Install one of them, then run eltes.bat again."
   Write-Warn2 "Python: https://www.python.org/downloads/windows/"
+  exit 1
+}
+if ($EnableShell -and -not $node) {
+  Write-Warn2 "The supervised local runner requires Node.js 18 or newer."
+  Write-Warn2 "Install Node.js, then run eltes.bat --shell."
   exit 1
 }
 
@@ -115,36 +126,18 @@ if (-not $NoBrowser) {
 }
 
 try {
-  if ($serve -eq 'python') {
-    & $python -m http.server $Port --bind 127.0.0.1
+  if ($serve -eq 'node') {
+    $env:PORT = "$Port"
+    $env:HOST = '127.0.0.1'
+    if ($EnableShell) { $env:ELTES_ENABLE_SHELL = '1' }
+    else { Remove-Item Env:ELTES_ENABLE_SHELL -ErrorAction SilentlyContinue }
+    & $node.Source (Join-Path $root 'tools\local-server.mjs')
   } else {
-    # tiny, dependency-free static server for Node 18+
-    $js = @'
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const root = process.cwd();
-const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json', '.svg':'image/svg+xml', '.png':'image/png', '.ico':'image/x-icon', '.woff2':'font/woff2', '.txt':'text/plain; charset=utf-8', '.md':'text/markdown; charset=utf-8', '.zip':'application/zip', '.webmanifest':'application/manifest+json' };
-const port = Number(process.argv[2] || 4173);
-http.createServer((req, res) => {
-  const raw = decodeURIComponent((req.url || '/').split('?')[0]);
-  let file = path.join(root, raw === '/' ? 'index.html' : raw);
-  if (!file.startsWith(root)) { res.writeHead(403); return res.end('Forbidden'); }
-  fs.stat(file, (err, stat) => {
-    if (!err && stat.isDirectory()) file = path.join(file, 'index.html');
-    fs.readFile(file, (error, data) => {
-      if (error) { res.writeHead(404, { 'content-type': 'text/plain' }); return res.end('Not found'); }
-      res.writeHead(200, { 'content-type': types[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': 'no-cache' });
-      res.end(data);
-    });
-  });
-}).listen(port, '127.0.0.1');
-'@
-    $tmp = Join-Path $env:TEMP 'eltes-server.cjs'
-    Set-Content -Path $tmp -Value $js -Encoding UTF8
-    & $node.Source $tmp $Port
+    Write-Warn2 "Node.js was not found; using Python's static server. Local API routes are unavailable."
+    & $python -m http.server $Port --bind 127.0.0.1
   }
 } finally {
+  Remove-Item Env:ELTES_ENABLE_SHELL -ErrorAction SilentlyContinue
   Write-Host ""
   Write-Ok "Eltes server stopped."
 }

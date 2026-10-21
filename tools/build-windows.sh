@@ -10,6 +10,10 @@ cd "$ROOT"
 cp index.html app.html auth.html docs.html video.html 404.html site.webmanifest README.md LICENSE NOTICE.md "$DEST/"
 cp -r assets "$DEST/"
 cp tools/windows/eltes.bat tools/windows/Start-Eltes.ps1 tools/windows/README-WINDOWS.txt "$DEST/"
+cp package.json "$DEST/"
+mkdir -p "$DEST/tools"
+cp -r api lib "$DEST/"
+cp tools/local-server.mjs tools/shell-runner.mjs "$DEST/tools/"
 mkdir -p downloads
 rm -f downloads/eltes-windows.zip
 (cd "$STAGE" && zip -qr9 "$ROOT/downloads/eltes-windows.zip" eltes-windows)

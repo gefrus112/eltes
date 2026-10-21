@@ -37,6 +37,12 @@ npm start
 
 `npm start` serves the site and local API routes together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, and `/api/chat`. Stop the server with Ctrl+C. The local server has no user authentication; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`.
 
+### Supervised local command runner (opt-in)
+
+Local execution is disabled by default. On your own computer, start Node with `ELTES_ENABLE_SHELL=1 npm start` (PowerShell: `$env:ELTES_ENABLE_SHELL='1'; npm start`). Enter the one-time token printed by the terminal in Eltes' **Terminal** panel. This runner is available only through the local Node server, not GitHub Pages or Vercel. Use a hosted model with tool calling enabled; CAI does not invoke tools. Each exact command is displayed and requires explicit approval in the browser before execution. The command output is returned to the selected model.
+
+This is a powerful, unsandboxed shell running as your OS account; it can read/change files and make network requests. Only enable it on a computer you control. It enforces loopback client checks, same-origin requests, a fixed starting directory, a 30-second timeout, 4,000-character command limit, and 32 KiB output cap. The starting directory is not a filesystem sandbox: commands may navigate to and modify other locations allowed to your OS account. The token stays in browser memory and is revoked when the server restarts. Do not expose an enabled server to an untrusted network.
+
 For a static-only preview, Python also works:
 
 ```bash
@@ -93,7 +99,7 @@ The `.github/workflows/pages.yml` workflow publishes the static site. It does no
 
 ## Windows launcher
 
-`downloads/eltes-windows.zip` includes the `.bat` launcher, PowerShell helper, static site (including `video.html`), and documentation. Unzip and run `eltes.bat`; it opens the local workspace and serves only files. The video editor also runs locally in the browser and does not upload source footage. It does not start the Node API proxy. To use key testing and the proxy on Windows, configure a Vercel backend in Eltes settings. The launcher requires Windows 10/11 plus Python 3 or Node 18+.
+`downloads/eltes-windows.zip` includes the `.bat` launcher, PowerShell helper, local API server, static site (including `video.html`), and documentation. Unzip and run `eltes.bat`; with Node.js it starts the local API, otherwise Python serves static files only. To explicitly enable local commands, use `eltes.bat --shell` (Node.js 18+ required); execution remains disabled by default. See `README-WINDOWS.txt` for the security limits and warnings. The video editor runs locally in the browser and does not upload source footage. The launcher requires Windows 10/11 plus Python 3 or Node 18+.
 
 ## Validate and rebuild
 

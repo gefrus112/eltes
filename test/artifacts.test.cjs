@@ -31,6 +31,7 @@ test('agent only stores an approved artifact and exposes a download control', ()
   assert.match(app, /download\(artifactTool\.artifact\.filename, artifactTool\.artifact\.content/);
   assert.match(page, /id="artifactApprovalDialog"/);
   assert.match(page, /id="approveArtifactBtn"/);
-  assert.match(docs, /Commands are never run by the browser/);
-  assert.match(docs, /inspect and run suggested terminal commands yourself/);
+  assert.match(docs, /Local command execution is disabled by default/);
+  assert.match(docs, /every exact command must be approved in the browser first/);
+  assert.match(docs, /Commands are unsandboxed/);
 });

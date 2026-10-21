@@ -453,6 +453,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
               <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
               <tr><td><code>create_file</code></td><td><code>{ filename, content }</code></td><td>After you approve the full contents, stores one text file in the chat as a download (up to 100 KiB each; 10 files / 800 KiB per chat)</td></tr>
+              <tr><td><code>run_shell</code></td><td><code>{ command }</code></td><td>Only when connected to an opt-in local Node runner; each exact command requires browser approval. Commands run with your OS account permissions and are not sandboxed.</td></tr>
             </tbody>
           </table>
 
@@ -469,7 +470,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
           <div class="callout tip">
             <span data-icon="wrench" data-icon-size="15"></span>
-            <span><strong>Commands are never run by the browser.</strong> Eltes can prepare a downloadable source file only after showing you its full contents for approval. It cannot execute shell commands, run builds, or write into project folders; inspect and run suggested terminal commands yourself. Arithmetic, time and history search stay local. MCP calls go directly to the connected server only after approval.</span>
+            <span><strong>Local command execution is disabled by default.</strong> On a computer you control, start the Node server with <code>ELTES_ENABLE_SHELL=1 npm start</code>, then connect using its one-time token in the Terminal panel. A hosted model with tool calling can request commands, but every exact command must be approved in the browser first. Commands are unsandboxed and run with your OS account permissions. Output is returned to the model. The runner accepts only loopback/same-origin requests and starts commands in the repository workspace, but this is not a filesystem sandbox; commands can access other paths allowed to your account. Execution is limited to 30 seconds and 32 KiB of output. It is unavailable on GitHub Pages and Vercel. File downloads and MCP calls also require their own approvals.</span>
           </div>
         </section>
 
@@ -578,7 +579,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="downloads">
           <h2>Downloads <a class="anchor" href="#downloads" aria-label="Link to downloads" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Everything Eltes ships is static. The Windows download is the same site wrapped in a portable launcher, so the only requirement is a way to serve files locally.</p>
+          <p>The web UI is static. The Windows download also includes an optional local Node backend for transient BYOK and, only when explicitly enabled, the supervised local command runner.</p>
 
           <div class="doc-code">
             <div class="bar">
@@ -767,7 +768,7 @@ eltes.bat --port 8080</code></pre>
             </details>
             <details>
               <summary>What is the Windows .bat file?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p><code>eltes.bat</code> is a readable launcher included in <a class="inline-link" href="#downloads">eltes-windows.zip</a>. It finds Python or Node, starts a static server on <code>127.0.0.1:4173</code> and opens the workspace. It does not install a service, touch the registry or need admin rights.</p>
+              <p><code>eltes.bat</code> is a readable launcher included in <a class="inline-link" href="#downloads">eltes-windows.zip</a>. It uses Node.js for the local API when available, otherwise Python for static files, binds to <code>127.0.0.1:4173</code>, and opens the workspace. It does not install a service or need admin rights. The risky local command runner is disabled unless launched with <code>eltes.bat --shell</code>; Node.js 18+ is required, and each command still needs browser approval.</p>
             </details>
             <details>
               <summary>What happens to my chats if I clear site data?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>

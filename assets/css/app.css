@@ -1901,3 +1901,43 @@ body.compact .msg { padding: 9px 0; }
 @media (prefers-reduced-motion: reduce) {
   .artifact-download { transition: none; }
 }
+
+/* Opt-in local command runner and per-command review */
+.local-shell-dialog, .shell-command-approval-dialog { width: min(610px, calc(100vw - 28px)); max-height: min(86vh, 760px); padding: 0; border: 1px solid rgba(126, 159, 218, .2); border-radius: 14px; color: var(--text); background: #101b2c; box-shadow: 0 24px 90px rgba(0, 0, 0, .55); }
+.local-shell-dialog::backdrop, .shell-command-approval-dialog::backdrop { background: rgba(1, 5, 12, .76); backdrop-filter: blur(5px); }
+.local-shell-body .dlg-head, .shell-command-approval-body .dlg-head { padding: 16px 18px; }
+.local-shell-content { padding: 0 18px 18px; }
+.local-shell-warning { display: flex; align-items: flex-start; gap: 8px; padding: 11px 12px; border: 1px solid rgba(235, 165, 93, .22); border-radius: 9px; color: #e1bf92; background: rgba(157, 89, 32, .1); font-size: 10px; line-height: 1.6; }
+.local-shell-warning .icon { flex: 0 0 auto; color: #e8b36b; }
+.local-shell-setup { margin: 12px 0; color: #9eacc1; font-size: 10px; line-height: 1.7; }
+.local-shell-setup code { color: #c5d6f2; overflow-wrap: anywhere; }
+.local-shell-label { display: block; margin: 13px 0 6px; color: #b8c7dd; font-size: 10px; font-weight: 550; }
+.local-shell-content input { width: 100%; height: 37px; padding: 0 10px; border: 1px solid rgba(138, 166, 212, .18); border-radius: 8px; outline: none; color: #e1eafa; background: rgba(1, 5, 11, .55); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.local-shell-content input:focus { border-color: rgba(116, 164, 255, .48); box-shadow: 0 0 0 3px rgba(56, 118, 255, .1); }
+.local-shell-content input:disabled { opacity: .56; }
+.local-shell-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 11px; }
+.local-shell-status { color: #94a2b9; font-size: 9px; line-height: 1.5; }
+.local-shell-status.connected { color: #84d5b5; }
+.local-shell-status.error { color: #f1a1a9; }
+.local-shell-actions .btn { flex: 0 0 auto; }
+#disconnectLocalShellBtn { margin-top: 11px; }
+#disconnectLocalShellBtn[hidden] { display: none; }
+.shell-command-approval-body { width: min(660px, calc(100vw - 28px)); }
+.shell-command-approval-body .dlg-head { padding-bottom: 12px; }
+.shell-approval-workspace { display: flex; flex-direction: column; gap: 5px; margin: 0 18px 10px; }
+.shell-approval-workspace > span { color: #7889a2; font: 8px ui-monospace, monospace; letter-spacing: .12em; }
+.shell-approval-workspace strong { color: #bdcce1; font: 10px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.shell-approval-command { max-height: 36vh; overflow: auto; margin: 0 18px; padding: 12px; border: 1px solid rgba(138, 166, 212, .17); border-radius: 8px; color: #d7e5fb; background: rgba(1, 5, 11, .65); font: 11px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+.shell-approval-warning { margin: 12px 18px 0; color: #e1b779; font-size: 9px; line-height: 1.6; }
+.shell-command-approval-body .dlg-actions { justify-content: flex-end; padding: 14px 18px 17px; }
+@media (max-width: 640px) {
+  .local-shell-dialog, .shell-command-approval-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 20px); }
+  .local-shell-content { padding: 0 12px 12px; }
+  .local-shell-actions { align-items: flex-end; }
+  .local-shell-status { max-width: 62%; }
+  .shell-approval-command { max-height: 35vh; margin: 0 12px; }
+  .shell-approval-workspace, .shell-approval-warning { margin-right: 12px; margin-left: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .local-shell-dialog, .shell-command-approval-dialog { scroll-behavior: auto; }
+}

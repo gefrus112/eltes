@@ -90,6 +90,9 @@
           <button class="mcp-open-btn" id="mcpOpenBtn" type="button" aria-haspopup="dialog" aria-label="Manage MCP connections, 0 connected" title="Connect a remote MCP server">
             <span data-icon="network" data-icon-size="14" aria-hidden="true"></span><span class="mcp-open-label">MCP</span><span class="mcp-count" id="mcpCount">0</span>
           </button>
+          <button class="mcp-open-btn" id="localShellBtn" type="button" aria-haspopup="dialog" aria-label="Connect a local shell runner" title="Connect a supervised local shell runner">
+            <span data-icon="terminal" data-icon-size="14" aria-hidden="true"></span><span class="mcp-open-label">Terminal</span>
+          </button>
           <a class="video-tab" href="video.html" aria-label="Open video editor">
             <span data-icon="video" data-icon-size="15" aria-hidden="true"></span>
             <span class="video-tab-label">Video editor</span>
@@ -569,6 +572,43 @@
         <p class="agent-instructions-note">These instructions are included in hosted model requests for this chat. They are not applied to the on-device Eltes CAI helper. Don’t put secrets here.</p>
         <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="clearAgentInstructions" type="button">Clear</button><span class="grow"></span><button class="btn btn-primary btn-sm" id="saveAgentInstructions" type="button">Save instructions</button></div>
       </div>
+    </div>
+  </dialog>
+
+  <!-- ======================== local terminal runner ====================== -->
+  <dialog id="localShellDialog" class="local-shell-dialog" aria-labelledby="localShellTitle">
+    <div class="dlg local-shell-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="terminal" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="localShellTitle">Local terminal runner</h3><div class="sub">Connect only to your own Eltes server on this device.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="localShellDialog" aria-label="Close terminal settings" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="local-shell-content">
+        <div class="local-shell-warning"><span data-icon="triangle-alert" data-icon-size="15" aria-hidden="true"></span><span>Commands can read, change, or delete files with the server user’s permissions. Every command is shown for approval first. Output is returned to the selected model. Use only on a computer you control.</span></div>
+        <p class="local-shell-setup">Start the Eltes server locally with shell support enabled. Bash/macOS/Linux: <code>ELTES_ENABLE_SHELL=1 npm start</code>. PowerShell: <code>$env:ELTES_ENABLE_SHELL=1; npm start</code>. Copy the one-time pairing token printed by that terminal. After connecting, turn on Tools in the composer and use a hosted model with tool calling. This feature is not available on GitHub Pages or Vercel.</p>
+        <label class="local-shell-label" for="localShellToken">One-time pairing token</label>
+        <input id="localShellToken" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste token from your local server terminal" />
+        <div class="local-shell-actions">
+          <span id="localShellStatus" role="status" aria-live="polite">Disconnected. Tool calls are not sent to a shell.</span>
+          <button id="connectLocalShellBtn" class="btn btn-primary btn-sm" type="button">Connect runner</button>
+        </div>
+        <button id="disconnectLocalShellBtn" class="btn btn-ghost btn-sm" type="button" hidden>Disconnect and forget token</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================= shell command approval ==================== -->
+  <dialog id="shellCommandApprovalDialog" class="shell-command-approval-dialog" aria-labelledby="shellCommandApprovalTitle">
+    <div class="dlg shell-command-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-approval-mark" data-icon="terminal" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="shellCommandApprovalTitle">Approve terminal command</h3><div class="sub">The exact command below will run on your local Eltes server.</div></div>
+      </div>
+      <div class="shell-approval-workspace"><span>WORKING DIRECTORY</span><strong id="shellApprovalWorkspace"></strong></div>
+      <pre id="shellApprovalCommand" class="shell-approval-command"></pre>
+      <p class="shell-approval-warning">Only approve commands you understand. They run with your account’s permissions and can modify files. This is not a sandbox.</p>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyShellCommandBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="approveShellCommandBtn" type="button">Run this command</button></div>
     </div>
   </dialog>
 

@@ -714,7 +714,7 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['tools', 'tool calling', 'agent', 'tool loop', 'search history', 'current time'],
-      a: `## Agent tools\n\nEnable the wrench chip in the composer (or \`⌘K → Toggle tools\`). Eltes then offers the model three real functions:\n\n- \`current_time\` — the device clock, with timezone\n- \`calculate\` — arithmetic evaluated in a sandboxed parser\n- \`search_history\` — search this browser's saved chats\n\nTool calls appear as cards with arguments, output and runtime. Eltes loops up to four rounds, then stops. Models without tool support hide the toggle.\n\nFor unit conversions, date math and definitions, CAI handles those directly on-device without a hosted model.`
+      a: `## Agent mode\n\nAgent mode is on by default — the **Agent** chip in the composer toggles it (\`⌘K → Toggle tools\`). Eltes offers eight real functions: \`calculate\`, \`convert_units\` (including temperatures), \`percentage\`, \`date_math\`, \`current_time\`, \`search_history\`, \`define_term\` and \`web_search\`.\n\nHosted models ask for a tool and Eltes runs it, up to four rounds. With an Eltes CAI model there is no model to ask: a deterministic planner reads the message, picks a tool per clause, and can carry a result into the next step ("then multiply by 3"), up to six steps. The glossary and web search stay with the hosted loop.\n\nTool calls appear as cards with arguments, output and runtime. Everything except web search runs in this page.`
     },
     {
       keys: ['export', 'import', 'backup', 'share', 'json', 'markdown'],

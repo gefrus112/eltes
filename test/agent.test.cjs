@@ -1,141 +1,189 @@
 'use strict';
+
+// The on-device agent: registry shape, planning, tool results and the promise
+// that nothing in it can reach the network.
+
 const test = require('node:test');
-const assert = require('node:assert/strict');
-const vm = require('node:vm');
+const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
-const FIXED_NOW = new Date('2026-10-20T12:00:00Z');
+const ROOT = path.join(__dirname, '..');
 
-function loadAgent(options = {}) {
-  const window = {};
-  const context = { window, console, Intl, Date, performance: { now: () => 0 } };
-  for (const file of ['models.js', 'cai.js', 'agent.js']) {
-    vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../assets/js', file), 'utf8'), context);
+function loadAgent(hooks) {
+  const context = { window: {}, console };
+  context.globalThis = context;
+  context.setTimeout = setTimeout;
+  context.clearTimeout = clearTimeout;
+  for (const file of ['assets/js/models.js', 'assets/js/cai.js', 'assets/js/agent.js']) {
+    const code = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    vm.runInNewContext(code, context, { filename: file });
   }
-  return window.EltesAgent.create(Object.assign({
-    cai: window.EltesCAI,
-    now: () => FIXED_NOW
-  }, options));
+  const agent = context.window.EltesAgent;
+  const instance = agent.create(Object.assign({
+    cai: context.window.EltesCAI,
+    now: () => new Date('2026-10-20T12:00:00Z')
+  }, hooks || {}));
+  return { agent, instance, cai: context.window.EltesCAI };
 }
 
-const agent = loadAgent();
-
-test('exposes the shared tool registry', () => {
-  assert.equal(
-    agent.tools().join(','),
-    'calculate,convert_units,percent,date_math,current_time,search_history'
-  );
-  const defs = agent.toolDefs();
-  assert.equal(defs.length, agent.tools().length);
-  for (const def of defs) {
-    assert.equal(typeof def.description, 'string');
+test('exposes a seven-tool registry with JSON-schema parameters', () => {
+  const { instance } = loadAgent();
+  const names = instance.tools().map((tool) => tool.name).join(',');
+  assert.equal(names, 'calculate,convert_units,percentage,date_math,current_time,search_history');
+  for (const def of instance.toolDefs()) {
+    assert.ok(def.description.length > 20, `${def.name} has a description`);
     assert.equal(def.parameters.type, 'object');
+    assert.ok(def.icon, `${def.name} has an icon`);
   }
 });
 
-test('runs arithmetic through the engine instead of the model', () => {
-  const out = agent.runLocal('2 + 3 * 4', {});
-  assert.equal(out.intent, 'agent');
-  assert.equal(out.steps.length, 1);
-  assert.equal(out.steps[0].name, 'calculate');
-  assert.equal(out.steps[0].result, '14');
-  assert.match(out.text, /\*\*14\*\*/);
+test('calculate runs through the on-device parser', () => {
+  const { instance } = loadAgent();
+  const run = instance.runTool('calculate', { expression: '17 * 43' });
+  assert.equal(run.error, null);
+  assert.equal(run.result.split('\n')[0], '731');
 });
 
-test('converts units and temperatures', () => {
-  const miles = agent.runLocal('12 km to miles', {});
-  assert.equal(miles.steps[0].name, 'convert_units');
-  assert.equal(miles.steps[0].result, '7.4564543068 miles');
-
-  const celsius = agent.runLocal('100 f to c', {});
-  assert.equal(celsius.steps[0].name, 'convert_units');
-  assert.equal(celsius.steps[0].result, '37.7777777778 °C');
+test('calculate handles functions and implicit multiplication', () => {
+  const { instance } = loadAgent();
+  assert.equal(instance.runTool('calculate', { expression: 'sqrt(81) + 2' }).result.split('\n')[0], '11');
+  assert.equal(instance.runTool('calculate', { expression: '2pi' }).result.split('\n')[0], '6.2831853072');
 });
 
-test('rejects incompatible units instead of inventing a number', () => {
-  const out = agent.run('convert_units', { value: 3, from: 'kg', to: 'km' });
-  assert.equal(out.error, true);
-  assert.match(out.result, /not compatible units/i);
+test('calculate reports a bad expression instead of inventing a number', () => {
+  const { instance } = loadAgent();
+  const run = instance.runTool('calculate', { expression: '2 + + +' });
+  assert.ok(run.error);
+  assert.equal(run.result, null);
 });
 
-test('handles percentages in all three modes', () => {
-  const share = agent.runLocal('15% of 240', {});
-  assert.equal(share.steps[0].name, 'percent');
-  assert.equal(share.steps[0].result, '36');
-
-  const discount = agent.runLocal('20% off 80', {});
-  assert.equal(discount.steps[0].result, '64');
-
-  const change = agent.runLocal('percentage change from 40 to 55', {});
-  assert.equal(change.steps[0].result, '37.5%');
+test('convert_units is exact', () => {
+  const { instance } = loadAgent();
+  const run = instance.runTool('convert_units', { value: 12, from: 'km', to: 'mi' });
+  assert.equal(run.result.split('\n')[0], '7.4564543068 mi');
 });
 
-test('does calendar arithmetic on ISO dates', () => {
-  const between = agent.runLocal('days between 2026-01-01 and 2026-10-20', {});
-  assert.equal(between.steps[0].name, 'date_math');
-  assert.equal(between.steps[0].result, '292 days');
-
-  const weekday = agent.runLocal('what day is 2026-10-20', {});
-  assert.equal(weekday.steps[0].result, 'Tuesday');
-
-  const until = agent.runLocal('days until 2026-12-25', {});
-  assert.equal(until.steps[0].result, '66 days');
+test('convert_units refuses to mix kinds', () => {
+  const { instance } = loadAgent();
+  const run = instance.runTool('convert_units', { value: 5, from: 'km', to: 'kg' });
+  assert.match(run.error, /different kinds|unknown unit/i);
 });
 
-test('chains a follow-up step onto the previous result', () => {
-  const out = agent.runLocal('2 + 3 * 4 then multiply by 3', {});
-  assert.equal(out.steps.length, 2);
-  assert.equal(out.steps[0].result, '14');
-  assert.equal(out.steps[1].name, 'calculate');
-  assert.equal(out.steps[1].result, '42');
+test('temperatures go through convert_units', () => {
+  const { instance } = loadAgent();
+  assert.equal(instance.runTool('convert_units', { value: 100, from: 'c', to: 'f' }).result.split('\n')[0], '212 °F');
+  assert.equal(instance.runTool('convert_units', { value: 0, from: 'c', to: 'k' }).result.split('\n')[0], '273.15 K');
 });
 
-test('falls back to the CAI router when no tool applies', () => {
-  const out = agent.runLocal('hello there', {});
-  assert.equal(out.intent, 'cai');
-  assert.equal(out.steps.length, 0);
-  assert.equal(out.text, '');
+test('percentage covers of, off and change', () => {
+  const { instance } = loadAgent();
+  assert.equal(instance.runTool('percentage', { mode: 'of', value: 15, base: 240 }).result.split('\n')[0], '36');
+  assert.equal(instance.runTool('percentage', { mode: 'off', value: 20, base: 80 }).result.split('\n')[0], '64');
+  const change = instance.runTool('percentage', { mode: 'change', from: 40, to: 55 });
+  assert.equal(change.result.split('\n')[0], '37.5%');
 });
 
-test('refuses live questions without fabricating an answer', () => {
-  const reply = agent.runLocal('what is the weather in Boston', {});
-  assert.equal(reply.intent, 'cai');
-  assert.equal(reply.steps.length, 0);
-  const routed = agent.runLocal('what is the weather in Boston', {});
-  assert.equal(routed.steps.length, 0);
-  // The CAI refusal is what the workspace renders for this prompt.
-  const cai = loadAgent();
-  const refusal = cai.runLocal('what is the weather in Boston', {});
-  assert.equal(refusal.steps.length, 0);
+test('percentage change from zero is undefined, not a number', () => {
+  const { instance } = loadAgent();
+  const run = instance.runTool('percentage', { mode: 'change', from: 0, to: 10 });
+  assert.equal(run.value, null);
+  assert.match(run.result, /Undefined/);
 });
 
-test('uses the conversation search hook only when one is provided', () => {
-  const withHistory = loadAgent({ searchHistory: (query) => `Found a chat about ${query}.` });
-  const hit = withHistory.runLocal('what did we say earlier about the proxy', {});
-  assert.equal(hit.steps[0].name, 'search_history');
-  assert.match(hit.steps[0].result, /Found a chat about/);
-
-  const withoutHistory = agent.runLocal('what did we say earlier about the proxy', {});
-  assert.equal(withoutHistory.steps[0].name, 'search_history');
-  assert.equal(withoutHistory.steps[0].error, true);
-  assert.match(withoutHistory.steps[0].result, /only available inside the Eltes workspace/i);
+test('date_math counts, names and waits', () => {
+  const { instance } = loadAgent();
+  assert.match(instance.runTool('date_math', { kind: 'difference', start: '2026-01-01', end: '2026-10-20' }).result, /^292 days between/);
+  assert.match(instance.runTool('date_math', { kind: 'weekday', start: '2026-10-20' }).result, /Tuesday/);
+  assert.match(instance.runTool('date_math', { kind: 'days_until', start: '2026-12-25' }).result, /^66 days until/);
 });
 
-test('records a trace for every tool call', () => {
-  const out = agent.runLocal('5 kg in lb', {});
-  const step = out.steps[0];
-  assert.equal(step.name, 'convert_units');
-  assert.equal(step.args.value, 5);
-  assert.equal(step.args.from, 'kg');
-  assert.equal(step.args.to, 'lb');
-  assert.equal(step.error, false);
-  assert.equal(typeof step.runtime, 'number');
+test('date_math rejects a day that does not exist', () => {
+  const { instance } = loadAgent();
+  assert.ok(instance.runTool('date_math', { kind: 'weekday', start: '2026-02-31' }).error);
 });
 
-test('the agent never reaches for the network', () => {
-  const source = fs.readFileSync(path.join(__dirname, '../assets/js/agent.js'), 'utf8');
-  assert.doesNotMatch(source, /\bfetch\s*\(/);
-  assert.doesNotMatch(source, /XMLHttpRequest/);
-  assert.doesNotMatch(source, /WebSocket/);
+test('the planner maps plain questions onto tools', () => {
+  const { instance } = loadAgent();
+  const plan = instance.plan('12 km to miles');
+  assert.equal(plan.length, 1);
+  assert.equal(plan[0].name, 'convert_units');
+  assert.equal(instance.plan('what is 17 * 43')[0].name, 'calculate');
+  assert.equal(instance.plan('20% off 80')[0].name, 'percentage');
+  assert.equal(instance.plan('days between 2026-01-01 and 2026-10-20')[0].name, 'date_math');
+});
+
+test('the planner refuses to guess at a sentence it cannot ground', () => {
+  const { instance } = loadAgent();
+  assert.deepEqual(instance.plan('write me a poem about the sea').join(','), '');
+  assert.deepEqual(instance.plan('what is the capital of France').join(','), '');
+});
+
+test('runLocal runs every clause and reports the trace', () => {
+  const { instance } = loadAgent();
+  const run = instance.runLocal('12 km to miles then 15% of 240');
+  assert.equal(run.intent, 'agent');
+  assert.equal(run.steps.length, 2);
+  assert.equal(run.steps[0].name, 'convert_units');
+  assert.equal(run.steps[1].name, 'percentage');
+  assert.match(run.text, /7\.4564543068/);
+  assert.match(run.text, /On-device agent · 2 tool calls/);
+});
+
+test('runLocal carries a result forward when asked to', () => {
+  const { instance } = loadAgent();
+  const run = instance.runLocal('2 + 3 * 4 then multiply by 3');
+  assert.equal(run.steps.length, 2);
+  assert.equal(run.steps[1].args.expression, '14 * 3');
+  assert.match(run.text, /42/);
+});
+
+test('runLocal falls back to the router with no trace', () => {
+  const { instance } = loadAgent();
+  const run = instance.runLocal('who are you');
+  assert.equal(run.steps.length, 0);
+  assert.ok(run.intent && run.intent !== 'agent');
+  assert.ok(run.text.length > 20);
+});
+
+test('runLocal stops at the first failing tool', () => {
+  const { instance } = loadAgent();
+  const run = instance.runLocal('5 km to kg then 2 + 2');
+  assert.equal(run.stopped, true);
+  assert.equal(run.steps.length, 1);
+  assert.match(run.text, /could not finish/);
+});
+
+test('search_history uses the injected hook and says so when absent', () => {
+  const without = loadAgent().instance;
+  assert.match(without.runTool('search_history', { query: 'rust' }).error, /not connected/);
+  const withHook = loadAgent({ searchHistory: (query) => `2 chats match “${query}”` }).instance;
+  assert.match(withHook.runTool('search_history', { query: 'rust' }).result, /2 chats match/);
+});
+
+test('current_time reads the injected clock', () => {
+  const { instance } = loadAgent();
+  const run = instance.runTool('current_time', {});
+  assert.match(run.result, /ISO: 2026-10-20T12:00:00\.000Z/);
+});
+
+test('every trace step has a name, arguments, runtime and result or error', () => {
+  const { instance } = loadAgent();
+  const run = instance.runLocal('7 * 6 then 100 f to c');
+  assert.equal(run.steps.length, 2);
+  for (const step of run.steps) {
+    assert.ok(step.name && typeof step.args === 'object');
+    assert.ok(Number.isFinite(step.runtime) && step.runtime >= 1);
+    assert.ok(step.result || step.error);
+  }
+});
+
+test('the agent cannot reach the network', () => {
+  const source = fs.readFileSync(path.join(ROOT, 'assets/js/agent.js'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\/\/[^\n]*/g, '');
+  for (const forbidden of ['fetch(', 'XMLHttpRequest', 'WebSocket', 'navigator.sendBeacon', 'import(']) {
+    assert.equal(source.includes(forbidden), false, `agent.js must not use ${forbidden}`);
+  }
 });

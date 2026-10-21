@@ -392,7 +392,7 @@
                 <div class="body">
                   <span class="fn">calculate</span>(expression)<br />
                   <span class="fn">convert_units</span>(value, from, to)<br />
-                  <span class="fn">percent</span>(mode, value, base)<br />
+                  <span class="fn">percentage</span>(mode, value, base)<br />
                   <span class="fn">date_math</span>(kind, start, end)
                 </div>
               </div>
@@ -494,11 +494,11 @@
           <div class="reveal">
             <span class="eyebrow"><span data-icon="bot" data-icon-size="14"></span>Agent mode</span>
             <h2>It calls tools.<br />It doesn't pretend to.</h2>
-            <p>Eltes runs a real tool loop through your provider: the model requests a tool, the browser executes it, the result goes back into the conversation. Every call is timed and visible.</p>
+            <p>Eltes runs a real tool loop: the model requests a tool, the browser executes it, the result goes back into the conversation. With Eltes CAI-1 there is no model to ask — a deterministic planner picks the tools itself. Every call is timed and visible either way.</p>
             <ul class="check-list">
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Local tools</strong> — calculate maths, convert units, read the clock, search your own chat history.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Live web search</strong> — numbered sources and inline <code>[1]</code> citations, using your own search key.</span></li>
-              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic tool_use, streamed.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Eight tools</strong> — arithmetic, unit and temperature conversion, percentages, calendar maths, the clock, your own chat history, the glossary, and cited web search with your own key.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Works with no key</strong> — Agent mode is on by default. On CAI-1 the planner runs six of those tools in the tab, so nothing is sent anywhere.</span></li>
+              <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Provider-native</strong> — OpenAI tool calls and Anthropic <code>tool_use</code>, streamed, up to four rounds.</span></li>
               <li><span class="chk" data-icon="check" data-icon-size="12"></span><span><strong>Interruptible</strong> — stop mid-loop and keep every token already received.</span></li>
             </ul>
             <a class="btn btn-ghost" href="docs.html#agent">How the tool loop works<span data-icon="arrow-right" data-icon-size="15"></span></a>
@@ -514,7 +514,7 @@
               <div class="architecture-connector"><span></span><span class="connector-label">structured tool call</span></div>
               <div class="architecture-step">
                 <span class="step-index">02</span><span class="step-icon local" data-icon="cpu" data-icon-size="17"></span>
-                <div><strong>Eltes runs it in your browser</strong><p>No shell access. No arbitrary terminal commands. The result is shown to you.</p></div><span class="step-state local-state">LOCAL</span>
+                <div><strong>Eltes runs it in your browser</strong><p>No shell access, no arbitrary terminal commands — and on CAI-1 the planner chose the tool itself.</p></div><span class="step-state local-state">LOCAL</span>
               </div>
               <div class="architecture-connector"><span></span><span class="connector-label">result returns to the conversation</span></div>
               <div class="architecture-step">
@@ -552,7 +552,7 @@
               <tr><td>Conversation continuity</td><td class="eltes-col"><span class="yes"><span data-icon="shuffle" data-icon-size="14"></span>Switch mid-thread</span></td><td>Choose a different model without discarding the chat.</td></tr>
               <tr><td>History</td><td class="eltes-col"><span class="yes"><span data-icon="hard-drive" data-icon-size="14"></span>Local by default</span></td><td>Export or clear it from this browser at any time.</td></tr>
               <tr><td>No-key option</td><td class="eltes-col"><span class="yes"><span data-icon="cpu" data-icon-size="14"></span>Eltes CAI</span></td><td>A small, bounded on-device helper—not a frontier LLM.</td></tr>
-              <tr><td>Agent tools</td><td class="eltes-col"><span class="yes"><span data-icon="workflow" data-icon-size="14"></span>Visible and local</span></td><td>Calculator, units, clock, chat search, and cited web search; no shell access.</td></tr>
+              <tr><td>Agent tools</td><td class="eltes-col"><span class="yes"><span data-icon="workflow" data-icon-size="14"></span>Visible and local</span></td><td>Eight tools — maths, units, percentages, dates, clock, history, glossary, cited web search — run in the page, or planned on-device with CAI-1; no shell access.</td></tr>
               <tr><td>Usage visibility</td><td class="eltes-col"><span class="yes"><span data-icon="gauge" data-icon-size="14"></span>Latency and tokens</span></td><td>Metrics depend on what each provider reports.</td></tr>
               <tr><td>Hosted billing</td><td class="eltes-col"><span class="yes"><span data-icon="globe" data-icon-size="14"></span>Provider-controlled</span></td><td>Provider pricing and account limits still apply.</td></tr>
             </tbody>

@@ -12,6 +12,7 @@
   <link rel="manifest" href="site.webmanifest" />
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/studio.css" />
+  <link rel="stylesheet" href="assets/css/reel.css" />
 </head>
 <body class="studio-body">
   <div class="studio-app">
@@ -80,7 +81,13 @@
       </aside>
 
       <section class="st-editor" aria-label="Code editor">
-        <div class="st-tabs" id="tabs" role="tablist" aria-label="Open files"></div>
+        <div class="st-tabbar">
+          <button class="st-tab st-tools-tab" id="btnTools" type="button" title="Other tools — video editor, frame grabber, palette">
+            <span data-icon="layout-grid" data-icon-size="13"></span>
+            <span>Other tools</span>
+          </button>
+          <div class="st-tabs" id="tabs" role="tablist" aria-label="Open files"></div>
+        </div>
         <div class="st-code">
           <div class="st-gutter" id="gutter" aria-hidden="true">1</div>
           <textarea id="code" aria-label="Code" spellcheck="false" autocomplete="off" autocapitalize="off" disabled></textarea>
@@ -88,6 +95,7 @@
             <div>
               <strong>Pick a file to start</strong>
               Choose something in the workspace, or create <kbd>another.html</kbd> — every HTML file can be previewed.
+              <span class="st-empty-tools">Making a video instead? Open <button type="button" class="st-empty-link" data-tools-open>Other tools</button> for the Reel editor, a frame grabber and a gradient palette.</span>
             </div>
           </div>
         </div>
@@ -253,8 +261,14 @@
     </div>
   </dialog>
 
+  <!-- ============================== other tools ============================= -->
+  <div id="toolsScreen" hidden></div>
+
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/studio-effects.js"></script>
+  <script src="assets/js/reel.js"></script>
+  <script src="assets/js/reel-ui.js"></script>
+  <script src="assets/js/studio-tools.js"></script>
   <script src="assets/js/studio.js"></script>
 </body>
 </html>

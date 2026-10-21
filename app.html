@@ -572,6 +572,20 @@
     </div>
   </dialog>
 
+  <!-- ======================== generated file approval ==================== -->
+  <dialog id="artifactApprovalDialog" class="artifact-approval-dialog" aria-labelledby="artifactApprovalTitle">
+    <div class="dlg artifact-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="file-code-2" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="artifactApprovalTitle">Review generated file</h3><div class="sub">The agent prepared a file. Review it before adding a download to this chat.</div></div>
+      </div>
+      <div class="artifact-approval-name" id="artifactApprovalName"></div>
+      <pre id="artifactApprovalContent" class="artifact-approval-content"></pre>
+      <p class="artifact-approval-note">This does not run code or shell commands, and it does not write into a project folder. Approving stores the file in this local conversation so you can download it.</p>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyArtifactBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="approveArtifactBtn" type="button">Approve file</button></div>
+    </div>
+  </dialog>
+
   <!-- ================================ share ============================== -->
   <dialog id="shareDialog" aria-label="Share conversation">
     <div class="dlg" style="max-width:520px">
@@ -635,6 +649,7 @@
   <script src="assets/js/account.js"></script>
   <script src="assets/js/mcp.js"></script>
   <script src="assets/js/highlighter.js"></script>
+  <script src="assets/js/artifacts.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

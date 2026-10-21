@@ -452,6 +452,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic in a restricted sandbox — digits and operators only</td></tr>
               <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
               <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
+              <tr><td><code>create_file</code></td><td><code>{ filename, content }</code></td><td>After you approve the full contents, stores one text file in the chat as a download (up to 100 KiB each; 10 files / 800 KiB per chat)</td></tr>
             </tbody>
           </table>
 
@@ -468,7 +469,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
           <div class="callout tip">
             <span data-icon="wrench" data-icon-size="15"></span>
-            <span><strong>Built-in tools stay local.</strong> Arithmetic, time and history search run in JavaScript. MCP calls are different: they go directly to the connected server only after approval, and their arguments and results are also shared with the selected model.</span>
+            <span><strong>Commands are never run by the browser.</strong> Eltes can prepare a downloadable source file only after showing you its full contents for approval. It cannot execute shell commands, run builds, or write into project folders; inspect and run suggested terminal commands yourself. Arithmetic, time and history search stay local. MCP calls go directly to the connected server only after approval.</span>
           </div>
         </section>
 

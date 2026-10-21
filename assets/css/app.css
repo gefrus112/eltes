@@ -1882,3 +1882,22 @@ body.compact .msg { padding: 9px 0; }
 @media (prefers-reduced-motion: reduce) {
   .jump-latest { scroll-behavior: auto; }
 }
+
+/* Review and download user-approved agent file artifacts */
+.artifact-approval-body { width: min(760px, calc(100vw - 28px)); max-height: min(88vh, 900px); }
+.artifact-approval-body .dlg-head { padding: 16px 18px; }
+.artifact-approval-name { margin: 0 18px 9px; color: #c7d7f1; font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.artifact-approval-content { max-height: min(54vh, 520px); overflow: auto; margin: 0 18px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; color: #c4d2e8; background: rgba(1, 5, 11, .62); font: 10px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.artifact-approval-note { margin: 12px 18px 0; color: #9cadc4; font-size: 9px; line-height: 1.55; }
+.artifact-download { display: inline-flex; align-items: center; gap: 6px; margin-top: 9px; padding: 6px 9px; border: 1px solid rgba(114, 163, 242, .2); border-radius: 7px; color: #b9d0ff; background: rgba(57, 108, 191, .09); font: 9px/1 var(--sans); cursor: pointer; }
+.artifact-download:hover, .artifact-download:focus-visible { border-color: rgba(114, 163, 242, .45); background: rgba(57, 108, 191, .17); }
+.artifact-download:focus-visible { outline: 2px solid #7ca6ff; outline-offset: 2px; }
+.artifact-download .filename { max-width: min(44vw, 360px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) {
+  .artifact-approval-body { width: calc(100vw - 16px); max-height: calc(100dvh - 20px); }
+  .artifact-approval-content { max-height: 48vh; margin: 0 12px; }
+  .artifact-approval-note { margin-right: 12px; margin-left: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .artifact-download { transition: none; }
+}

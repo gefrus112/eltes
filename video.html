@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Video editor — Eltes</title>
-  <meta name="description" content="Trim a local video, tune its look, add a text overlay and export it in your browser with Eltes Video Editor." />
+  <meta name="description" content="Trim a local video or direct URL, tune its look, add a text overlay and export it in your browser with Eltes Video Editor." />
   <meta name="theme-color" content="#02050a" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -31,9 +31,9 @@
       <div>
         <p class="ve-kicker">ELTES CREATIVE TOOLS</p>
         <h1>Video editor<span>.</span></h1>
-        <p class="ve-lede">Make a quick, polished cut without sending your footage anywhere.</p>
+        <p class="ve-lede">Make a polished single-clip edit in your browser. Local footage is not uploaded to Eltes.</p>
       </div>
-      <p class="ve-local-note"><span class="ve-local-dot" aria-hidden="true"></span> Runs in this browser. Your source file stays on this device.</p>
+      <p class="ve-local-note"><span class="ve-local-dot" aria-hidden="true"></span> Runs in your browser. Local files stay on-device; URL sources load from their host.</p>
     </section>
 
     <section class="ve-layout" aria-label="Video editing workspace">
@@ -45,6 +45,7 @@
           </div>
           <div class="ve-stage" id="dropZone">
             <video id="sourceVideo" playsinline preload="metadata"></video>
+            <div class="ve-vignette" id="vignetteLayer" hidden aria-hidden="true"></div>
             <div class="ve-text-layer" id="textLayer" hidden><span id="previewCaption"></span></div>
             <div class="ve-empty-state" id="emptyState">
               <span class="ve-empty-icon" data-icon="video" data-icon-size="25" aria-hidden="true"></span>
@@ -76,6 +77,14 @@
       <aside class="ve-controls" aria-label="Editing controls">
         <div class="ve-panel-head"><div><p class="ve-kicker">EDITING TOOLS</p><h2>Make it yours</h2></div><button class="ve-button ve-button-quiet" id="replaceVideo" type="button">Replace clip</button></div>
         <input id="fileInput" type="file" accept="video/*" hidden />
+        <div class="ve-url-source">
+          <label for="videoUrl">Or load a direct video URL</label>
+          <form id="urlForm" class="ve-url-form">
+            <input id="videoUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/clip.mp4" aria-describedby="videoUrlHelp" />
+            <button class="ve-button" id="loadUrl" type="submit">Load URL</button>
+          </form>
+          <p id="videoUrlHelp">Direct media links only. The host must allow browser CORS for preview and export.</p>
+        </div>
 
         <section class="ve-tool-section">
           <div class="ve-section-title"><span class="ve-step">01</span><div><h3>Trim</h3><p>Choose the part to keep.</p></div></div>
@@ -84,10 +93,11 @@
             <label>End <span class="ve-input-unit"><input id="trimEnd" type="number" min="0" step="0.1" value="0" disabled /><span>s</span></span></label>
           </div>
           <p class="ve-hint">The export contains only the selected range.</p>
+          <label class="ve-speed-control"><span>Playback speed</span><select id="playbackSpeed" disabled><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
         </section>
 
         <section class="ve-tool-section">
-          <div class="ve-section-title"><span class="ve-step">02</span><div><h3>Look</h3><p>Fine-tune the picture.</p></div></div>
+          <div class="ve-section-title"><span class="ve-step">02</span><div><h3>Look</h3><p>Fine-tune the picture.</p></div><button class="ve-button ve-button-quiet" id="resetLook" type="button" disabled>Reset look</button></div>
           <div class="ve-presets" role="group" aria-label="Color presets">
             <button type="button" data-preset="none" class="active" aria-pressed="true">Original</button>
             <button type="button" data-preset="cinema" aria-pressed="false">Cinema</button>
@@ -97,6 +107,10 @@
           <div class="ve-slider-row"><div class="ve-slider-label"><label for="brightness">Brightness</label><output id="brightnessValue">100%</output></div><input id="brightness" type="range" min="50" max="150" value="100" disabled /></div>
           <div class="ve-slider-row"><div class="ve-slider-label"><label for="contrast">Contrast</label><output id="contrastValue">100%</output></div><input id="contrast" type="range" min="50" max="160" value="100" disabled /></div>
           <div class="ve-slider-row"><div class="ve-slider-label"><label for="saturation">Saturation</label><output id="saturationValue">100%</output></div><input id="saturation" type="range" min="0" max="180" value="100" disabled /></div>
+          <div class="ve-slider-row"><div class="ve-slider-label"><label for="sepia">Sepia</label><output id="sepiaValue">0%</output></div><input id="sepia" type="range" min="0" max="100" value="0" disabled /></div>
+          <div class="ve-slider-row"><div class="ve-slider-label"><label for="hue">Hue shift</label><output id="hueValue">0°</output></div><input id="hue" type="range" min="0" max="360" value="0" disabled /></div>
+          <div class="ve-slider-row"><div class="ve-slider-label"><label for="blur">Soft focus</label><output id="blurValue">0 px</output></div><input id="blur" type="range" min="0" max="8" step="0.5" value="0" disabled /></div>
+          <div class="ve-slider-row"><div class="ve-slider-label"><label for="vignette">Vignette</label><output id="vignetteValue">0%</output></div><input id="vignette" type="range" min="0" max="100" value="0" disabled /></div>
         </section>
 
         <section class="ve-tool-section ve-text-tools">

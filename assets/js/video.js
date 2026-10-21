@@ -4,18 +4,21 @@
   const byId = (id) => document.getElementById(id);
   const ui = {
     fileInput: byId('fileInput'), choose: byId('chooseVideo'), replace: byId('replaceVideo'),
-    dropZone: byId('dropZone'), dropHint: byId('dropHint'), video: byId('sourceVideo'),
+    urlForm: byId('urlForm'), videoUrl: byId('videoUrl'), loadUrl: byId('loadUrl'),
+    dropZone: byId('dropZone'), dropHint: byId('dropHint'), video: byId('sourceVideo'), vignette: byId('vignetteLayer'),
     empty: byId('emptyState'), sourceName: byId('sourceName'), videoInfo: byId('videoInfo'),
     play: byId('playButton'), mute: byId('muteButton'), time: byId('timeDisplay'), scrubber: byId('scrubber'),
     trimStart: byId('trimStart'), trimEnd: byId('trimEnd'), text: byId('overlayText'),
+    playbackSpeed: byId('playbackSpeed'), vignetteControl: byId('vignette'), resetLook: byId('resetLook'),
     layer: byId('textLayer'), caption: byId('previewCaption'), export: byId('exportButton'),
     status: byId('exportStatus'), quality: byId('exportQuality'), progressWrap: byId('progressWrap'),
     progress: byId('exportProgress'), progressLabel: byId('progressLabel')
   };
-  const filterInputs = ['brightness', 'contrast', 'saturation'].map(byId);
+  const filterInputs = ['brightness', 'contrast', 'saturation', 'sepia', 'hue', 'blur'].map(byId);
   const overlayInputs = ['overlayFont', 'overlaySize', 'overlayColor', 'overlayPosition', 'overlayAlign', 'overlayBackdrop'].map(byId);
-  const editableInputs = [ui.trimStart, ui.trimEnd, ui.text, ...filterInputs, ...overlayInputs];
+  const editableInputs = [ui.trimStart, ui.trimEnd, ui.text, ui.playbackSpeed, ui.vignetteControl, ...filterInputs, ...overlayInputs];
   let fileUrl = null;
+  let sourceKind = 'file';
   let loadedDuration = 0;
   let isBusy = false;
   let isMuted = false;
@@ -26,7 +29,17 @@
   function startTime() { return Number(ui.trimStart.value) || 0; }
   function endTime() { return Number(ui.trimEnd.value) || 0; }
   function filterString() {
-    return `brightness(${byId('brightness').value}%) contrast(${byId('contrast').value}%) saturate(${byId('saturation').value}%)`;
+    return `brightness(${byId('brightness').value}%) contrast(${byId('contrast').value}%) saturate(${byId('saturation').value}%) sepia(${byId('sepia').value}%) hue-rotate(${byId('hue').value}deg) blur(${byId('blur').value}px)`;
+  }
+  function effectValue(id, value) {
+    const suffix = id === 'hue' ? '°' : (id === 'blur' ? ' px' : '%');
+    return `${value}${suffix}`;
+  }
+  function clearPresetSelection() {
+    document.querySelectorAll('[data-preset]').forEach((button) => {
+      button.classList.remove('active');
+      button.setAttribute('aria-pressed', 'false');
+    });
   }
   function clock(seconds, tenths = false) {
     const safe = Math.max(0, Number(seconds) || 0);
@@ -35,6 +48,16 @@
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}${tenths ? `.${Math.floor((safe % 1) * 10)}` : ''}`;
   }
   function setStatus(message) { ui.status.textContent = message; }
+  function setPlayerPlaying(playing) {
+    const icon = ui.play.querySelector('[data-icon]');
+    if (icon) {
+      icon.dataset.icon = playing ? 'pause' : 'play';
+      delete icon.dataset.iconReady;
+      window.EltesIcons.hydrate(ui.play);
+    }
+    ui.play.setAttribute('aria-label', playing ? 'Pause video' : 'Play video');
+    ui.play.title = playing ? 'Pause video' : 'Play video';
+  }
   function updateControls() {
     const hasVideo = Boolean(ui.video.src && duration() > 0);
     editableInputs.forEach((input) => { input.disabled = !hasVideo || isBusy; });
@@ -42,7 +65,10 @@
     ui.mute.disabled = !hasVideo || isBusy;
     ui.scrubber.disabled = !hasVideo || isBusy;
     ui.export.disabled = !hasVideo || ui.video.readyState < 2 || isBusy;
+    ui.resetLook.disabled = !hasVideo || isBusy;
     document.querySelectorAll('[data-preset]').forEach((button) => { button.disabled = !hasVideo || isBusy; });
+    ui.videoUrl.disabled = isBusy;
+    ui.loadUrl.disabled = isBusy;
     ui.replace.disabled = isBusy;
     ui.choose.disabled = isBusy;
   }
@@ -66,18 +92,30 @@
   }
   function updatePreview() {
     ui.video.style.filter = filterString();
+    const vignette = Number(ui.vignetteControl.value) / 100;
+    ui.vignette.hidden = vignette <= 0;
+    ui.vignette.style.opacity = String(vignette);
     updateTextOverlay();
     updateClock();
   }
   function enableEditor() {
     ui.empty.hidden = true;
-    ui.videoInfo.textContent = 'LOCAL PREVIEW';
     ui.video.controls = false;
     updateControls();
     updatePreview();
   }
   function acceptsVideo(file) {
     return file && (file.type.startsWith('video/') || /\.(mp4|m4v|mov|webm|ogv|ogg|mkv|avi)$/i.test(file.name));
+  }
+  function resetSourceState(name, kind) {
+    ui.video.pause();
+    sourceKind = kind;
+    loadedDuration = 0;
+    ui.empty.hidden = true;
+    ui.sourceName.textContent = name;
+    ui.trimStart.value = '0';
+    ui.trimEnd.value = '0';
+    ui.scrubber.value = '0';
   }
   function loadVideo(file) {
     if (!acceptsVideo(file)) {
@@ -86,19 +124,42 @@
     }
     if (isBusy) return;
     if (fileUrl) URL.revokeObjectURL(fileUrl);
+    resetSourceState(file.name, 'file');
+    ui.videoUrl.value = '';
     fileUrl = URL.createObjectURL(file);
-    ui.video.pause();
+    ui.video.crossOrigin = 'anonymous';
     ui.video.src = fileUrl;
-    ui.video.load();
-    ui.empty.hidden = true;
-    ui.sourceName.textContent = file.name;
     ui.videoInfo.textContent = 'LOADING VIDEO';
-    ui.trimStart.value = '0';
-    ui.trimEnd.value = '0';
-    ui.scrubber.value = '0';
-    loadedDuration = 0;
+    ui.video.playbackRate = Number(ui.playbackSpeed.value);
+    ui.video.load();
     updateControls();
-    setStatus('Loading video metadata…');
+    setStatus('Loading local video metadata…');
+  }
+  function loadVideoUrl(rawUrl) {
+    if (isBusy) return;
+    let parsed;
+    try { parsed = new URL(rawUrl.trim()); } catch {
+      setStatus('Enter a valid direct video URL, starting with https:// or http://.');
+      return;
+    }
+    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) {
+      setStatus('Video URLs must use http:// or https:// and cannot contain account credentials.');
+      return;
+    }
+    if (fileUrl) URL.revokeObjectURL(fileUrl);
+    fileUrl = null;
+    let displayName = parsed.pathname.split('/').filter(Boolean).pop() || parsed.hostname;
+    try { displayName = decodeURIComponent(displayName); } catch { /* Keep the encoded path as a safe label. */ }
+    resetSourceState(displayName, 'url');
+    ui.videoUrl.value = parsed.href;
+    ui.video.crossOrigin = 'anonymous';
+    ui.video.referrerPolicy = 'no-referrer';
+    ui.video.src = parsed.href;
+    ui.videoInfo.textContent = 'LOADING REMOTE VIDEO';
+    ui.video.playbackRate = Number(ui.playbackSpeed.value);
+    ui.video.load();
+    updateControls();
+    setStatus(`Loading the video directly from ${parsed.hostname}. The host must allow browser CORS.`);
   }
   function openPicker() {
     if (!isBusy) ui.fileInput.click();
@@ -106,6 +167,10 @@
 
   ui.choose.addEventListener('click', openPicker);
   ui.replace.addEventListener('click', openPicker);
+  ui.urlForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    loadVideoUrl(ui.videoUrl.value);
+  });
   ui.fileInput.addEventListener('change', (event) => {
     const file = event.target.files && event.target.files[0];
     if (file) loadVideo(file);
@@ -117,7 +182,9 @@
       ui.empty.hidden = false;
       ui.videoInfo.textContent = 'UNSUPPORTED VIDEO';
       updateControls();
-      setStatus('This file has no readable duration. Try another browser-playable video.');
+      setStatus(sourceKind === 'url'
+        ? 'That URL did not return a readable video. Use a direct media URL with CORS enabled, not a video webpage.'
+        : 'This file has no readable duration. Try another browser-playable video.');
       return;
     }
     loadedDuration = ui.video.duration;
@@ -131,9 +198,12 @@
     ui.scrubber.max = String(loadedDuration);
     ui.scrubber.value = '0';
     ui.video.currentTime = 0;
-    ui.videoInfo.textContent = `${ui.video.videoWidth} × ${ui.video.videoHeight} · ${clock(loadedDuration)}`;
+    const originLabel = sourceKind === 'url' ? 'REMOTE' : 'LOCAL';
+    ui.videoInfo.textContent = `${originLabel} · ${ui.video.videoWidth} × ${ui.video.videoHeight} · ${clock(loadedDuration)}`;
     enableEditor();
-    setStatus('Adjust the range and look, then export your edited clip.');
+    setStatus(sourceKind === 'url'
+      ? 'Remote video loaded. The browser is connected directly to its host; edits and export run here.'
+      : 'Adjust the range and look, then export your edited clip.');
   });
   ui.video.addEventListener('loadeddata', () => { updateControls(); updatePreview(); });
   ui.video.addEventListener('timeupdate', () => {
@@ -146,20 +216,17 @@
   });
   ui.video.addEventListener('seeked', updatePreview);
   ui.video.addEventListener('error', () => {
-    if (!fileUrl) return;
+    if (!fileUrl && sourceKind !== 'url') return;
     loadedDuration = 0;
     ui.empty.hidden = false;
-    ui.videoInfo.textContent = 'CANNOT PLAY FILE';
+    ui.videoInfo.textContent = sourceKind === 'url' ? 'URL LOAD FAILED' : 'CANNOT PLAY FILE';
     updateControls();
-    setStatus('This browser cannot decode that video. Try MP4 (H.264) or WebM.');
+    setStatus(sourceKind === 'url'
+      ? 'Could not load that URL. Check that it is a direct video link and its host allows CORS; otherwise download the clip and choose the local file.'
+      : 'This browser cannot decode that video. Try MP4 (H.264) or WebM.');
   });
   ui.video.addEventListener('ended', () => {
-    if (isBusy) return;
-    ui.play.querySelector('[data-icon]')?.setAttribute('data-icon', 'play');
-    const icon = ui.play.querySelector('[data-icon]');
-    if (icon) { delete icon.dataset.iconReady; window.EltesIcons.hydrate(ui.play); }
-    ui.play.setAttribute('aria-label', 'Play video');
-    ui.play.title = 'Play video';
+    if (!isBusy) setPlayerPlaying(false);
   });
 
   ui.play.addEventListener('click', async () => {
@@ -168,27 +235,17 @@
       if (ui.video.currentTime < startTime() || ui.video.currentTime >= endTime()) ui.video.currentTime = startTime();
       try {
         await ui.video.play();
-        const icon = ui.play.querySelector('[data-icon]');
-        if (icon) { icon.dataset.icon = 'pause'; delete icon.dataset.iconReady; window.EltesIcons.hydrate(ui.play); }
-        ui.play.setAttribute('aria-label', 'Pause video');
-        ui.play.title = 'Pause video';
+        setPlayerPlaying(true);
       } catch (error) {
         setStatus(`Playback failed: ${error.message || 'the browser could not start this video.'}`);
       }
     } else {
       ui.video.pause();
-      const icon = ui.play.querySelector('[data-icon]');
-      if (icon) { icon.dataset.icon = 'play'; delete icon.dataset.iconReady; window.EltesIcons.hydrate(ui.play); }
-      ui.play.setAttribute('aria-label', 'Play video');
-      ui.play.title = 'Play video';
+      setPlayerPlaying(false);
     }
   });
   ui.video.addEventListener('pause', () => {
-    if (isBusy) return;
-    const icon = ui.play.querySelector('[data-icon]');
-    if (icon) { icon.dataset.icon = 'play'; delete icon.dataset.iconReady; window.EltesIcons.hydrate(ui.play); }
-    ui.play.setAttribute('aria-label', 'Play video');
-    ui.play.title = 'Play video';
+    if (!isBusy) setPlayerPlaying(false);
   });
   ui.mute.addEventListener('click', () => {
     isMuted = !isMuted;
@@ -217,35 +274,54 @@
     updatePreview();
   });
   filterInputs.forEach((input) => input.addEventListener('input', () => {
-    byId(`${input.id}Value`).value = `${input.value}%`;
-    byId(`${input.id}Value`).textContent = `${input.value}%`;
-    document.querySelectorAll('[data-preset]').forEach((button) => {
-      button.classList.remove('active');
-      button.setAttribute('aria-pressed', 'false');
-    });
+    const output = byId(`${input.id}Value`);
+    output.value = effectValue(input.id, input.value);
+    output.textContent = effectValue(input.id, input.value);
+    clearPresetSelection();
     updatePreview();
   }));
+  ui.vignetteControl.addEventListener('input', () => {
+    const output = byId('vignetteValue');
+    output.value = `${ui.vignetteControl.value}%`;
+    output.textContent = `${ui.vignetteControl.value}%`;
+    clearPresetSelection();
+    updatePreview();
+  });
+  const effectDefaults = { brightness: 100, contrast: 100, saturation: 100, sepia: 0, hue: 0, blur: 0, vignette: 0 };
+  function applyLook(values, activePreset = '') {
+    filterInputs.forEach((input, index) => {
+      input.value = String(values[index]);
+      const output = byId(`${input.id}Value`);
+      output.value = effectValue(input.id, values[index]);
+      output.textContent = effectValue(input.id, values[index]);
+    });
+    ui.vignetteControl.value = String(values[6]);
+    byId('vignetteValue').value = `${values[6]}%`;
+    byId('vignetteValue').textContent = `${values[6]}%`;
+    document.querySelectorAll('[data-preset]').forEach((button) => {
+      const active = button.dataset.preset === activePreset;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    updatePreview();
+  }
   document.querySelectorAll('[data-preset]').forEach((button) => {
     button.addEventListener('click', () => {
       const presets = {
-        none: [100, 100, 100],
-        cinema: [96, 116, 91],
-        mono: [100, 112, 0],
-        warm: [103, 106, 116]
+        none: [100, 100, 100, 0, 0, 0, 0],
+        cinema: [96, 116, 91, 0, 0, 0, 24],
+        mono: [100, 112, 0, 0, 0, 0, 0],
+        warm: [103, 106, 116, 18, 350, 0, 14]
       };
-      const values = presets[button.dataset.preset];
-      filterInputs.forEach((input, index) => {
-        input.value = String(values[index]);
-        byId(`${input.id}Value`).value = `${values[index]}%`;
-        byId(`${input.id}Value`).textContent = `${values[index]}%`;
-      });
-      document.querySelectorAll('[data-preset]').forEach((presetButton) => {
-        const active = presetButton === button;
-        presetButton.classList.toggle('active', active);
-        presetButton.setAttribute('aria-pressed', String(active));
-      });
-      updatePreview();
+      applyLook(presets[button.dataset.preset], button.dataset.preset);
     });
+  });
+  ui.resetLook.addEventListener('click', () => applyLook([
+    effectDefaults.brightness, effectDefaults.contrast, effectDefaults.saturation,
+    effectDefaults.sepia, effectDefaults.hue, effectDefaults.blur, effectDefaults.vignette
+  ], 'none'));
+  ui.playbackSpeed.addEventListener('change', () => {
+    ui.video.playbackRate = Number(ui.playbackSpeed.value);
   });
   ui.text.addEventListener('input', updatePreview);
   overlayInputs.forEach((input) => input.addEventListener('change', updatePreview));
@@ -273,6 +349,19 @@
   }));
   window.addEventListener('dragover', (event) => event.preventDefault());
   window.addEventListener('drop', (event) => event.preventDefault());
+
+  function drawVignette(ctx, width, height) {
+    const amount = Number(ui.vignetteControl.value) / 100;
+    if (!amount) return;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const gradient = ctx.createRadialGradient(centerX, centerY, Math.min(width, height) * 0.18, centerX, centerY, Math.hypot(width, height) * 0.58);
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    gradient.addColorStop(0.62, `rgba(0, 0, 0, ${amount * 0.12})`);
+    gradient.addColorStop(1, `rgba(0, 0, 0, ${amount * 0.82})`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+  }
 
   function drawCaption(ctx, width, height, displayHeight) {
     const text = ui.text.value.trim();
@@ -404,6 +493,7 @@
     let recorder = null;
     let audioAvailable = false;
     const mutedBeforeExport = ui.video.muted;
+    const playbackRateBeforeExport = ui.video.playbackRate;
     let stopped = false;
     let chunks = [];
     const canvas = document.createElement('canvas');
@@ -412,6 +502,7 @@
     const videoHeight = ui.video.videoHeight;
     if (!context || !videoWidth || !videoHeight) {
       isBusy = false;
+      setPlayerPlaying(false);
       updateControls();
       ui.progressWrap.hidden = true;
       setStatus('This video could not be prepared for export. Try another file.');
@@ -429,7 +520,9 @@
       if (sourceStream) sourceStream.getTracks().forEach((track) => track.stop());
       if (outputStream) outputStream.getTracks().forEach((track) => track.stop());
       ui.video.pause();
+      setPlayerPlaying(false);
       ui.video.muted = mutedBeforeExport;
+      ui.video.playbackRate = playbackRateBeforeExport;
       isBusy = false;
       updateControls();
     };
@@ -450,6 +543,7 @@
       context.filter = canvasFilter;
       context.drawImage(ui.video, 0, 0, canvas.width, canvas.height);
       context.restore();
+      drawVignette(context, canvas.width, canvas.height);
       drawCaption(context, canvas.width, canvas.height, displayHeight);
     };
 
@@ -507,6 +601,7 @@
         chunks = [];
       }, { once: true });
       recorder.start(250);
+      ui.video.playbackRate = Number(ui.playbackSpeed.value);
       await ui.video.play();
       const audioNotice = audioAvailable ? '' : ' No audio track is available to the browser recorder, so this export may be silent.';
       setStatus(`Rendering and recording your selected range…${audioNotice}`);
@@ -524,7 +619,10 @@
       };
       tick();
     } catch (error) {
-      finish(`Export failed: ${error.message || 'the browser could not render this file.'}`);
+      const message = sourceKind === 'url' && error.name === 'SecurityError'
+        ? 'This video host does not allow canvas export from this page (CORS). Try another direct media URL or download the clip and load it locally.'
+        : `Export failed: ${error.message || 'the browser could not render this file.'}`;
+      finish(message);
       ui.progressWrap.hidden = true;
       if (!recorder || recorder.state === 'inactive') cleanup();
     }

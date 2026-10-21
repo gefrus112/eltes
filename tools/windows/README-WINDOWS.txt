@@ -9,8 +9,9 @@ QUICK START
 2. Double-click "eltes.bat".
 3. Your browser opens http://127.0.0.1:4173/app.html.
 4. Close the console window (or press Ctrl+C) to stop the server.
-5. Open the Video editor tab to trim a local clip, adjust its look, add a title,
-   and export from your browser. Source footage is not uploaded by the editor.
+5. Open the Video editor tab to drop in a local clip or use a direct CORS-enabled
+   video URL, change its look and playback speed, add a title, then export in your
+   browser. Local source footage is not uploaded by the editor.
 
 REQUIREMENTS
 ------------

@@ -23,7 +23,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Local-first workspace:** chat history, profiles, settings, and exports are controlled in your browser. No analytics or telemetry are included.
 - **Agent tools:** local calculation, clock, and chat-history search can be offered to compatible hosted models. Tool results are sent back as part of the model request.
 - **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
-- **Video editor:** browser-local single-clip trimming, brightness/contrast/saturation controls and presets, configurable title/caption overlays, and MediaRecorder export when supported by the browser. Video is not uploaded; codec and audio-capture support vary by browser.
+- **Video editor:** local-file or direct CORS-enabled URL input, drag-and-drop, trimming and playback speed, color/effect controls and presets, configurable title/caption overlays, and MediaRecorder export when supported by the browser. Local video is not uploaded to Eltes; remote URLs are requested directly by the browser.
 
 ## Run the app and local API
 

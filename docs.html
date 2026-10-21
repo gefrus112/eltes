@@ -536,21 +536,22 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="video-editor">
           <h2>Video editor <a class="anchor" href="#video-editor" aria-label="Link to video editor" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes Video Editor is a lightweight, browser-native tool for quick cuts. Open <a class="inline-link" href="video.html">the video editor</a> from the workspace tab or this link. Choose a video file or drop it onto the preview; the file is read locally and is not uploaded to an Eltes service.</p>
+          <p>Eltes Video Editor is a lightweight, browser-native tool for quick cuts. Open <a class="inline-link" href="video.html">the video editor</a> from the workspace tab or this link. Choose a local video file, drop it onto the preview, or enter a direct HTTP(S) media URL.</p>
 
           <h3>Make a quick edit</h3>
           <ol>
-            <li><strong>Load a clip.</strong> Select a video your browser can play. MP4 with H.264 and WebM are common compatible choices; support for other containers and codecs varies by browser.</li>
-            <li><strong>Set the trim.</strong> Enter the start and end times in seconds, or use the preview scrubber to find a moment. Only the selected range is exported.</li>
-            <li><strong>Adjust the look.</strong> Choose Original, Cinema, Mono or Warm, then fine-tune brightness, contrast and saturation. Presets are starting points and can be adjusted freely.</li>
+            <li><strong>Load a clip.</strong> Choose a local file, drag it onto the preview, or paste a direct HTTP(S) video URL in the editor panel. MP4 with H.264 and WebM are common compatible choices; support for other containers and codecs varies by browser. URL sources must be direct media files, not YouTube/Vimeo pages, and their host must allow CORS and byte-range requests for editing and seeking to work.</li>
+            <li><strong>Set the trim and pace.</strong> Enter start and end times in seconds, scrub to find a moment, and choose playback speed from 0.5× to 2×. The selected range is exported at the chosen speed.</li>
+            <li><strong>Adjust the look.</strong> Choose Original, Cinema, Mono or Warm, then combine brightness, contrast, saturation, sepia, hue shift, soft focus and vignette controls. Presets are starting points and can be adjusted freely.</li>
             <li><strong>Add a title or caption.</strong> Type up to 120 characters, choose Inter, Georgia or monospace, and set the size, color, vertical position, alignment and backdrop. The overlay appears in the preview and is rendered into the export for the selected trim.</li>
             <li><strong>Export.</strong> Pick Standard or High quality and select Export video. The browser renders the clip on-device; keep the page open until the download begins.</li>
           </ol>
 
           <div class="callout">
             <span data-icon="shield-check" data-icon-size="15"></span>
-            <span><strong>Local processing.</strong> The editor uses a local file URL, canvas filters and the browser's MediaRecorder API. It does not send video to an AI provider or upload it to an Eltes backend. Your original file is not modified.</span>
+            <span><strong>Browser-side processing.</strong> Local files are opened with a temporary browser URL and are not uploaded to Eltes. If you enter a remote URL, your browser requests that host directly; Eltes does not proxy it, and the host can see the request and your network address. Remote previews and canvas exports require CORS. Your original local file is not modified.</span>
           </div>
+          <p class="dim">An HTTPS-hosted Eltes page may block plain-HTTP video URLs as mixed content; use an HTTPS source. If you use a signed URL, its query string is sent to that host by your browser, so only use URLs and hosts you trust.</p>
 
           <h3>Export and compatibility</h3>
           <p>Export format is selected from formats supported by the current browser, usually WebM and sometimes MP4. The quality menu changes the recording bitrate, not the source resolution; exports are capped at 1920 pixels on the longest side. Audio is carried through when the browser exposes the video's audio track to the recorder. Browser support for canvas capture, audio capture, MediaRecorder and codecs differs, so an export can be silent or unavailable on some browser and codec combinations. If a file will not load or export, try a current Chrome, Edge or Firefox build and a browser-playable MP4 or WebM.</p>

@@ -502,6 +502,14 @@ window.EltesCAI = (function () {
     return to === 'c' ? c : to === 'f' ? c * 9 / 5 + 32 : c + 273.15;
   }
 
+  // Shared by the agent: convert between units of the same kind, or return null.
+  function convertUnits(value, from, to) {
+    const a = UNITS[String(from || '').toLowerCase()];
+    const b = UNITS[String(to || '').toLowerCase()];
+    if (!a || !b || a.kind !== b.kind) return null;
+    return { value: (Number(value) * a.f) / b.f, kind: a.kind };
+  }
+
   function unitIntent(text) {
     const t = norm(text).replace(/degrees?|°|celsius|centigrade/g, (m) => (/fahrenheit/.test(m) ? 'f' : 'c'));
     // Support C, F, K short forms — Kelvin has no degree symbol
@@ -1202,6 +1210,10 @@ window.EltesCAI = (function () {
     answer: (modelId, prompt) => buildAnswer(modelId, prompt, [], new Date()).text,
     build: buildAnswer,
     stream,
+    evaluate,
+    formatNumber: cleanNumber,
+    temperature,
+    convertUnits,
     kbEntries: KB.length,
     glossaryTerms: Object.keys(GLOSSARY).length
   };

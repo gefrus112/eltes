@@ -29,7 +29,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Visible search thinking:** while a search runs, the reply shows live steps — the condensed query, provider and recency, the result count and the time each step took. Nothing is pre-scripted; failed searches leave a failed step. Finished traces collapse to a summary and can be reopened; turn them off under Settings → General.
 - **Eltes Studio:** a separate page with a workspace file tree, editor, live preview and a real shell. The **Guide** button walks the build-a-website workflow — scaffold files, run the build in the terminal, add a page, preview it, open it in its own tab — and ticks steps off as the real actions happen. The written version is in [docs.html#workflow](docs.html#workflow). Any `.html` file previews at `/preview/<path>` with relative assets intact; edits and terminal builds reload it automatically. The terminal runs `/bin/bash` in `.studio/`, streams output, tracks `cd`, and stops on timeout or Ctrl+C. Without the local server the editor still works in browser-only mode with an in-browser preview and zip export.
 - **Effects from code:** the **Effects** button in Studio writes one of six dependency-free recipes — gradient mesh, canvas particles, aurora, halftone, glowing orb, generative poster — into `effects/<name>.html`, opens it in the editor and loads it in the preview. Every recipe is CSS, SVG or canvas, so there is no bitmap to export or download; the guide is in [docs.html#effects](docs.html#effects). The starter `build.mjs` walks subfolders, so the effects ship with the site. Release notes with screenshots: [news.html](news.html).
-- **Six agent tools:** `calculate`, `convert_units`, `define_term`, `current_time`, `search_history` and (when enabled) `web_search`.
+- **Agent mode, on by default:** eight tools — `calculate`, `convert_units`, `percent`, `date_math`, `current_time`, `search_history`, `define_term` and (when enabled) `web_search`. Hosted models drive them through native function calling (up to four rounds). **Eltes CAI-1** has no model to ask, so a deterministic on-device planner runs the same registry itself: it splits a message on `then`, matches each clause to a tool, chains follow-ups like "then multiply by 3", and stops after six steps. Seven of the eight tools never touch the network, and every call is a trace card with arguments, result and runtime. Details: [docs.html#agent](docs.html#agent).
 - **Model catalogue:** 66 models across 14 providers, including OpenAI, Anthropic, Google, DeepSeek, Z.ai, xAI, Qwen, Mistral, Groq, NVIDIA NIM, Cohere, OpenRouter, three on-device CAI models, a Lab model you train in the browser, and custom endpoints.
 - **Real welcome email, from your own machine:** creating a profile in `auth.html` sends *Welcome to Eltes AI Workspace* through your own free provider account — Resend (3,000/month), Brevo (300/day) or any SMTP mailbox — from `lib/mail.cjs`, with no dependencies. With nothing configured the message is written to `.mail/outbox/*.eml` instead of pretending; hard bounces (`5xx` at `RCPT TO`, provider `4xx`, or a Brevo/Resend webhook) go on a suppression list so the address is never retried. See [Welcome email](#welcome-email) and [docs.html#email](docs.html#email).
 - **Desktop apps:** a Windows installer and portable `.exe`, macOS `.dmg` and Linux AppImage/`.deb`, built from the same site by `desktop/` (Electron shell + the bundled local server), with a hardened window, loopback-only server, recovery screen and CI builds per platform. See [Desktop apps](#desktop-apps).
@@ -245,6 +245,45 @@ The **service_role** and **Resend** keys live only in Edge Function secrets. `co
 
 Local profiles are untouched: no `config.js`, a desktop build, or one click on *Use a local profile instead* and Eltes behaves exactly as before.
 
+## Eltes CAI engine (Rust)
+
+`engine/` is a zero-dependency Rust crate that reimplements the deterministic part of Eltes CAI — the tokenizer, expression parser, unit and temperature conversion, date maths and the answer router — behind a `cai` CLI:
+
+```bash
+cd engine
+cargo test                 # unit tests + parity against the shared vectors
+cargo run --quiet -- "12 km to miles"   # -> 7.4564543068 miles
+cargo run --quiet -- --expr "2 + 3 * 4" # -> 14
+```
+
+`engine/tests/parity.rs` reads the same `ports/vectors.tsv` the other implementations use, so the crate cannot drift from the ports. Details: [`engine/README.md`](engine/README.md).
+
+## Language ports
+
+`ports/` holds one small, dependency-free implementation of the CAI contract per language, all checked against a single conformance file, [`ports/vectors.tsv`](ports/vectors.tsv) — 49 cases covering arithmetic, implicit multiplication, factorials, unit and temperature conversion, percentages, date maths and the refusal paths.
+
+| Language | File | Run |
+| --- | --- | --- |
+| Python | [`ports/python/cai.py`](ports/python/cai.py) | `python3 cai.py ../vectors.tsv` |
+| JavaScript | [`ports/javascript/cai.js`](ports/javascript/cai.js) | `node cai.js ../vectors.tsv` |
+| TypeScript | [`ports/typescript/cai.ts`](ports/typescript/cai.ts) | `npx -p typescript tsc && node dist/cai.js ../vectors.tsv` |
+| Perl | [`ports/perl/cai.pl`](ports/perl/cai.pl) | `perl cai.pl ../vectors.tsv` |
+| C | [`ports/c/cai.c`](ports/c/cai.c) | `cc -std=c99 -Wall -Wextra -Werror -O2 cai.c -lm -o cai && ./cai ../vectors.tsv` |
+| C++ | [`ports/cpp/cai.cpp`](ports/cpp/cai.cpp) | `c++ -std=c++17 -Wall -Wextra -Werror -O2 cai.cpp -o cai && ./cai ../vectors.tsv` |
+| Go | [`ports/go/main.go`](ports/go/main.go) | `go run main.go ../vectors.tsv` |
+| Ruby | [`ports/ruby/cai.rb`](ports/ruby/cai.rb) | `ruby cai.rb ../vectors.tsv` |
+| PHP | [`ports/php/cai.php`](ports/php/cai.php) | `php cai.php ../vectors.tsv` |
+| Java | [`ports/java/Cai.java`](ports/java/Cai.java) | `javac Cai.java && java Cai ../vectors.tsv` |
+| Kotlin | [`ports/kotlin/Cai.kt`](ports/kotlin/Cai.kt) | `kotlinc Cai.kt -include-runtime -d cai.jar && java -jar cai.jar ../vectors.tsv` |
+| C# | [`ports/csharp/Cai.cs`](ports/csharp/Cai.cs) | `dotnet run -- ../vectors.tsv` |
+| Lua | [`ports/lua/cai.lua`](ports/lua/cai.lua) | `lua cai.lua ../vectors.tsv` |
+| AWK | [`ports/awk/cai.awk`](ports/awk/cai.awk) | `awk -f cai.awk ../vectors.tsv` |
+| Julia | [`ports/julia/cai.jl`](ports/julia/cai.jl) | `julia cai.jl ../vectors.tsv` |
+| R | [`ports/r/cai.R`](ports/r/cai.R) | `Rscript cai.R ../vectors.tsv` |
+| Dart | [`ports/dart/cai.dart`](ports/dart/cai.dart) | `dart cai.dart ../vectors.tsv` |
+
+Every row runs in CI (`.github/workflows/ports.yml`, one job per language). Adding a language means adding a file, a matrix row, and — if it finds a new edge — a vector. Details and the contract: [`ports/README.md`](ports/README.md).
+
 ## Validate and rebuild
 
 ```bash
@@ -271,4 +310,4 @@ Storage is per browser and origin. Export chats before clearing site data.
 
 ## License and reuse
 
-This release is distributed under the restrictive terms in [`LICENSE`](LICENSE), not MIT. The source is publicly viewable because the repository is public; that does not grant permission to copy, redistribute, modify, or publish a clone. The license cannot technically prevent downloading or forking public files. The prior MIT-licensed versions remain subject to the rights granted with those releases; this change is not retroactive. Third-party assets retain their own licenses in [`NOTICE.md`](NOTICE.md). This is a project notice, not legal advice.
+This release is distributed under the restrictive terms in [`LICENSE`](LICENSE), not MIT. Two directories are the exception and carry their own MIT licences: [`engine/`](engine/LICENSE) (the Rust crate) and [`ports/`](ports) (the language ports). The source is publicly viewable because the repository is public; that does not grant permission to copy, redistribute, modify, or publish a clone. The license cannot technically prevent downloading or forking public files. The prior MIT-licensed versions remain subject to the rights granted with those releases; this change is not retroactive. Third-party assets retain their own licenses in [`NOTICE.md`](NOTICE.md). This is a project notice, not legal advice.

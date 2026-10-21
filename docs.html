@@ -696,7 +696,12 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="agent">
           <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and the model may call one of six tools. Five run locally; <code>web_search</code> uses your own search key through the optional backend. Eltes executes the call, returns the result to the model, and lets it continue — up to four rounds.</p>
+          <p>Tools are real function calls, not a scripted animation. <strong>Agent mode</strong> is on by default — the <strong>Agent</strong> chip in the composer toggles it. There are two ways a tool gets called, and both render the same trace cards:</p>
+          <ul>
+            <li><strong>Hosted models</strong> drive the loop through native function calling (OpenAI <code>tools</code>, Anthropic <code>tool_use</code>): the model asks, Eltes runs the call in the page, the result goes back, up to four rounds.</li>
+            <li><strong>Eltes CAI-1</strong> has no model to ask, so a deterministic on-device planner does the work: it splits the message on <code>then</code>, matches each clause to a tool, chains follow-ups such as <code>then multiply by 3</code>, and stops after six steps or when nothing matches.</li>
+          </ul>
+          <p>Seven of the eight tools run locally. <code>web_search</code> uses your own search key through the optional backend and is only offered when the Web chip is on.</p>
 
           <table class="doc-table">
             <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
@@ -705,10 +710,15 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
               <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
               <tr><td><code>convert_units</code></td><td><code>{ value, from, to }</code></td><td>Converts between length, mass, volume, data, speed, area, time and temperature using deterministic factors — Kelvin and time units included</td></tr>
+              <tr><td><code>percent</code></td><td><code>{ mode, value, base?, from?, to? }</code></td><td>Percent of a number, a discount off a number, or the percentage change between two values — with the working shown, and an honest refusal when the change is from zero</td></tr>
+              <tr><td><code>date_math</code></td><td><code>{ kind, start, end? }</code></td><td>Days between two dates, the weekday of a date, or days until a date, computed in your own timezone</td></tr>
               <tr><td><code>define_term</code></td><td><code>{ term }</code></td><td>Defines an AI/Eltes term from the on-device glossary (RAG, embedding, transformer, etc.) with a curated, source-traceable explanation</td></tr>
               <tr><td><code>web_search</code></td><td><code>{ query, count? }</code></td><td>Searches the live web through Brave, Tavily, Serper or Exa and returns numbered titles, URLs and excerpts for inline <code>[1]</code>-style citations. Only offered when the Web chip is on and a search key is saved</td></tr>
             </tbody>
           </table>
+
+          <h3>On-device agent runs</h3>
+          <p>With an Eltes CAI model selected, Agent mode never calls a provider. The planner runs in the tab, so tool cards appear with arguments, result and runtime, and the reply ends with <em>On-device agent · N tool calls · nothing left this browser.</em> Turn the Agent chip off and the same prompt gets the plain router answer instead.</p>
 
           <h3>What the timeline shows</h3>
           <ul>

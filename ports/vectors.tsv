@@ -1,0 +1,66 @@
+# Shared conformance suite for every Eltes CAI port.
+#
+# Tabs separate the columns. Blank lines and lines starting with # are ignored.
+#
+#   answer <TAB> prompt <TAB> intent <TAB> contains1|contains2|...
+#   eval   <TAB> expression <TAB> expected_number
+#
+# `answer` checks that the intent matches exactly and that every `contains`
+# fragment appears in the answer text. `eval` checks the numeric result within
+# a relative tolerance of 1e-9. If a port passes this file, it answers the same
+# way as the Rust crate and the browser engine.
+#
+# --- arithmetic -------------------------------------------------------------
+answer	2 + 3 * 4	math	14|Expression: 2 + 3 × 4 = 14
+answer	2(3+4)	math	14
+answer	2pi	math	6.2831853072
+answer	3!	math	6
+answer	2^10	math	1024
+answer	6 squared	math	36
+answer	2 cubed	math	8
+answer	square root of 81	math	9
+answer	cube root of 27	math	3
+answer	10 divided by 4	math	2.5
+answer	7 times 6	math	42
+answer	5 plus 3	math	8
+answer	9 minus 4	math	5
+answer	max(3, 9, 4)	math	9
+answer	what is 2 + 2	math	4
+# --- percentages ------------------------------------------------------------
+answer	15% of 240	percent	36
+answer	20 percent of 80	percent	16
+answer	20% off 80	percent	64|discount of 16
+answer	percentage change from 40 to 55	percent	37.5%
+answer	percent change from 0 to 10	percent	undefined
+# --- units and temperatures -------------------------------------------------
+answer	12 km to miles	units	7.4564543068
+answer	5 kg in lb	units	11.0231131092
+answer	2 gb to mb	units	2000|decimal units
+answer	1 gib to mib	units	1024
+answer	100 km/h to mph	units	62.1371192734
+answer	3 acre in m2	units	12140.5692672
+answer	100 c to f	units	212
+answer	0 c to k	units	273.15
+answer	72 f to c	units	22.2222222222
+answer	12 c to c	units	same
+# --- refusal ----------------------------------------------------------------
+answer	what is the weather in Boston	live	
+answer	latest news about GPUs	live	
+answer	Which antibiotic should I take for this infection?	fallback	
+answer	hello there	fallback	
+# --- evaluator --------------------------------------------------------------
+eval	2+3*4	14
+eval	2^10	1024
+eval	2^3^2	512
+eval	2(3+4)	14
+eval	(1+1)(2+2)	8
+eval	3!	6
+eval	sqrt(144)	12
+eval	-2^2	-4
+eval	2 x 3	6
+eval	10/4	2.5
+eval	10 % 3	1
+eval	max(3,9,4)	9
+eval	mean(2,4,6)	4
+eval	1/3	0.3333333333
+eval	2pi	6.283185307

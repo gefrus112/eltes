@@ -1671,6 +1671,8 @@ body.reduce-motion .block-field .bf-block,
 }
 .local-chip { border-color: rgba(var(--accent-soft-rgb), 0.26); background: rgba(var(--accent-rgb), 0.09); color: var(--accent-text); }
 .local-chip i { background: var(--accent-text); animation: none; }
+.local-chip.agent-chip { border-color: rgba(167, 139, 250, 0.32); background: rgba(139, 92, 246, 0.12); color: #c4b5fd; }
+.local-chip.agent-chip i { background: #a78bfa; }
 .rt-inline { padding: 1px 6px; font-size: 9.5px; }
 .rt-badge[hidden] { display: none; }
 @keyframes rt-pulse {

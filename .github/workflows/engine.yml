@@ -1,0 +1,105 @@
+name: Engine
+
+on:
+  push:
+    branches: [main, 'arena/**']
+    paths:
+      - 'engine/**'
+      - 'ports/vectors.tsv'
+      - '.github/workflows/engine.yml'
+  pull_request:
+    paths:
+      - 'engine/**'
+      - 'ports/vectors.tsv'
+      - '.github/workflows/engine.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Build and test the Rust engine
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: engine
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            engine/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('engine/Cargo.toml') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Build
+        run: |
+          set +e
+          cargo build --all-targets --locked 2>&1 | tee /tmp/build.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E '^error(\[E[0-9]+\])?|^ *-->' /tmp/build.log | paste - - | head -20 |
+              while IFS="$(printf '\t')" read -r head tail; do
+                echo "::error::${head} ${tail}"
+              done
+            echo "::error::$(tail -25 /tmp/build.log | tr '\n' ' ' | cut -c1-900)"
+          fi
+          exit "$status"
+
+      - name: Test
+        run: |
+          set +e
+          cargo test --all --locked 2>&1 | tee /tmp/test.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E '^failures:|^---- |panicked at|assertion|left:|right:' /tmp/test.log | head -30 |
+              while IFS= read -r line; do echo "::error::${line}"; done
+            echo "::error::$(grep -A12 '^failures:' /tmp/test.log | tr '\n' ' ' | cut -c1-900)"
+          fi
+          exit "$status"
+
+      - name: Clippy
+        run: |
+          set +e
+          cargo clippy --all-targets --locked -- -D warnings 2>&1 | tee /tmp/clippy.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            tail -c 6000 /tmp/clippy.log | fold -w 600 | while IFS= read -r chunk; do
+              echo "::error::${chunk}"
+            done
+          fi
+          exit "$status"
+
+      # rustfmt is advisory: the crate was authored without a local toolchain,
+      # so the check reports what it would change instead of failing the build.
+      - name: Formatting
+        run: |
+          cargo fmt --all
+          if git diff --quiet; then
+            echo "engine is rustfmt-clean"
+          else
+            echo "::warning::cargo fmt would reformat these files (run it in a checkout with a toolchain):"
+            git diff --stat
+          fi
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Smoke-test the CLI
+        run: |
+          set -euo pipefail
+          test "$(./target/release/cai --eval '2 + 3 * 4')" = "14"
+          test "$(./target/release/cai --intent '15% of 240')" = "percent"
+          ./target/release/cai --json '100 f to c' | grep -q '"intent":"units"'
+          ./target/release/cai 'what is the weather in Boston' | grep -q 'cannot check live information'

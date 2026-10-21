@@ -1,0 +1,21 @@
+[package]
+name = "eltes-cai"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+description = "The deterministic on-device answer engine behind Eltes CAI: arithmetic, units, dates, and an explicit abstention. No network, no model weights."
+license = "MIT"
+repository = "https://github.com/gefrus112/eltes"
+readme = "README.md"
+keywords = ["deterministic", "offline", "calculator", "units", "no-ai"]
+categories = ["parser-implementations", "science"]
+
+[lib]
+name = "eltes_cai"
+path = "src/lib.rs"
+
+[[bin]]
+name = "cai"
+path = "src/main.rs"
+
+[dependencies]

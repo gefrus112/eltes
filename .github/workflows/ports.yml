@@ -1,0 +1,185 @@
+name: Ports
+
+# Every language implements the same contract in ports/vectors.tsv. If a port
+# stops answering like the reference engine, the job for that language fails.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ports-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vectors:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Python
+            cwd: ports/python
+            setup: ''
+            test: python3 cai.py ../vectors.tsv
+          - name: JavaScript
+            cwd: ports/javascript
+            setup: ''
+            test: node cai.js ../vectors.tsv
+          - name: TypeScript
+            cwd: ports/typescript
+            setup: npm install --no-save typescript@5.6.3
+            test: npx tsc -p tsconfig.json && node dist/cai.js ../vectors.tsv
+          - name: Perl
+            cwd: ports/perl
+            setup: ''
+            test: perl cai.pl ../vectors.tsv
+          - name: C
+            cwd: ports/c
+            setup: ''
+            test: cc -std=c99 -O2 -Wall -Wextra -Werror cai.c -lm -o cai && ./cai ../vectors.tsv
+          - name: C++
+            cwd: ports/cpp
+            setup: ''
+            test: g++ -std=c++17 -O2 -Wall -Wextra -Werror cai.cpp -o cai && ./cai ../vectors.tsv
+          - name: Go
+            cwd: ports/go
+            setup: |
+              go version
+            test: go run main.go ../vectors.tsv
+          - name: Ruby
+            cwd: ports/ruby
+            setup: |
+              ruby --version
+            test: ruby cai.rb ../vectors.tsv
+          - name: PHP
+            cwd: ports/php
+            setup: |
+              php --version
+            test: php cai.php ../vectors.tsv
+          - name: Java
+            cwd: ports/java
+            setup: |
+              java -version
+            test: javac -encoding UTF-8 -d out Cai.java && java -cp out Cai ../vectors.tsv
+          - name: Kotlin
+            cwd: ports/kotlin
+            setup: |
+              kotlinc -version
+            test: kotlinc Cai.kt -include-runtime -d cai.jar && java -jar cai.jar ../vectors.tsv
+          - name: C#
+            cwd: ports/csharp
+            setup: |
+              dotnet --version
+            test: dotnet run --project cai.csproj -- ../vectors.tsv
+          - name: Lua
+            cwd: ports/lua
+            setup: |
+              lua5.4 -v
+            test: lua5.4 cai.lua ../vectors.tsv
+          - name: AWK
+            cwd: ports/awk
+            setup: |
+              awk -W version 2>&1 | head -1
+            test: awk -f cai.awk ../vectors.tsv
+          - name: Julia
+            cwd: ports/julia
+            setup: |
+              julia --version
+            test: julia --startup-file=no cai.jl ../vectors.tsv
+          - name: R
+            cwd: ports/r
+            setup: |
+              Rscript --version
+            test: Rscript cai.R ../vectors.tsv
+          - name: Dart
+            cwd: ports/dart
+            setup: |
+              dart --version
+            test: dart cai.dart ../vectors.tsv
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.cwd }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        if: matrix.name == 'Java' || matrix.name == 'Kotlin'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up .NET
+        if: matrix.name == 'C#'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Lua
+        if: matrix.name == 'Lua'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+
+      - name: Set up Julia
+        if: matrix.name == 'Julia'
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.11'
+
+      - name: Set up R
+        if: matrix.name == 'R'
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Set up Dart
+        if: matrix.name == 'Dart'
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Kotlin
+        if: matrix.name == 'Kotlin'
+        run: |
+          # Ubuntu's kotlin package is ancient (1.3), so use the current release.
+          curl -sSLo "$RUNNER_TEMP/kotlin.zip" \
+            https://github.com/JetBrains/kotlin/releases/download/v2.0.21/kotlin-compiler-2.0.21.zip
+          unzip -q "$RUNNER_TEMP/kotlin.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/kotlinc/bin" >> "$GITHUB_PATH"
+
+      - name: Toolchain
+        if: matrix.setup != ''
+        run: ${{ matrix.setup }}
+
+      - name: Vectors
+        run: |
+          set +e
+          bash -c "${{ matrix.test }}" > "$RUNNER_TEMP/vectors.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/vectors.log"
+          if [ "$status" -ne 0 ]; then
+            # Logs are not always reachable from outside CI, so republish the
+            # failure text as check-run annotations, a few KB at a time.
+            awk '
+              { buffer = buffer $0 "\n"; count++ }
+              length(buffer) > 3000 { report(); }
+              END { if (buffer != "") report() }
+              function report() {
+                gsub(/%/, "%25", buffer);
+                gsub(/\r/, "%0D", buffer);
+                gsub(/\n/, "%0A", buffer);
+                printf "::error title=vectors-%d::%s\n", chunk++, buffer;
+                buffer = "";
+              }
+            ' "$RUNNER_TEMP/vectors.log"
+          fi
+          exit $status

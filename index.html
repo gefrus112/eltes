@@ -156,7 +156,7 @@
               <div class="preview-facts">
                 <div><span>API</span><strong id="previewApi">Messages</strong></div>
                 <div><span>Context</span><strong id="previewContext">200K</strong></div>
-                <div><span>Tools</span><strong id="previewTools">Supported</strong></div>
+                <div><span>Agent mode</span><strong id="previewTools">On by default</strong></div>
               </div>
               <div class="privacy-flow" role="group" aria-label="Request flow">
                 <div class="flow-node"><span class="flow-number">01</span><span><strong id="flowCredential">Your key</strong><small id="flowStorage">Stored in this browser</small></span></div>
@@ -384,15 +384,16 @@
 
           <article class="card span-2 reveal" style="--d:60ms">
             <div class="card-icon" data-icon="bot" data-icon-size="19"></div>
-            <h3>Agent tools that actually run</h3>
-            <p>Native tool calling with a real loop: the model asks, Eltes executes locally and feeds the result back — with timing for every step.</p>
+            <h3>An agent that actually runs</h3>
+            <p>Two ways to call a tool, one trace. Hosted models ask through native function calling; Eltes CAI-1 plans the run on-device with no key and no network. Every step is timed and visible.</p>
             <div class="card-visual">
               <div class="code-mini">
-                <div class="head"><span data-icon="cpu" data-icon-size="10"></span>available · runs in your browser</div>
+                <div class="head"><span data-icon="cpu" data-icon-size="10"></span>8 tools · runs in your browser</div>
                 <div class="body">
                   <span class="fn">calculate</span>(expression)<br />
-                  <span class="fn">web_search</span>(query) → sources<br />
-                  <span class="fn">convert_units</span>(value, from, to)
+                  <span class="fn">convert_units</span>(value, from, to)<br />
+                  <span class="fn">percent</span>(mode, value, base)<br />
+                  <span class="fn">date_math</span>(kind, start, end)
                 </div>
               </div>
             </div>
@@ -808,6 +809,60 @@
     </div>
   </footer>
 
+  <!-- ======================= floating site guide ======================= -->
+  <div class="guide-dock" id="guideDock">
+    <svg class="guide-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="guideCloudFill" x1="0.1" y1="0" x2="0.9" y2="1">
+          <stop offset="0" stop-color="#a8dcff" />
+          <stop offset="0.45" stop-color="#5b9bff" />
+          <stop offset="1" stop-color="#7b6bff" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <button class="guide-orb" id="guideOrb" type="button" aria-label="Open the Eltes guide" aria-expanded="false" aria-controls="guidePanel" aria-describedby="guideOrbHint">
+      <span class="guide-orb-ring" aria-hidden="true"></span>
+      <svg class="guide-cloud" viewBox="0 0 48 42" aria-hidden="true" focusable="false">
+        <path d="M13.4 34.6c-5.2 0-9.4-4.2-9.4-9.4 0-4.6 3.3-8.5 7.8-9.2C12.8 10.7 17.6 6 23.4 6c6 0 11 4.6 11.6 10.5 4.3.7 7.6 4.4 7.6 8.9 0 5.1-4.1 9.2-9.2 9.2H13.4Z" fill="url(#guideCloudFill)" />
+        <circle cx="19" cy="21.6" r="2.2" fill="#06101f" />
+        <circle cx="29.2" cy="21.6" r="2.2" fill="#06101f" />
+        <circle cx="19.7" cy="20.8" r="0.75" fill="#ffffff" opacity=".9" />
+        <circle cx="29.9" cy="20.8" r="0.75" fill="#ffffff" opacity=".9" />
+        <path d="M21.3 27.1c1.7 1.5 4.2 1.5 5.9 0" fill="none" stroke="#06101f" stroke-width="1.9" stroke-linecap="round" />
+      </svg>
+      <span class="guide-orb-dot" aria-hidden="true"></span>
+    </button>
+    <span class="guide-sr" id="guideOrbHint">Press Enter to chat, or drag me anywhere with the mouse or arrow keys.</span>
+
+    <section class="guide-panel" id="guidePanel" aria-labelledby="guideTitle" hidden>
+      <header class="guide-head">
+        <span class="guide-avatar" aria-hidden="true">
+          <svg viewBox="0 0 48 42" focusable="false">
+            <path d="M13.4 34.6c-5.2 0-9.4-4.2-9.4-9.4 0-4.6 3.3-8.5 7.8-9.2C12.8 10.7 17.6 6 23.4 6c6 0 11 4.6 11.6 10.5 4.3.7 7.6 4.4 7.6 8.9 0 5.1-4.1 9.2-9.2 9.2H13.4Z" fill="url(#guideCloudFill)" />
+            <circle cx="19" cy="21.6" r="2.2" fill="#06101f" />
+            <circle cx="29.2" cy="21.6" r="2.2" fill="#06101f" />
+            <path d="M21.3 27.1c1.7 1.5 4.2 1.5 5.9 0" fill="none" stroke="#06101f" stroke-width="1.9" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span class="guide-id"><strong id="guideTitle">Eltes guide</strong><small>Local · reads this page only</small></span>
+        <button class="guide-close" id="guideClose" type="button" aria-label="Close the guide" data-icon="x" data-icon-size="15"></button>
+      </header>
+
+      <div class="guide-log" id="guideLog" role="log" aria-live="polite" aria-label="Guide conversation"></div>
+
+      <div class="guide-chips" id="guideChips" role="group" aria-label="Suggested questions"></div>
+
+      <form class="guide-form" id="guideForm" autocomplete="off">
+        <label class="guide-sr" for="guideInput">Ask the guide where something is</label>
+        <input class="guide-input" id="guideInput" type="text" name="q" placeholder="Ask where something is…" autocomplete="off" />
+        <button class="guide-send" type="submit" aria-label="Send" data-icon="arrow-up" data-icon-size="15"></button>
+      </form>
+
+      <p class="guide-foot"><span data-icon="shield-check" data-icon-size="11"></span>A rules-based guide — not a hosted model. It only scrolls this page.</p>
+    </section>
+  </div>
+
   <script src="config.js"></script>
   <script src="assets/js/supabase.js"></script>
   <script src="assets/js/galaxy.js"></script>
@@ -816,5 +871,6 @@
   <script src="assets/js/models.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/site.js"></script>
+  <script src="assets/js/guide.js"></script>
 </body>
 </html>

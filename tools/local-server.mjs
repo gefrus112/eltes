@@ -5,13 +5,14 @@ import { fileURLToPath } from 'node:url';
 import chat from '../api/chat.js';
 import keyCheck from '../api/key-check.js';
 import health from '../api/health.js';
+import auth from '../api/auth.js';
 import { createShellRunner } from './shell-runner.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '0.0.0.0';
 const shellRunner = createShellRunner({ root, enabled: process.env.ELTES_ENABLE_SHELL === '1' });
-const routes = { '/api/chat': chat, '/api/key-check': keyCheck, '/api/health': health };
+const routes = { '/api/chat': chat, '/api/key-check': keyCheck, '/api/health': health, '/api/auth': auth };
 const mime = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
@@ -80,7 +81,7 @@ const server = createServer(async (req, res) => {
 server.requestTimeout = 65000;
 server.listen(port, host, () => {
   console.log(`Eltes local server listening at http://localhost:${port}`);
-  console.log('Local API routes: /api/health, /api/key-check, /api/chat, /api/shell/status, /api/shell');
+  console.log('Local API routes: /api/health, /api/key-check, /api/chat, /api/auth, /api/shell/status, /api/shell');
   console.log('API keys are used per request and are not persisted by this server.');
   if (shellRunner.info.enabled) {
     console.warn('WARNING: Local shell execution is enabled. Commands run with this user account after per-command approval in the browser.');

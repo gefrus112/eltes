@@ -249,7 +249,7 @@
         <span data-icon="lock" data-icon-size="11"></span>Stored locally · sent to the provider directly or through your configured backend
         <span class="grow"></span>
         <button class="btn btn-ghost btn-sm" id="connectAdvanced">All providers</button>
-        <a class="btn btn-ghost btn-sm" id="connectAccount" href="auth.html?mode=signup&next=app.html">Provider accounts<span data-icon="arrow-up-right" data-icon-size="12"></span></a>
+        <a class="btn btn-ghost btn-sm" id="connectAccount" href="auth.html?mode=signup&next=app.html">Eltes account<span data-icon="arrow-up-right" data-icon-size="12"></span></a>
       </div>
     </div>
   </dialog>
@@ -275,12 +275,12 @@
         <input type="text" id="modelSearch" placeholder="Search models, providers, capabilities…" aria-label="Search models" autocomplete="off" />
         <span class="kbd esc">esc</span>
       </div>
-      <div class="provider-connect" id="providerConnect" role="group" aria-label="Provider accounts"></div>
+      <div class="provider-connect" id="providerConnect" role="group" aria-label="Provider API keys"></div>
       <div class="picker-list" id="modelList" role="listbox" aria-label="Models"></div>
       <div class="dlg-foot">
         <span id="keysFoot">No API keys connected</span>
         <span class="grow"></span>
-        <a class="btn btn-ghost btn-sm" id="connectAccountBtn" href="auth.html?mode=signup&next=app.html"><span data-icon="user-plus" data-icon-size="13"></span>Connect account</a>
+        <a class="btn btn-ghost btn-sm" id="connectAccountBtn" href="auth.html?mode=signup&next=app.html"><span data-icon="user-plus" data-icon-size="13"></span>Create Eltes account</a>
         <button class="btn btn-ghost btn-sm" id="manageKeysBtn"><span data-icon="key-round" data-icon-size="13"></span>Manage keys</button>
       </div>
     </div>
@@ -458,7 +458,7 @@
           <section data-panel="account">
             <div class="set-group">
               <h4>Your account</h4>
-              <p class="group-desc">Accounts are optional and stored in this browser. Connect an OpenAI, Anthropic or DeepSeek account, or use a local profile — nothing is uploaded.</p>
+              <p class="group-desc">Sign in with a real Supabase Auth account. Passwords and identity are managed remotely; chats, settings, and provider API keys stay in this browser. Account APIs require the Eltes Vercel deployment or a configured local server.</p>
               <div id="accountPanel"></div>
             </div>
             <div class="set-group">

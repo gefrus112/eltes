@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eltes — connect an account</title>
-  <meta name="description" content="Sign up or sign in with OpenAI, Anthropic or DeepSeek. Eltes stores the profile on this device and connects provider accounts without a middle server." />
+  <title>Eltes — secure account</title>
+  <meta name="description" content="Create or sign in to an Eltes account using Supabase Auth. Passwords are never stored by Eltes; chats and provider keys stay on this device." />
   <meta name="theme-color" content="#010308" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
@@ -21,8 +21,7 @@
   <header class="auth-nav">
     <div class="wrap auth-nav-in">
       <a class="brand" href="index.html" aria-label="Eltes home">
-        <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </span>
+        <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
         Eltes <span class="brand-sub">AI</span>
       </a>
       <span class="grow"></span>
@@ -34,218 +33,110 @@
 
   <main class="auth-main wrap" id="authMain">
     <aside class="auth-side">
-      <span class="eyebrow"><span class="dot"></span>Accounts · provider connect</span>
-      <h1>One workspace.<br /><span class="grad">Every account.</span></h1>
-      <p class="lead">
-        Sign up with the account that already pays for your models. Eltes connects
-        OpenAI, Anthropic and DeepSeek — then keeps the profile on this device.
-      </p>
+      <span class="eyebrow"><span class="dot"></span>Supabase Auth · secure sign-in</span>
+      <h1>One workspace.<br /><span class="grad">Your account.</span></h1>
+      <p class="lead">Create a real Eltes account with an email and password. Supabase Auth verifies credentials and manages sign-in sessions; Eltes never saves your password.</p>
 
-      <ul class="provider-list" aria-label="Supported accounts">
+      <ul class="provider-list auth-security-list" aria-label="Account security and privacy">
         <li>
-          <span class="pl-logo" data-brand="openai" data-brand-size="18"></span>
-          <div><strong>OpenAI</strong><span>GPT‑6 Sol, Luna and GPT‑4.1</span></div>
-          <span class="pl-state">connect</span>
+          <span class="pl-logo" data-icon="key-round" data-icon-size="17" aria-hidden="true"></span>
+          <div><strong>Passwords handled by Supabase</strong><span>Account credentials are not stored in Eltes local storage.</span></div>
+          <span class="pl-state on">managed</span>
         </li>
         <li>
-          <span class="pl-logo" data-brand="anthropic" data-brand-size="18"></span>
-          <div><strong>Anthropic</strong><span>Claude Opus, Sonnet and Haiku</span></div>
-          <span class="pl-state">connect</span>
-        </li>
-        <li>
-          <span class="pl-logo" data-brand="deepseek" data-brand-size="18"></span>
-          <div><strong>DeepSeek</strong><span>V4.1 Flash and V4 Pro</span></div>
-          <span class="pl-state">connect</span>
+          <span class="pl-logo" data-icon="shield-check" data-icon-size="17" aria-hidden="true"></span>
+          <div><strong>Protected sign-in session</strong><span>Session tokens use same-site, HttpOnly cookies.</span></div>
+          <span class="pl-state on">private</span>
         </li>
         <li class="local">
-          <span class="pl-logo" data-brand="eltes" data-brand-size="18"></span>
-          <div><strong>Eltes CAI</strong><span>On-device · no account required</span></div>
-          <span class="pl-state on">always on</span>
+          <span class="pl-logo" data-icon="hard-drive" data-icon-size="17" aria-hidden="true"></span>
+          <div><strong>Your workspace stays local-first</strong><span>Chats, settings, and provider API keys remain in this browser.</span></div>
+          <span class="pl-state on">byok</span>
         </li>
       </ul>
 
       <div class="auth-note">
-        <span data-icon="lock" data-icon-size="13"></span>
-        <p>No password, no Eltes server, no telemetry. A provider connection is either a real OAuth redirect
-          from your host or a key you paste — never a fabricated session. GitHub token sign-in is not
-          enabled on this static build; do not paste a GitHub access token into Eltes. Secure GitHub
-          sign-in requires a configured OAuth backend.</p>
+        <span data-icon="info" data-icon-size="13"></span>
+        <p>A secure account reduces risks from fake local profiles, but no sign-in system is impossible to compromise. Use a unique password and keep your device and browser protected. Hosted AI providers still receive prompts you send to them.</p>
       </div>
 
       <div class="auth-stats">
-        <div><strong>36</strong><span>real models</span></div>
-        <div><strong>13</strong><span>providers</span></div>
-        <div><strong>0</strong><span>Eltes servers</span></div>
+        <div><strong>12+</strong><span>character password</span></div>
+        <div><strong>0</strong><span>password copies in Eltes</span></div>
+        <div><strong>Local</strong><span>chat history</span></div>
       </div>
     </aside>
 
     <section class="auth-card" aria-labelledby="authTitle">
       <div class="card-blocks" aria-hidden="true"></div>
-
       <div class="auth-card-head">
         <div>
           <h2 id="authTitle">Create your account</h2>
-          <p id="authSub">Connect a provider, or keep a local profile.</p>
+          <p id="authSub">Sign up securely with Supabase Auth.</p>
         </div>
-        <span class="badge"><span class="dot"></span>BYOK</span>
+        <span class="badge"><span class="dot"></span>SECURE</span>
       </div>
 
       <div class="auth-flow" id="authFlow">
         <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
-          <button role="tab" data-mode="signin" aria-selected="false" id="tabSignin">Sign in</button>
-          <button role="tab" data-mode="signup" aria-selected="true" id="tabSignup">Create account</button>
+          <button role="tab" data-mode="signin" aria-selected="false" id="tabSignin" type="button">Sign in</button>
+          <button role="tab" data-mode="signup" aria-selected="true" id="tabSignup" type="button">Create account</button>
           <span class="tab-ink" aria-hidden="true"></span>
         </div>
 
-        <div class="provider-grid" id="providerGrid" role="group" aria-label="Connect a provider account">
-          <button type="button" class="provider-btn" data-provider="openai">
-            <span class="pb-logo" data-brand="openai" data-brand-size="20"></span>
-            <span class="pb-text"><strong>Continue with OpenAI</strong><span>Connect ChatGPT / API account</span></span>
-            <span class="pb-state" data-state-for="openai">connect</span>
-          </button>
-          <button type="button" class="provider-btn" data-provider="anthropic">
-            <span class="pb-logo" data-brand="anthropic" data-brand-size="20"></span>
-            <span class="pb-text"><strong>Continue with Anthropic</strong><span>Connect Claude account</span></span>
-            <span class="pb-state" data-state-for="anthropic">connect</span>
-          </button>
-          <button type="button" class="provider-btn" data-provider="deepseek">
-            <span class="pb-logo" data-brand="deepseek" data-brand-size="20"></span>
-            <span class="pb-text"><strong>Continue with DeepSeek</strong><span>Connect DeepSeek platform account</span></span>
-            <span class="pb-state" data-state-for="deepseek">connect</span>
-          </button>
-        </div>
-
-        <div class="or"><span>or keep a local profile</span></div>
-
-        <form id="authForm" novalidate autocomplete="off">
+        <p class="auth-backend-note" id="authBackendNote" role="status" aria-live="polite" hidden></p>
+        <form id="authForm" novalidate autocomplete="on">
           <div class="fld" id="nameField">
             <label for="nameInput">Display name</label>
-            <div class="fld-in">
-              <span data-icon="user" data-icon-size="15"></span>
-              <input id="nameInput" name="name" type="text" placeholder="Ada Lovelace" autocomplete="name" maxlength="60" />
-              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
-            </div>
+            <div class="fld-in"><span data-icon="user" data-icon-size="15"></span><input id="nameInput" name="name" type="text" placeholder="Ada Lovelace" autocomplete="name" maxlength="60" /></div>
             <em class="fld-err" id="nameErr" role="alert"></em>
           </div>
-
           <div class="fld">
-            <label for="emailInput">Email <span class="opt">stays on this device</span></label>
-            <div class="fld-in">
-              <span data-icon="mail" data-icon-size="15"></span>
-              <input id="emailInput" name="email" type="email" placeholder="ada@example.com" autocomplete="email" maxlength="120" inputmode="email" />
-              <span class="ok-mark" data-icon="check" data-icon-size="13"></span>
-            </div>
+            <label for="emailInput">Email address</label>
+            <div class="fld-in"><span data-icon="mail" data-icon-size="15"></span><input id="emailInput" name="email" type="email" placeholder="you@example.com" autocomplete="email" maxlength="254" inputmode="email" required /></div>
             <em class="fld-err" id="emailErr" role="alert"></em>
           </div>
-
-          <div class="auth-error" id="authError" role="alert" hidden>
-            <span data-icon="triangle-alert" data-icon-size="14"></span>
-            <span id="authErrorText"></span>
+          <div class="fld">
+            <label for="passwordInput">Password <span class="opt" id="passwordHint">At least 12 characters</span></label>
+            <div class="fld-in"><span data-icon="lock-keyhole" data-icon-size="15"></span><input id="passwordInput" name="password" type="password" placeholder="Use a unique password" autocomplete="new-password" minlength="12" maxlength="1024" required /></div>
+            <em class="fld-err" id="passwordErr" role="alert"></em>
           </div>
-
-          <button class="btn btn-primary btn-lg auth-submit" id="submitBtn" type="submit">
-            <span id="submitLabel">Create local profile</span>
-            <span data-icon="arrow-right" data-icon-size="16"></span>
-          </button>
-
-          <p class="terms">
-            No password and no email is sent. Eltes stores this profile in local storage.
-            <a href="docs.html#accounts">How accounts work</a>
-          </p>
+          <div class="auth-error" id="authError" role="alert" hidden><span data-icon="triangle-alert" data-icon-size="14"></span><span id="authErrorText"></span></div>
+          <div class="auth-notice" id="authNotice" role="status" aria-live="polite" hidden></div>
+          <button class="btn btn-primary btn-lg auth-submit" id="submitBtn" type="submit"><span id="submitLabel">Create secure account</span><span data-icon="arrow-right" data-icon-size="16"></span></button>
+          <p class="terms">Passwords go to Supabase Auth over HTTPS and are never saved by Eltes. Sign-in uses a protected same-site cookie. Chats and provider keys remain on this device.</p>
         </form>
-
-        <!-- provider connect panel -->
-        <div class="provider-flow" id="providerFlow" hidden>
-          <div class="pf-head">
-            <span class="pf-logo" id="pfLogo" data-brand="openai" data-brand-size="22"></span>
-            <div>
-              <strong id="pfTitle">Connect OpenAI</strong>
-              <span id="pfSub">Connect OpenAI using your own API key.</span>
-            </div>
-            <button class="icon-btn" id="pfClose" type="button" aria-label="Back to all providers" data-icon="x" data-icon-size="16"></button>
-          </div>
-
-          <div class="pf-mode" id="pfMode"></div>
-
-          <div class="fld" id="pfKeyField">
-            <label for="providerKey" id="pfKeyLabel">API key</label>
-            <div class="fld-in">
-              <span data-icon="key-round" data-icon-size="15"></span>
-              <input id="providerKey" type="password" placeholder="sk-…" autocomplete="new-password" spellcheck="false" />
-              <button class="pf-reveal" id="pfReveal" type="button" aria-label="Show key" data-icon="eye" data-icon-size="14"></button>
-            </div>
-            <em class="fld-err" id="pfKeyErr" role="alert"></em>
-          </div>
-
-          <div class="pf-row">
-            <a class="pf-link" id="pfKeyLink" href="#" target="_blank" rel="noopener">
-              Open provider keys <span data-icon="arrow-up-right" data-icon-size="12"></span>
-            </a>
-            <span class="pf-hint">Stored in this browser only</span>
-          </div>
-
-          <div class="pf-note">
-            <span data-icon="info" data-icon-size="13"></span>
-            <p id="pfNote">
-              Hosted OAuth needs a backend to exchange the code. On this static copy, connecting means saving
-              a real provider key on this device — we verify it against the provider when CORS allows.
-            </p>
-          </div>
-
-          <div class="pf-actions">
-            <button class="btn btn-ghost" id="pfCancel" type="button">Cancel</button>
-            <button class="btn btn-primary" id="pfConnect" type="button">
-              <span data-icon="plug" data-icon-size="14"></span><span id="pfConnectLabel">Connect account</span>
-            </button>
-          </div>
-
-          <p class="pf-contract">
-            Hosted setup: set <code class="mono">window.ELTES_CONFIG.authEndpoint</code>. Eltes calls
-            <code class="mono">/&lt;provider&gt;/start</code> and expects
-            <code class="mono">?account=&lt;base64url JSON&gt;</code> back.
-          </p>
-        </div>
       </div>
 
       <div class="signed-in" id="signedIn" hidden>
         <div class="si-head">
           <span class="avatar lg" id="siAvatar" aria-hidden="true">EL</span>
-          <div class="si-who">
-            <strong id="siName">Eltes user</strong>
-            <span id="siEmail">you@example.com</span>
-          </div>
-          <span class="key-status ok" id="siProvider"><i></i>Local</span>
+          <div class="si-who"><strong id="siName">Eltes user</strong><span id="siEmail">you@example.com</span></div>
+          <span class="key-status ok" id="siProvider"><i></i>Supabase Auth</span>
         </div>
-
-        <div class="si-connections" id="siConnections" role="group" aria-label="Provider connections"></div>
-
         <div class="si-rows">
-          <div class="si-row"><span>Profile ID</span><span class="mono" id="siId">u_…</span></div>
-          <div class="si-row"><span>Created</span><span id="siCreated">Today</span></div>
-          <div class="si-row"><span>Plan</span><span>BYOK · free</span></div>
-          <div class="si-row"><span>Storage</span><span>This browser</span></div>
+          <div class="si-row"><span>Account ID</span><span class="mono" id="siId">—</span></div>
+          <div class="si-row"><span>Created</span><span id="siCreated">—</span></div>
+          <div class="si-row"><span>Authentication</span><span>Supabase Auth</span></div>
+          <div class="si-row"><span>Session storage</span><span>HttpOnly cookie</span></div>
+          <div class="si-row"><span>Chats &amp; API keys</span><span>This browser</span></div>
         </div>
-
         <div class="si-actions">
           <a class="btn btn-primary" id="siContinue" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="14"></span></a>
           <button class="btn btn-ghost" id="siSignOut" type="button"><span data-icon="log-out" data-icon-size="14"></span>Sign out</button>
         </div>
-        <button class="si-delete" id="siDelete" type="button"><span data-icon="trash-2" data-icon-size="12"></span>Delete this profile</button>
-        <p class="terms">Signing out keeps your chats <em>and</em> your provider keys on this device.</p>
+        <p class="terms">Signing out clears the server session cookie. It does not remove your chats or provider keys from this device.</p>
       </div>
     </section>
   </main>
 
   <footer class="auth-foot wrap">
-    <p>Eltes is local-first by design. <a href="docs.html#accounts">Accounts</a> · <a href="docs.html#providers">Provider setup</a> · <a href="index.html#downloads">Downloads</a></p>
-    <p class="dim">No server. No telemetry. No invented sessions.</p>
+    <p>Supabase-backed identity · local chats · local BYOK keys. <a href="docs.html#accounts">Accounts documentation</a></p>
+    <p class="dim">Use the Eltes Vercel deployment or the configured local server for account access.</p>
   </footer>
-
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
 
   <script src="assets/js/icons.js"></script>
-  <script src="assets/js/brands.js"></script>
-  <script src="assets/js/models.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/auth.js"></script>
 </body>

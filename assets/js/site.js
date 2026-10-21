@@ -118,7 +118,7 @@
       <div class="account-wrap" style="position:relative">
         <button class="account-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false">
           ${window.EltesAccount.avatarHtml(account)}
-          <span class="who"><strong>${escapeHtml(account.name)}</strong><span>${escapeHtml(account.email || (account.username ? '@' + account.username : 'local profile'))}</span></span>
+          <span class="who"><strong>${escapeHtml(account.name)}</strong><span>${escapeHtml(account.email)}</span></span>
           <span data-icon="chevron-down" data-icon-size="13" style="color:var(--text-3)"></span>
         </button>
       </div>`;
@@ -135,7 +135,7 @@
       m.innerHTML = `
         <div class="am-head">
           ${window.EltesAccount.avatarHtml(account, 'sm')}
-          <div><strong>${escapeHtml(account.name)}</strong><span>${account.provider === 'local' ? 'Local profile' : (window.EltesModels && window.EltesModels.PROVIDERS[account.provider] ? window.EltesModels.PROVIDERS[account.provider].name : 'Provider')} · BYOK</span></div>
+          <div><strong>${escapeHtml(account.name)}</strong><span>Supabase Auth · BYOK</span></div>
         </div>
         <a href="app.html"><span data-icon="layout-grid" data-icon-size="14"></span>Open workspace</a>
         <a href="auth.html"><span data-icon="user" data-icon-size="14"></span>Account settings</a>
@@ -147,10 +147,10 @@
       if (window.EltesIcons) window.EltesIcons.hydrate(m);
       const off = () => { m.remove(); btn.setAttribute('aria-expanded', 'false'); document.removeEventListener('click', off); };
       setTimeout(() => document.addEventListener('click', off), 0);
-      $('#accountSignOut', m).addEventListener('click', (ev) => {
+      $('#accountSignOut', m).addEventListener('click', async (ev) => {
         ev.stopPropagation();
-        window.EltesAccount.signOut();
-        toast('Signed out locally', 'log-out');
+        const revoked = await window.EltesAccount.signOut();
+        toast(revoked ? 'Signed out. Local chats and keys remain.' : 'Signed out here; server cookie revocation could not be confirmed.', revoked ? 'log-out' : 'triangle-alert');
       });
     });
   }
@@ -336,8 +336,6 @@
     }
   ];
 
-  const ACCOUNT_PROVIDERS = ['openai', 'anthropic', 'deepseek'];
-
   function renderHeroModelPreview(modelId, focusTab = false) {
     const panel = $('#previewPanel');
     const tabs = $$('[data-preview-model]');
@@ -397,15 +395,14 @@
   renderHeroModelPreview('claude-sonnet-5-5');
 
   function wallLink(p) {
-    if (p.local || !ACCOUNT_PROVIDERS.includes(p.provider)) return p.href;
-    return `auth.html?provider=${p.provider}&mode=signup&next=${encodeURIComponent(p.href)}`;
+    return p.href;
   }
 
   function renderModelWall() {
     const wall = $('#modelWall');
     if (!wall) return;
     wall.innerHTML = WALL.map(
-      (p) => `<a class="model-tile reveal" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : ACCOUNT_PROVIDERS.includes(p.provider) ? '— connect your account' : 'models'}">
+      (p) => `<a class="model-tile reveal" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : 'models — add your API key in the workspace'}">
         <span class="mt-top">
           <span class="p-logo lg" data-brand="${p.brand}" data-brand-size="22"></span>
           <span>
@@ -414,7 +411,7 @@
           </span>
         </span>
         <ul>${p.models.map((m) => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
-        <span class="mt-link">${p.local ? 'Run on-device' : ACCOUNT_PROVIDERS.includes(p.provider) ? 'Connect account' : 'Open with a key'} <span data-icon="arrow-right" data-icon-size="11"></span></span>
+        <span class="mt-link">${p.local ? 'Run on-device' : 'Open in workspace'} <span data-icon="arrow-right" data-icon-size="11"></span></span>
       </a>`
     ).join('');
     hydrateBrands(wall);
@@ -561,28 +558,6 @@
     window.addEventListener('appinstalled', () => {
       installPrompt = null;
       installPwaButton.hidden = true;
-    });
-  }
-
-  /* ----------------------------- quick signup ----------------------------- */
-  const quick = $('#quickSignup');
-  if (quick) {
-    quick.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const data = new FormData(quick);
-      const name = (data.get('name') || '').toString().trim();
-      const email = (data.get('email') || '').toString().trim();
-      if (name.length < 2) {
-        toast('Add a name with at least two characters', 'triangle-alert');
-        return;
-      }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        toast('Enter a valid email address', 'triangle-alert');
-        return;
-      }
-      window.EltesAccount.create({ name, email, provider: 'local' });
-      toast(`Welcome, ${name.split(' ')[0]} — profile saved locally`, 'user-check');
-      setTimeout(() => { window.location.href = 'app.html'; }, 700);
     });
   }
 

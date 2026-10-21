@@ -440,26 +440,11 @@
         <div class="account-split">
           <div class="reveal">
             <span class="eyebrow"><span data-icon="user-plus" data-icon-size="14"></span>Accounts</span>
-            <h2>Sign in with<br />the account you use.</h2>
-            <p>Eltes connects OpenAI, Anthropic and DeepSeek directly. Sign up with the provider that already
-              pays for your models, or keep a local profile with no account at all. The profile lives in this
-              browser. Hosted model requests may optionally use a Vercel/local proxy that you configure; the profile itself remains in this browser.</p>
+            <h2>One account.<br />Your workspace.</h2>
+            <p>Create a real Eltes account with Supabase Auth. Passwords are managed securely by Supabase; Eltes never stores them. Your chats, settings, and provider API keys remain on this device. Add a provider key in the workspace whenever you want hosted models.</p>
             <div class="account-actions">
-              <a class="btn btn-ghost account-provider" href="auth.html?provider=openai&amp;mode=signup&amp;next=app.html">
-                <span class="p-logo sm" data-brand="openai" data-brand-size="15"></span>OpenAI
-              </a>
-              <a class="btn btn-ghost account-provider" href="auth.html?provider=anthropic&amp;mode=signup&amp;next=app.html">
-                <span class="p-logo sm" data-brand="anthropic" data-brand-size="15"></span>Anthropic
-              </a>
-              <a class="btn btn-ghost account-provider" href="auth.html?provider=deepseek&amp;mode=signup&amp;next=app.html">
-                <span class="p-logo sm" data-brand="deepseek" data-brand-size="15"></span>DeepSeek
-              </a>
-            </div>
-            <div class="account-actions" style="margin-top:10px">
-              <a class="btn btn-primary" href="auth.html?mode=signup">
-                <span data-icon="plug" data-icon-size="15"></span>
-                Connect an account
-              </a>
+              <a class="btn btn-primary" href="auth.html?mode=signup"><span data-icon="user-plus" data-icon-size="15"></span>Create secure account</a>
+              <a class="btn btn-ghost" href="auth.html?mode=signin">Sign in</a>
             </div>
           </div>
 
@@ -471,20 +456,10 @@
               <span class="p-logo" data-brand="eltes"></span>
               <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px"><span data-icon="shield-check" data-icon-size="11"></span>local</span>
             </div>
-            <strong style="font-size:13px;display:block;margin-bottom:12px">Create a local profile</strong>
-            <form id="quickSignup" novalidate>
-              <label class="auth-field">
-                <span data-icon="user" data-icon-size="14"></span>
-                <input type="text" name="name" placeholder="Your name" autocomplete="name" required />
-              </label>
-              <label class="auth-field">
-                <span data-icon="mail" data-icon-size="14"></span>
-                <input type="email" name="email" placeholder="you@domain.com" autocomplete="email" required />
-              </label>
-              <button class="btn btn-primary" type="submit">Create profile<span data-icon="arrow-right" data-icon-size="14"></span></button>
-            </form>
-            <p class="tiny">No password and no email is sent. Provider keys stay in this browser.
-              <a href="docs.html#accounts">How accounts work</a></p>
+            <strong style="font-size:13px;display:block;margin-bottom:8px">Create a secure Eltes account</strong>
+            <p class="tiny" style="margin:0 0 12px">Sign up with Supabase Auth using a password. Eltes does not store your password; chats and provider keys stay on this device.</p>
+            <a class="btn btn-primary" href="auth.html?mode=signup">Create account<span data-icon="arrow-right" data-icon-size="14"></span></a>
+            <p class="tiny">Already registered? <a href="auth.html?mode=signin">Sign in</a> · <a href="docs.html#accounts">How accounts work</a></p>
           </div>
         </div>
       </div>

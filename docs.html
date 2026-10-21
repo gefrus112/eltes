@@ -112,11 +112,11 @@
       <article class="doc">
         <section id="overview">
           <h2>Overview <a class="anchor" href="#overview" aria-label="Link to overview" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is a browser-based AI workspace. Connect a real provider account (or paste a key), pick a model, and Eltes streams that provider's answer, renders tool calls, and keeps history in this browser. Direct mode calls providers from the browser; an optional separately hosted Vercel/local proxy can test keys and forward requests. If a hosted provider is not connected, the app says so instead of inventing an answer — and <strong>Eltes CAI</strong>, a small on-device helper, is available with no key.</p>
+          <p>Eltes is a browser-based AI workspace. Add a provider API key, pick a model, and Eltes streams that provider's answer, renders tool calls, and keeps history in this browser. Optional Supabase Auth accounts provide a real sign-in; passwords are never stored by Eltes. Direct mode calls providers from the browser; an optional separately hosted Vercel/local proxy can test keys and forward requests. If a hosted provider is not connected, the app says so instead of inventing an answer — and <strong>Eltes CAI</strong>, a small on-device helper, is available with no key.</p>
 
           <h3>Three ideas, in order</h3>
           <ol>
-            <li><strong>Local-first.</strong> Chats, settings, keys and profiles live in <code>localStorage</code>. Clearing site data is the nuclear option, and it is yours to press.</li>
+            <li><strong>Local-first.</strong> Chats, settings and provider keys live in this browser. Supabase stores account credentials and the small Eltes profile; sign-in tokens use HttpOnly, SameSite cookies, with the Secure flag on HTTPS, not localStorage.</li>
             <li><strong>Bring your own key.</strong> By default, requests go from your tab to the provider. An optional trusted backend can relay a key for each request without persisting or logging it in the function code.</li>
             <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
             <li><strong>On-device when you need it.</strong> Eltes CAI-1 answers chat, Eltes questions, model choice, arithmetic, units and dates in this tab. No key, no network, and it is explicit about what it does not know.</li>
@@ -129,7 +129,7 @@
               <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry. CAI answers locally and labels itself.</td></tr>
               <tr><td>Chat</td><td>Dark-blue theme with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
               <tr><td>Models</td><td>36 real models across 13 providers, including Claude Sonnet 5.5, DeepSeek V4.1, NVIDIA NIM and three Eltes CAI models.</td></tr>
-              <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
+              <tr><td>Accounts</td><td>Email/password sign-up and sign-in through Supabase Auth; protected per-user Eltes profiles.</td></tr>
               <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
               <tr><td>Downloads</td><td>A portable Windows package plus an installable Chromebook PWA that opens in a standalone Chrome window.</td></tr>
             </tbody>
@@ -149,13 +149,13 @@
             <div class="step-item">
               <div>
                 <h4>Open the workspace</h4>
-                <p>Go to <a class="inline-link" href="app.html">app.html</a>. No sign-in is required; install the PWA optionally for a standalone app window. A first-run Quick setup guide offers local CAI, provider connection, and install guidance; reopen it with <code>⌘K</code> → <strong>Quick setup</strong>. An account is optional and only adds a profile.</p>
+                <p>Go to <a class="inline-link" href="app.html">app.html</a>. A Supabase account is optional; Eltes CAI and local chats work without signing in. Install the PWA optionally for a standalone app window. A first-run Quick setup guide offers local CAI, provider-key connection, and install guidance; reopen it with <code>⌘K</code> → <strong>Quick setup</strong>.</p>
               </div>
             </div>
             <div class="step-item">
               <div>
                 <h4>Connect a provider</h4>
-                <p>Press <strong>Connect an account</strong>, choose OpenAI, Anthropic or DeepSeek, and save the key. Or open Settings → <strong>API keys</strong>. The pill in the top bar turns green when at least one key is present. No key yet? Pick <strong>Eltes CAI-1</strong>.</p>
+                <p>Press <strong>Connect a provider</strong>, choose a provider, and save its API key. Or open Settings → <strong>API keys</strong>. Provider API keys are separate from your Supabase Eltes account. The pill in the top bar turns green when at least one key is present. No key yet? Pick <strong>Eltes CAI-1</strong>.</p>
               </div>
             </div>
             <div class="step-item">
@@ -195,65 +195,25 @@ python3 -m http.server 4173
 
         <section id="accounts">
           <h2>Accounts <a class="anchor" href="#accounts" aria-label="Link to accounts" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>An Eltes account is a <strong>profile</strong> plus a set of provider connections. It stores a name, an email, the provider that created it and — when you connect one — a provider key. There is no password, no session cookie and no email delivery. The profile is written to <code>eltes.account.v1</code>; provider keys live in <code>eltes.settings.v1</code>.</p>
+          <p>Eltes uses <strong>Supabase Auth</strong> for real email/password accounts. Supabase manages the credential; Eltes never writes your password or a fake profile to browser storage. Display names are saved in the <code>public.eltes_profiles</code> table, with row-level security restricting reads and changes to that profile’s authenticated user ID.</p>
 
           <h3>Create or sign in</h3>
-          <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Sign up with <strong>OpenAI</strong>, <strong>Anthropic</strong> or <strong>DeepSeek</strong>, or create a local profile with a display name and email. Signing in restores the profile already in this browser. Because there is no Eltes server, a local email is a label, not a credential.</p>
+          <p>Open <a class="inline-link" href="auth.html?mode=signup">Create account</a>, choose a display name, email and password of at least 12 characters, then sign in. If email confirmation is enabled for the Supabase project, follow its confirmation email first. Existing Eltes local-only profiles are not credentials and are removed; create a new Supabase account. Chats, settings and BYOK provider keys remain in this browser and are not uploaded by account sign-in.</p>
 
-          <table class="doc-table">
-            <thead><tr><th>Provider</th><th>What “connect” does on a static copy</th><th>What it does with a host</th></tr></thead>
-            <tbody>
-              <tr><td>OpenAI</td><td>Validates the key against <code>/v1/models</code>, then stores it locally</td><td>Redirects to <code>/openai/start</code> and returns a profile</td></tr>
-              <tr><td>Anthropic</td><td>Validates against <code>/v1/models</code> with the browser-access header</td><td>Redirects to <code>/anthropic/start</code> and returns a profile</td></tr>
-              <tr><td>DeepSeek</td><td>Saves the key; verification is best-effort because CORS varies</td><td>Redirects to <code>/deepseek/start</code> and returns a profile</td></tr>
-              <tr><td>Local profile</td><td>Name + email, stored in this browser only</td><td>Same — no hosted identity required</td></tr>
-            </tbody>
-          </table>
-
-          <h3>Hosted OAuth contract</h3>
-          <p>A static page cannot hold a client secret, so the hosted path is a contract rather than a fake success state. Set the endpoint before the auth scripts load:</p>
+          <h3>Where accounts work</h3>
+          <ul>
+            <li><strong>Vercel deployment:</strong> deploy Eltes and its <code>/api/auth</code> function on the same origin. The API sets Secure, HttpOnly, SameSite cookies for the access and refresh tokens.</li>
+            <li><strong>Local development:</strong> run <code>npm start</code> and open the local Eltes page. The local server exposes the same account API.</li>
+            <li><strong>GitHub Pages:</strong> static Pages cannot run <code>/api/auth</code>; account sign-in will report that the backend is unavailable. The local workspace and CAI continue to work.</li>
+          </ul>
+          <p>The API uses only Supabase’s public publishable key and the signed-in user token. It does not use a service-role key. Account-changing requests are same-origin checked. Browser sessions are not stored in <code>localStorage</code>; sign-out asks the server to revoke and clear the cookie. This improves credential handling, but does not make an account impossible to compromise: use a unique password and protect your device.</p>
 
           <div class="doc-code">
             <div class="bar">
-              <span class="label"><span class="dot"></span>auth.html — before the scripts</span>
+              <span class="label"><span class="dot"></span>Supabase profile migration</span>
               <button class="cpy" type="button">Copy</button>
             </div>
-            <pre><code><span class="c">&lt;!-- Only when a real auth backend exists --&gt;</span>
-&lt;<span class="k">script</span>&gt;
-  window.ELTES_CONFIG = {
-    authEndpoint: <span class="s">'https://auth.example.com'</span>
-  };
-&lt;/<span class="k">script</span>&gt;</code></pre>
-          </div>
-
-          <p>With <code>authEndpoint</code> set, a provider button redirects to:</p>
-          <div class="doc-code">
-            <div class="bar">
-              <span class="label"><span class="dot"></span>redirect shape</span>
-              <button class="cpy" type="button">Copy</button>
-            </div>
-            <pre><code><span class="c"># provider is openai, anthropic or deepseek</span>
-GET https://auth.example.com/&lt;provider&gt;/start
-    ?return=&lt;the full auth.html URL&gt;
-    &amp;mode=signup
-
-<span class="c"># your backend completes OAuth, then returns the user to:</span>
-https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
-
-<span class="c"># profile</span>
-{
-  <span class="s">"name"</span>: <span class="s">"Ada Lovelace"</span>,
-  <span class="s">"email"</span>: <span class="s">"ada@example.com"</span>,
-  <span class="s">"provider"</span>: <span class="s">"openai"</span>,
-  <span class="s">"avatarUrl"</span>: <span class="s">"https://example.com/ada.png"</span>
-}</code></pre>
-          </div>
-
-          <p>The page decodes the profile, writes it locally, clears the parameter and shows the signed-in state. Avatar URLs are restricted to <code>https:</code>. An <code>error=…</code> or <code>provider_error=…</code> parameter shows a failure message instead, so a cancelled login never looks successful. <code>code</code> and <code>state</code> are stripped from the address bar after the callback.</p>
-
-          <div class="callout warn">
-            <span data-icon="triangle-alert" data-icon-size="15"></span>
-            <span><strong>Never put a client secret in this page.</strong> Anything shipped to the browser is public. Without an endpoint, the connect panel asks for a real key and stores it locally — it does not claim an OAuth session.</span>
+            <pre><code>supabase/migrations/20261021_create_eltes_auth_profiles.sql</code></pre>
           </div>
         </section>
 
@@ -650,7 +610,7 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
 
           <div class="callout tip">
             <span data-icon="download" data-icon-size="15"></span>
-            <span><strong>Update by replacing files.</strong> Copy a new build over the old folder and keep <code>localStorage</code>. Chats, keys and your profile live in the browser, not in the download.</span>
+            <span><strong>Update by replacing files.</strong> Copy a new build over the old folder and keep <code>localStorage</code>. Chats, settings and provider keys stay in the browser; your Supabase account lives remotely and is not in the download.</span>
           </div>
         </section>
 
@@ -680,7 +640,7 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
           <p>Without a configured proxy, users save keys in their browser and provider APIs receive requests directly from that browser, subject to provider CORS. Eltes also includes Node-based local API routes for development and separate Vercel functions for deployment.</p>
 
           <h3>Run the local site and API</h3>
-          <p>With Node.js 18 or newer, run <code>npm install</code> and <code>npm start</code>, then open <code>http://localhost:4173/app.html</code>. This serves the static site and the three local API routes. The server binds to <code>0.0.0.0</code> for development-preview compatibility and has no user authentication; keep it on a trusted network. Use <code>HOST=127.0.0.1 npm start</code> to bind only to loopback. A Python static server serves only files, so it does not provide key testing or proxy routes.</p>
+          <p>With Node.js 18 or newer, run <code>npm install</code> and <code>npm start</code>, then open <code>http://localhost:4173/app.html</code>. This serves the static site and API routes, including the same-origin <code>/api/auth</code> route for Supabase accounts. The server binds to <code>0.0.0.0</code> for development-preview compatibility; it is not intended for public hosting, so keep it on a trusted network. Use <code>HOST=127.0.0.1 npm start</code> to bind only to loopback. A Python static server serves only files, so it does not provide account sign-in, key testing, or proxy routes.</p>
 
           <h3>Deploy the optional proxy to Vercel</h3>
           <ol>
@@ -749,13 +709,14 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
           <div class="keys-table">
             <div class="krow"><span><code>eltes.chats.v1</code> — conversations and per-message metadata</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.settings.v1</code> — provider keys, backend URL, model default, preferences</span><span class="keys mono">local</span></div>
-            <div class="krow"><span><code>eltes.account.v1</code> — optional profile</span><span class="keys mono">local</span></div>
+            <div class="krow"><span>Supabase Auth account and <code>public.eltes_profiles</code> — credentials and display name</span><span class="keys mono">Supabase</span></div>
+            <div class="krow"><span>Supabase access/refresh tokens — <code>HttpOnly</code>, <code>SameSite=Lax</code> cookies, Secure over HTTPS</span><span class="keys mono">cookie</span></div>
             <div class="krow"><span><code>eltes.waitlist.v1</code> — pricing waitlist entries, if you join</span><span class="keys mono">local</span></div>
-            <div class="krow"><span>No cookies, no fingerprinting, no session replay</span><span class="keys mono">none</span></div>
+            <div class="krow"><span>No analytics, fingerprinting, or session replay; Supabase auth cookies only when signed in</span><span class="keys mono">minimal</span></div>
           </div>
 
           <h3>What providers see</h3>
-          <p>Your prompt, the conversation history sent with it, and whatever tool definitions or results are included in that request. That is exactly what any chat client must send to get an answer. Eltes adds no account identifier, because it does not have one to add.</p>
+          <p>Your prompt, the conversation history sent with it, and whatever tool definitions or results are included in that request. That is exactly what any chat client must send to get an answer. Eltes does not add your Supabase account ID to provider requests.</p>
 
           <h3>Deleting data</h3>
           <p>Use <strong>Settings → Data</strong> to delete all chats, or <strong>Account → Delete profile</strong> to remove the profile. Keys can be removed individually. Clearing site data for the origin removes everything at once.</p>
@@ -790,8 +751,8 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
               <p>Yes, partly. Eltes CAI-1 answers chat, Eltes questions, arithmetic, units and dates with no network at all. Hosted models need a connection, unless you point a custom endpoint at a model running on your machine. The Windows launcher serves the whole site locally.</p>
             </details>
             <details>
-              <summary>Can I sign up with OpenAI, Anthropic or DeepSeek?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>Yes. The account page offers all three. On a static copy, connecting means validating and storing a real provider key in this browser. On a hosted deployment with <code>ELTES_CONFIG.authEndpoint</code>, the same buttons start a real OAuth redirect. GitHub sign-up has been removed.</p>
+              <summary>How do Eltes accounts and provider keys work?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>Eltes accounts use Supabase Auth email/password sign-in and need the same-origin Vercel or local Node API; static GitHub Pages cannot host sign-in. OpenAI, Anthropic, DeepSeek, and other providers are connected separately with your API keys in the workspace. Those keys stay in this browser and are not your Eltes account password.</p>
             </details>
             <details>
               <summary>Can I install Eltes on a Chromebook?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
@@ -879,7 +840,7 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
       </div>
       <div class="footer-bottom">
         <span>© <span id="year">2026</span> Eltes AI. Built in the browser.</span>
-        <span class="status"><i></i>All systems local</span>
+        <span class="status"><i></i>Local-first · Supabase accounts</span>
       </div>
     </div>
   </footer>

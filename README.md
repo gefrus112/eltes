@@ -2,7 +2,7 @@
 
 A local-first AI workspace for real provider APIs, user-run open models, and an honest on-device assistant.
 
-Eltes is a static browser app by default. Hosted requests can go directly from your browser to a provider, or through an optional Vercel/local proxy that forwards your own key for one request and does not persist it. Chats, keys, profiles, and preferences stay in browser storage. There are no simulated hosted-model replies.
+Eltes is a local-first browser app. Hosted model requests can go directly from your browser to a provider, or through an optional Vercel/local proxy that forwards your own key for one request and does not persist it. Chats, provider keys, and preferences stay in browser storage; optional Supabase Auth accounts are remote, with session tokens protected in HttpOnly cookies. There are no simulated hosted-model replies.
 
 ## Pages
 
@@ -11,7 +11,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 | `index.html` | Landing page and model catalogue |
 | `app.html` | Chat workspace, streaming, local history, settings, custom endpoints, and a video-editor tab |
 | `video.html` | On-device single-clip video trimming, color adjustments, text overlays, and browser export |
-| `auth.html` | Local profile and provider-key utilities; it is not a hosted identity service |
+| `auth.html` | Supabase Auth email/password sign-up, sign-in, and protected account profile |
 | `docs.html` | App, video editor, local-model, proxy, deployment, privacy, and troubleshooting guide |
 
 ## Features
@@ -20,7 +20,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Bring your own key:** keys are stored in this browser's `localStorage`. Direct mode sends them from the tab to the selected provider. Optional proxy mode sends a key over HTTPS to the Vercel backend for that request; Eltes's function code does not persist or log the key. Use only a backend you trust. See [BYOK and proxy privacy](#byok-and-proxy-privacy).
 - **Local open models:** connect Ollama, LM Studio, vLLM, or another OpenAI-compatible server using the Custom endpoint setting. Model weights and inference stay on your own computer/server, subject to that runner's configuration.
 - **Eltes CAI:** a deterministic, on-device JavaScript rules-and-knowledge helper for Eltes guidance, arithmetic, common math functions, one-variable linear/quadratic equations, conversions, dates, a curated AI glossary, and exact retrieval from messages included in the active chat. It is not a trained neural network or a general-purpose LLM, and it cannot solve every kind of math.
-- **Local-first workspace:** chat history, profiles, settings, and exports are controlled in your browser. No analytics or telemetry are included.
+- **Local-first workspace:** chat history, settings, provider keys, and exports are controlled in your browser. Optional Supabase Auth holds account credentials and the display-name profile remotely; no password or auth token is kept in localStorage.
 - **Agent tools:** local calculation, clock, and chat-history search can be offered to compatible hosted models. An optional local shell runner is disabled by default and requires approval for each exact command. Tool results are sent back as part of the model request.
 - **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
 - **Video editor:** local-file or direct CORS-enabled URL input, drag-and-drop, trimming and playback speed, color/effect controls and presets, configurable title/caption overlays, and MediaRecorder export when supported by the browser. Local video is not uploaded to Eltes; remote URLs are requested directly by the browser.
@@ -35,7 +35,7 @@ npm start
 # open http://localhost:4173/app.html
 ```
 
-`npm start` serves the site and local API routes together, binding to `0.0.0.0` so the development preview can reach it. The built-in proxy is automatically used when Eltes detects the same-origin API. Available routes are `/api/health`, `/api/key-check`, and `/api/chat`. Stop the server with Ctrl+C. The local server has no user authentication; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`.
+`npm start` serves the site and local API routes together, binding to `0.0.0.0` so the development preview can reach it. Available routes include `/api/health`, `/api/key-check`, `/api/chat`, and the Supabase-backed `/api/auth`. Account sign-in uses same-origin HttpOnly cookies; the shell runner has its own opt-in token. This development server is not intended for public hosting; keep it on a trusted network. To bind only to loopback, run `HOST=127.0.0.1 npm start`.
 
 ### Supervised local command runner (opt-in)
 
@@ -77,8 +77,8 @@ GitHub Pages remains a static host. The separate `api/` functions are for Vercel
 1. Import this repository into a Vercel project with the root directory set to the repository root.
 2. Set the Vercel environment variable `ELTES_ALLOWED_ORIGINS` to a comma-separated list of exact allowed browser **origins**, with no paths or trailing slashes. Example:
    `https://gefrus112.github.io,http://localhost:4173`
-3. Deploy the project. Vercel exposes `/api/health`, `/api/key-check`, and `/api/chat`.
-4. In Eltes **Settings → API keys → Optional Vercel/local backend**, enter the deployed origin, such as `https://your-project.vercel.app`, save, and check that the health test succeeds.
+3. Deploy the project. Vercel exposes `/api/health`, `/api/key-check`, `/api/chat`, and `/api/auth`. Keep the frontend and auth API on the same Vercel origin so browser cookies remain first-party. The auth function defaults to the Eltes Supabase project and uses only its public publishable key; you may override `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in Vercel environment variables.
+4. In Eltes **Settings → API keys → Optional Vercel/local backend**, enter the deployed origin, such as `https://your-project.vercel.app`, save, and check that the health test succeeds. Authentication uses the same-origin `/api/auth` route and is separate from the optional model proxy.
 5. Use **Test key** beside a saved provider key, or send a hosted-model message. Clear the backend URL to return to direct browser-to-provider mode.
 
 The proxy supports only provider hosts and provider/model pairs in `lib/providers.cjs`; it does not accept arbitrary upstream URLs. CORS is not authentication, and an origin allowlist only controls browser cross-origin use. Treat your Vercel project as trusted infrastructure, set provider spending limits, and monitor function usage. No provider key is configured in Vercel: each user supplies their own key with each request. The server code does not persist or log that key, but the key necessarily transits the backend and is visible to the backend platform while the request is processed. Do not use the proxy if you do not trust its operator/platform.
@@ -124,7 +124,7 @@ The Windows ZIP is generated from the current source/docs and includes the curre
 | `eltes.chats.v1` | Conversations |
 | `eltes.settings.v1` | Model, provider keys, proxy URL, preferences |
 | `eltes.active.v1` | Open conversation |
-| `eltes.account.v1` | Optional local profile |
+| Supabase Auth | Account credentials and profile (remote); session tokens are HttpOnly cookies, not localStorage |
 
 Storage is per browser and origin. Export chats before clearing site data.
 

@@ -456,7 +456,7 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['account', 'sign up', 'signup', 'sign in', 'signin', 'login', 'profile', 'openai account', 'anthropic account', 'deepseek account', 'oauth'],
-      a: `## Accounts and provider connect\n\nYou can create a profile with **OpenAI, Anthropic or DeepSeek**, or keep a local profile. There is no GitHub button any more.\n\n- With \`window.ELTES_CONFIG.authEndpoint\` set by a host, the provider buttons start a real OAuth redirect.\n- On a static copy of Eltes there is no server to exchange an OAuth code, so the same panel asks for an API key instead and stores it locally. It never claims a connection that did not happen.\n\nA local profile is stored in \`eltes.account.v1\`. OAuth and provider sign-in behavior depends on the configured host; do not assume a profile is private from an external auth provider.`
+      a: `## Accounts and provider keys\n\nEltes accounts use **Supabase Auth** email/password sign-up and sign-in. The password is sent to the same-origin \`/api/auth\` endpoint and handled by Supabase; Eltes does not store it in browser storage. Session access/refresh tokens are held in HttpOnly same-site cookies. The signed-in display name is stored in the row-level-secured \`public.eltes_profiles\` table.\n\nAccount sign-in requires the Eltes Vercel deployment or the configured local Node server. GitHub Pages is static and cannot serve the account API. Provider API keys are separate from your Eltes account and remain in local \`eltes.settings.v1\`; connect keys in the workspace. Legacy local-only profiles are not real credentials and are removed.`
     },
     {
       keys: ['pricing', 'price', 'cost', 'free', 'subscription', 'plan'],
@@ -464,7 +464,7 @@ window.EltesCAI = (function () {
     },
     {
       keys: ['privacy', 'storage', 'local storage', 'data', 'telemetry', 'tracking'],
-      a: `## Privacy and storage\n\nChats, settings and the local profile are stored in this browser. In direct mode, hosted prompts and keys go to the provider you selected. If you configure the optional proxy, the request also transits that backend/platform before reaching the provider; Eltes's function code does not persist or log the key.\n\n**Settings → Data** can export or clear local data. Review the configured provider and backend privacy terms before sending sensitive content.`
+      a: `## Privacy and storage\n\nChats, settings and provider API keys stay in this browser. Supabase Auth stores account credentials and an Eltes profile; sign-in tokens are held in HttpOnly same-site cookies, not localStorage. In direct mode, hosted prompts and keys go to the provider you selected. If you configure the optional proxy, the request also transits that backend/platform before reaching the provider; Eltes's function code does not persist or log the key.\n\n**Settings → Data** can export or clear local data. Review Supabase, provider, and backend privacy terms before sending sensitive content.`
     },
     {
       keys: ['download', 'downloads', 'windows', 'bat', 'install', 'offline', 'desktop', 'launcher'],

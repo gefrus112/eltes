@@ -685,7 +685,7 @@
     if (composerRt) composerRt.hidden = !model.realtime;
     ['connectAccount', 'connectAccountBtn'].forEach((id) => {
       const link = document.getElementById(id);
-      if (link) link.href = `auth.html?provider=${model.provider}&mode=signup&next=${encodeURIComponent('app.html')}`;
+      if (link) link.href = `auth.html?mode=signup&next=${encodeURIComponent('app.html')}`;
     });
     els.composerModelName.textContent = model.name;
     els.composerLogo.dataset.brand = M.brandOf(model);
@@ -746,7 +746,7 @@
     els.accountSlot.innerHTML = `
       <button class="account-btn" id="topAccountBtn" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">
         ${Account.avatarHtml(account, 'sm')}
-        <span class="who"><strong>${esc(account.name.split(' ')[0])}</strong><span>${account.provider === 'local' || !M.PROVIDERS[account.provider] ? 'Local' : M.PROVIDERS[account.provider].name}</span></span>
+        <span class="who"><strong>${esc(account.name.split(' ')[0])}</strong><span>Supabase</span></span>
         <span data-icon="chevron-down" data-icon-size="12" style="color:var(--text-3)"></span>
       </button>`;
     I.hydrate(els.accountSlot);
@@ -760,7 +760,7 @@
       m.innerHTML = `
         <div class="am-head">
           ${Account.avatarHtml(account, 'sm')}
-          <div><strong>${esc(account.name)}</strong><span>${esc(account.email || (account.username ? '@' + account.username : 'Local profile'))}</span></div>
+          <div><strong>${esc(account.name)}</strong><span>${esc(account.email)}</span></div>
         </div>
         <a href="index.html"><span data-icon="layout-grid" data-icon-size="14"></span>Home</a>
         <a href="docs.html"><span data-icon="book-open" data-icon-size="14"></span>Documentation</a>
@@ -771,7 +771,11 @@
       els.accountSlot.appendChild(m);
       I.hydrate(m);
       m.querySelector('[data-settings]').addEventListener('click', () => { m.remove(); openSettings('account'); });
-      m.querySelector('[data-signout]').addEventListener('click', () => { Account.signOut(); m.remove(); toast('Signed out locally', 'log-out'); });
+      m.querySelector('[data-signout]').addEventListener('click', async () => {
+        const revoked = await Account.signOut();
+        m.remove();
+        toast(revoked ? 'Signed out. Local chats and keys remain.' : 'Signed out here; server cookie revocation could not be confirmed.', revoked ? 'log-out' : 'triangle-alert');
+      });
       const off = () => { m.remove(); btn.setAttribute('aria-expanded', 'false'); document.removeEventListener('click', off); };
       setTimeout(() => document.addEventListener('click', off), 0);
     });
@@ -1491,10 +1495,10 @@
     const pc = $('#providerConnect');
     if (pc) {
       const ids = ['openai', 'anthropic', 'deepseek'];
-      pc.innerHTML = `<span class="pc-label">Accounts</span>` + ids.map((id) => {
+      pc.innerHTML = `<span class="pc-label">API keys</span>` + ids.map((id) => {
         const p = M.PROVIDERS[id];
         const connected = !!state.settings.keys[id];
-        return `<button type="button" class="pc-chip${connected ? ' on' : ''}" data-connect-account="${id}" title="${esc(connected ? 'Manage your ' + p.name + ' connection' : 'Connect ' + p.name)}">
+        return `<button type="button" class="pc-chip${connected ? ' on' : ''}" data-connect-key="${id}" title="${esc(connected ? 'Manage your ' + p.name + ' key' : 'Add a ' + p.name + ' API key')}">
           <span class="p-logo" data-brand="${p.brand}" data-brand-size="13"></span>
           ${esc(p.name)}
           <span class="pc-state">${connected ? 'connected' : 'connect'}</span>
@@ -1924,13 +1928,13 @@
       box.innerHTML = `
         <div class="profile-card">
           <span class="avatar lg" aria-hidden="true">EL</span>
-          <div class="who"><strong>Not signed in</strong><span>Anonymous local workspace</span></div>
+          <div class="who"><strong>Not signed in</strong><span>Local workspace · Supabase account optional</span></div>
           <span class="badge"><span class="dot"></span>BYOK</span>
         </div>
-        <p class="group-desc" style="margin-top:0">Create a profile to keep a name, avatar and preferences together. It is stored in this browser and can be deleted at any time.</p>
+        <p class="group-desc" style="margin-top:0">Create a real account with Supabase Auth. Your password is never saved by Eltes; chats, settings, and provider API keys remain on this device.</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a class="btn btn-primary btn-sm" href="auth.html?mode=signup">Create account</a>
-          <a class="btn btn-ghost btn-sm" href="auth.html?mode=signup"><span data-icon="plug" data-icon-size="14"></span>Connect a provider</a>
+          <a class="btn btn-primary btn-sm" href="auth.html?mode=signup">Create secure account</a>
+          <a class="btn btn-ghost btn-sm" href="auth.html?mode=signin">Sign in</a>
         </div>`;
       I.hydrate(box);
       return;
@@ -1938,106 +1942,55 @@
     box.innerHTML = `
       <div class="profile-card">
         ${Account.avatarHtml(account, 'lg')}
-        <div class="who">
-          <strong>${esc(account.name)}</strong>
-          <span>${esc(account.email || (account.username ? '@' + account.username : 'Local profile'))}</span>
-        </div>
-        <span class="badge"><span class="dot"></span>${account.provider === 'local' || !M.PROVIDERS[account.provider] ? 'Local' : esc(M.PROVIDERS[account.provider].name)}</span>
+        <div class="who"><strong>${esc(account.name)}</strong><span>${esc(account.email)}</span></div>
+        <span class="badge"><span class="dot"></span>Supabase Auth</span>
       </div>
       <div class="set-row">
-        <div class="lbl"><strong>Display name</strong><span>Shown in the sidebar and account menu.</span></div>
+        <div class="lbl"><strong>Display name</strong><span>Saved in your Supabase account profile.</span></div>
         <div class="ctl">
-          <label class="key-input" style="max-width:210px">
-            <input type="text" id="accountNameInput" value="${esc(account.name)}" aria-label="Display name" autocomplete="off" />
-          </label>
+          <label class="key-input" style="max-width:210px"><input type="text" id="accountNameInput" value="${esc(account.name)}" aria-label="Display name" maxlength="60" autocomplete="name" /></label>
           <button class="btn btn-ghost btn-sm" id="accountNameSave">Save</button>
         </div>
       </div>
       <div class="set-row">
-        <div class="lbl"><strong>Profile image</strong><span>PNG, JPEG, WebP or GIF · max 2 MB · stored only in this browser.</span></div>
-        <div class="ctl profile-upload-ctl">
-          <input type="file" id="accountAvatarFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden />
-          <button class="btn btn-ghost btn-sm" type="button" id="accountAvatarChoose">Upload image</button>
-          <button class="btn btn-ghost btn-sm" type="button" id="accountAvatarRemove"${account.avatarUrl ? '' : ' hidden'}>Remove</button>
-        </div>
-      </div>
-      <div class="set-row profile-bio-row">
-        <div class="lbl"><strong>Bio</strong><span>Up to 240 characters. Private to this browser.</span></div>
-        <div class="ctl profile-bio-ctl"><textarea id="accountBioInput" maxlength="240" aria-label="Profile bio" placeholder="A little about you">${esc(account.bio || '')}</textarea><button class="btn btn-ghost btn-sm" id="accountBioSave">Save bio</button></div>
+        <div class="lbl"><strong>Account email</strong><span>Managed by Supabase Auth.</span></div>
+        <div class="ctl"><span class="mono" style="font-size:11.5px;color:var(--text-2)">${esc(account.email)}</span></div>
       </div>
       <div class="set-row">
-        <div class="lbl"><strong>Email</strong><span>Only used locally. No email is ever sent.</span></div>
-        <div class="ctl"><span class="mono" style="font-size:11.5px;color:var(--text-2)">${esc(account.email || '—')}</span></div>
+        <div class="lbl"><strong>Account security</strong><span>Password and session are managed by Supabase.</span></div>
+        <div class="ctl"><a class="btn btn-ghost btn-sm" href="auth.html">Manage account</a></div>
       </div>
       <div class="set-row">
-        <div class="lbl"><strong>Account page</strong><span>Manage sign-in, avatar and profile details.</span></div>
-        <div class="ctl"><a class="btn btn-ghost btn-sm" href="auth.html">Open<span data-icon="arrow-up-right" data-icon-size="12"></span></a></div>
+        <div class="lbl"><strong>Local data</strong><span>Chats, settings, and provider keys stay in this browser.</span></div>
+        <div class="ctl"><span class="key-status ok"><i></i>on device</span></div>
       </div>
       <div class="set-row">
-        <div class="lbl"><strong>Sign out</strong><span>Keeps chats and keys on this device.</span></div>
+        <div class="lbl"><strong>Sign out</strong><span>Revokes the server session cookie; local chats and keys remain.</span></div>
         <div class="ctl"><button class="btn btn-ghost btn-sm" id="accountSignOut">Sign out</button></div>
-      </div>
-      <div class="set-row">
-        <div class="lbl"><strong>Delete profile</strong><span>Removes name and email only. Chats stay.</span></div>
-        <div class="ctl"><button class="btn btn-danger btn-sm" id="accountDelete">Delete</button></div>
       </div>`;
     I.hydrate(box);
-    $('#accountNameSave').addEventListener('click', () => {
+    $('#accountNameSave').addEventListener('click', async () => {
       const name = ($('#accountNameInput').value || '').trim();
       if (name.length < 2) { toast('Use at least two characters', 'triangle-alert'); return; }
-      Account.create(Object.assign({}, account, { name }));
-      renderAccountSlot();
-      renderTopbar();
-      toast('Profile updated', 'user-check');
+      const button = $('#accountNameSave');
+      button.disabled = true;
+      try {
+        await Account.create(Object.assign({}, account, { name }));
+        renderAccountSlot();
+        renderTopbar();
+        renderAccountPanel();
+        toast('Supabase profile updated', 'user-check');
+      } catch (error) {
+        toast(error.message || 'Could not update your account', 'triangle-alert');
+      } finally { button.disabled = false; }
     });
-    $('#accountAvatarChoose').addEventListener('click', () => $('#accountAvatarFile').click());
-    $('#accountAvatarFile').addEventListener('change', async (event) => {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      if (!/^image\/(png|jpeg|webp|gif)$/i.test(file.type) || file.size > 2 * 1024 * 1024) {
-        toast('Choose a PNG, JPEG, WebP or GIF image under 2 MB', 'triangle-alert');
-        event.target.value = '';
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        const avatarUrl = Account.safeAvatar(reader.result);
-        if (!avatarUrl) return toast('That image could not be saved', 'triangle-alert');
-        Account.create(Object.assign({}, account, { avatarUrl }));
-        renderAccountSlot(); renderTopbar(); renderAccountPanel();
-        toast('Profile image updated', 'user-check');
-      };
-      reader.onerror = () => toast('Could not read that image', 'triangle-alert');
-      reader.readAsDataURL(file);
-    });
-    $('#accountAvatarRemove').addEventListener('click', () => {
-      Account.create(Object.assign({}, account, { avatarUrl: '' }));
-      renderAccountSlot(); renderTopbar(); renderAccountPanel();
-      toast('Profile image removed', 'user-check');
-    });
-    $('#accountBioSave').addEventListener('click', () => {
-      const bio = ($('#accountBioInput').value || '').trim().slice(0, 240);
-      Account.create(Object.assign({}, account, { bio }));
-      renderAccountSlot(); renderTopbar(); renderAccountPanel();
-      toast('Bio updated', 'user-check');
-    });
-    $('#accountSignOut').addEventListener('click', () => {
-      Account.signOut();
+    $('#accountSignOut').addEventListener('click', async (event) => {
+      event.currentTarget.disabled = true;
+      const revoked = await Account.signOut();
       renderAccountSlot();
       renderTopbar();
       renderAccountPanel();
-      toast('Signed out locally', 'log-out');
-    });
-    $('#accountDelete').addEventListener('click', () => {
-      confirmAction({ title: 'Delete profile?', body: 'Your name and email are removed from this browser. Chats and API keys stay.', ok: 'Delete profile' })
-        .then((yes) => {
-          if (!yes) return;
-          Account.signOut();
-          renderAccountSlot();
-          renderTopbar();
-          renderAccountPanel();
-          toast('Profile deleted', 'trash-2');
-        });
+      toast(revoked ? 'Signed out. Local chats and keys remain.' : 'Signed out here; server cookie revocation could not be confirmed.', revoked ? 'log-out' : 'triangle-alert');
     });
   }
 
@@ -2393,11 +2346,9 @@
   const providerConnectEl = $('#providerConnect');
   if (providerConnectEl) {
     providerConnectEl.addEventListener('click', (e) => {
-      const account = e.target.closest('[data-connect-account]');
-      if (account) {
-        const id = account.dataset.connectAccount;
-        const next = encodeURIComponent('app.html');
-        location.href = `auth.html?provider=${encodeURIComponent(id)}&mode=signup&next=${next}`;
+      const providerKey = e.target.closest('[data-connect-key]');
+      if (providerKey) {
+        openConnect(providerKey.dataset.connectKey);
         return;
       }
       if (e.target.closest('[data-local-cai]')) {
@@ -2555,10 +2506,7 @@
   function openConnect(providerId) {
     state.connectProvider = providerId || null;
     const accLink = $('#connectAccount');
-    if (accLink) {
-      const pid = providerId || (M.MODELS.some((m) => m.id === state.settings.model) ? M.byId(state.settings.model).provider : 'openai');
-      accLink.href = `auth.html?provider=${pid}&mode=signup&next=${encodeURIComponent('app.html')}`;
-    }
+    if (accLink) accLink.href = `auth.html?mode=signup&next=${encodeURIComponent('app.html')}`;
     const list = $('#connectList');
     const providers = Object.keys(M.PROVIDERS).filter((id) => id !== 'custom');
     list.innerHTML = providers

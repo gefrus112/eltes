@@ -49,11 +49,13 @@ OPTIONS
 
 OFFLINE AND PRIVACY
 -------------------
-The launcher serves Eltes locally. With Node.js, its transient BYOK API routes
-are also available; without Node.js, Python serves only the static files. Hosted
-requests contact the provider you connect, or the Vercel backend if you configure
-one in Eltes settings. If a port is busy, the launcher picks the next free one
-and prints the URL.
+The launcher serves Eltes locally. With Node.js, its transient BYOK and Supabase
+account API routes are also available; without Node.js, Python serves only static
+files, so sign-in and API routes do not work. Hosted model requests contact the
+provider you connect, or the Vercel backend if you configure one in Eltes settings.
+Account passwords are handled by Supabase Auth; Eltes keeps sign-in tokens in
+HttpOnly cookies, not localStorage. Chats and provider keys remain in browser
+storage. If a port is busy, the launcher picks the next free one and prints the URL.
 
 LOCAL COMMAND RUNNER SECURITY
 ----------------------------

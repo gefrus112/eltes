@@ -1230,6 +1230,64 @@
     $$('[data-close]', dlg).forEach((btn) => btn.addEventListener('click', () => closeDialog($('#' + btn.dataset.close))));
   });
 
+  const WELCOME_SETUP_KEY = 'eltes.setup.v1';
+  const welcomeSetupDialog = $('#welcomeSetupDialog');
+  let installPromptEvent = null;
+  function markWelcomeSetupSeen() {
+    try { localStorage.setItem(WELCOME_SETUP_KEY, '1'); } catch { /* Setup can still be dismissed if storage is blocked. */ }
+  }
+  function openWelcomeSetup() {
+    openDialog(welcomeSetupDialog, '#finishWelcomeSetupBtn');
+  }
+  welcomeSetupDialog.addEventListener('close', markWelcomeSetupSeen);
+  $('#openSetupGuide').addEventListener('click', openWelcomeSetup);
+  $('#finishWelcomeSetupBtn').addEventListener('click', () => closeDialog(welcomeSetupDialog));
+  $('#setupChooseLocalBtn').addEventListener('click', () => {
+    closeDialog(welcomeSetupDialog);
+    selectModel('eltes-cai-1');
+  });
+  $('#setupConnectProviderBtn').addEventListener('click', () => {
+    closeDialog(welcomeSetupDialog);
+    openConnect();
+  });
+
+  const setupInstallButton = $('#setupInstallPwaBtn');
+  const setupInstallStatus = $('#setupInstallStatus');
+  const isStandaloneApp = () => !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  if (isStandaloneApp()) {
+    setupInstallStatus.textContent = 'Eltes is already installed as an app on this device.';
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    installPromptEvent = event;
+    setupInstallButton.hidden = false;
+    setupInstallStatus.textContent = 'Install is available in this browser.';
+  });
+  setupInstallButton.addEventListener('click', async () => {
+    if (!installPromptEvent) return;
+    setupInstallButton.disabled = true;
+    try {
+      installPromptEvent.prompt();
+      const choice = await installPromptEvent.userChoice;
+      if (choice.outcome === 'accepted') {
+        setupInstallButton.hidden = true;
+        setupInstallStatus.textContent = 'Eltes is being installed. Open it from your app launcher when ready.';
+      } else {
+        setupInstallStatus.textContent = 'Install dismissed. You can install later from the browser menu.';
+      }
+    } catch {
+      setupInstallStatus.textContent = 'Use the browser menu to install Eltes as an app.';
+    } finally {
+      installPromptEvent = null;
+      setupInstallButton.disabled = false;
+    }
+  });
+  window.addEventListener('appinstalled', () => {
+    installPromptEvent = null;
+    setupInstallButton.hidden = true;
+    setupInstallStatus.textContent = 'Eltes is installed. Open it from your app launcher.';
+  });
+
   $('#agentInstructionsBtn').addEventListener('click', () => {
     let chat = activeChat();
     if (!chat) chat = createChat();
@@ -1538,6 +1596,7 @@
       { label: 'New chat', icon: 'plus', hint: '⌘N', run: () => { closeDialog(els.cmdDialog); newChat(); } },
       { label: 'Switch model', icon: 'layers', hint: '⌘M', run: () => { closeDialog(els.cmdDialog); openModelPicker(); } },
       { label: 'Connect a provider key', icon: 'key-round', run: () => { closeDialog(els.cmdDialog); openSettings('keys'); } },
+      { label: 'Quick setup', icon: 'cloud', run: () => { closeDialog(els.cmdDialog); openWelcomeSetup(); } },
       { label: 'Open settings', icon: 'settings', hint: '⌘,', run: () => { closeDialog(els.cmdDialog); openSettings('general'); } },
       { label: 'Toggle sidebar', icon: 'panel-left', hint: '⌘B', run: () => { closeDialog(els.cmdDialog); toggleSidebar(); } },
       { label: 'Export conversation', icon: 'download', run: () => { closeDialog(els.cmdDialog); openShare(); } },
@@ -3335,6 +3394,9 @@
         renderAll();
       }
     }
+    let setupSeen = false;
+    try { setupSeen = localStorage.getItem(WELCOME_SETUP_KEY) === '1'; } catch { setupSeen = true; }
+    if (!state.chats.length && !wanted && !setupSeen) setTimeout(openWelcomeSetup, 280);
   }
   boot();
 

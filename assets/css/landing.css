@@ -87,6 +87,17 @@
   line-height: .99;
   letter-spacing: -.065em;
 }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .hero h1 .line-2 {
   display: block;
   padding-bottom: .08em;
@@ -95,6 +106,11 @@
   background-clip: text;
   color: transparent;
 }
+.hero-word-live {
+  display: inline-block;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.hero-word-live.is-changing { opacity: 0; transform: translateY(.14em); }
 .hero-sub {
   margin: 22px auto 0;
   max-width: 620px;
@@ -1183,4 +1199,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .kicker-mark span:nth-child(2), .status-dot, .showcase-shell::after, .cta { animation: none !important; }
+  .hero-word-live { transition: none; }
 }

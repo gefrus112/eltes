@@ -1988,7 +1988,45 @@
     toast(state.settings.tools ? 'Tools enabled for new messages' : 'Tools disabled', 'wrench');
   }
 
-  els.input.addEventListener('input', () => { autoGrow(); updateSendState(); });
+  let promptHistory = { chatId: null, index: -1, draft: '' };
+  function browsePromptHistory(direction) {
+    const chat = activeChat();
+    if (!chat) return false;
+    const prompts = chat.messages.filter((message) => message.role === 'user').map((message) => message.content);
+    if (!prompts.length) return false;
+    if (promptHistory.chatId !== chat.id) promptHistory = { chatId: chat.id, index: -1, draft: '' };
+
+    if (direction < 0) {
+      if (promptHistory.index < 0) {
+        promptHistory.draft = els.input.value;
+        promptHistory.index = prompts.length;
+      }
+      if (promptHistory.index > 0) promptHistory.index--;
+      else return true;
+      els.input.value = prompts[promptHistory.index];
+      els.input.setSelectionRange(0, 0);
+    } else {
+      if (promptHistory.index < 0) return false;
+      if (promptHistory.index < prompts.length - 1) {
+        promptHistory.index++;
+        els.input.value = prompts[promptHistory.index];
+        els.input.setSelectionRange(els.input.value.length, els.input.value.length);
+      } else {
+        promptHistory.index = -1;
+        els.input.value = promptHistory.draft;
+        els.input.setSelectionRange(els.input.value.length, els.input.value.length);
+      }
+    }
+    autoGrow();
+    updateSendState();
+    return true;
+  }
+
+  els.input.addEventListener('input', () => {
+    promptHistory.index = -1;
+    autoGrow();
+    updateSendState();
+  });
 
   /* ------------------------- block field / scroll FX ---------------------- */
   (function initBlockField() {
@@ -2031,6 +2069,14 @@
   })();
   els.input.addEventListener('keydown', (e) => {
     const mod = e.metaKey || e.ctrlKey;
+    if (!mod && !e.shiftKey && e.key === 'ArrowUp' && (promptHistory.index >= 0 || els.input.selectionStart === 0) && browsePromptHistory(-1)) {
+      e.preventDefault();
+      return;
+    }
+    if (!mod && !e.shiftKey && e.key === 'ArrowDown' && (promptHistory.index >= 0 || els.input.selectionEnd === els.input.value.length) && browsePromptHistory(1)) {
+      e.preventDefault();
+      return;
+    }
     if (e.key !== 'Enter') return;
     if (state.settings.sendKey === 'enter' && !e.shiftKey && !mod) { e.preventDefault(); send(); }
     else if (state.settings.sendKey === 'mod-enter' && mod) { e.preventDefault(); send(); }
@@ -2204,6 +2250,7 @@
 
     const userMsg = { id: uid(), role: 'user', content: text, ts: Date.now() };
     chat.messages.push(userMsg);
+    promptHistory = { chatId: chat.id, index: -1, draft: '' };
     titleOrKeep(chat, text);
     chat.updatedAt = Date.now();
 

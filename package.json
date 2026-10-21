@@ -8,7 +8,7 @@
     "dev": "node tools/local-server.mjs",
     "downloads:build": "bash tools/build-windows.sh",
     "validate:html": "html-validate index.html app.html auth.html docs.html news.html studio.html train.html",
-    "validate:css": "for file in assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css assets/css/studio.css assets/css/news.css assets/css/galaxy.css assets/css/lab.css; do csstree-validator \"$file\" || exit 1; done",
+    "validate:css": "for file in assets/css/theme.css assets/css/landing.css assets/css/app.css assets/css/docs.css assets/css/auth.css assets/css/studio.css assets/css/reel.css assets/css/news.css assets/css/galaxy.css assets/css/lab.css; do csstree-validator \"$file\" || exit 1; done",
     "validate:links": "node tools/check-links.mjs",
     "backend": "node tools/local-server.mjs",
     "test": "node --test test/*.test.cjs",

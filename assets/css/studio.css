@@ -298,6 +298,37 @@
 }
 .st-tab .x:hover { background: rgba(255, 255, 255, 0.1); color: var(--text); }
 
+/* The pinned tools tab sits outside #tabs, so opening a file never hides it. */
+.st-tabbar {
+  display: flex;
+  align-items: stretch;
+  height: 38px;
+  flex: none;
+  border-bottom: 1px solid var(--line-2);
+}
+.st-tabbar .st-tabs {
+  flex: 1;
+  min-width: 0;
+  height: auto;
+  border-bottom: 0;
+}
+.st-tools-tab {
+  flex: none;
+  padding: 0 12px;
+  border-right: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.028);
+  color: var(--text-2);
+}
+.st-tools-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
+.st-tools-tab.on { color: var(--text); background: rgba(57, 220, 162, 0.1); }
+.st-tools-tab.on::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: var(--green);
+}
+
 .st-code {
   position: relative;
   flex: 1;
@@ -362,6 +393,25 @@
   font: 11px "JetBrains Mono", monospace;
   color: var(--text-2);
 }
+
+.st-empty-tools {
+  display: block;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+}
+.st-empty-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.st-empty-link:hover { color: #7cf0c4; }
 
 .st-status {
   display: flex;

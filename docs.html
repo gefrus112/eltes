@@ -107,6 +107,7 @@
         <a href="#workflow"><span data-icon="workflow" data-icon-size="14"></span>Build a website</a>
         <a href="#effects"><span data-icon="sparkles" data-icon-size="14"></span>Images &amp; effects</a>
         <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
+        <a href="#other-tools"><span data-icon="film" data-icon-size="14"></span>Other tools</a>
         <a href="#desktop"><span data-icon="monitor-down" data-icon-size="14"></span>Desktop apps</a>
         <a href="#lab"><span data-icon="flask" data-icon-size="14"></span>Lab &amp; training</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
@@ -975,6 +976,27 @@ npm run build
 
           <h3>Without a backend</h3>
           <p>Opened as a plain static page, Studio falls back to a browser-only project stored in <code>localStorage</code>. The editor, file creation, preview and zip export still work: the preview is assembled in the browser with local CSS and JavaScript inlined. The terminal explains that commands need <code>npm start</code> instead of pretending to run.</p>
+
+          <h3 id="other-tools">Other tools: Reel, frames and palette</h3>
+          <p>The last tab in Studio's tab bar — <strong>Other tools</strong> — opens an overlay that has nothing to do with the file tree: <strong>Reel</strong>, a video editor that runs in the page, a frame grabber and a CSS gradient builder. The workspace stays open underneath; <kbd>Esc</kbd> steps back one level at a time.</p>
+
+          <h4>Reel</h4>
+          <ul>
+            <li><strong>Media.</strong> Drop videos, images and songs on the media pane, or press <em>Import</em>. Files are decoded from a local object URL, never uploaded, and the project — clips, trims, text, music, looks — saves to this browser as you edit.</li>
+            <li><strong>Timeline.</strong> Pictures and text sit on the picture lanes, music on the audio lane. Drag a clip to move it and drag its edge to trim it. <kbd>S</kbd> splits at the playhead, <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Z</kbd> undoes, <kbd>Space</kbd> plays, and snapping keeps cuts and clip edges aligned.</li>
+            <li><strong>Text with effects.</strong> Five presets — title, caption, lower third, mono, stack — create editable text clips: font, weight, size, colour, alignment, letter spacing, shadow, uppercase and a background box, plus in and out animations (fade, rise, drop, pop, blur, typewriter). Drag the clip on the canvas to place it.</li>
+            <li><strong>Looks.</strong> Eight one-click grades — cinematic, VHS, noir, dream, neon, golden, mono — with sliders for brightness, contrast, saturation, hue, blur, sepia, greyscale and invert, plus vignette, grain, light leak and scanlines.</li>
+            <li><strong>Music.</strong> Add audio as a track, then set its start, length, volume and fade in/out. Picture and music play together in the preview.</li>
+            <li><strong>Settings.</strong> Name the project, pick 1080p, 720p, vertical, square or cinema, set the background and the export bitrate. The project name becomes the downloaded file's name.</li>
+          </ul>
+
+          <div class="callout warn">
+            <span data-icon="triangle-alert" data-icon-size="15"></span>
+            <span><strong>What export really is.</strong> Reel records the canvas in real time with the browser's <code>MediaRecorder</code> and mixes the music tracks into the same file. A one-minute edit takes one minute to export, the tab has to stay visible, and the file is <code>.webm</code> — <code>.mp4</code> only where the browser exposes an H.264 encoder. It is not a server renderer: there is no frame-accurate or faster-than-real-time encoding, and sound baked into a video clip is not captured — put the soundtrack on the music lane. <em>Project JSON</em> saves the edit itself for a backup.</span>
+          </div>
+
+          <h4>Frame grabber and palette</h4>
+          <p>The frame grabber scrubs a video and saves that exact frame as a full-resolution PNG, or turns a still image into one. The palette mixes two to four colour stops into a linear, radial or conic gradient and copies the <code>background:</code> declaration for your stylesheet.</p>
 
           <h3>Shortcuts</h3>
           <table class="doc-table">

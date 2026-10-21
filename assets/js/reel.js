@@ -44,6 +44,26 @@ window.EltesReel = (function () {
     return Number(match[1]) * 60 + Number(match[2]);
   }
 
+  /** Coarse waveform peaks (0..1) from a decoded AudioBuffer, for the music lane. */
+  function peaksFrom(buffer, buckets) {
+    const count = Math.max(8, Math.round(num(buckets, 200)));
+    const data = buffer && buffer.getChannelData ? buffer.getChannelData(0) : null;
+    if (!data || !data.length) return [];
+    const size = Math.max(1, Math.floor(data.length / count));
+    const peaks = new Array(count).fill(0);
+    for (let i = 0; i < count; i += 1) {
+      const from = i * size;
+      const to = Math.min(data.length, from + size);
+      let peak = 0;
+      for (let j = from; j < to; j += 1) {
+        const value = Math.abs(data[j]);
+        if (value > peak) peak = value;
+      }
+      peaks[i] = peak;
+    }
+    return peaks;
+  }
+
   const sanitizeName = (name) => String(name || 'reel')
     .trim()
     .replace(/[\\/:*?"<>|]+/g, '-')
@@ -67,6 +87,18 @@ window.EltesReel = (function () {
   ];
 
   const ANIMATIONS = ['none', 'fade', 'rise', 'drop', 'pop', 'blur', 'type'];
+
+  // A transition plays at the start of a clip and blends it with the clip
+  // that ends underneath it (the previous picture on the timeline).
+  const TRANSITIONS = [
+    { id: 'none', name: 'None' },
+    { id: 'fade', name: 'Crossfade' },
+    { id: 'slide', name: 'Slide' },
+    { id: 'zoom', name: 'Zoom' },
+    { id: 'wipe', name: 'Wipe' },
+    { id: 'flash', name: 'Flash' }
+  ];
+  const TRANSITION_IDS = TRANSITIONS.map((entry) => entry.id);
 
   const TEXT_PRESETS = [
     {
@@ -140,6 +172,9 @@ window.EltesReel = (function () {
       filter: Object.assign({}, FILTER_DEFAULTS),
       overlay: Object.assign({}, OVERLAY_DEFAULTS),
       animation: { in: 'fade', out: 'fade', inDur: 0.4, outDur: 0.35 },
+      transition: { type: 'none', duration: 0.6 },
+      motion: { type: 'none', amount: 0.12 },
+      keyframes: { x: [], y: [], scale: [], rotate: [], opacity: [] },
       text: null
     };
     return Object.assign(base, patch || {});
@@ -270,7 +305,8 @@ window.EltesReel = (function () {
    * Offsets are a fraction of the frame height, so a 1080p and a 720p export
    * move the same distance relative to the picture.
    */
-  function animationAt(clip, time) {
+  function animationAt(clip, time, options) {
+    const flags = options || {};
     const anim = clip.animation || {};
     const inDur = Math.max(0, num(anim.inDur, 0));
     const outDur = Math.max(0, num(anim.outDur, 0));
@@ -289,11 +325,195 @@ window.EltesReel = (function () {
       else if (kind === 'type') { state.reveal *= shown; }
     };
 
-    if (inDur > 0 && local < inDur) apply(anim.in, easeInOut(local / inDur));
-    if (outDur > 0 && remaining < outDur) apply(anim.out, easeInOut(remaining / outDur));
+    // A transition supplies the motion at a cut, so the clip's own in/out
+    // animation is skipped on the side the transition covers.
+    if (!flags.skipIn && inDur > 0 && local < inDur) apply(anim.in, easeInOut(local / inDur));
+    if (!flags.skipOut && outDur > 0 && remaining < outDur) apply(anim.out, easeInOut(remaining / outDur));
     state.alpha = clamp(state.alpha, 0, 1);
     state.offsets = { dx: state.dx, dy: state.dy };
     return state;
+  }
+
+  /* ------------------------------- transitions ---------------------------- */
+
+  function transitionState(clip, time) {
+    const spec = clip.transition || {};
+    const type = TRANSITION_IDS.includes(spec.type) ? spec.type : 'none';
+    const duration = Math.max(0, num(spec.duration, 0.6));
+    if (type === 'none' || duration <= 0) return null;
+    const t = (time - clip.start) / duration;
+    if (t <= 0 || t >= 1) return null;
+    return { type, duration, t: clamp(t, 0, 1) };
+  }
+
+  const MOTION_IDS = ['none', 'zoom-in', 'zoom-out', 'pan-left', 'pan-right', 'drift-up'];
+
+  /** Ken Burns style motion across a clip, so stills are not frozen. */
+  function motionAt(clip, time) {
+    const spec = clip.motion || {};
+    const type = MOTION_IDS.includes(spec.type) ? spec.type : 'none';
+    if (type === 'none') return { scale: 1, dx: 0, dy: 0 };
+    const amount = clamp(num(spec.amount, 0.12), 0, 0.4);
+    const duration = Math.max(0.1, num(clip.duration, 1));
+    const p = clamp((time - (Number(clip.start) || 0)) / duration, 0, 1);
+    const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    if (type === 'zoom-in') return { scale: 1 + amount * eased, dx: 0, dy: 0 };
+    if (type === 'zoom-out') return { scale: 1 + amount * (1 - eased), dx: 0, dy: 0 };
+    if (type === 'pan-left') return { scale: 1 + amount * 0.6, dx: (0.5 - eased) * amount * 0.6, dy: 0 };
+    if (type === 'pan-right') return { scale: 1 + amount * 0.6, dx: (eased - 0.5) * amount * 0.6, dy: 0 };
+    return { scale: 1 + amount * 0.5, dx: 0, dy: (0.5 - eased) * amount * 0.35 };
+  }
+
+  const KEYFRAME_PROPS = ['x', 'y', 'scale', 'rotate', 'opacity'];
+  const KEYFRAME_EASES = ['linear', 'in', 'out', 'inout', 'hold'];
+
+  function easeByName(name, p) {
+    if (name === 'in') return easeIn(p);
+    if (name === 'out') return easeOut(p);
+    if (name === 'inout') return easeInOut(p);
+    return p;
+  }
+
+  /** A clip's keyed track for one property, sorted by time; always a fresh array. */
+  function keyframesOf(clip, prop) {
+    const tracks = clip && clip.keyframes ? clip.keyframes : null;
+    const track = tracks ? tracks[prop] : null;
+    if (!Array.isArray(track)) return [];
+    return track
+      .filter((key) => key && Number.isFinite(Number(key.t)) && Number.isFinite(Number(key.v)))
+      .map((key) => ({ t: Number(key.t), v: Number(key.v), ease: KEYFRAME_EASES.includes(key.ease) ? key.ease : 'inout' }))
+      .sort((a, b) => a.t - b.t);
+  }
+
+  /** Value of a keyed property at `time`, or null when the track is empty (use the clip's own value). */
+  function keyframeValue(clip, prop, time) {
+    const track = keyframesOf(clip, prop);
+    if (!track.length) return null;
+    const t = num(time, 0);
+    if (t <= track[0].t) return track[0].v;
+    const last = track[track.length - 1];
+    if (t >= last.t) return last.v;
+    for (let i = 1; i < track.length; i += 1) {
+      const a = track[i - 1];
+      const b = track[i];
+      if (t > b.t) continue;
+      if (b.ease === 'hold') return a.v;
+      const span = b.t - a.t;
+      const p = span <= 0 ? 1 : (t - a.t) / span;
+      return a.v + (b.v - a.v) * easeByName(b.ease, p);
+    }
+    return last.v;
+  }
+
+  /** Add or update a key at `time` on a property track. */
+  function setKeyframe(clip, prop, time, value, ease) {
+    if (!KEYFRAME_PROPS.includes(prop)) return null;
+    if (!clip.keyframes || typeof clip.keyframes !== 'object') clip.keyframes = {};
+    const track = Array.isArray(clip.keyframes[prop]) ? clip.keyframes[prop] : [];
+    const snap = (value, places) => Math.round(num(value, 0) * 10 ** places) / 10 ** places;
+    const t = snap(time, 3);
+    const v = snap(value, 4);
+    const found = track.find((key) => key && Math.abs(Number(key.t) - t) < 0.001);
+    if (found) {
+      found.v = v;
+      if (KEYFRAME_EASES.includes(ease)) found.ease = ease;
+    } else {
+      track.push({ t, v, ease: KEYFRAME_EASES.includes(ease) ? ease : 'inout' });
+    }
+    track.sort((a, b) => a.t - b.t);
+    clip.keyframes[prop] = track;
+    return track;
+  }
+
+  /** Remove the key closest to `time`, within a 20 ms window. */
+  function removeKeyframe(clip, prop, time) {
+    const track = Array.isArray(clip.keyframes && clip.keyframes[prop]) ? clip.keyframes[prop] : [];
+    const t = num(time, 0);
+    const index = track.findIndex((key) => key && Math.abs(Number(key.t) - t) < 0.02);
+    if (index >= 0) track.splice(index, 1);
+    if (clip.keyframes) clip.keyframes[prop] = track;
+    return track.length;
+  }
+
+  function hasKeyframe(clip, prop, time) {
+    const track = keyframesOf(clip, prop);
+    return track.some((key) => Math.abs(key.t - num(time, 0)) < 0.02);
+  }
+
+  function keyframeCount(clip) {
+    return KEYFRAME_PROPS.reduce((total, prop) => total + keyframesOf(clip, prop).length, 0);
+  }
+
+  /** Keyed properties fall back to the clip's own values, so unkeyed clips draw exactly as before. */
+  function clipState(clip, time) {
+    const read = (prop, fallback) => {
+      const value = keyframeValue(clip, prop, time);
+      return value == null ? fallback : value;
+    };
+    return {
+      x: read('x', num(clip.x, 0.5)),
+      y: read('y', num(clip.y, 0.5)),
+      scale: read('scale', num(clip.scale, 1)),
+      rotate: read('rotate', num(clip.rotate, 0)),
+      opacity: read('opacity', num(clip.opacity, 1))
+    };
+  }
+
+  /** The clip a transition blends with: the nearest earlier clip that ends at, or overlaps, this clip's start. */
+  function previousVisualClip(project, clip) {
+    let best = null;
+    for (const candidate of project.clips) {
+      if (candidate.id === clip.id) continue;
+      if (candidate.kind === 'text') continue; // titles are their own layer, drawn over the picture
+      if (candidate.start >= clip.start) continue;
+      if (clipEnd(candidate) < clip.start - 0.06) continue;
+      if (!best || clipEnd(candidate) > clipEnd(best)) best = candidate;
+    }
+    return best;
+  }
+
+  function drawScaled(ctx, image, cx, cy, scale, alpha) {
+    if (alpha <= 0.002) return;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    ctx.drawImage(image, -cx, -cy);
+    ctx.restore();
+  }
+
+  /** Composite two rendered layers. `a` is the outgoing clip, `b` the incoming one. */
+  function compositeTransition(ctx, transition, a, b, width, height) {
+    const t = clamp(num(transition.t, 0), 0, 1);
+    const eased = easeInOut(t);
+    ctx.save();
+    if (transition.type === 'slide') {
+      ctx.drawImage(a, -width * 0.18 * eased, 0);
+      ctx.drawImage(b, width * (1 - eased), 0);
+    } else if (transition.type === 'zoom') {
+      drawScaled(ctx, a, width / 2, height / 2, 1 + 0.18 * eased, 1 - eased);
+      drawScaled(ctx, b, width / 2, height / 2, 1.12 - 0.12 * eased, eased);
+    } else if (transition.type === 'wipe') {
+      ctx.drawImage(a, 0, 0);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, width * eased, height);
+      ctx.clip();
+      ctx.drawImage(b, 0, 0);
+      ctx.restore();
+    } else if (transition.type === 'flash') {
+      ctx.drawImage(a, 0, 0);
+      ctx.globalAlpha = eased;
+      ctx.drawImage(b, 0, 0);
+      ctx.globalAlpha = Math.sin(Math.PI * t) * 0.55;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+    } else {
+      ctx.drawImage(a, 0, 0);
+      ctx.globalAlpha = eased;
+      ctx.drawImage(b, 0, 0);
+    }
+    ctx.restore();
   }
 
   function fitRect(sw, sh, dw, dh, mode) {
@@ -480,6 +700,116 @@ window.EltesReel = (function () {
     ctx.restore();
   }
 
+  /** Draw one clip's layer at full canvas size; the background is painted by the caller. */
+  function drawClipLayer(ctx, clip, project, time, map, opts) {
+    const width = project.width;
+    const height = project.height;
+    const state = animationAt(clip, time, opts);
+    if (state.alpha <= 0.001) return;
+    const own = clipState(clip, time);
+    const alpha = state.alpha * clamp(own.opacity, 0, 1);
+
+    if (clip.kind === 'text') {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const offsetY = state.dy * height;
+      const offsetX = state.dx * width;
+      ctx.translate(own.x * width + offsetX, own.y * height + offsetY);
+      ctx.scale(state.scale, state.scale);
+      ctx.rotate((own.rotate * Math.PI) / 180);
+      ctx.translate(-own.x * width, -own.y * height);
+      drawText(ctx, clip, width, height, state);
+      ctx.restore();
+      return;
+    }
+
+    const source = clip.mediaId ? map.get(clip.mediaId) : null;
+    const el = source && source.el;
+    const ready = el && (el.videoWidth || el.naturalWidth || el.width);
+    if (!ready) {
+      drawPlaceholder(ctx, clip, width, height);
+      return;
+    }
+    const sw = el.videoWidth || el.naturalWidth || el.width;
+    const sh = el.videoHeight || el.naturalHeight || el.height;
+    const box = fitRect(sw, sh, width, height, clip.fit);
+    const motion = motionAt(clip, time);
+    const scale = own.scale * state.scale * motion.scale;
+    const panX = (own.x - 0.5) * width;
+    const panY = (own.y - 0.5) * height;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(width / 2 + panX + (state.dx + motion.dx) * width, height / 2 + panY + (state.dy + motion.dy) * height);
+    ctx.rotate((own.rotate * Math.PI) / 180);
+    ctx.scale(scale, scale);
+    const filter = effectFilter(clip.filter);
+    if (filter !== 'none') {
+      const blur = state.blur ? ` blur(${state.blur.toFixed(1)}px)` : '';
+      if ('filter' in ctx) ctx.filter = `${filter}${blur}`;
+    } else if (state.blur && 'filter' in ctx) {
+      ctx.filter = `blur(${state.blur.toFixed(1)}px)`;
+    }
+    ctx.drawImage(el, box.x - width / 2, box.y - height / 2, box.w, box.h);
+    ctx.restore();
+
+    drawOverlays(ctx, clip.overlay, width, height, Math.floor(time * 12));
+  }
+
+  function planTransitions(project, clips, time) {
+    const byClip = new Map();
+    const consumed = new Set();
+    for (const clip of clips) {
+      const transition = transitionState(clip, time);
+      if (!transition) continue;
+      const previous = previousVisualClip(project, clip);
+      byClip.set(clip.id, { transition, previous });
+      if (previous && time < clipEnd(previous)) consumed.add(previous.id);
+    }
+    return { byClip, consumed };
+  }
+
+  let scratchA = null;
+  let scratchB = null;
+  let scratchKey = '';
+  let scratchFlip = 0;
+
+  function defaultScratch(width, height) {
+    if (typeof document === 'undefined' || !document.createElement) return null;
+    const key = `${width}x${height}`;
+    if (scratchKey !== key) {
+      scratchA = document.createElement('canvas');
+      scratchB = document.createElement('canvas');
+      scratchA.width = width;
+      scratchA.height = height;
+      scratchB.width = width;
+      scratchB.height = height;
+      scratchKey = key;
+    }
+    scratchFlip = 1 - scratchFlip;
+    return scratchFlip ? scratchA : scratchB;
+  }
+
+  function renderTransition(plan, clip, project, time, map, width, height, opts) {
+    const make = typeof opts.scratch === 'function' ? opts.scratch : defaultScratch;
+    const a = make(width, height);
+    const b = make(width, height);
+    if (!a || !b || !a.getContext || !b.getContext) return null;
+    const ac = a.getContext('2d');
+    const bc = b.getContext('2d');
+    if (!ac || !bc) return null;
+    ac.clearRect(0, 0, width, height);
+    bc.clearRect(0, 0, width, height);
+    if (plan.previous) {
+      const prev = plan.previous;
+      // Freeze the outgoing clip on its last frame when the cut is exact.
+      const prevTime = Math.min(Math.max(time, prev.start), Math.max(prev.start, clipEnd(prev) - 0.001));
+      drawClipLayer(ac, prev, project, prevTime, map, { skipOut: true });
+    }
+    drawClipLayer(bc, clip, project, time, map, { skipIn: true });
+    return { a, b };
+  }
+
   /**
    * Draw one frame of the project.
    * `sources` maps mediaId → { el, kind }; anything missing is drawn as a
@@ -497,53 +827,16 @@ window.EltesReel = (function () {
     ctx.fillRect(0, 0, width, height);
 
     const clips = clipsAt(project, time);
+    const plans = planTransitions(project, clips, time);
     for (const clip of clips) {
-      const state = animationAt(clip, time);
-      if (state.alpha <= 0.001) continue;
-      const alpha = state.alpha * clamp(num(clip.opacity, 1), 0, 1);
-
-      if (clip.kind === 'text') {
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        const offsetY = state.dy * height;
-        const offsetX = state.dx * width;
-        ctx.translate(clip.x * width + offsetX, clip.y * height + offsetY);
-        ctx.scale(state.scale, state.scale);
-        ctx.rotate((num(clip.rotate, 0) * Math.PI) / 180);
-        ctx.translate(-clip.x * width, -clip.y * height);
-        drawText(ctx, clip, width, height, state);
-        ctx.restore();
+      if (plans.consumed.has(clip.id)) continue;
+      const plan = plans.byClip.get(clip.id);
+      const layers = plan ? renderTransition(plan, clip, project, time, map, width, height, opts) : null;
+      if (layers) {
+        compositeTransition(ctx, plan.transition, layers.a, layers.b, width, height);
         continue;
       }
-
-      const source = clip.mediaId ? map.get(clip.mediaId) : null;
-      const el = source && source.el;
-      const ready = el && (el.videoWidth || el.naturalWidth || el.width);
-      if (!ready) {
-        drawPlaceholder(ctx, clip, width, height);
-        continue;
-      }
-      const sw = el.videoWidth || el.naturalWidth || el.width;
-      const sh = el.videoHeight || el.naturalHeight || el.height;
-      const box = fitRect(sw, sh, width, height, clip.fit);
-      const scale = num(clip.scale, 1) * state.scale;
-
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.translate(width / 2 + state.dx * width, height / 2 + state.dy * height);
-      ctx.rotate((num(clip.rotate, 0) * Math.PI) / 180);
-      ctx.scale(scale, scale);
-      const filter = effectFilter(clip.filter);
-      if (filter !== 'none') {
-        const blur = state.blur ? ` blur(${state.blur.toFixed(1)}px)` : '';
-        if ('filter' in ctx) ctx.filter = `${filter}${blur}`;
-      } else if (state.blur && 'filter' in ctx) {
-        ctx.filter = `blur(${state.blur.toFixed(1)}px)`;
-      }
-      ctx.drawImage(el, box.x - width / 2, box.y - height / 2, box.w, box.h);
-      ctx.restore();
-
-      drawOverlays(ctx, clip.overlay, width, height, Math.floor(time * 12));
+      drawClipLayer(ctx, clip, project, time, map, opts);
     }
 
     if (opts.safe) {
@@ -606,6 +899,21 @@ window.EltesReel = (function () {
     // render
     effectFilter,
     animationAt,
+    transitionState,
+    motionAt,
+    MOTION_IDS,
+    KEYFRAME_PROPS,
+    KEYFRAME_EASES,
+    keyframesOf,
+    keyframeValue,
+    setKeyframe,
+    removeKeyframe,
+    hasKeyframe,
+    keyframeCount,
+    clipState,
+    previousVisualClip,
+    compositeTransition,
+    peaksFrom,
     fitRect,
     wrapText,
     drawFrame,
@@ -630,6 +938,7 @@ window.EltesReel = (function () {
     EFFECT_PRESETS,
     TEXT_PRESETS,
     ANIMATIONS,
+    TRANSITIONS,
     // filled in by reel-ui.js
     mount: null
   };

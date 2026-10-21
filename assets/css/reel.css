@@ -691,3 +691,132 @@
 }
 .palette-del:hover { color: var(--text); background: var(--ink-5); }
 body.tools-open { overflow: hidden; }
+
+/* ------------------- transitions, waveforms, starter --------------------- */
+
+.reel-clip { overflow: hidden; }
+.reel-trans {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.45);
+  background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0 2px, rgba(255, 255, 255, 0) 2px 5px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.reel-clip.on .reel-trans { opacity: 0.85; }
+
+.reel-wave {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.reel-clip[data-music="1"] .reel-clip-label {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.reel-starter {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(57, 220, 162, 0.07), transparent 65%);
+}
+.reel-starter[hidden] { display: none; }
+.reel-starter-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: min(520px, 100%);
+  text-align: center;
+}
+.reel-starter-in strong { font-size: 15px; color: var(--text); }
+.reel-starter-in p { margin: 0; color: var(--text-3); font-size: 11.5px; }
+.reel-starter-in small { color: var(--text-4); font-size: 10px; }
+.reel-starter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+.reel-starter-grid button {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.reel-starter-grid button:hover { border-color: var(--line-3); background: rgba(255, 255, 255, 0.07); }
+.reel-starter-grid b { font-size: 11.5px; font-weight: 600; }
+.reel-starter-grid span { font-size: 10px; color: var(--text-4); }
+@media (max-width: 700px) {
+  .reel-starter-grid { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------- keyframes ------------------------------- */
+
+.reel-count {
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-3);
+  font-size: 9.5px;
+  font-style: normal;
+}
+.reel-keyrow { display: flex; flex-wrap: wrap; gap: 5px; }
+.reel-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-3);
+  font: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
+}
+.reel-key:hover { border-color: var(--line-3); color: var(--text); }
+.reel-key b { font-size: 9px; line-height: 1; color: var(--text-4); }
+.reel-key.on { border-color: rgba(57, 220, 162, 0.5); background: rgba(57, 220, 162, 0.12); color: var(--text); }
+.reel-key.on b { color: var(--green); }
+.reel-key.x {
+  padding: 2px 7px;
+  font-size: 13px;
+  line-height: 1;
+}
+.reel-keylist { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.reel-keyitem {
+  display: grid;
+  grid-template-columns: 1fr 96px 26px;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 10px;
+  color: var(--text-3);
+}
+.reel-keyitem b { color: var(--text); font-weight: 600; }
+.reel-keyitem .reel-input { height: 22px; padding: 0 4px; font-size: 10px; }
+.reel-keyitem .reel-key.x { justify-self: end; }
+.reel-keys { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.reel-keys li { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: var(--text-3); }
+.reel-keys kbd { padding: 1px 5px; border: 1px solid var(--line-2); border-radius: 4px; background: rgba(255, 255, 255, 0.06); color: var(--text); font-size: 10px; }

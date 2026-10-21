@@ -130,7 +130,7 @@
               <tr><td>Models</td><td>36 real models across 13 providers, including Claude Sonnet 5.5, DeepSeek V4.1, NVIDIA NIM and three Eltes CAI models.</td></tr>
               <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
               <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
-              <tr><td>Downloads</td><td>A portable Windows package with <code>eltes.bat</code>, a Start-Eltes helper and the whole static site.</td></tr>
+              <tr><td>Downloads</td><td>A portable Windows package plus an installable Chromebook PWA that opens in a standalone Chrome window.</td></tr>
             </tbody>
           </table>
 
@@ -579,7 +579,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="downloads">
           <h2>Downloads <a class="anchor" href="#downloads" aria-label="Link to downloads" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>The web UI is static. The Windows download also includes an optional local Node backend for transient BYOK and, only when explicitly enabled, the supervised local command runner.</p>
+          <p>Chromebooks can install Eltes as a Chrome PWA directly from the secure hosted site; no APK or Linux package is needed. The Windows download includes a portable launcher and optional local Node backend. Local terminal execution is separate, opt-in, and requires user approval for every command.</p>
 
           <div class="doc-code">
             <div class="bar">
@@ -590,6 +590,10 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 ├── eltes.bat           <span class="c"># double-click to launch</span>
 ├── Start-Eltes.ps1     <span class="c"># the actual server + browser open</span>
 ├── README-WINDOWS.txt
+├── package.json
+├── api/                 <span class="c"># local BYOK API routes</span>
+├── lib/                 <span class="c"># provider and HTTP helpers</span>
+├── tools/               <span class="c"># local server and opt-in runner</span>
 ├── index.html
 ├── app.html
 ├── auth.html
@@ -601,15 +605,15 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <h3>What the launcher does</h3>
           <ol>
             <li>Changes into its own folder, so it works from any drive or USB stick.</li>
-            <li>Finds <code>python</code>, <code>py -3</code> or <code>node</code>.</li>
-            <li>Starts a static server bound to <code>127.0.0.1:4173</code>.</li>
-            <li>Waits for the port, then opens your default browser at the workspace.</li>
+            <li>Uses Node.js 18+ for the local API when available; otherwise finds Python and serves static files.</li>
+            <li>Starts a local server bound to <code>127.0.0.1</code> and opens your default browser.</li>
+            <li>With <code>--shell</code>, prints a one-time pairing token for the opt-in command runner.</li>
             <li>Leaves the server running until you close the console window.</li>
           </ol>
 
           <div class="callout">
             <span data-icon="shield-check" data-icon-size="15"></span>
-            <span><strong>It is a text file.</strong> Open <code>eltes.bat</code> in Notepad before running it. There is no installer, no elevation prompt and no outbound connection; the server listens on localhost only.</span>
+            <span><strong>It is a text file.</strong> Open <code>eltes.bat</code> in Notepad before running it. There is no installer or elevation prompt. The launcher itself makes no outbound connection and binds the local server to localhost; provider requests only happen when you use a hosted model.</span>
           </div>
 
           <h3>Optional Start-menu shortcut</h3>
@@ -626,18 +630,22 @@ eltes.bat --port 8080</code></pre>
           </div>
 
           <h3>macOS and Linux</h3>
-          <p>Clone or unpack the same files and serve the root:</p>
+          <p>For a static preview, Python can serve the files. To use the local API or the supervised terminal runner, use the Node server instead:</p>
           <div class="doc-code">
             <div class="bar">
               <span class="label"><span class="dot"></span>terminal</span>
               <button class="cpy" type="button">Copy</button>
             </div>
             <pre><code>python3 -m http.server 4173
-<span class="c"># then open http://127.0.0.1:4173/app.html</span></code></pre>
+<span class="c"># for local API + supervised commands, stop Python and use Node:</span>
+ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
+<span class="c"># open http://127.0.0.1:4173/app.html, connect the printed token</span></code></pre>
           </div>
+          <p>The command runner is not a sandbox. Commands run with your OS account permissions, may access files outside the starting folder, and are returned to the chosen model. Approve only commands you understand. Details and limits are in <a href="#agent">Agent &amp; tools</a>.</p>
 
-          <h3>Install as an app</h3>
-          <p><code>site.webmanifest</code> declares standalone display, a dark theme colour and maskable icons at 192 and 512 px. Chrome, Edge and Safari can install the page as a window with the green-cloud icon; there is no Electron wrapper and no auto-updater.</p>
+          <h3>Install on a Chromebook</h3>
+          <p>Open the secure Eltes website in ChromeOS Chrome. In the address bar, click the install icon if shown, or use <strong>⋮ → Cast, save, and share → Install page as app</strong>. Launch Eltes from the Chromebook Launcher; the manifest supplies standalone display, a dark theme and maskable icons. No APK, Android app, or Linux package is needed. The installed hosted PWA uses the same origin as the website and cannot run Chromebook terminal commands itself.</p>
+          <p>For local command execution, ChromeOS must have its Linux development environment enabled and Node.js 18+. Run the local Node server from Linux and use the local Eltes page, not the hosted PWA. The runner stays disabled unless explicitly enabled, and each exact command needs browser approval. ChromeOS port forwarding can vary: the runner intentionally refuses connections the server does not see as loopback. If that happens, do not weaken the guard or expose the runner to a network; use the hosted PWA for chat until a supported local connection is available.</p>
 
           <div class="callout tip">
             <span data-icon="download" data-icon-size="15"></span>
@@ -765,6 +773,10 @@ eltes.bat --port 8080</code></pre>
             <details>
               <summary>Can I sign up with OpenAI, Anthropic or DeepSeek?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
               <p>Yes. The account page offers all three. On a static copy, connecting means validating and storing a real provider key in this browser. On a hosted deployment with <code>ELTES_CONFIG.authEndpoint</code>, the same buttons start a real OAuth redirect. GitHub sign-up has been removed.</p>
+            </details>
+            <details>
+              <summary>Can I install Eltes on a Chromebook?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>Yes. Install the secure website as a Chrome PWA from the Downloads section or Chrome's install menu. It appears in the Chromebook Launcher and opens in a standalone window. It is a web app, not an APK; it cannot run shell commands directly. Local command execution requires a separate opt-in Node runner in the ChromeOS Linux environment and per-command browser approval.</p>
             </details>
             <details>
               <summary>What is the Windows .bat file?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>

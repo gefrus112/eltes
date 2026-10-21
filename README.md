@@ -21,7 +21,7 @@ Eltes is a static browser app by default. Hosted requests can go directly from y
 - **Local open models:** connect Ollama, LM Studio, vLLM, or another OpenAI-compatible server using the Custom endpoint setting. Model weights and inference stay on your own computer/server, subject to that runner's configuration.
 - **Eltes CAI:** a deterministic, on-device JavaScript rules-and-knowledge helper for Eltes guidance, arithmetic, common math functions, one-variable linear/quadratic equations, conversions, dates, a curated AI glossary, and exact retrieval from messages included in the active chat. It is not a trained neural network or a general-purpose LLM, and it cannot solve every kind of math.
 - **Local-first workspace:** chat history, profiles, settings, and exports are controlled in your browser. No analytics or telemetry are included.
-- **Agent tools:** local calculation, clock, and chat-history search can be offered to compatible hosted models. Tool results are sent back as part of the model request.
+- **Agent tools:** local calculation, clock, and chat-history search can be offered to compatible hosted models. An optional local shell runner is disabled by default and requires approval for each exact command. Tool results are sent back as part of the model request.
 - **Interface:** dark-blue theme, reduced-motion support, keyboard navigation, streaming indicators, model picker, and local exports.
 - **Video editor:** local-file or direct CORS-enabled URL input, drag-and-drop, trimming and playback speed, color/effect controls and presets, configurable title/caption overlays, and MediaRecorder export when supported by the browser. Local video is not uploaded to Eltes; remote URLs are requested directly by the browser.
 
@@ -49,7 +49,7 @@ For a static-only preview, Python also works:
 python3 -m http.server 4173
 ```
 
-A static-only server does not implement API routes; hosted keys go directly to providers unless you configure a separate proxy in **Settings → API keys**. The included Windows `.bat` launcher continues to serve the static site only; configure a Vercel backend in settings if you need proxy/key-test features there.
+A static-only server does not implement API routes; hosted keys go directly to providers unless you configure a separate proxy in **Settings → API keys**. The Windows launcher uses the local Node API when Node.js 18+ is installed and falls back to Python static serving. Its shell runner remains disabled unless launched with `eltes.bat --shell`.
 
 ## Connect a local open model
 
@@ -100,6 +100,10 @@ The `.github/workflows/pages.yml` workflow publishes the static site. It does no
 ## Windows launcher
 
 `downloads/eltes-windows.zip` includes the `.bat` launcher, PowerShell helper, local API server, static site (including `video.html`), and documentation. Unzip and run `eltes.bat`; with Node.js it starts the local API, otherwise Python serves static files only. To explicitly enable local commands, use `eltes.bat --shell` (Node.js 18+ required); execution remains disabled by default. See `README-WINDOWS.txt` for the security limits and warnings. The video editor runs locally in the browser and does not upload source footage. The launcher requires Windows 10/11 plus Python 3 or Node 18+.
+
+## Chromebook app
+
+On a Chromebook, open the secure Eltes site in Chrome and choose the install icon in the address bar or **⋮ → Cast, save, and share → Install page as app**. Eltes appears in the Chromebook Launcher as a standalone PWA with workspace and video-editor shortcuts; it does not need an APK or Linux package. The hosted PWA cannot access a terminal. To use the supervised local runner, you need the separate opt-in Node server described above; do not try to expose a command runner from the hosted site.
 
 ## Validate and rebuild
 

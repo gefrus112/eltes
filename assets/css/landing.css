@@ -1201,3 +1201,5 @@
   .kicker-mark span:nth-child(2), .status-dot, .showcase-shell::after, .cta { animation: none !important; }
   .hero-word-live { transition: none; }
 }
+
+.pwa-install-button[hidden] { display: none; }

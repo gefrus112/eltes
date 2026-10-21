@@ -21,6 +21,8 @@
       }
     })
     : null;
+  // MCP client: tools that live in local programs (Blender, Roblox Studio…).
+  const MCP = window.EltesMCP ? window.EltesMCP.create({}) : null;
   const ic = (name, size = 16) => I.icon(name, { size });
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -58,6 +60,7 @@
     stream: true,
     sendKey: 'enter',
     tools: true,
+    mcp: true,
     density: 'comfortable',
     theme: 'black',
     reduceMotion: false,
@@ -634,8 +637,12 @@
     });
   }
 
+  const mcpTools = () => (MCP && state.settings.mcp !== false ? MCP.tools() : []);
+
   // Web search is only offered when the user has enabled it and configured a key.
-  const enabledToolDefs = () => TOOL_DEFS.filter((t) => t.name !== 'web_search' || webSearchActive());
+  const enabledToolDefs = () => TOOL_DEFS
+    .filter((t) => t.name !== 'web_search' || webSearchActive())
+    .concat(mcpTools());
 
   function safeCalculate(expression) {
     const expr = String(expression || '').trim();
@@ -757,6 +764,11 @@
     else if (name === 'define_term') out = toolDefineTerm(args || {});
     else if (name === 'web_search') out = await toolWebSearch(args || {});
     else if (AGENT && AGENT.hasTool(name)) out = viaAgent(name, args);
+    else if (MCP && name.includes('__')) {
+      const cut = name.indexOf('__');
+      const call = await MCP.call(name.slice(0, cut), name.slice(cut + 2), args || {});
+      out = call.error ? { error: call.error } : { result: call.result };
+    }
     else out = { error: `Unknown tool: ${name}` };
     const text = out.error ? `Error: ${out.error}` : out.result;
     return {
@@ -787,6 +799,230 @@
   }
 
   const toolIcon = (name) => (TOOL_DEFS.find((t) => t.name === name) || {}).icon || 'wrench';
+
+  /* ---------------------------------- mcp --------------------------------- */
+
+  const SITE_ORIGIN = 'https://gefrus112.github.io/eltes';
+  const mcpBusy = new Set();
+
+  function mcpStatus(server) {
+    if (mcpBusy.has(server.id) || server.status === 'connecting') return '<span class="mcp-status is-wait">connecting…</span>';
+    if (server.status === 'connected') return `<span class="mcp-status is-on">connected · ${server.tools.length} tool${server.tools.length === 1 ? '' : 's'}</span>`;
+    if (server.status === 'error') return `<span class="mcp-status is-err" title="${esc(server.error || 'Connection failed')}">error</span>`;
+    return '<span class="mcp-status">not connected</span>';
+  }
+
+  function mcpBridgeFile(preset) {
+    return preset.id === 'roblox' ? 'eltes-roblox-bridge.mjs' : 'eltes-mcp-bridge.mjs';
+  }
+
+  function mcpBridgeArgs(preset) {
+    if (preset.id === 'roblox') return `--port ${preset.port}`;
+    return `--name ${preset.id} --port ${preset.port} -- ${preset.serverCommand || 'uvx blender-mcp'}`;
+  }
+
+  function mcpConnectScript(preset, platform) {
+    const file = mcpBridgeFile(preset);
+    const args = mcpBridgeArgs(preset);
+    const url = `${SITE_ORIGIN}/mcp/${file}`;
+    if (platform === 'win') {
+      return [
+        '@echo off',
+        'setlocal',
+        `title Eltes MCP - ${preset.name}`,
+        'echo.',
+        `echo   Eltes MCP bridge for ${preset.name}`,
+        'echo   Leave this window open while Eltes uses it.',
+        'echo.',
+        'where node >nul 2>&1',
+        'if errorlevel 1 (',
+        '  echo Node.js 18 or newer is required: https://nodejs.org',
+        '  pause',
+        '  exit /b 1',
+        ')',
+        `set "BRIDGE=%TEMP%\\${file}"`,
+        `curl -fsSL "${url}" -o "%BRIDGE%"`,
+        'if errorlevel 1 (',
+        `  powershell -NoProfile -Command "Invoke-WebRequest -UseBasicParsing '${url}' -OutFile '%BRIDGE%'"`,
+        ')',
+        `node "%BRIDGE%" ${args}`,
+        'echo.',
+        'echo Bridge stopped.',
+        'pause'
+      ].join('\r\n');
+    }
+    return [
+      '#!/usr/bin/env bash',
+      'set -euo pipefail',
+      `echo "Eltes MCP bridge for ${preset.name}"`,
+      'command -v node >/dev/null 2>&1 || { echo "Node.js 18 or newer is required: https://nodejs.org"; exit 1; }',
+      `BRIDGE="\${TMPDIR:-/tmp}/${file}"`,
+      `curl -fsSL "${url}" -o "$BRIDGE"`,
+      `exec node "$BRIDGE" ${args}`
+    ].join('\n') + '\n';
+  }
+
+  function downloadText(filename, text) {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  function renderMcp() {
+    if (!MCP) return;
+    const presets = window.EltesMCP.PRESETS;
+    const servers = MCP.list();
+    const host = $('#mcpPresets');
+    if (host) {
+      host.innerHTML = presets.map((preset) => {
+        const saved = servers.find((server) => server.url === preset.url);
+        const action = saved
+          ? `<button class="btn btn-ghost btn-sm" data-mcp-connect="${saved.id}">${saved.status === 'connected' ? 'Reconnect' : 'Connect'}</button>`
+          : `<button class="btn btn-primary btn-sm" data-mcp-preset="${preset.id}">Add &amp; connect</button>`;
+        return `<article class="mcp-card">
+          <header class="mcp-card-head">
+            <span class="mcp-ico">${ic(preset.icon, 16)}</span>
+            <span class="mcp-card-title"><strong>${esc(preset.name)}</strong><small>${esc(preset.what)}</small></span>
+            ${action}
+          </header>
+          <ol class="mcp-steps">${preset.steps.map((step) => `<li>${esc(step)}</li>`).join('')}</ol>
+          <div class="mcp-card-foot">
+            <button class="btn btn-ghost btn-sm" data-mcp-copy="${preset.id}">${ic('copy', 12)}Copy command</button>
+            <button class="btn btn-ghost btn-sm" data-mcp-script="${preset.id}" data-platform="win">${ic('download', 12)}.bat</button>
+            <button class="btn btn-ghost btn-sm" data-mcp-script="${preset.id}" data-platform="unix">${ic('download', 12)}.sh</button>
+            ${preset.id === 'roblox' ? `<a class="btn btn-ghost btn-sm" href="mcp/EltesRobloxBridge.lua" download>${ic('download', 12)}Studio plugin</a>` : ''}
+            ${saved ? mcpStatus(saved) : ''}
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    const listEl = $('#mcpServers');
+    if (listEl) {
+      listEl.innerHTML = servers.length
+        ? servers.map((server) => `<div class="mcp-row">
+            <span class="mcp-ico">${ic('server', 15)}</span>
+            <span class="mcp-row-main"><strong>${esc(server.name)}</strong><small>${esc(server.url)}</small></span>
+            ${mcpStatus(server)}
+            ${server.status === 'connected'
+              ? `<button class="btn btn-ghost btn-sm" data-mcp-disconnect="${server.id}">Disconnect</button>`
+              : `<button class="btn btn-ghost btn-sm" data-mcp-connect="${server.id}">Connect</button>`}
+            <button class="icon-btn" data-mcp-remove="${server.id}" aria-label="Remove ${esc(server.name)}">${ic('x', 14)}</button>
+          </div>`).join('')
+        : '<p class="mcp-empty">No servers yet. Add a preset above, or paste any MCP URL.</p>';
+    }
+    syncMcpChip();
+  }
+
+  function syncMcpChip() {
+    const chip = $('#mcpChip');
+    const label = $('#mcpChipLabel');
+    if (!chip) return;
+    const servers = MCP ? MCP.list() : [];
+    const connected = servers.filter((server) => server.status === 'connected');
+    const tools = connected.reduce((count, server) => count + server.tools.length, 0);
+    const on = !!MCP && state.settings.mcp !== false;
+    chip.classList.toggle('on', on && connected.length > 0);
+    chip.classList.toggle('is-wait', Array.from(mcpBusy).length > 0);
+    chip.setAttribute('aria-pressed', String(on));
+    if (label) label.textContent = connected.length ? `MCP · ${tools}` : 'MCP';
+    chip.title = connected.length
+      ? `MCP: ${tools} tool${tools === 1 ? '' : 's'} from ${connected.map((server) => server.name).join(', ')}`
+      : 'MCP: connect Blender, Roblox Studio or another local server';
+  }
+
+  async function connectMcp(id, quiet) {
+    if (!MCP) return null;
+    const server = MCP.get(id);
+    if (!server) return null;
+    mcpBusy.add(id);
+    renderMcp();
+    try {
+      const connected = await MCP.connect(id);
+      if (!quiet) toast(`Connected to ${connected.name} · ${connected.tools.length} tool${connected.tools.length === 1 ? '' : 's'}`, 'plug');
+      return connected;
+    } catch (error) {
+      if (!quiet) toast(error.message, 'circle-alert');
+      return null;
+    } finally {
+      mcpBusy.delete(id);
+      renderMcp();
+    }
+  }
+
+  async function connectSavedMcp() {
+    if (!MCP) return;
+    const pending = MCP.list().filter((server) => server.enabled && server.status !== 'connected' && !mcpBusy.has(server.id));
+    await Promise.all(pending.map((server) => connectMcp(server.id, true)));
+  }
+
+  async function addMcpPreset(presetId) {
+    if (!MCP) return;
+    const preset = window.EltesMCP.PRESETS.find((entry) => entry.id === presetId);
+    if (!preset) return;
+    let saved = MCP.list().find((server) => server.url === preset.url);
+    if (!saved) saved = MCP.add({ name: preset.name, url: preset.url });
+    renderMcp();
+    await connectMcp(saved.id);
+  }
+
+  function wireMcpPanel() {
+    const panel = $('[data-panel="mcp"]');
+    if (!panel || !MCP) return;
+    panel.addEventListener('click', async (event) => {
+      const preset = event.target.closest('[data-mcp-preset]');
+      if (preset) { await addMcpPreset(preset.dataset.mcpPreset); return; }
+      const connect = event.target.closest('[data-mcp-connect]');
+      if (connect) { await connectMcp(connect.dataset.mcpConnect); return; }
+      const disconnect = event.target.closest('[data-mcp-disconnect]');
+      if (disconnect) { MCP.disconnect(disconnect.dataset.mcpDisconnect); renderMcp(); return; }
+      const remove = event.target.closest('[data-mcp-remove]');
+      if (remove) { MCP.remove(remove.dataset.mcpRemove); renderMcp(); return; }
+      const copy = event.target.closest('[data-mcp-copy]');
+      if (copy) {
+        const entry = window.EltesMCP.PRESETS.find((item) => item.id === copy.dataset.mcpCopy);
+        const text = `node ${mcpBridgeFile(entry)} ${mcpBridgeArgs(entry)}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          toast('Command copied', 'copy');
+        } catch (error) {
+          toast(text, 'terminal');
+        }
+        return;
+      }
+      const script = event.target.closest('[data-mcp-script]');
+      if (script) {
+        const entry = window.EltesMCP.PRESETS.find((item) => item.id === script.dataset.mcpScript);
+        const platform = script.dataset.platform;
+        const name = platform === 'win' ? `connect-${entry.id}.bat` : `connect-${entry.id}.sh`;
+        downloadText(name, mcpConnectScript(entry, platform));
+        toast(`Downloaded ${name} — run it, then press Connect`, 'download');
+        return;
+      }
+    });
+
+    const add = $('#mcpAdd');
+    if (add) {
+      add.addEventListener('click', async () => {
+        const name = ($('#mcpName') || {}).value || '';
+        const url = ($('#mcpUrl') || {}).value || '';
+        try {
+          const server = MCP.add({ name, url });
+          if ($('#mcpName')) $('#mcpName').value = '';
+          if ($('#mcpUrl')) $('#mcpUrl').value = '';
+          await connectMcp(server.id);
+        } catch (error) {
+          toast(error.message, 'circle-alert');
+        }
+      });
+    }
+  }
 
   /* ------------------------------- rendering ------------------------------ */
   const els = {
@@ -1671,7 +1907,9 @@
     renderDefaultSelect();
     renderAccountPanel();
     applySettingsToUI();
+    renderMcp();
     setTab(tab);
+    if (tab === 'mcp') connectSavedMcp();
     openDialog(els.settingsDialog);
   }
   function setTab(name) {
@@ -1703,6 +1941,7 @@
     setToggle('#toggleTime', s.showTime);
     setToggle('#toggleMetrics', s.showMetrics);
     setToggle('#toggleThink', s.thinkTrace !== false);
+    syncMcpChip();
     const sendKey = $('#sendKeySelect'); if (sendKey) sendKey.value = s.sendKey;
     const freshness = $('#searchFreshness');
     if (freshness) freshness.value = s.searchFreshness || 'any';
@@ -2546,6 +2785,24 @@
   });
   els.send.addEventListener('click', () => { if (state.sending) stopGeneration(); else send(); });
   $('#agentChip').addEventListener('click', toggleTools);
+  const mcpChip = $('#mcpChip');
+  if (mcpChip) {
+    mcpChip.addEventListener('click', async () => {
+      const servers = MCP ? MCP.list() : [];
+      if (!servers.length) {
+        toast('No MCP servers yet — add Blender or Roblox Studio', 'plug');
+        openSettings('mcp');
+        return;
+      }
+      const next = state.settings.mcp === false;
+      state.settings.mcp = next;
+      persist();
+      applySettingsToUI();
+      syncMcpChip();
+      toast(next ? 'MCP tools on' : 'MCP tools off', 'plug');
+      if (next) await connectSavedMcp();
+    });
+  }
   $('#webChip').addEventListener('click', () => {
     state.settings.webSearch = !state.settings.webSearch;
     if (state.settings.webSearch) webNoticeDismissed = false;
@@ -3940,6 +4197,8 @@
     if (window.innerWidth <= 900) els.shell.classList.add('collapsed');
     applySettingsToUI();
     renderAll();
+    wireMcpPanel();
+    renderMcp();
     // Normalize migrated model IDs (and stale favorites) back to storage at boot.
     persistNow();
     autoGrow();

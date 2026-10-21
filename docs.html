@@ -486,7 +486,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="chat">
           <h2>Chats &amp; export <a class="anchor" href="#chat" aria-label="Link to chats and export" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Conversations are grouped into Today, Yesterday, Previous 7 days, Previous 30 days and Older. Pinned chats sit on top. Every row has a menu with rename, pin, clear, export and delete.</p>
+          <p>Conversations are grouped into Today, Yesterday, Previous 7 days, Previous 30 days and Older. Pinned chats sit on top. Every row has a menu with rename, pin, clear, export and delete. Use <strong>Guide</strong> in the composer to set per-chat preferences for hosted models; those preferences are saved with that conversation. The on-device CAI helper does not apply free-form instructions.</p>
 
           <h3>Editing and retrying</h3>
           <ul>
@@ -494,6 +494,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             <li>At the start of the composer, press <strong>↑</strong> to browse prompts from this chat; at the end, press <strong>↓</strong> to move forward and restore your draft.</li>
             <li>Attach text and code files, including PHP, with the paperclip or drag them onto the composer. Files are read in the browser and inserted into the draft; each file is limited to 400 KB, with 800 KB total per selection. PHP code fences receive syntax coloring in chat.</li>
             <li><strong>Retry</strong> re-runs the last turn with the current model; the failed turn is kept out of the history.</li>
+            <li>When you scroll away from the newest messages in a long thread, use <strong>Latest</strong> to jump back to the conversation end.</li>
             <li><strong>Copy</strong> works on replies and on each code block independently.</li>
             <li><strong>Feedback</strong> thumb buttons are stored locally and never uploaded.</li>
           </ul>

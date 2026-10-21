@@ -1856,3 +1856,29 @@ body.compact .msg { padding: 9px 0; }
 @media (prefers-reduced-motion: reduce) {
   .mcp-open-btn { transition: none; }
 }
+
+/* Agent instructions and long-thread navigation */
+.composer #agentInstructionsBtn.on { color: #b9d0ff; border-color: rgba(116, 164, 255, .32); background: rgba(56, 118, 255, .11); }
+.agent-instructions-body { width: min(560px, calc(100vw - 28px)); }
+.agent-instructions-body .dlg-head { padding: 16px 18px; }
+.agent-instructions-content { padding: 0 18px 16px; }
+.agent-instructions-content > label { display: block; margin-bottom: 7px; color: #b8c7dd; font-size: 11px; font-weight: 550; }
+.agent-instructions-content textarea { display: block; width: 100%; min-height: 150px; resize: vertical; padding: 11px 12px; border: 1px solid rgba(138, 166, 212, .18); border-radius: 9px; outline: none; color: #e1eafa; background: rgba(1, 5, 11, .55); font: 12px/1.6 var(--sans); }
+.agent-instructions-content textarea:focus { border-color: rgba(116, 164, 255, .48); box-shadow: 0 0 0 3px rgba(56, 118, 255, .1); }
+.agent-instructions-content textarea::placeholder { color: #677995; }
+.agent-instructions-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 7px; color: #7889a2; font-size: 9px; }
+.agent-instructions-note { margin: 11px 0 2px; color: #9baac0; font-size: 9px; line-height: 1.6; }
+.agent-instructions-content .dlg-actions { padding: 12px 0 0; }
+.jump-latest { position: absolute; z-index: 4; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 6px; padding: 7px 11px; border: 1px solid rgba(132, 167, 232, .24); border-radius: 999px; color: #dbe8ff; background: rgba(11, 23, 41, .94); box-shadow: 0 8px 24px rgba(0, 0, 0, .28); font: 10px/1 var(--sans); cursor: pointer; backdrop-filter: blur(12px); }
+.jump-latest:hover, .jump-latest:focus-visible { border-color: rgba(132, 167, 232, .48); background: #142641; }
+.jump-latest:focus-visible { outline: 2px solid #7ca6ff; outline-offset: 2px; }
+.jump-latest[hidden] { display: none; }
+@media (max-width: 640px) {
+  .composer #agentInstructionsBtn { width: 32px; min-width: 32px; justify-content: center; padding: 0; }
+  .composer #agentInstructionsBtn > span:last-child { display: none; }
+  .agent-instructions-body { width: calc(100vw - 16px); }
+  .agent-instructions-content { padding: 0 12px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jump-latest { scroll-behavior: auto; }
+}

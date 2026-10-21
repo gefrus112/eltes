@@ -104,6 +104,9 @@
       </header>
 
       <main class="thread" id="thread" tabindex="-1">
+        <button class="jump-latest" id="jumpToLatest" type="button" aria-label="Jump to latest message" hidden>
+          <span data-icon="arrow-down" data-icon-size="14" aria-hidden="true"></span><span>Latest</span>
+        </button>
         <div class="empty" id="emptyState">
           <div class="empty-mark">
             <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -163,6 +166,9 @@
               <span id="composerModelName">Eltes CAI-1</span>
               <span class="rt-badge" id="composerRt" hidden><i></i>real time</span>
               <span data-icon="chevron-down" data-icon-size="12"></span>
+            </button>
+            <button class="chip" id="agentInstructionsBtn" type="button" aria-pressed="false" aria-haspopup="dialog" title="Set instructions for this chat">
+              <span data-icon="sliders-horizontal" data-icon-size="14"></span><span>Guide</span>
             </button>
             <button class="chip" id="agentChip" aria-pressed="false" title="Enable tool calling for this run">
               <span data-icon="wrench" data-icon-size="14"></span>Tools
@@ -544,6 +550,25 @@
       <pre id="mcpApprovalArgs" class="mcp-approval-args"></pre>
       <p class="mcp-approval-warning">Approve only if you trust this server and these arguments. Denying sends a decline result to the model.</p>
       <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="mcpDenyBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="mcpApproveBtn" type="button">Approve this call</button></div>
+    </div>
+  </dialog>
+
+  <!-- ======================== conversation instructions ================== -->
+  <dialog id="agentInstructionsDialog" class="agent-instructions-dialog" aria-labelledby="agentInstructionsTitle">
+    <div class="dlg agent-instructions-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="sliders-horizontal" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="agentInstructionsTitle">Guide this conversation</h3><div class="sub">Set preferences for the selected hosted model.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="agentInstructionsDialog" aria-label="Close instructions" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="agent-instructions-content">
+        <label for="agentInstructionsInput">Conversation instructions</label>
+        <textarea id="agentInstructionsInput" rows="7" maxlength="2000" placeholder="Example: Keep answers concise, explain unfamiliar terms, and use Python for code examples."></textarea>
+        <div class="agent-instructions-meta"><span>Saved locally with this conversation.</span><span id="agentInstructionsCount">0 / 2000</span></div>
+        <p class="agent-instructions-note">These instructions are included in hosted model requests for this chat. They are not applied to the on-device Eltes CAI helper. Don’t put secrets here.</p>
+        <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="clearAgentInstructions" type="button">Clear</button><span class="grow"></span><button class="btn btn-primary btn-sm" id="saveAgentInstructions" type="button">Save instructions</button></div>
+      </div>
     </div>
   </dialog>
 

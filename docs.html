@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docs — Eltes AI</title>
-  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 36 models, NVIDIA NIM, on-device CAI, the tool loop, local history, accounts, downloads, pricing and self-hosting." />
-  <meta name="theme-color" content="#02050a" />
+  <meta name="description" content="Eltes documentation: quickstart, provider keys, CORS and custom endpoints, 66 models, NVIDIA NIM, Cohere, on-device CAI, slash commands, web search with sources, the tool loop, building a website in Studio, code-generated images and effects, local history, accounts, downloads, pricing and self-hosting." />
+  <meta name="theme-color" content="#000003" />
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
@@ -14,8 +14,14 @@
   <link rel="stylesheet" href="assets/css/theme.css" />
   <link rel="stylesheet" href="assets/css/landing.css" />
   <link rel="stylesheet" href="assets/css/docs.css" />
+  <link rel="stylesheet" href="assets/css/galaxy.css" />
 </head>
-<body>
+<body class="galaxy-page">
+  <div class="galaxy" aria-hidden="true">
+    <canvas class="galaxy-backdrop" data-galaxy-backdrop aria-hidden="true"></canvas>
+    <canvas class="galaxy-canvas" data-galaxy="0.72"></canvas>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
   <a class="skip" href="#overview">Skip to documentation</a>
 
   <header class="nav scrolled" id="nav">
@@ -30,8 +36,8 @@
         <nav class="nav-links" aria-label="Primary">
           <a href="index.html#features">Features</a>
           <a href="index.html#models">Models</a>
-          <a href="video.html">Video editor</a>
           <a href="docs.html" class="active" aria-current="page">Docs</a>
+          <a href="news.html">News</a>
           <a href="index.html#pricing">Pricing</a>
         </nav>
       </div>
@@ -48,8 +54,8 @@
   <div class="mobile-menu" id="mobileMenu">
     <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
-    <a href="video.html">Video editor <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="news.html">News <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a href="index.html#pricing">Pricing <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
     <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
   </div>
@@ -61,8 +67,8 @@
         <h1>Everything, in one page.</h1>
         <p>Eltes is a static-first, local-first agent workspace. No build step or demo replies; an optional Vercel/local backend supports key checks and provider proxying. This guide covers keys, providers, CORS, the tool loop, accounts and where every byte actually lives.</p>
         <div class="docs-meta">
-          <span class="badge"><span class="dot"></span>v3.3.0</span>
-          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>14 minute read</span>
+          <span class="badge"><span class="dot"></span>v3.20.0</span>
+          <span class="badge"><span data-icon="clock" data-icon-size="12"></span>25 minute read</span>
           <span class="badge"><span data-icon="shield-check" data-icon-size="12"></span>No telemetry</span>
           <span class="badge"><span data-icon="key-round" data-icon-size="12"></span>BYOK only</span>
         </div>
@@ -81,6 +87,8 @@
         <a href="#overview" class="active"><span data-icon="compass" data-icon-size="14"></span>Overview</a>
         <a href="#quickstart"><span data-icon="rocket" data-icon-size="14"></span>Quickstart</a>
         <a href="#accounts"><span data-icon="user-check" data-icon-size="14"></span>Accounts</a>
+        <a href="#email"><span data-icon="mail" data-icon-size="14"></span>Welcome email</a>
+        <a href="#supabase"><span data-icon="cloud" data-icon-size="14"></span>Cloud accounts</a>
 
         <div class="nav-sep"></div>
         <h5>Keys &amp; providers</h5>
@@ -91,11 +99,19 @@
         <div class="nav-sep"></div>
         <h5>Using Eltes</h5>
         <a href="#models"><span data-icon="layers" data-icon-size="14"></span>Models</a>
+        <a href="#web-search"><span data-icon="globe" data-icon-size="14"></span>Web search</a>
         <a href="#agent"><span data-icon="wrench" data-icon-size="14"></span>Agent &amp; tools</a>
-        <a href="#mcp"><span data-icon="network" data-icon-size="14"></span>MCP connections</a>
+        <a href="#mcp"><span data-icon="plug" data-icon-size="14"></span>MCP servers</a>
+        <a href="#chat-commands"><span data-icon="command" data-icon-size="14"></span>Chat commands</a>
         <a href="#chat"><span data-icon="history" data-icon-size="14"></span>Chats &amp; export</a>
-        <a href="#video-editor"><span data-icon="video" data-icon-size="14"></span>Video editor</a>
+        <a href="#workflow"><span data-icon="workflow" data-icon-size="14"></span>Build a website</a>
+        <a href="#effects"><span data-icon="sparkles" data-icon-size="14"></span>Images &amp; effects</a>
+        <a href="#studio"><span data-icon="terminal" data-icon-size="14"></span>Studio &amp; terminal</a>
+        <a href="#other-tools"><span data-icon="film" data-icon-size="14"></span>Other tools</a>
+        <a href="#desktop"><span data-icon="monitor-down" data-icon-size="14"></span>Desktop apps</a>
+        <a href="#lab"><span data-icon="flask" data-icon-size="14"></span>Lab &amp; training</a>
         <a href="#settings"><span data-icon="sliders-horizontal" data-icon-size="14"></span>Settings</a>
+        <a href="#look"><span data-icon="image" data-icon-size="14"></span>Look &amp; feel</a>
         <a href="#shortcuts"><span data-icon="command" data-icon-size="14"></span>Shortcuts</a>
 
         <div class="nav-sep"></div>
@@ -103,7 +119,6 @@
         <a href="#pricing"><span data-icon="gift" data-icon-size="14"></span>Pricing</a>
         <a href="#downloads"><span data-icon="monitor-down" data-icon-size="14"></span>Downloads</a>
         <a href="#self-host"><span data-icon="hard-drive" data-icon-size="14"></span>Self-hosting</a>
-        <a href="#contributors"><span data-icon="github" data-icon-size="14"></span>Contributors</a>
         <a href="#privacy"><span data-icon="shield" data-icon-size="14"></span>Privacy</a>
         <a href="#faq"><span data-icon="circle-help" data-icon-size="14"></span>FAQ</a>
       </nav>
@@ -112,13 +127,14 @@
       <article class="doc">
         <section id="overview">
           <h2>Overview <a class="anchor" href="#overview" aria-label="Link to overview" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes is a browser-based AI workspace. Add a provider API key, pick a model, and Eltes streams that provider's answer, renders tool calls, and keeps history in this browser. Optional Supabase Auth accounts provide a real sign-in; passwords are never stored by Eltes. Direct mode calls providers from the browser; an optional separately hosted Vercel/local proxy can test keys and forward requests. If a hosted provider is not connected, the app says so instead of inventing an answer — and <strong>Eltes CAI</strong>, a small on-device helper, is available with no key.</p>
+          <p>Eltes is a browser-based AI workspace. Connect a real provider account (or paste a key), pick a model, and Eltes streams that provider's answer, renders tool calls, and keeps history in this browser. Direct mode calls providers from the browser; an optional separately hosted Vercel/local proxy can test keys and forward requests. If a hosted provider is not connected, the app says so instead of inventing an answer — and <strong>Eltes CAI</strong>, a small on-device helper, is available with no key.</p>
 
-          <h3>Three ideas, in order</h3>
+          <h3>Five ideas, in order</h3>
           <ol>
-            <li><strong>Local-first.</strong> Chats, settings and provider keys live in this browser. Supabase stores account credentials and the small Eltes profile; sign-in tokens use HttpOnly, SameSite cookies, with the Secure flag on HTTPS, not localStorage.</li>
+            <li><strong>Local-first.</strong> Chats, settings, keys and profiles live in <code>localStorage</code>. Clearing site data is the nuclear option, and it is yours to press.</li>
             <li><strong>Bring your own key.</strong> By default, requests go from your tab to the provider. An optional trusted backend can relay a key for each request without persisting or logging it in the function code.</li>
-            <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>current_time</code> and <code>search_history</code>; every call is shown as a card with its arguments, result and runtime.</li>
+            <li><strong>Live web search.</strong> Toggle <strong>Web</strong>, ask for something current, and Eltes records the search steps, writes an answer with <code>[1]</code>-style citations and lists every source. No key, no result: an explicit message instead of a guess.</li>
+            <li><strong>Real agent loop.</strong> When tools are on, the model can call <code>calculate</code>, <code>convert_units</code>, <code>define_term</code>, <code>current_time</code>, <code>search_history</code> and <code>web_search</code>; every call is shown as a card with its arguments, result and runtime.</li>
             <li><strong>On-device when you need it.</strong> Eltes CAI-1 answers chat, Eltes questions, model choice, arithmetic, units and dates in this tab. No key, no network, and it is explicit about what it does not know.</li>
           </ol>
 
@@ -127,11 +143,11 @@
             <thead><tr><th>Area</th><th>v3 behaviour</th></tr></thead>
             <tbody>
               <tr><td>Replies</td><td>Live streams only. A missing key produces a connect card; failures produce typed error cards with retry. CAI answers locally and labels itself.</td></tr>
-              <tr><td>Chat</td><td>Dark-blue theme with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
-              <tr><td>Models</td><td>36 real models across 13 providers, including Claude Sonnet 5.5, DeepSeek V4.1, NVIDIA NIM and three Eltes CAI models.</td></tr>
-              <tr><td>Accounts</td><td>Email/password sign-up and sign-in through Supabase Auth; protected per-user Eltes profiles.</td></tr>
+              <tr><td>Chat</td><td>Obsidian black shell (Graphite grey optional) with a block field that moves with the scroll. Step timeline, tool cards, per-message chips, first-token latency, tokens and tok/s.</td></tr>
+              <tr><td>Models</td><td>66 real models across 14 providers, including Claude Sonnet 5.5, DeepSeek V4.1, GPT-4o, Gemini, NVIDIA NIM, Cohere, three Eltes CAI models and the Lab model you train in the browser.</td></tr>
+              <tr><td>Accounts</td><td>Sign up or in with OpenAI, Anthropic or DeepSeek, or keep a local profile. GitHub sign-up is gone.</td></tr>
               <tr><td>Brand</td><td>Green cloud mark — one eye closed, one open — across the site, favicon, app icon and maskable manifest icon.</td></tr>
-              <tr><td>Downloads</td><td>A portable Windows package plus an installable Chromebook PWA that opens in a standalone Chrome window.</td></tr>
+              <tr><td>Downloads</td><td>A portable Windows package with <code>eltes.bat</code>, a Start-Eltes helper and the whole static site.</td></tr>
             </tbody>
           </table>
 
@@ -149,13 +165,13 @@
             <div class="step-item">
               <div>
                 <h4>Open the workspace</h4>
-                <p>Go to <a class="inline-link" href="app.html">app.html</a>. A Supabase account is optional; Eltes CAI and local chats work without signing in. Install the PWA optionally for a standalone app window. A first-run Quick setup guide offers local CAI, provider-key connection, and install guidance; reopen it with <code>⌘K</code> → <strong>Quick setup</strong>.</p>
+                <p>Go to <a class="inline-link" href="app.html">app.html</a>. No install and no sign-in. An account is optional and only adds a profile.</p>
               </div>
             </div>
             <div class="step-item">
               <div>
                 <h4>Connect a provider</h4>
-                <p>Press <strong>Connect a provider</strong>, choose a provider, and save its API key. Or open Settings → <strong>API keys</strong>. Provider API keys are separate from your Supabase Eltes account. The pill in the top bar turns green when at least one key is present. No key yet? Pick <strong>Eltes CAI-1</strong>.</p>
+                <p>Press <strong>Connect an account</strong>, choose OpenAI, Anthropic or DeepSeek, and save the key. Or open Settings → <strong>API keys</strong>. The pill in the top bar turns green when at least one key is present. No key yet? Pick <strong>Eltes CAI-1</strong>.</p>
               </div>
             </div>
             <div class="step-item">
@@ -195,26 +211,274 @@ python3 -m http.server 4173
 
         <section id="accounts">
           <h2>Accounts <a class="anchor" href="#accounts" aria-label="Link to accounts" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes uses <strong>Supabase Auth</strong> for real email/password accounts. Supabase manages the credential; Eltes never writes your password or a fake profile to browser storage. Display names are saved in the <code>public.eltes_profiles</code> table, with row-level security restricting reads and changes to that profile’s authenticated user ID.</p>
+          <p>An Eltes account is a <strong>profile</strong> plus a set of provider connections. It stores a name, an email, the provider that created it and — when you connect one — a provider key. By default there is no password and no session cookie: the profile is written to <code>eltes.account.v1</code> and provider keys live in <code>eltes.settings.v1</code>. The one email this flow produces is the welcome message, sent by your own server — see <a class="inline-link" href="#email">Welcome email</a>.</p>
+          <p>Set <code>config.js</code> to a Supabase project and the form grows an email-and-password path: the account lives in that project, a session survives reloads, and the welcome letter arrives through your own Resend account. It is optional, additive, and the local profile stays one click away — see <a class="inline-link" href="#supabase">Cloud accounts</a>.</p>
 
           <h3>Create or sign in</h3>
-          <p>Open <a class="inline-link" href="auth.html?mode=signup">Create account</a>, choose a display name, email and password of at least 12 characters, then sign in. If email confirmation is enabled for the Supabase project, follow its confirmation email first. Existing Eltes local-only profiles are not credentials and are removed; create a new Supabase account. Chats, settings and BYOK provider keys remain in this browser and are not uploaded by account sign-in.</p>
+          <p>Open <a class="inline-link" href="auth.html?mode=signup">auth.html</a>. Sign up with <strong>OpenAI</strong>, <strong>Anthropic</strong> or <strong>DeepSeek</strong>, or create a local profile with a display name and email. Signing in restores the profile already in this browser. A local profile’s email is a label, not a credential — it can receive a welcome message from your own server, nothing else. Choose <em>Create a Supabase account</em> instead when you want a real identity: it needs a password and can verify the address. See <a class="inline-link" href="#supabase">Cloud accounts</a>.</p>
 
-          <h3>Where accounts work</h3>
-          <ul>
-            <li><strong>Vercel deployment:</strong> deploy Eltes and its <code>/api/auth</code> function on the same origin. The API sets Secure, HttpOnly, SameSite cookies for the access and refresh tokens.</li>
-            <li><strong>Local development:</strong> run <code>npm start</code> and open the local Eltes page. The local server exposes the same account API.</li>
-            <li><strong>GitHub Pages:</strong> static Pages cannot run <code>/api/auth</code>; account sign-in will report that the backend is unavailable. The local workspace and CAI continue to work.</li>
-          </ul>
-          <p>The API uses only Supabase’s public publishable key and the signed-in user token. It does not use a service-role key. Account-changing requests are same-origin checked. Browser sessions are not stored in <code>localStorage</code>; sign-out asks the server to revoke and clear the cookie. This improves credential handling, but does not make an account impossible to compromise: use a unique password and protect your device.</p>
+          <table class="doc-table">
+            <thead><tr><th>Provider</th><th>What “connect” does on a static copy</th><th>What it does with a host</th></tr></thead>
+            <tbody>
+              <tr><td>OpenAI</td><td>Validates the key against <code>/v1/models</code>, then stores it locally</td><td>Redirects to <code>/openai/start</code> and returns a profile</td></tr>
+              <tr><td>Anthropic</td><td>Validates against <code>/v1/models</code> with the browser-access header</td><td>Redirects to <code>/anthropic/start</code> and returns a profile</td></tr>
+              <tr><td>DeepSeek</td><td>Saves the key; verification is best-effort because CORS varies</td><td>Redirects to <code>/deepseek/start</code> and returns a profile</td></tr>
+              <tr><td>Local profile</td><td>Name + email, stored in this browser only</td><td>Same — no hosted identity required</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Hosted OAuth contract</h3>
+          <p>A static page cannot hold a client secret, so the hosted path is a contract rather than a fake success state. Set the endpoint before the auth scripts load:</p>
 
           <div class="doc-code">
             <div class="bar">
-              <span class="label"><span class="dot"></span>Supabase profile migration</span>
+              <span class="label"><span class="dot"></span>auth.html — before the scripts</span>
               <button class="cpy" type="button">Copy</button>
             </div>
-            <pre><code>supabase/migrations/20261021_create_eltes_auth_profiles.sql</code></pre>
+            <pre><code><span class="c">&lt;!-- Only when a real auth backend exists --&gt;</span>
+&lt;<span class="k">script</span>&gt;
+  window.ELTES_CONFIG = {
+    authEndpoint: <span class="s">'https://auth.example.com'</span>
+  };
+&lt;/<span class="k">script</span>&gt;</code></pre>
           </div>
+
+          <p>With <code>authEndpoint</code> set, a provider button redirects to:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>redirect shape</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># provider is openai, anthropic or deepseek</span>
+GET https://auth.example.com/&lt;provider&gt;/start
+    ?return=&lt;the full auth.html URL&gt;
+    &amp;mode=signup
+
+<span class="c"># your backend completes OAuth, then returns the user to:</span>
+https://eltes.example/auth.html?account=&lt;base64url(profile)&gt;
+
+<span class="c"># profile</span>
+{
+  <span class="s">"name"</span>: <span class="s">"Ada Lovelace"</span>,
+  <span class="s">"email"</span>: <span class="s">"ada@example.com"</span>,
+  <span class="s">"provider"</span>: <span class="s">"openai"</span>,
+  <span class="s">"avatarUrl"</span>: <span class="s">"https://example.com/ada.png"</span>
+}</code></pre>
+          </div>
+
+          <p>The page decodes the profile, writes it locally, clears the parameter and shows the signed-in state. Avatar URLs are restricted to <code>https:</code>. An <code>error=…</code> or <code>provider_error=…</code> parameter shows a failure message instead, so a cancelled login never looks successful. <code>code</code> and <code>state</code> are stripped from the address bar after the callback.</p>
+
+          <div class="callout warn">
+            <span data-icon="triangle-alert" data-icon-size="15"></span>
+            <span><strong>Never put a client secret in this page.</strong> Anything shipped to the browser is public. Without an endpoint, the connect panel asks for a real key and stores it locally — it does not claim an OAuth session.</span>
+          </div>
+        </section>
+
+        <section id="email">
+          <h2>Welcome email <a class="anchor" href="#email" aria-label="Link to the email section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>When a local profile is created — on the <a class="inline-link" href="auth.html">auth page</a> or in the quick sign-up on the landing page — Eltes sends a real welcome email — <em>Welcome to Eltes AI Workspace</em>. It is sent by the server on your own machine, through your own free provider account, at the moment you sign up. Eltes itself has no mail server and never sees your address.</p>
+
+          <div class="doc-callout">
+            <span data-icon="info" data-icon-size="15"></span>
+            <p><strong>Nothing is faked.</strong> With no provider configured, the message is written to <code>.mail/outbox/</code> as a real <code>.eml</code> file and the panel says <em>Saved to the local outbox</em>. If a provider refuses the address, you see the refusal — not a green tick.</p>
+          </div>
+
+          <h3>Free, no card</h3>
+          <p>Three ways to deliver it, all with a free tier that is enough for personal use:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Provider</th><th>Free allowance</th><th>What you need</th></tr></thead>
+              <tbody>
+                <tr><td><a class="inline-link" href="https://resend.com" target="_blank" rel="noreferrer">Resend</a></td><td>3,000 emails/month · 100/day</td><td>An API key and one verified domain. Fastest to wire up.</td></tr>
+                <tr><td><a class="inline-link" href="https://www.brevo.com" target="_blank" rel="noreferrer">Brevo</a></td><td>300 emails/day</td><td>An API key and a verified sender address — no domain needed. Free mail carries a small Brevo footer.</td></tr>
+                <tr><td>Any SMTP mailbox</td><td>Whatever your mailbox allows</td><td><code>ELTES_SMTP_URL</code>. Gmail needs an app password; most hosts give you an <code>smtps://</code> endpoint.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Turn it on</h3>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>one provider is enough</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># Resend (recommended: 3,000/month free)</span>
+<span class="k">export</span> ELTES_MAIL_FROM=<span class="s">"Eltes &lt;hello@yourdomain.com&gt;"</span>
+<span class="k">export</span> RESEND_API_KEY=<span class="s">re_…</span>
+
+<span class="c"># or Brevo (300/day free, no domain required)</span>
+<span class="k">export</span> ELTES_MAIL_FROM=<span class="s">"Eltes &lt;you@gmail.com&gt;"</span>
+<span class="k">export</span> BREVO_API_KEY=<span class="s">xkeysib-…</span>
+
+<span class="c"># or your own SMTP mailbox</span>
+<span class="k">export</span> ELTES_MAIL_FROM=<span class="s">"Eltes &lt;you@example.com&gt;"</span>
+<span class="k">export</span> ELTES_SMTP_URL=<span class="s">"smtps://you@app-password@smtp.example.com:465"</span>
+
+npm start   <span class="c"># the welcome email now leaves the machine</span></code></pre>
+          </div>
+
+          <table class="doc-table">
+            <thead><tr><th>Variable</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>ELTES_MAIL_FROM</code></td><td>Required for delivery. <code>Name &lt;address&gt;</code> or a bare address; the address must be verified by the provider.</td></tr>
+              <tr><td><code>RESEND_API_KEY</code> · <code>BREVO_API_KEY</code></td><td>Pick one provider. Resend wins if both are set.</td></tr>
+              <tr><td><code>ELTES_SMTP_URL</code></td><td><code>smtps://user:pass@host:465</code> for implicit TLS, <code>smtp://…:587</code> upgrades with STARTTLS when the server offers it. Add <code>?tls=off</code> only for a local relay.</td></tr>
+              <tr><td><code>ELTES_MAIL_PROVIDER</code></td><td><code>resend</code>, <code>brevo</code>, <code>smtp</code> or <code>none</code> to force one and ignore the rest.</td></tr>
+              <tr><td><code>ELTES_MAIL_DIR</code></td><td>Where the outbox, events and suppression list live. Defaults to <code>.mail/</code>; the desktop app uses <code>mail/</code> inside its data folder.</td></tr>
+              <tr><td><code>ELTES_MAIL_WEBHOOK_SECRET</code></td><td>Required when the webhook is reachable from another machine. Without it, only loopback calls are accepted.</td></tr>
+              <tr><td><code>ELTES_MAIL_REPLY_TO</code></td><td>Optional <code>Reply-To</code> for the welcome email.</td></tr>
+            </tbody>
+          </table>
+
+          <h3>What actually happens</h3>
+          <ol class="doc-list">
+            <li>The form posts to <code>POST /api/email/welcome</code> on the same origin, with the address and display name.</li>
+            <li>The server validates the address, checks the suppression list, and renders the multipart message — plain text and HTML, no tracking pixel.</li>
+            <li>It calls your provider: <code>api.resend.com/emails</code>, <code>api.brevo.com/v3/smtp/email</code>, or the SMTP server. The response carries the provider's own id, or its error.</li>
+            <li>Everything is recorded in <code>.mail/events.jsonl</code> and shown by <code>GET /api/email/status</code>.</li>
+          </ol>
+
+          <h3>Bounces, honestly</h3>
+          <p>A bounce is handled where it is visible, and a hard bounce is remembered:</p>
+          <ul class="doc-list">
+            <li><strong>SMTP:</strong> a <code>5xx</code> reply to <code>RCPT TO</code> or <code>DATA</code> is a hard bounce in the same request. The address goes on the suppression list immediately.</li>
+            <li><strong>Provider APIs:</strong> a <code>4xx</code> that names the recipient is treated the same way; anything else is an error, not a bounce.</li>
+            <li><strong>Webhooks:</strong> point Brevo at <code>POST /api/email/webhook?provider=brevo</code>, or Resend at the same URL. Both payload shapes are normalised — <code>hard_bounce</code> and <code>email.bounced</code> become one event.</li>
+            <li><strong>Suppression:</strong> hard bounces and complaints are written to <code>.mail/suppressed.json</code>. Later sends to that address short-circuit before any network call. <code>node tools/mail.mjs unsuppress you@example.com</code> lifts it.</li>
+          </ul>
+          <p>Delivery of the webhook needs a public URL. Locally, the SMTP and API paths already report bounces synchronously; the webhook is for a deployment that faces the internet.</p>
+
+          <h3>The command line</h3>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>node tools/mail.mjs</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>npm run mail status                       <span class="c"># provider, folder, counts, recent events</span>
+npm run mail welcome you@example.com      <span class="c"># the real welcome email</span>
+npm run mail test you@example.com         <span class="c"># prove a provider works</span>
+npm run mail bounce you@example.com       <span class="c"># record a hard bounce (same event a webhook writes)</span>
+npm run mail unsuppress you@example.com   <span class="c"># let that address receive mail again</span></code></pre>
+          </div>
+
+          <h3>On the static site</h3>
+          <p>The hosted copy on GitHub Pages has no Node server of its own, so it takes the other route: a <a class="inline-link" href="#supabase">Supabase account</a> plus an Edge Function that calls Resend. That is the path used when <code>config.js</code> names a project — the same <em>Welcome to Eltes AI Workspace</em> letter, the same honesty about failures.</p>
+          <p>Where the Node server does run — <code>npm start</code>, or the <a class="inline-link" href="#desktop">desktop app</a>, which keeps its mail folder at <code>%APPDATA%\Eltes\mail</code> (macOS: <code>~/Library/Application Support/Eltes/mail</code>) — the local route is used and no Supabase project is needed. Click <em>Use a local profile instead</em> on the auth page to stay offline even when a project is configured.</p>
+          <p>Addresses are stored only where they are needed: the profile in this browser's <code>localStorage</code>, the address and timestamps in the events file next to the outbox, or <code>public.email_events</code> in your own Postgres. There is no analytics, no open tracking and no shared list.</p>
+        </section>
+
+        <section id="supabase">
+          <h2>Cloud accounts <a class="anchor" href="#supabase" aria-label="Link to the cloud accounts section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>The sign-up form can create a real account in <strong>your own Supabase project</strong> and keep working on a static host. There are two doors to it: <a href="index.html#account">the card on the landing page</a> (name, email, password, straight to the workspace) and the full <a href="auth.html?mode=signup">auth page</a> with magic links, password reset and provider-key connections. There is no Eltes account server in the middle: the browser talks to your project's Auth API, the project stores the profile, and an Edge Function in the same project sends the welcome email through Resend. The publishable key in <code>config.js</code> is the only credential the site ships — row-level security decides what it may touch.</p>
+
+          <div class="doc-callout">
+            <span data-icon="info" data-icon-size="15"></span>
+            <p><strong>Local still works.</strong> With no <code>config.js</code>, or after clicking <em>Use a local profile instead</em>, everything falls back to the browser profile and the Node/desktop mail route. The desktop app is unchanged and never needs a network account.</p>
+          </div>
+
+          <h3>What the account does</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Feature</th><th>How</th><th>What you see if it fails</th></tr></thead>
+              <tbody>
+                <tr><td>Sign up with email + password</td><td><code>POST /auth/v1/signup</code></td><td>The exact Supabase message — weak password, address in use, rate limit</td></tr>
+                <tr><td>Welcome email</td><td>Edge Function <code>eltes-mail</code> → Resend</td><td><em>Not sent — Supabase has no RESEND_API_KEY yet</em>, or the provider's own error</td></tr>
+                <tr><td>Verify the address</td><td>Optional. With confirmation on, the welcome letter's single-use link is the confirmation; with it off, sign-up works immediately</td><td>Sign-in says <em>confirm the address first</em></td></tr>
+                <tr><td>Sign in</td><td><code>POST /auth/v1/token?grant_type=password</code></td><td><em>That email and password do not match an account.</em></td></tr>
+                <tr><td>Magic link</td><td>Function builds the link, Resend delivers it</td><td><em>Sign-in link sent</em> — only after Resend accepted the message</td></tr>
+                <tr><td>Password reset</td><td><code>admin/generate_link</code> type <code>recovery</code></td><td><em>Reset link sent</em>, then a new-password form</td></tr>
+                <tr><td>Session restore</td><td>Refresh token in <code>eltes.cloud.v1</code></td><td>Signed out silently when the refresh token is gone</td></tr>
+                <tr><td>Sign out</td><td><code>POST /auth/v1/logout</code></td><td>Local mirror cleared even when the call fails</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The pieces</h3>
+          <ul class="doc-list">
+            <li><code>config.js</code> — project URL, publishable key, function name. Public by design; delete it to disable cloud accounts.</li>
+            <li><code>assets/js/supabase.js</code> — the client. Plain <code>fetch</code>, no SDK, no build step; ~400 lines.</li>
+            <li><code>supabase/migrations/0001_eltes_accounts.sql</code> — <code>profiles</code>, <code>email_events</code>, <code>suppressed_emails</code>, the <code>auth.users</code> trigger, RLS policies and the mail rate-limit function.</li>
+            <li><code>supabase/functions/eltes-mail/index.ts</code> — one endpoint for welcome, magic link and reset. Builds the link with the service role, sends with Resend, records the outcome.</li>
+            <li><code>supabase/functions/email-webhook/index.ts</code> — Resend's Svix-signed webhook; hard bounces and complaints land in <code>suppressed_emails</code>.</li>
+            <li><code>supabase/functions/site-publish/index.ts</code> — copies the published site into the project's public Storage bucket, so the same files are also served from Supabase.</li>
+          </ul>
+
+          <h3 id="supabase-keys">Where the API values come from</h3>
+          <p>Everything the browser needs is on the project's <em>Settings → API</em> page. Only the first two go into the repository. This checkout's <code>config.js</code> already points at the reference project (<code>odemzfpgercjitrrdlvk</code>), so the deployed site signs up against it — replace the two values to use your own.</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Value</th><th>Where it lives</th><th>Who may see it</th></tr></thead>
+              <tbody>
+                <tr><td>Project URL</td><td><code>config.js</code> → <code>supabaseUrl</code> · <code>https://&lt;ref&gt;.supabase.co</code></td><td>Public. It is just an address.</td></tr>
+                <tr><td>Publishable key</td><td><code>config.js</code> → <code>supabaseAnonKey</code> · <code>sb_publishable_…</code> (or the legacy anon JWT)</td><td>Public by design. Row-level security decides what it may read or write.</td></tr>
+                <tr><td><code>service_role</code> key</td><td>Edge Function secrets only — <code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Never in the page, never in Git. It bypasses RLS, so it stays server-side.</td></tr>
+                <tr><td><code>RESEND_API_KEY</code></td><td>Edge Function secrets</td><td>Never in the page. Without it the mail function reports <em>unconfigured</em> instead of sending.</td></tr>
+                <tr><td><code>ELTES_PUBLISH_TOKEN</code></td><td>Edge Function secrets</td><td>Never in the page. Used by <code>site-publish</code>.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The project's public schema holds <code>profiles</code>, <code>email_events</code>, <code>suppressed_emails</code> and <code>mail_rate</code>; every table has RLS on, and signed-in users can only read their own row. A fresh project needs the migration before sign-up will work — <code>npx supabase db push</code>, or paste <code>0001_eltes_accounts.sql</code> into the SQL editor. If the migration is missing, Supabase Auth still creates the auth user but no profile exists, so the welcome email has nobody to address.</p>
+
+          <h3>Wire it up</h3>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>Supabase CLI — five commands</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># 1. point the folder at your project</span>
+npx supabase link --project-ref <span class="s">your-project-ref</span>
+
+<span class="c"># 2. tables, trigger, policies, rate limits</span>
+npx supabase db push
+
+<span class="c"># 3. the two functions (they check their own auth)</span>
+npx supabase functions deploy eltes-mail --no-verify-jwt
+npx supabase functions deploy email-webhook --no-verify-jwt
+
+<span class="c"># 4. the only two secrets that matter</span>
+npx supabase secrets set RESEND_API_KEY=<span class="s">re_…</span> \
+  ELTES_MAIL_FROM=<span class="s">"Eltes &lt;hello@yourdomain.com&gt;"</span> \
+  ELTES_SITE_URL=<span class="s">https://gefrus112.github.io/eltes/</span>
+
+<span class="c"># 5. tell Auth where links may land</span>
+<span class="c">#    Authentication → URL Configuration → Site URL + Redirect URLs</span>
+<span class="c">#    https://gefrus112.github.io/eltes/**</span></code></pre>
+          </div>
+          <p>Then put the same URL and key in <code>config.js</code> and submit the sign-up form. There is nothing to build: GitHub Pages serves the files as they are.</p>
+          <p><strong>About confirmation.</strong> The reference project has <em>Confirm email</em> switched off, so an account works the moment it is created — before a Resend key exists. Turn it on at <em>Authentication → Providers → Email</em> and the welcome letter's link becomes the confirmation: it verifies the address, then lands on <code>auth.html</code> signed in. Either way the same letter is the first thing the inbox receives.</p>
+
+          <h3 id="mirror">A second home: the Storage mirror</h3>
+          <p>The site is published twice from the same files. GitHub Pages is the canonical address; the Supabase project serves an identical copy from a public Storage bucket on its CDN:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Home</th><th>Address</th><th>Built by</th></tr></thead>
+              <tbody>
+                <tr><td>GitHub Pages</td><td><a class="inline-link" href="https://gefrus112.github.io/eltes/" target="_blank" rel="noreferrer">gefrus112.github.io/eltes/</a></td><td>the Pages workflow, on every push to <code>main</code></td></tr>
+                <tr><td>Supabase Storage</td><td><a class="inline-link" href="https://odemzfpgercjitrrdlvk.supabase.co/storage/v1/object/public/eltes/index.html" target="_blank" rel="noreferrer">…/storage/v1/object/public/eltes/index.html</a></td><td><code>site-publish</code>, on demand</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Supabase has no static-site product; this is a <strong>public Storage bucket</strong>, not a custom domain. Each object is uploaded with its real content type, so the browser renders the pages and resolves <code>assets/…</code> exactly as it does on Pages. Only pages, <code>assets/</code> and <code>downloads/</code> are published — never the SQL, the tests or the desktop harness.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>refresh the mirror</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>ELTES_PUBLISH_TOKEN=<span class="s">…</span> npm run site:publish -- --dry  <span class="c"># 62 files, 2.8 MB — nothing sent</span>
+ELTES_PUBLISH_TOKEN=<span class="s">…</span> npm run site:publish          <span class="c"># upsert, then print the URL</span></code></pre>
+          </div>
+          <p>The token lives in Edge Function secrets as <code>ELTES_PUBLISH_TOKEN</code>; without it the function answers <code>503 publish_token_not_configured</code>, and with the wrong one <code>401 bad_token</code>. Publishing reads the repository through the GitHub API, so a push to <code>main</code> is enough before you re-run it.</p>
+
+          <h3>Free, and honest about it</h3>
+          <ul class="doc-list">
+            <li><strong>Supabase free plan</strong> — two active projects, 500,000 Edge Function invocations a month, 50,000 monthly active users. A project that stays idle for about a week is paused; one click in the dashboard resumes it.</li>
+            <li><strong>Resend free plan</strong> — 3,000 messages a month, 100 a day, no card. Without a verified domain the sandbox sender <code>onboarding@resend.dev</code> only delivers to the address that owns the Resend account; verify a domain (or use Brevo's 300/day for any recipient) before inviting other people.</li>
+            <li><strong>Supabase's own mailer is not used.</strong> It is limited to a couple of messages an hour project-wide, and its default sender only reaches project members. Every letter here goes through your Resend account instead.</li>
+            <li><strong>Nothing is faked.</strong> No key means no send, and the panel says exactly that. The database refuses a second welcome for the same account (a partial unique index), the function refuses more than six messages per network or three per address every ten minutes, and a bounced address is skipped before any provider call.</li>
+          </ul>
+
+          <h3>What stays private</h3>
+          <p>The <code>service_role</code> key and the Resend key exist only as Edge Function secrets inside your project. They are never in <code>config.js</code>, never in the HTML, never in this repository — the test suite fails if either ever appears. The browser holds a publishable key that can only read and update the signed-in user's own profile row after RLS has had its say.</p>
         </section>
 
         <section id="api-keys">
@@ -351,23 +615,24 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <h2>Models <a class="anchor" href="#models" aria-label="Link to models" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>HTML code fences include a sandboxed preview, copy and download actions. Preview scripts run in an isolated frame with network access blocked.</p>
           <p>NVIDIA NIM uses <code>https://integrate.api.nvidia.com/v1</code> and a key from NVIDIA Build. Catalog access and any free quota depend on NVIDIA's account and model availability; these models are not guaranteed to be free.</p>
-          <p>The catalogue ships <strong>36 models across 13 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead.</p>
+          <p>The catalogue ships <strong>66 models across 14 providers</strong>. Each hosted entry is a real API target with its own context window, tier and capability flags. Nothing is simulated, so a hosted model only answers when its provider is connected. The three Eltes CAI entries run locally instead, and <strong>Eltes Lab-1</strong> is the character model you train yourself in <a href="train.html">Lab</a>.</p>
 
           <table class="doc-table">
             <thead><tr><th>Provider</th><th>Models</th><th>Best at</th></tr></thead>
             <tbody>
-              <tr><td>Eltes CAI</td><td>CAI-1, CAI-1 Fast, CAI Docs</td><td>On-device chat, Eltes help, maths, units, dates</td></tr>
-              <tr><td>OpenAI</td><td>GPT‑6 Sol, GPT‑6.1 Sol, GPT‑6 Luna, GPT‑4.1</td><td>Reasoning, coding and vision</td></tr>
-              <tr><td>Anthropic</td><td>Claude Sonnet 5.5, Opus 5.5, Haiku 5.5, Fable 5.1, Opus 4.5</td><td>Code, long context, careful writing</td></tr>
-              <tr><td>DeepSeek</td><td>V4.1 Flash, V4 Pro</td><td>Cost, 1M context, multimodal</td></tr>
-              <tr><td>Google</td><td>Gemini 2.5 Pro, 2.5 Flash</td><td>1M context, multimodal</td></tr>
-              <tr><td>Z.ai</td><td>GLM-4.6, GLM-4.5, GLM-4.5 Air</td><td>Agentic coding, low cost</td></tr>
-              <tr><td>xAI</td><td>Grok 4, Grok 3</td><td>Direct answers, reasoning</td></tr>
-              <tr><td>Qwen</td><td>Qwen3 Max, Qwen3 Coder Plus</td><td>Bilingual, repository-scale code</td></tr>
-              <tr><td>Mistral</td><td>Mistral Large, Codestral</td><td>Function calling, completion</td></tr>
-              <tr><td>Groq</td><td>Llama 3.3 70B, Llama 4 Scout</td><td>Very high tokens per second</td></tr>
-              <tr><td>NVIDIA NIM</td><td>Llama 3.3 70B, Nemotron Ultra</td><td>Open models via NVIDIA-hosted NIM; key and model access required</td></tr>
-              <tr><td>OpenRouter</td><td>Auto, Claude Sonnet 5.5, Gemini 2.5 Pro, GLM-4.6, DeepSeek Flash, Qwen3 Coder</td><td>One key, routing and fallbacks</td></tr>
+              <tr><td>Eltes CAI</td><td>CAI-1, CAI-1 Fast, CAI Docs</td><td>On-device chat, maths, units, bases, dates, random and text tools</td></tr>
+              <tr><td>OpenAI</td><td>GPT‑6 Sol/Luna, GPT‑4.1, GPT‑4o/mini, o1/mini, o3-mini</td><td>Reasoning, coding and vision</td></tr>
+              <tr><td>Anthropic</td><td>Claude 5.5, 4.5, Sonnet 4, Haiku 4, Fable 5.1</td><td>Code, long context, careful writing</td></tr>
+              <tr><td>DeepSeek</td><td>V4.1 Flash, V4 Pro, Chat, Reasoner</td><td>Cost, 1M context, multimodal and reasoning</td></tr>
+              <tr><td>Google</td><td>Gemini 2.5 Pro/Flash, 2.0 Flash, 1.5 Pro</td><td>1M–2M context, multimodal</td></tr>
+              <tr><td>Z.ai</td><td>GLM-4.7, 4.6, 4.5, 4.5 Air</td><td>Agentic coding, low cost</td></tr>
+              <tr><td>xAI</td><td>Grok 4/3, 4 Fast, 3 Mini</td><td>Direct answers, reasoning</td></tr>
+              <tr><td>Qwen</td><td>Qwen3 Max/Coder, Qwen2.5 32B, Qwen3 30B A3B</td><td>Bilingual, repository-scale code</td></tr>
+              <tr><td>Mistral</td><td>Mistral Large/Small, Codestral, Pixtral Large</td><td>Function calling, vision, completion</td></tr>
+              <tr><td>Groq</td><td>Llama 3.3 70B, 4 Scout, 3.1 8B, Qwen3 32B</td><td>Very high tokens per second</td></tr>
+              <tr><td>NVIDIA NIM</td><td>Llama 3.3, Nemotron Ultra, DeepSeek R1, Mixtral 8×22B</td><td>Open models via NVIDIA NIM; key and model access required</td></tr>
+              <tr><td>Cohere</td><td>Command R+, Command A</td><td>RAG, tool use, multilingual</td></tr>
+              <tr><td>OpenRouter</td><td>Auto, Claude 5.5/3.5, Gemini 2.5/2.0, GLM-4.6, DeepSeek, Qwen, Llama 4</td><td>One key, routing and fallbacks</td></tr>
               <tr><td>Custom</td><td>Whatever your endpoint serves</td><td>Local and private models</td></tr>
             </tbody>
           </table>
@@ -382,7 +647,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td>Eltes CAI Docs</td><td>Eltes setup, keys, accounts, downloads</td><td>“How do I connect a DeepSeek key?”</td></tr>
             </tbody>
           </table>
-          <p>CAI covers Eltes documentation, model recommendations from the catalogue, arithmetic, percentages, common calculator functions (including roots, powers, trigonometry and logs), one-variable linear and quadratic equations, unit and temperature conversion, the current date and time, word counts and a curated glossary of AI terms. Trigonometric inputs use radians. It is not a computer algebra system and cannot solve arbitrary proofs, higher-degree equations or every math problem. For chat understanding, it can retrieve exact matching excerpts and recap user prompts included in the active conversation context; it cannot search every saved chat from this local turn. It has no arbitrary-corpus import or training pipeline. Unsupported or ambiguous questions should receive a fallback, but this is not a guarantee against mistakes.</p>
+          <p>CAI covers Eltes documentation, model recommendations from the catalogue, arithmetic, percentages, common calculator functions (including roots, powers, trigonometry, logs, median, sum and product phrasing), one-variable linear and quadratic equations, unit and temperature conversion (including Kelvin and time units: ms → years), date arithmetic (days between dates, date + N days, days until a date), the current date and time, word counts and a curated glossary of AI terms (now 50+ terms including RAG, embeddings, attention and fine-tuning). Trigonometric inputs use radians. It is not a computer algebra system and cannot solve arbitrary proofs, higher-degree equations or every math problem. For chat understanding, it can retrieve exact matching excerpts and recap user prompts included in the active conversation context; it cannot search every saved chat from this local turn. It has no arbitrary-corpus import or training pipeline. Unsupported or ambiguous questions should receive a fallback, but this is not a guarantee against mistakes.</p>
           <p>A tokenizer vocabulary is a set of text pieces, not a count of verified facts. Adding four million words would not by itself teach the assistant meanings or make its answers reliable. Knowledge expansion needs vetted source documents, retrieval with traceable references, abstention when evidence is weak, and regression tests.</p>
 
           <h3>Real model streaming, including Claude</h3>
@@ -403,122 +668,66 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           </div>
         </section>
 
-        <section id="agent">
-          <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. The selected hosted provider model is the reasoning model; Eltes does not simulate a stronger underlying LLM. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and a supported model may call local tools or approved MCP tools. Eltes returns each result to the model for up to four think → act → observe rounds.</p>
-          <ul>
-            <li><strong>Plan before mutation:</strong> before any file write, generated code artifact, or terminal command, the agent must show a visible <code>Plan:</code> with target filenames and checks. The app blocks mutating tool calls until that plan appears.</li>
-            <li><strong>Workspace context:</strong> each chat keeps bounded local notes about safe filenames explicitly added to drafts and recent approved actions. Notes contain no file contents and are hints, not proof of current filesystem state.</li>
-            <li><strong>Hard boundaries:</strong> the agent is instructed not to open or modify secrets, <code>.env</code> files, private keys, or production/deployment configuration. The file browser filters known protected names, and shell checks common direct references. These safeguards are not a substitute for a sandbox; do not expose secrets to a model or approve commands you do not understand.</li>
-          </ul>
-
-          <table class="doc-table">
-            <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
-            <tbody>
-              <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic in a restricted sandbox — digits and operators only</td></tr>
-              <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
-              <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
-              <tr><td><code>create_file</code></td><td><code>{ filename, content }</code></td><td>After you approve the full contents, stores one text file in the chat as a download (up to 100 KiB each; 10 files / 800 KiB per chat)</td></tr>
-              <tr><td><code>write_workspace_file</code></td><td><code>{ filename, content }</code></td><td>Replaces one existing safe file in the selected folder only after you review the complete before/after contents and approve the write</td></tr>
-              <tr><td><code>run_shell</code></td><td><code>{ command }</code></td><td>Only when connected to an opt-in local Node runner; each exact command requires browser approval. Commands run with your OS account permissions and are not sandboxed.</td></tr>
-            </tbody>
-          </table>
-          <p><strong>Files:</strong> choose a folder yourself using the browser picker. The list is top-level only and filters known secret, <code>.env</code>, private-key, and production/deployment filenames. Clicking <em>Add to draft</em> inserts file text into the composer; contents go to the selected model only if you press <strong>Send</strong>. To write, the agent can only target an existing listed file (up to 100 KB). It shows the complete current and proposed file before a separate write approval. Folder permission stays in memory for this tab.</p>
-          <p><strong>JavaScript sandbox:</strong> the Run action on JavaScript code fences opens a review-first, opaque-origin frame that runs the approved snippet in a disposable worker. Network requests are blocked by policy, and the frame is reset after eight seconds, including if a script stops responding. It can run JavaScript snippets, not shell commands, Python, npm, or pytest. It is not a complete OS security boundary. For OS commands, use the separate local runner only when you explicitly need it.</p>
-
-          <h3>What the timeline shows</h3>
-          <ul>
-            <li><strong>Thinking</strong> while the request is open, then <strong>streaming</strong> once tokens arrive.</li>
-            <li><strong>Tool cards</strong> with the tool name, arguments, a running/done state and the runtime in milliseconds.</li>
-            <li><strong>Metrics</strong> after the turn: first-token latency, total time, tokens in/out and tokens per second.</li>
-            <li><strong>Model and provider chips</strong> on every assistant message, so a long thread with switches stays readable.</li>
-          </ul>
-
-          <h3>Tool calling support</h3>
-          <p>Tools are only offered when the selected model advertises support. Models without tool support — the Eltes CAI family and completion models such as Codestral — are sent the plain conversation. If a provider rejects the tool schema, the error card reports it and retry without tools still works.</p>
-
-          <div class="callout tip">
-            <span data-icon="wrench" data-icon-size="15"></span>
-            <span><strong>Local command execution is disabled by default.</strong> On a computer you control, start the Node server with <code>ELTES_ENABLE_SHELL=1 npm start</code>, then connect using its one-time token in the Terminal panel. A hosted model with tool calling can request commands, but every exact command must be approved in the browser first. Commands are unsandboxed and run with your OS account permissions. Output is returned to the model. The runner accepts only loopback/same-origin requests and starts commands in the repository workspace, but this is not a filesystem sandbox; commands can access other paths allowed to your account. Execution is limited to 30 seconds and 32 KiB of output. It is unavailable on GitHub Pages and Vercel. File downloads and MCP calls also require their own approvals.</span>
-          </div>
-        </section>
-
-        <section id="mcp">
-          <h2>MCP connections <a class="anchor" href="#mcp" aria-label="Link to MCP connections" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Eltes can connect the web workspace to remote Model Context Protocol servers that support <strong>Streamable HTTP</strong>. Select <strong>MCP</strong> in the top bar, enter the server’s HTTPS endpoint and, if required, a bearer token. The server must allow browser CORS requests from the Eltes origin.</p>
-          <ul>
-            <li>Connections and bearer tokens stay in memory in the current tab; they are not saved to chat history or browser storage. Closing or refreshing the tab removes them.</li>
-            <li>Enable only the servers you want offered as tools. MCP tools are available only when <strong>Tools</strong> is on and the selected model supports tool calls.</li>
-            <li>Eltes asks for approval before every MCP tool call and displays the server, tool, and complete arguments. Declined calls are not sent to the MCP server.</li>
-            <li>Approved arguments and results are sent to both the MCP server and the selected model. Connect only servers you trust; an MCP server can access or modify data in its own environment.</li>
-          </ul>
-          <p>Some servers require authentication or do not support browser access. Eltes does not proxy MCP traffic; contact the server operator if the endpoint rejects browser CORS requests.</p>
-        </section>
-
-        <section id="chat">
-          <h2>Chats &amp; export <a class="anchor" href="#chat" aria-label="Link to chats and export" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Conversations are grouped into Today, Yesterday, Previous 7 days, Previous 30 days and Older. Pinned chats sit on top. Every row has a menu with rename, pin, clear, export and delete. Use <strong>Guide</strong> in the composer to set per-chat preferences for hosted models; those preferences are saved with that conversation. The on-device CAI helper does not apply free-form instructions. Installing Eltes as a web app does not grant access to your computer. In browsers that support the secure-context folder picker, the <strong>Files</strong> button opens a folder you explicitly select; only safe top-level supported text/code files are listed. Adding a file places its contents in the draft for your review before sending. Existing listed files can be written only after the full before/after is reviewed and approved. Folder access is memory-only for the current tab; it is not recursive and does not grant access to the rest of the device. If folder picking is unavailable, use <strong>Attach</strong> to choose individual safe files. Quick setup has shortcuts to choose files or configure the local runner.</p>
-
-          <h3>Editing and retrying</h3>
-          <ul>
-            <li><strong>Edit</strong> a user message to rewind the thread to that point and put the text back in the composer.</li>
-            <li>At the start of the composer, press <strong>↑</strong> to browse prompts from this chat; at the end, press <strong>↓</strong> to move forward and restore your draft.</li>
-            <li>Attach text and code files, including PHP and Lua, with the paperclip or drag them onto the composer. Files are read in the browser and inserted into the draft; each file is limited to 400 KB, with 800 KB total per selection. PHP and Lua code fences receive syntax coloring in chat.</li>
-            <li><strong>Retry</strong> re-runs the last turn with the current model; the failed turn is kept out of the history.</li>
-            <li>When you scroll away from the newest messages in a long thread, use <strong>Latest</strong> to jump back to the conversation end.</li>
-            <li><strong>Copy</strong> works on replies and on each code block independently.</li>
-            <li><strong>Feedback</strong> thumb buttons are stored locally and never uploaded.</li>
-          </ul>
-
-          <h3>Exports</h3>
-          <table class="doc-table">
-            <thead><tr><th>Format</th><th>Contains</th><th>Use it for</th></tr></thead>
-            <tbody>
-              <tr><td>Markdown</td><td>Full transcript with model, tool runtimes and token counts</td><td>Docs, issues, sharing in a repo</td></tr>
-              <tr><td>JSON (one chat)</td><td>Raw conversation object</td><td>Debugging or your own tooling</td></tr>
-              <tr><td>JSON (all chats)</td><td>Chats and settings, keys stripped</td><td>Backups and moving devices</td></tr>
-            </tbody>
-          </table>
+        <section id="web-search">
+          <h2>Web search and sources <a class="anchor" href="#web-search" aria-label="Link to web search" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes can search the live web and show the links it used. Results appear as a numbered source list under the reply, and hosted models are asked to cite them inline as <code>[1]</code>, <code>[2]</code> — the same pattern DeepSeek and other search-enabled assistants use. Clicking a citation opens the original page.</p>
 
           <div class="callout">
-            <span data-icon="download" data-icon-size="15"></span>
-            <span><strong>Backups never include keys.</strong> Import merges chats and settings into this browser while keeping the keys already there.</span>
+            <span data-icon="server" data-icon-size="15"></span>
+            <span><strong>Requires the optional backend.</strong> Search keys are never put in browser requests to search providers, because those APIs do not allow direct cross-origin calls. Run <code>npm start</code> locally, or deploy the bundled <code>/api/search</code> route to Vercel. GitHub Pages alone cannot run it.</span>
           </div>
-        </section>
 
-        <section id="settings">
-          <h2>Settings <a class="anchor" href="#settings" aria-label="Link to settings" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Open with <code>⌘,</code> or the gear in the top bar. Settings are stored in <code>eltes.settings.v1</code> and apply instantly.</p>
+          <h3>Set it up</h3>
+          <ol>
+            <li>Get a key from <a href="https://api.search.brave.com/app/keys" target="_blank" rel="noreferrer">Brave</a>, <a href="https://app.tavily.com/home" target="_blank" rel="noreferrer">Tavily</a>, <a href="https://serper.dev/api-key" target="_blank" rel="noreferrer">Serper</a> or <a href="https://dashboard.exa.ai/api-keys" target="_blank" rel="noreferrer">Exa</a>.</li>
+            <li>Open <strong>Settings → API keys → Web search</strong>, choose the provider, paste the key and press <strong>Save</strong>. The key is stored in this browser only.</li>
+            <li>Pick a <strong>recency</strong> filter — any time, past 24 hours, week, month or year. It is mapped to each provider's own filter, so the results are actually filtered upstream rather than trimmed after the fact.</li>
+            <li>Turn on the <strong>Web</strong> chip in the composer — it is a plain switch: clicking it always turns web search on (the chip then reads <strong>Web on</strong>), and if a key or backend is missing an inline notice links straight to it instead of blocking the click. The toggle also governs the <code>web_search</code> tool offered to hosted models.</li>
+            <li>Ask a live question, or type <code>/web &lt;query&gt;</code> for an explicit search.</li>
+          </ol>
 
           <table class="doc-table">
-            <thead><tr><th>Panel</th><th>Controls</th></tr></thead>
+            <thead><tr><th>Provider</th><th>Strength</th><th>Answer field</th></tr></thead>
             <tbody>
-              <tr><td>General</td><td>Default model, streaming, send key, tools by default, density, reduced motion, timestamps, metrics</td></tr>
-              <tr><td>API keys</td><td>Provider keys, reveal/save/remove and provider key test through configured proxy, Vercel/local backend URL, custom model endpoint</td></tr>
-              <tr><td>Models</td><td>Star favourites, choose the default model for new chats</td></tr>
-              <tr><td>Account</td><td>Profile, display name, sign out, delete profile, plan</td></tr>
-              <tr><td>Data</td><td>Chat count, storage meter, export all, import, delete all chats</td></tr>
-              <tr><td>About</td><td>Version, model count, shortcuts and links</td></tr>
+              <tr><td>Brave Search</td><td>Independent index, free developer tier</td><td>—</td></tr>
+              <tr><td>Tavily</td><td>Built for agents; returns a short synthesized answer</td><td>Yes</td></tr>
+              <tr><td>Serper</td><td>Google results with answer boxes and knowledge panels</td><td>Yes</td></tr>
+              <tr><td>Exa</td><td>Neural search with extracted page text and dates</td><td>—</td></tr>
             </tbody>
           </table>
 
-          <h3>Storage meter</h3>
-          <p>The sidebar footer shows how much of the browser's local storage the app is using. The meter is deliberately conservative: browsers commonly allow about 5 MB per origin, and large attachments or very long threads consume it fastest.</p>
+          <h3>Thinking trace</h3>
+          <p>While a search runs, the reply opens a <strong>Searching the web</strong> panel with the steps as they happen: the condensed query, the provider and recency filter, how many results came back, and how long each step actually took. There is no scripted animation — a failed request leaves a failed step with the provider's error. Finished panels collapse to a summary such as “Web search · 6 sources · 1.3 s” and can be reopened for inspection.</p>
+          <p>Turn the panel off in <strong>Settings → General → Show search thinking</strong>. Identical searches (same provider, query, count and recency) are reused from an in-memory cache for five minutes per tab, which avoids spending search credits twice for a retry.</p>
+
+          <h3>What is sent where</h3>
+          <ul>
+            <li>The browser sends <code>{ provider, query, count, freshness }</code> plus your search key to <strong>your configured backend</strong>. The backend forwards it to the fixed provider endpoint — it never accepts an arbitrary URL.</li>
+            <li>The search provider sees the query and your key. Eltes does not store queries server-side, and the key is not logged.</li>
+            <li>Result titles, URLs and excerpts are returned to the page. For hosted models, the excerpts are added to the model request as tool output; treat them as untrusted evidence, never as instructions.</li>
+            <li>Nothing is fetched from a result page — Eltes shows the snippet the search API returned and links out, so you can open the full page yourself.</li>
+          </ul>
+
+          <h3>When search is unavailable</h3>
+          <p>If no backend or key is configured, CAI answers live questions with an explicit “I cannot check live information” message instead of guessing. If a search fails, the reply reports the provider error and links the settings, rather than inventing an answer.</p>
         </section>
 
-        <section id="shortcuts">
-          <h2>Keyboard shortcuts <a class="anchor" href="#shortcuts" aria-label="Link to shortcuts" data-icon="link-2" data-icon-size="16"></a></h2>
-          <div class="keys-table">
-            <div class="krow"><span>Command palette — chats, models, actions</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">K</span></span></div>
-            <div class="krow"><span>Model picker</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">M</span></span></div>
-            <div class="krow"><span>Toggle the sidebar</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">B</span></span></div>
-            <div class="krow"><span>New chat</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">N</span></span></div>
-            <div class="krow"><span>Settings</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">,</span></span></div>
-            <div class="krow"><span>Focus the composer</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">/</span></span></div>
-            <div class="krow"><span>Send / newline</span><span class="keys"><span class="kbd">↵</span><span class="kbd">⇧↵</span></span></div>
-            <div class="krow"><span>Close dialog or menu</span><span class="keys"><span class="kbd">esc</span></span></div>
+        <section id="contributors">
+          <h2>Contributors <a class="anchor" href="#contributors" aria-label="Link to contributors" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Every account below has at least one commit credited in GitHub’s contributor stats. The list reflects repository activity; it does not imply endorsement. Pull requests, issues, and newer activity can be checked in the full GitHub contributor graph.</p>
+          <div class="contributor-list">
+            <a class="contributor-card" href="https://github.com/gefrus112" target="_blank" rel="noreferrer">
+              <span class="contributor-mark" data-icon="github" data-icon-size="17" aria-hidden="true"></span>
+              <span class="contributor-copy"><strong>highenough</strong><small>@gefrus112 · 126 commits</small></span>
+              <span class="contributor-link" data-icon="arrow-up-right" data-icon-size="14" aria-hidden="true"></span>
+            </a>
+            <a class="contributor-card" href="https://github.com/eltes" target="_blank" rel="noreferrer">
+              <span class="contributor-mark" data-icon="github" data-icon-size="17" aria-hidden="true"></span>
+              <span class="contributor-copy"><strong>Eltes</strong><small>@eltes · 2 commits</small></span>
+              <span class="contributor-link" data-icon="arrow-up-right" data-icon-size="14" aria-hidden="true"></span>
+            </a>
           </div>
-          <p class="dim" style="margin-top:12px;font-size:12.5px">On Windows and Linux, use <code>Ctrl</code> wherever <code>⌘</code> is shown. The interface relabels the modifier automatically.</p>
+          <p class="dim">Want to contribute? Open an issue or pull request on the <a class="inline-link" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">Eltes GitHub repository</a>. The <a class="inline-link" href="https://github.com/gefrus112/eltes/graphs/contributors" target="_blank" rel="noreferrer">live contributor graph</a> is the source for updated counts.</p>
         </section>
 
         <section id="video-editor">
@@ -546,9 +755,864 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <p><a class="btn btn-ghost btn-sm" href="video.html"><span data-icon="video" data-icon-size="14"></span>Open the video editor</a></p>
         </section>
 
+        <section id="agent">
+          <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Tools are real function calls, not a scripted animation. <strong>Agent mode</strong> is on by default — the <strong>Agent</strong> chip in the composer toggles it. The adjacent <strong>Instructions</strong> control saves up to 2,000 characters of per-chat preferences for hosted models in this browser; it does not alter the on-device CAI helper. There are two ways a tool gets called, and both render the same trace cards:</p>
+          <ul>
+            <li><strong>Hosted models</strong> drive the loop through native function calling (OpenAI <code>tools</code>, Anthropic <code>tool_use</code>): the model asks, Eltes runs the call in the page, the result goes back, up to four rounds.</li>
+            <li><strong>Eltes CAI-1</strong> has no model to ask, so a deterministic on-device planner does the work: it splits the message on <code>then</code>, matches each clause to a tool, chains follow-ups such as <code>then multiply by 3</code>, and stops after six steps or when nothing matches.</li>
+          </ul>
+          <p>Seven of the eight tools run locally. <code>web_search</code> uses your own search key through the optional backend and is only offered when the Web chip is on. The on-device planner runs six of them — <code>calculate</code>, <code>convert_units</code> (temperatures included), <code>percentage</code>, <code>date_math</code>, <code>current_time</code> and <code>search_history</code>; the glossary and web search stay with the hosted loop.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>calculate</code></td><td><code>{ expression }</code></td><td>Evaluates arithmetic and scientific functions (sqrt, sin, log, median, sum…) in a sandboxed parser — much richer than a four-function calculator</td></tr>
+              <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
+              <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
+              <tr><td><code>convert_units</code></td><td><code>{ value, from, to }</code></td><td>Converts between length, mass, volume, data, speed, area, time and temperature using deterministic factors — Kelvin and time units included</td></tr>
+              <tr><td><code>percentage</code></td><td><code>{ mode, value, base?, from?, to? }</code></td><td>Percent of a number, a discount off a number, or the percentage change between two values — with the working shown, and an honest refusal when the change is from zero</td></tr>
+              <tr><td><code>date_math</code></td><td><code>{ kind, start, end? }</code></td><td>Days between two dates, the weekday of a date, or days until a date, computed in your own timezone</td></tr>
+              <tr><td><code>define_term</code></td><td><code>{ term }</code></td><td>Defines an AI/Eltes term from the on-device glossary (RAG, embedding, transformer, etc.) with a curated, source-traceable explanation</td></tr>
+              <tr><td><code>web_search</code></td><td><code>{ query, count? }</code></td><td>Searches the live web through Brave, Tavily, Serper or Exa and returns numbered titles, URLs and excerpts for inline <code>[1]</code>-style citations. Only offered when the Web chip is on and a search key is saved</td></tr>
+            </tbody>
+          </table>
+
+          <p>Folder access is not recursive and does not grant access to the rest of the device. When scrolled up, use <strong>Latest</strong> to jump back after scrolling up. Alt + Up/Down lets you browse prompts from this chat. Attachments are inserted into the draft for review.</p>
+          <p>Local command execution is disabled by default; every exact command must be approved in the browser first. Commands are unsandboxed. The runner does not attach to or read an existing Terminal session.</p>
+          <h3>Install on a Chromebook</h3>
+          <p>Use Chrome’s Install page as app option. The installed hosted PWA uses the same origin as the website and cannot run Chromebook terminal commands itself. Python commands work only if Python is installed in the same Linux environment as the opt-in local server.</p>
+          <h3>Coding tasks, files and command execution</h3>
+          <p>For file writes or shell commands, the hosted model must first show a visible <strong>Plan:</strong> with the exact target and checks. A selected folder is kept in memory for this tab and only its safe top-level source/text files are listed. Adding a file places its contents in the draft; the contents go to the model only after you press <strong>Send</strong>. Writes are limited to existing listed files up to 100 KB, show the full current and proposed contents, and require a separate approval each time.</p>
+          <p>The chat's local shell tool appears only after you pair a one-time token from a local Eltes server started with <code>ELTES_ENABLE_SHELL=1</code>. Every exact command is shown for approval. The runner is disabled by default, uses limited text filters, and runs with the server account's permissions; it is <strong>not</strong> an OS sandbox. Never use it on a computer or network you do not control. It is unavailable on GitHub Pages and Vercel. The separate <a href="studio.html">Studio</a> terminal is a user-operated development terminal, not an existing terminal session.</p>
+          <h3>Build a website with the model</h3>
+          <p>Select a connected hosted model with tools enabled, then ask it to build a website using <code>write_project_file</code>. It proposes HTML, CSS and JavaScript files; after you review and approve each file, the browser coding workspace opens with a file list and editable source. Press <strong>Save in tab</strong> after edits, then <strong>Preview reviewed code</strong>. Preview inlines top-level local script/stylesheet references, blocks resource fetches with CSP, and resets after 30 seconds. DOM previews are not a complete network boundary: scripts can navigate the frame, so never include private data. Download individual files to keep them: closing the tab loses this virtual project. This is not npm, a build server, or a Jac runtime. Untrusted DOM scripts can freeze a renderer; the preview timer is best-effort, not an OS isolation guarantee.</p>
+          <h3>JavaScript and TensorFlow.js sandbox</h3>
+          <p>JavaScript code fences have a review-first <strong>Run</strong> action. The code runs in a disposable worker inside an opaque-origin frame with network access blocked, no DOM access and a time limit. With the optional TensorFlow.js 4.22.0 CPU runtime enabled, snippets can use TensorFlow.js operations and the <code>loadLocalGraphModel()</code> / <code>loadLocalLayersModel()</code> helpers. To run inference, select a compatible local model JSON file and its weight shards in the sandbox dialog. Eltes ships the framework, not model weights; TensorFlow.js is not itself a conversational model. Selected files remain in the tab and are not sent to the hosted model. This is a browser execution boundary, not a promise of complete security against browser or engine vulnerabilities.</p>
+          <p>Supported source highlighting includes JavaScript, Jac and other languages, including PHP and Lua.</p>
+          <h3>Account modes</h3>
+          <p>The static Supabase account UI remains available at auth.html. The accumulated branch’s backend-hosted mode is preserved at <a href="cookie-auth.html">cookie-auth.html</a>, using HttpOnly SameSite cookies through /api/auth; its display profile stays in memory. These modes have separate sessions and profile tables; signing out of one does not sign out of the other. Chat currently displays the static account profile. No passwords are saved by either Eltes client. Use the cookie mode only with a configured local or Vercel backend.</p>
+          <h3>Jac source files</h3>
+          <p>Eltes recognizes <code>.jac</code> files and <code>jac</code> code fences for syntax highlighting, attachment and download. Jac is not executed by the JavaScript sandbox. If you install a Jac runtime in the local environment, run it through the separate local terminal with an explicit plan and exact-command approval. No Jac runtime is bundled with Eltes, and Eltes does not claim Jac's compiler internals or execution guarantees.</p>
+
+          <h3>On-device agent runs</h3>
+          <p>With an Eltes CAI model selected, Agent mode never calls a provider. The planner runs in the tab, so tool cards appear with arguments, result and runtime, and the reply ends with <em>On-device agent · N tool calls · nothing left this browser.</em> Turn the Agent chip off and the same prompt gets the plain router answer instead.</p>
+
+          <h3>What the timeline shows</h3>
+          <ul>
+            <li><strong>Thinking</strong> while the request is open, then <strong>streaming</strong> once tokens arrive.</li>
+            <li><strong>Tool cards</strong> with the tool name, arguments, a running/done state and the runtime in milliseconds.</li>
+            <li><strong>Metrics</strong> after the turn: first-token latency, total time, tokens in/out and tokens per second.</li>
+            <li><strong>Model and provider chips</strong> on every assistant message, so a long thread with switches stays readable.</li>
+            <li><strong>Source cards</strong> under web-search replies: numbered links to the pages the search provider returned, with the snippet it supplied.</li>
+          </ul>
+
+          <h3>Tool calling support</h3>
+          <p>Tools are only offered when the selected model advertises support. Models without tool support — the Eltes CAI family and completion models such as Codestral — are sent the plain conversation. If a provider rejects the tool schema, the error card reports it and retry without tools still works.</p>
+
+          <div class="callout tip">
+            <span data-icon="wrench" data-icon-size="15"></span>
+            <span><strong>Tool data follows the action you approve.</strong> Arithmetic, time and history search run locally. File contents are sent only when you add them to the draft and press Send; local command output is returned only after you approve the exact command.</span>
+          </div>
+        </section>
+
+        <section id="mcp">
+          <h2>MCP servers <a class="anchor" href="#mcp" aria-label="Link to MCP servers" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p><strong>MCP</strong> (Model Context Protocol) is how Eltes borrows tools from programs that already run on your machine. Blender and Roblox Studio are the two shipped presets, but any server that speaks MCP over HTTP works: add its URL and press Connect.</p>
+          <p>When a server is connected, its tools join the same registry the built-in tools use, named <code>server__tool</code>. Hosted models see them in the tool list, Eltes CAI-1 can plan with them, and every call appears as a tool card with arguments, result and runtime.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Piece</th><th>Where it runs</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td><code>assets/js/mcp.js</code></td><td>This page</td><td>The MCP client: <code>initialize</code>, <code>tools/list</code>, <code>tools/call</code> over Streamable HTTP, with an event-stream fallback and a 12 s timeout</td></tr>
+              <tr><td><code>mcp/eltes-mcp-bridge.mjs</code></td><td>Your terminal</td><td>Starts a command-based (stdio) MCP server and exposes it on <code>127.0.0.1</code>. This is how Blender’s <code>uvx blender-mcp</code> reaches the browser</td></tr>
+              <tr><td><code>mcp/eltes-roblox-bridge.mjs</code></td><td>Your terminal</td><td>A real MCP server for Roblox: it queues scene edits and hands them to the Studio plugin</td></tr>
+              <tr><td><code>mcp/EltesRobloxBridge.lua</code></td><td>Roblox Studio</td><td>A plugin that polls the bridge and applies each edit to the open place, inside an undo recording</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Add a server in 30 seconds</h3>
+          <ol>
+            <li>Open <strong>Settings → MCP</strong> (or press the <strong>MCP</strong> chip in the composer).</li>
+            <li>Pick <strong>Blender</strong> or <strong>Roblox Studio</strong>, or paste any <code>http://127.0.0.1:…/mcp</code> URL.</li>
+            <li>Press <strong>.bat</strong> (Windows) or <strong>.sh</strong> (macOS, Linux) to download a one-file connector, or <strong>Copy command</strong> if you prefer your own terminal. The connector downloads the bridge, starts it and keeps the window open.</li>
+            <li>Come back and press <strong>Connect</strong>. The chip changes to <strong>MCP · N</strong> when tools are available.</li>
+          </ol>
+
+          <h3>Blender</h3>
+          <p>Blender needs the BlenderMCP add-on, which is a single <code>.py</code> file: <em>Edit → Preferences → Add-ons → Install</em>, enable it, then open the sidebar in the 3D view (<kbd>N</kbd>) and press <strong>Start MCP server</strong>. Run the connector, press Connect in Eltes, and ask for an object, a material or a render.</p>
+
+          <h3>Roblox Studio</h3>
+          <p>Studio has no official MCP server, so Eltes ships both halves. Save <code>EltesRobloxBridge.lua</code> in your Plugins folder (<code>%LOCALAPPDATA%\Roblox\Plugins</code> on Windows, <code>~/Documents/Roblox/Plugins</code> on macOS), restart Studio, turn on <strong>Game Settings → Security → Allow HTTP Requests</strong>, run the connector, then press the <strong>Connect</strong> button on the Eltes toolbar in Studio and Connect in Eltes.</p>
+          <p>Tools you get: <code>scene_report</code>, <code>create_part</code>, <code>build_model</code>, <code>insert_script</code>, <code>animate_rig</code>, <code>add_effect</code>, <code>scaffold_game</code> and <code>set_properties</code>. Ask for “build a lighthouse with a rotating beam”, “scaffold an obby with five platforms”, or “add a fire effect to the campfire” and the model calls the tools; the plugin applies them in one undo step each.</p>
+
+          <div class="callout warn">
+            <span data-icon="shield" data-icon-size="15"></span>
+            <span><strong>This is code execution on your machine.</strong> An MCP server can do anything you can do in that app. Connect only servers you started, keep bridges bound to <code>127.0.0.1</code>, and use <code>--token</code> if other people share the computer. Eltes never connects to a server you have not explicitly connected, and the <strong>MCP</strong> chip turns the whole set off for a run.</span>
+          </div>
+
+          <h3>What this cannot do</h3>
+          <ul>
+            <li><strong>Install things for you.</strong> Blender’s add-on and Studio’s plugin are one manual step each; a browser cannot write to those folders.</li>
+            <li><strong>Drive a live Roblox game server.</strong> The plugin edits a place open in Studio on this machine. Published servers run their own code.</li>
+            <li><strong>Work without the bridge for stdio servers.</strong> Browsers cannot spawn processes. The desktop app ships the same bridge, so there the terminal step disappears.</li>
+            <li><strong>Guarantee a server is safe.</strong> Eltes shows what a tool returns, not what it did. Read before you connect.</li>
+          </ul>
+
+          <h3>Troubleshooting</h3>
+          <table class="doc-table">
+            <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr><td>“Could not reach …”</td><td>The bridge is not running, or it is on another port. Check the window you opened and the URL in Settings → MCP.</td></tr>
+              <tr><td>“Studio is not connected”</td><td>Press Connect on the Eltes toolbar in Studio and make sure <em>Allow HTTP Requests</em> is on.</td></tr>
+              <tr><td>Handshake error</td><td>That URL answered but is not an MCP endpoint. Most servers expose <code>/mcp</code>; check their docs.</td></tr>
+              <tr><td>Node not found</td><td>Install Node.js 18 or newer. The connector checks before it starts.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="chat-commands">
+          <h2>Chat commands <a class="anchor" href="#chat-commands" aria-label="Link to chat commands" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Type <code>/</code> in the composer to open the autocomplete menu. Commands run on-device, need no API key, and work with any selected model. Arrow keys move through suggestions, <code>Tab</code> or <code>Enter</code> completes, and <code>Esc</code> closes the menu.</p>
+          <table class="doc-table">
+            <thead><tr><th>Command</th><th>What it does</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td><code>/help</code></td><td>Lists every command</td><td><code>/help</code></td></tr>
+              <tr><td><code>/clear</code></td><td>Clears the current conversation</td><td><code>/clear</code></td></tr>
+              <tr><td><code>/export</code></td><td>Opens the Markdown/JSON export dialog</td><td><code>/export</code></td></tr>
+              <tr><td><code>/model</code></td><td>Switches model by id or name</td><td><code>/model gpt-4o</code></td></tr>
+              <tr><td><code>/calc</code></td><td>Evaluates an expression with the safe parser</td><td><code>/calc sqrt(81) + 2*3</code></td></tr>
+              <tr><td><code>/convert</code></td><td>Converts units and temperatures</td><td><code>/convert 5 mi to km</code></td></tr>
+              <tr><td><code>/define</code></td><td>Looks up the on-device AI glossary</td><td><code>/define RAG</code></td></tr>
+              <tr><td><code>/base</code></td><td>Converts hex, binary, octal and decimal</td><td><code>/base 255 to hex</code></td></tr>
+              <tr><td><code>/web</code></td><td>Searches the live web and lists sources (needs a search key)</td><td><code>/web DeepSeek V4 release notes</code></td></tr>
+              <tr><td><code>/time</code></td><td>Shows device date, time and timezone</td><td><code>/time</code></td></tr>
+              <tr><td><code>/coin</code>, <code>/dice</code></td><td>Random utilities using the device RNG</td><td><code>/dice 20</code></td></tr>
+              <tr><td><code>/random</code></td><td>Random integer in a range</td><td><code>/random 1 100</code></td></tr>
+              <tr><td><code>/uppercase</code>, <code>/reverse</code>, <code>/sort</code></td><td>Text transforms</td><td><code>/reverse &quot;eltes&quot;</code></td></tr>
+            </tbody>
+          </table>
+          <p>CAI also understands the same jobs in plain language — “255 to hex”, “convert 60 minutes to hours”, “flip a coin”, “uppercase &quot;hello&quot;” or “sort banana apple cherry” — so the slash menu is a shortcut, not a separate mode.</p>
+        </section>
+
+        <section id="chat">
+          <h2>Chats &amp; export <a class="anchor" href="#chat" aria-label="Link to chats and export" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Conversations are grouped into Today, Yesterday, Previous 7 days, Previous 30 days and Older. Pinned chats sit on top. Every row has a menu with rename, pin, clear, export and delete.</p>
+
+          <h3>Editing and retrying</h3>
+          <ul>
+            <li><strong>Edit</strong> a user message to rewind the thread to that point and put the text back in the composer.</li>
+            <li><strong>Retry</strong> re-runs the last turn with the current model; the failed turn is kept out of the history.</li>
+            <li><strong>Copy</strong> works on replies and on each code block independently.</li>
+            <li><strong>Feedback</strong> thumb buttons are stored locally and never uploaded.</li>
+          </ul>
+
+          <h3>Exports</h3>
+          <table class="doc-table">
+            <thead><tr><th>Format</th><th>Contains</th><th>Use it for</th></tr></thead>
+            <tbody>
+              <tr><td>Markdown</td><td>Full transcript with model, tool runtimes and token counts</td><td>Docs, issues, sharing in a repo</td></tr>
+              <tr><td>JSON (one chat)</td><td>Raw conversation object</td><td>Debugging or your own tooling</td></tr>
+              <tr><td>JSON (all chats)</td><td>Chats and settings, keys stripped</td><td>Backups and moving devices</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout">
+            <span data-icon="download" data-icon-size="15"></span>
+            <span><strong>Backups never include keys.</strong> Import merges chats and settings into this browser while keeping the keys already there.</span>
+          </div>
+        </section>
+
+        <section id="workflow">
+          <h2>Workflow: build a website <a class="anchor" href="#workflow" aria-label="Link to the website workflow" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>This is the loop Eltes is built around, end to end: open a workspace, start a terminal, create files, watch the page update while you edit, then open the finished page on its own. Studio's <strong>Guide</strong> button walks the same five steps and ticks each one off as you do it.</p>
+
+          <div class="callout tip">
+            <span data-icon="workflow" data-icon-size="15"></span>
+            <span><strong>Follow it in the app.</strong> Open <a href="studio.html">Studio</a> and press <strong>Guide</strong> in the top bar. Each step has one button that performs the real action — create the files, run the command, open the preview — and the counter shows progress. Reset it from the same panel.</span>
+          </div>
+
+          <ol class="workflow-steps">
+            <li>
+              <div class="ws-head"><span class="ws-num">1</span><h3>Open the workspace</h3></div>
+              <p>Start the local server and open Studio. You get four panes: files on the left, the editor in the middle, the live preview on the right and the terminal underneath.</p>
+              <div class="doc-code"><pre><code>npm install
+npm start
+# app       http://localhost:4173/app.html
+# studio    http://localhost:4173/studio.html</code></pre></div>
+              <p class="ws-meta">The first run creates a small starter project in <code>.studio/</code>: <code>index.html</code>, <code>styles.css</code>, <code>app.js</code>, <code>notes.md</code> and <code>README.txt</code>.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">2</span><h3>Start the terminal</h3></div>
+              <p>Click the terminal input, or press <strong>Run command</strong> in the Guide, which runs the starter build for you. The panel is a real shell in <code>.studio/</code>, so anything you would type in a Linux terminal works here — output streams while the command runs.</p>
+              <div class="doc-code"><pre><code>pwd                       # /…/eltes/.studio
+ls -la                    # the files you can see in the tree
+npm run build             # runs build.mjs → dist/
+ls dist                   # index.html, about.html, styles.css
+node -v                   # the runtime your build uses</code></pre></div>
+              <p class="ws-meta">The starter <code>package.json</code> points <code>build</code> at <code>build.mjs</code>, a ~15-line Node script that copies every HTML, CSS and JS file into <code>dist/</code>. No dependencies and no network — swap it for Vite, Eleventy or anything else whenever you want. <kbd>↑</kbd>/<kbd>↓</kbd> recall history, <kbd>Ctrl</kbd>+<kbd>C</kbd> stops a running command, <kbd>Ctrl</kbd>+<kbd>L</kbd> clears. Commands time out after 60 seconds by default and output is capped at 512 KB.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">3</span><h3>Create the files</h3></div>
+              <p>Use <strong>+</strong> in the file panel, the Guide's <strong>New file</strong>, or write them from the terminal. <code>index.html</code>, <code>about.html</code> and a shared <code>styles.css</code> are enough for a first site — the Guide's <strong>Create files</strong> button scaffolds exactly that, with working links between the pages, a package manifest and a build script.</p>
+              <div class="doc-code"><pre><code># from the file panel:  +  →  pricing.html
+# or from the terminal:
+cat &gt; about.html &lt;&lt;'EOF'
+&lt;!doctype html&gt;
+&lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;h1&gt;About&lt;/h1&gt;
+&lt;a href="index.html"&gt;Home&lt;/a&gt;
+EOF</code></pre></div>
+              <p class="ws-meta">Nested paths such as <code>pages/about.html</code> work too. Every new HTML file can be previewed; the editor highlights the open file and marks unsaved changes with a dot.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">4</span><h3>Preview while you edit</h3></div>
+              <p>The right pane follows whichever HTML file you open, served from <code>/preview/</code>, so relative CSS, scripts, modules, fonts and images resolve like a normal site. Saving reloads it — and so does a build run in the terminal.</p>
+              <ul>
+                <li>Press <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd> to save, or stop typing for a second and Studio saves for you.</li>
+                <li>Switch the preview between desktop, tablet and phone widths.</li>
+                <li>Type any path in the preview address bar, for example <code>/preview/about.html</code> or <code>/preview/dist/index.html</code>.</li>
+                <li>Use the reload button after a change made outside the editor.</li>
+              </ul>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">5</span><h3>Open the page on its own</h3></div>
+              <p>The pop-out button opens the current preview in a new browser tab, at its real URL. That is the same page a visitor would load — useful for testing links between pages, browser back and forward, and full-window layout.</p>
+              <div class="doc-code"><pre><code>http://localhost:4173/preview/index.html
+http://localhost:4173/preview/about.html</code></pre></div>
+              <p class="ws-meta">On a static deployment without the local server, Studio switches to browser-only mode and opens the page from a blob URL instead. The editing and preview loop is the same; the terminal is not.</p>
+            </li>
+
+            <li>
+              <div class="ws-head"><span class="ws-num">6</span><h3>Build, then preview the build</h3></div>
+              <p>This is where the terminal earns its place. The starter ships a dependency-free <code>build.mjs</code>, so the build works immediately; point the preview at the output folder — no second server needed.</p>
+              <div class="doc-code"><pre><code>npm run build              # build.mjs → dist/
+# then set the preview address to /preview/dist/index.html
+# or click "Run build" — Studio reads package.json and runs its build script
+# swapping in a real toolchain later is just:
+npm install --save-dev vite
+npx vite build             # writes dist/ in Vite's format</code></pre></div>
+              <p class="ws-meta">The watcher reloads the preview whenever the build changes files. A failing build leaves its stderr in the terminal with the exit code, so you can fix it and run again. <code>dist/</code> is hidden from the file tree to keep it readable, but it is served at <code>/preview/dist/…</code> like any other file.</p>
+            </li>
+          </ol>
+
+          <h3>At a glance</h3>
+          <table class="doc-table">
+            <thead><tr><th>Step</th><th>Where</th><th>What you see</th></tr></thead>
+            <tbody>
+              <tr><td>Open the workspace</td><td><a href="studio.html">Studio</a></td><td>Files, editor, preview, terminal</td></tr>
+              <tr><td>Start the terminal</td><td>Terminal panel</td><td>Streaming output and exit status</td></tr>
+              <tr><td>Create files</td><td>File panel or terminal</td><td>New files in the tree, opened in a tab</td></tr>
+              <tr><td>Preview</td><td>Right pane</td><td>The page loaded from <code>/preview/</code></td></tr>
+              <tr><td>Open the page</td><td>Pop-out button</td><td>The same page in its own tab</td></tr>
+              <tr><td>Build</td><td>Terminal or <em>Run build</em></td><td><code>dist/</code> output, preview reloaded</td></tr>
+            </tbody>
+          </table>
+
+          <h3>When a step does not work</h3>
+          <ul>
+            <li><strong>The terminal says it needs <code>npm start</code>.</strong> Studio is open as a static page. Start the local server and reload; the editor and browser-only preview still work without it.</li>
+            <li><strong>Nothing previews.</strong> Check the address bar path and that the file exists in the tree. A 404 page tells you the path it tried.</li>
+            <li><strong>The preview is stale.</strong> Press the reload button; a file outside <code>.studio/</code> is not watched.</li>
+            <li><strong><code>npm init</code> complains about the folder name.</strong> The workspace is a dot-folder (<code>.studio</code>), which npm will not accept as a package name. The starter <code>package.json</code> already has a valid name, so use <code>npm run build</code> and add scripts with <code>npm pkg set</code> instead.</li>
+            <li><strong>A command was stopped.</strong> The 60-second limit fired or <kbd>Ctrl</kbd>+<kbd>C</kbd> was pressed. Long builds can be given more time with <code>ELTES_STUDIO_TIMEOUT</code> (milliseconds) when starting the server.</li>
+          </ul>
+        </section>
+
+        <section id="studio">
+          <h2>Studio, files and the terminal <a class="anchor" href="#studio" aria-label="Link to Studio" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p><a href="studio.html">Eltes Studio</a> is a coding workspace served next to the app: a file list, an editor, a live preview and a real shell in one window. It is a normal page — open <code>studio.html</code> — and it works in two modes.</p>
+
+          <h3>The workspace</h3>
+          <p>Files live in <code>.studio/</code> beside the app and are served at <code>/preview/</code>, so the page you are editing loads exactly like a normal site: relative stylesheets, scripts, modules, fonts and images all resolve. The first run creates <code>index.html</code>, <code>styles.css</code>, <code>app.js</code>, <code>notes.md</code> and <code>README.txt</code>.</p>
+          <ul>
+            <li><strong>Any HTML file previews.</strong> Create <code>about.html</code>, open it, and the preview pane follows it. The address bar above the preview accepts any path, including one produced by a build such as <code>dist/index.html</code>.</li>
+            <li><strong>Auto-save and auto-reload.</strong> Edits save about a second after you stop typing, and the preview refreshes. Files changed from the terminal — <code>npm run build</code>, a formatter, a generator — reload the preview too.</li>
+            <li><strong>Find and replace.</strong> <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>F</kbd> opens a find bar over the code: it pre-fills with the current selection, matches case-insensitively, shows the match count, and replaces one match or every match in the file. <kbd>Enter</kbd> and <kbd>Shift</kbd>+<kbd>Enter</kbd> step through, <kbd>Esc</kbd> closes.</li>
+            <li><strong>Export.</strong> <em>Export</em> packages the workspace as a zip, entirely in the browser.</li>
+            <li><strong>Device widths.</strong> The preview switches between desktop, tablet and phone, and can open in its own tab.</li>
+          </ul>
+
+          <h3>The terminal</h3>
+          <p>The bottom panel runs a real shell (<code>/bin/bash</code> when available, otherwise <code>/bin/sh</code>) with the workspace as its working directory. Output streams as it is produced, so a long build is visible while it runs. Commands have a 60-second limit by default, output is capped at 512 KB per command, and <kbd>Ctrl</kbd>+<kbd>C</kbd> stops a running command.</p>
+          <div class="doc-code"><pre><code>ls -la
+npm init -y
+npm install --save-dev vite
+npm run build
+# then preview dist/index.html</code></pre></div>
+          <p><code>cd</code> is tracked in the panel, <kbd>↑</kbd>/<kbd>↓</kbd> walk command history, <kbd>Ctrl</kbd>+<kbd>L</kbd> clears, and the quick buttons run common commands. <em>Run build</em> reads the workspace <code>package.json</code> and runs its <code>build</code> script when one exists.</p>
+
+          <div class="callout warn">
+            <span data-icon="shield" data-icon-size="15"></span>
+            <span><strong>Local only, on purpose.</strong> The terminal is part of <code>npm start</code>, not part of the static site, so a Vercel or GitHub Pages deployment can never run commands. Requests need a per-process token, every path is confined to <code>.studio/</code>, and the shell refuses to start if the workspace cannot be resolved. Keep the local server on a trusted network. <code>ELTES_STUDIO=0</code> disables Studio, <code>ELTES_STUDIO_SHELL=1</code> explicitly enables the Studio shell; it is off by default. Commands are not OS-sandboxed.</span>
+          </div>
+
+          <h3>Without a backend</h3>
+          <p>Opened as a plain static page, Studio falls back to a browser-only project stored in <code>localStorage</code>. The editor, file creation, preview and zip export still work: the preview is assembled in the browser with local CSS and JavaScript inlined. The terminal explains that commands need <code>npm start</code> instead of pretending to run.</p>
+
+          <h3 id="other-tools">Other tools: Reel, frames and palette</h3>
+          <p>Studio pins two tabs in front of your open files: <strong>Video editor</strong>, which opens <strong>Reel</strong> directly, and <strong>Other tools</strong>, which opens an overlay that has nothing to do with the file tree — the same Reel, a frame grabber and a CSS gradient builder. The workspace stays open underneath; <kbd>Esc</kbd> steps back one level at a time.</p>
+          <p>You do not have to go through Studio to find it. <a href="studio.html?tools=reel"><strong>studio.html?tools=reel</strong></a> opens Reel directly (the same works with <code>?tool=reel</code>, <code>#reel</code> or <code>#tools=reel</code>, and <code>frame</code> / <code>palette</code> for the other two). The landing page links to it from the navigation, the hero, the features grid and the footer, and the workspace has its own film button.</p>
+
+          <h4>Reel</h4>
+          <ul>
+            <li><strong>Media.</strong> Drop videos, images and songs on the media pane, or press <em>Import</em>. Files are decoded from a local object URL, never uploaded, and the project — clips, trims, text, music, looks — saves to this browser as you edit.</li>
+            <li><strong>Timeline.</strong> Pictures and text sit on the picture lanes, music on the audio lane. Drag a clip to move it and drag its edge to trim it. <kbd>S</kbd> splits at the playhead, <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Z</kbd> undoes, <kbd>Space</kbd> plays, and snapping keeps cuts and clip edges aligned. <em>Loop</em> in the timeline header repeats playback while you tweak a cut. <kbd>Shift</kbd>+<kbd>Delete</kbd>, or <em>Close gap</em> in the inspector, removes a clip and pulls the rest of that lane left. Press <kbd>?</kbd> or the question-mark button for the full keyboard sheet.</li>
+            <li><strong>Transitions.</strong> Each picture clip can carry a transition at its start — <em>Crossfade</em>, <em>Slide</em>, <em>Zoom</em>, <em>Wipe</em> or <em>Flash</em>, 0.2–2 s. It blends with the clip that ends underneath that cut, freezing the outgoing clip on its last frame, and it replaces the clip's own in-animation while it runs. The striped marker on the clip shows where it plays.</li>
+            <li><strong>Starters.</strong> A <em>Starter</em> tab in the side panel lists eighteen free templates — title card, lyric video, countdown, quote, promo, vlog intro, travel, before/after, product, story, event, end card, news, gaming, wedding, beat drop and slideshow. A template drops in as ordinary clips and text: nothing is locked. Picture slots are placeholders — drop a video or photo on one and it takes the slot's timing. Loading one into an edit that already has clips appends it after the last cut, and the template's free bed is offered from the music bench.</li>
+            <li><strong>Titles.</strong> The <em>Titles</em> tab holds 200 named titles in ten families — bold, outline, neon, retro, clean, mono, badge, stack, soft and impact — each with its colour and entrance animation already set, plus the five original presets. Search by name or filter by family; the card shows the words in the title's own type. Every title is an editable text clip: font, weight, size, colour, alignment, letter spacing, shadow, outline and its colour, uppercase and a background box, plus in and out animations (fade, rise, drop, pop, blur, typewriter). Drag the clip on the canvas to place it.</li>
+            <li><strong>Motion.</strong> Every picture clip can move while it plays — zoom in, zoom out, pan left, pan right or drift up, with a strength slider. The move is evaluated per frame, so it is in the preview and in the export.</li>
+            <li><strong>Keyframes.</strong> Picture and text clips can key X, Y, scale, rotation and opacity at the playhead. Add two or more and Reel interpolates between them — linear, ease-in, ease-out, ease-in-out or hold, chosen per key. A keyed property replaces its slider for that clip; the diamonds in the inspector fill when a key sits under the playhead.</li>
+            <li><strong>Looks.</strong> 400 named grades in ten families — cinematic, retro, neon, film, golden, arctic, mono, dream, glitch and vivid — shown as cards. Each card paints the same little scene through that grade's own filter and overlay, so it previews the edit rather than decorating the list; search and family chips narrow the grid. Select a picture clip, then pick a card. The inspector still has the eight original presets and sliders for brightness, contrast, saturation, hue, blur, sepia, greyscale and invert, plus vignette, grain, light leak and scanlines.</li>
+            <li><strong>Free music.</strong> Twelve beds are synthesised in this tab — lo-fi, house, trap, cinematic, pop, piano, steps, trailer, funk and dream-wave — at 22.05 kHz mono WAV. Preview plays one straight from memory; <em>Add</em> imports it exactly like a dropped file, then you set its start, length, volume and fade in/out. Import your own audio the same way. The lane draws the waveform once the file has been decoded, and the preview plays picture and music together. Nothing is fetched and there is no licence to clear.</li>
+            <li><strong>Speed and freeze.</strong> Video clips run from 0.25× to 4×. Changing speed re-times the clip so the same stretch of source stays on screen, and the inspector says how many seconds of the source the clip is using. <em>Freeze</em> in the transport snapshots the current canvas frame and drops it on the timeline as a two-second still you can trim like any other clip.</li>
+            <li><strong>Settings and project files.</strong> Name the project, pick 1080p, 720p, vertical, square or cinema, set the background and the export bitrate. The project name becomes the downloaded file's name. <em>Project JSON</em> downloads the whole edit and <em>Open project</em> loads one back; media is not embedded, so re-link the same files by name after loading.</li>
+          </ul>
+
+          <div class="callout warn">
+            <span data-icon="triangle-alert" data-icon-size="15"></span>
+            <span><strong>What export really is.</strong> Reel records the canvas in real time with the browser's <code>MediaRecorder</code> and mixes the music tracks into the same file. A one-minute edit takes one minute to export, the tab has to stay visible, and the file is <code>.webm</code> — <code>.mp4</code> only where the browser exposes an H.264 encoder. It is not a server renderer: there is no frame-accurate or faster-than-real-time encoding, and sound baked into a video clip is not captured — put the soundtrack on the music lane. <em>Project JSON</em> saves the edit itself for a backup.</span>
+          </div>
+
+          <h4>Frame grabber and palette</h4>
+          <p>The frame grabber scrubs a video and saves that exact frame as a full-resolution PNG, or turns a still image into one. The palette mixes two to four colour stops into a linear, radial or conic gradient and copies the <code>background:</code> declaration for your stylesheet.</p>
+
+          <h3>Shortcuts</h3>
+          <table class="doc-table">
+            <thead><tr><th>Key</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>Ctrl/⌘</kbd>+<kbd>S</kbd></td><td>Save the open file</td></tr>
+              <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Indent / dedent</td></tr>
+              <tr><td><kbd>Ctrl/⌘</kbd>+<kbd>P</kbd></td><td>Switch to the next file</td></tr>
+              <tr><td><kbd>Ctrl/⌘</kbd>+<kbd>F</kbd></td><td>Find in the open file, with replace one or all (<kbd>Enter</kbd> next, <kbd>Shift</kbd>+<kbd>Enter</kbd> previous, <kbd>Esc</kbd> closes)</td></tr>
+              <tr><td><kbd>↑</kbd> in the terminal</td><td>Previous command</td></tr>
+              <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Stop the running command</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="effects">
+          <h2>Images &amp; effects from code <a class="anchor" href="#effects" aria-label="Link to code-generated images and effects" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>A site does not need a folder of photographs to look designed. Gradients, grain, particles, halftone, glow and poster art can all be <strong>drawn by the browser</strong> from a few lines of CSS, SVG or canvas. The page <em>is</em> the image: there is no asset to export, nothing to compress, and the result stays sharp on any screen.</p>
+          <p>Studio ships six working recipes and one button that writes them into your project, so you can read the code, change a number, and watch the preview redraw.</p>
+
+          <div class="callout tip">
+            <span data-icon="sparkles" data-icon-size="15"></span>
+            <span><strong>Try it in Studio.</strong> Open <a href="studio.html">Studio</a>, press <strong>Effects</strong> in the top bar, then <strong>Create &amp; preview</strong> on any card. Studio writes <code>effects/&lt;name&gt;.html</code>, opens it in the editor and points the preview at it — the same file you would ship.</span>
+          </div>
+
+          <h3>Why draw with code</h3>
+          <ul>
+            <li><strong>Small and sharp.</strong> A full-screen mesh gradient is about 2 KB of CSS instead of a 400 KB JPEG, and it stays crisp at every device pixel ratio.</li>
+            <li><strong>Editable.</strong> Colours are hex values and shape is maths — change one variable and the whole page follows, including dark and light themes.</li>
+            <li><strong>Responsive by construction.</strong> Percentages and <code>vmax</code> units re-compose the artwork at any window size; nothing is cropped or stretched.</li>
+            <li><strong>No licences, no stock photos, no attribution.</strong> The output is generated from your own source files.</li>
+          </ul>
+          <p>The trade-off is paint cost. Blurred layers and SVG filters are expensive per pixel, so the recipes keep the expensive parts on a few large elements, animate only <code>transform</code> and <code>opacity</code>, and stop when the reader asks for reduced motion.</p>
+
+          <h3>Four techniques, one page</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Technique</th><th>Best for</th><th>What to watch</th></tr></thead>
+              <tbody>
+                <tr><td>CSS gradients and shadows</td><td>Mesh fields, aurora ribbons, glows, duotone washes</td><td>Animate <code>transform</code>/<code>opacity</code>, not gradient stops — stop changes repaint the layer</td></tr>
+                <tr><td>SVG filters</td><td>Grain, turbulence, displacement, poster warp, logo effects</td><td><code>feTurbulence</code> is computed per pixel; keep filtered areas small or static</td></tr>
+                <tr><td>Masks, clip paths and blend modes</td><td>Halftone dots, cut-outs, type blended into a field</td><td>Needs a stacking context (<code>isolation: isolate</code>) to blend against the right layer</td></tr>
+                <tr><td>Canvas 2D</td><td>Hundreds of moving particles, links, pointer-reactive fields</td><td>Scale for <code>devicePixelRatio</code> once, cap it at 2, and pause when the tab is hidden</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The loop: create, preview, keep</h3>
+          <div class="steps-list">
+            <div class="step-item">
+              <h4>Create the file</h4>
+              <p>Press <strong>Effects</strong> → <strong>Create &amp; preview</strong>. The recipe is written to <code>effects/&lt;name&gt;.html</code> and opened in the editor. Prefer the keyboard? <strong>+</strong> in the file panel creates the same file by hand.</p>
+            </div>
+            <div class="step-item">
+              <h4>Edit the code</h4>
+              <p>Change a colour, a blur radius or the number of particles. <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd> saves; Studio also auto-saves about a second after you stop typing.</p>
+            </div>
+            <div class="step-item">
+              <h4>Watch the preview</h4>
+              <p>The right pane reloads the saved file from <code>/preview/effects/&lt;name&gt;.html</code>. Pop it out to see it at full window size, or switch to phone width to check the layout.</p>
+            </div>
+            <div class="step-item">
+              <h4>Use it in the site</h4>
+              <p>Copy the CSS block, the SVG or the canvas script into your own page and stylesheet. Then build:</p>
+              <div class="doc-code">
+                <div class="bar">
+                  <span class="label"><span class="dot"></span>terminal — build the site with the effect</span>
+                  <button class="cpy" type="button">Copy</button>
+                </div>
+                <pre><code><span class="c"># the scaffold's build.mjs walks subfolders and copies .html/.css/.js/.svg/.json</span>
+npm run build
+find dist -name <span class="s">'*.html'</span>       <span class="c"># dist/index.html, dist/effects/mesh.html</span>
+<span class="c"># then preview the build itself</span>
+<span class="c"># /preview/dist/effects/mesh.html</span></code></pre>
+              </div>
+            </div>
+          </div>
+
+          <h3>Recipe 1 — a mesh gradient in CSS</h3>
+          <p>Four soft circles, pushed through a blur and mixed with <code>screen</code>, read as a single continuous colour field. The grain layer on top hides banding, which is the giveaway of a low-bit-depth gradient.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>effects/mesh.html — structure and style</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>&lt;<span class="k">div</span> class=<span class="s">"mesh"</span> aria-hidden=<span class="s">"true"</span>&gt;
+  &lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;&lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;&lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;&lt;<span class="k">span</span>&gt;&lt;/<span class="k">span</span>&gt;
+&lt;/<span class="k">div</span>&gt;
+
+&lt;<span class="k">style</span>&gt;
+  .mesh { position: fixed; inset: -20%; filter: blur(48px) saturate(130%); }
+  .mesh span {
+    position: absolute; width: 62vmax; height: 62vmax; border-radius: 50%;
+    mix-blend-mode: screen;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  .mesh span:nth-child(1) { background: #2f6bff; top: -10%; left: -6%; }
+  .mesh span:nth-child(2) { background: #8b5cf6; top: 8%; right: -12%; animation-duration: 27s; }
+  .mesh span:nth-child(3) { background: #12b981; bottom: -16%; left: 16%; animation-duration: 31s; }
+  .mesh span:nth-child(4) { background: #f97362; bottom: -8%; right: 4%; animation-duration: 25s; }
+
+  @keyframes drift {
+    from { transform: translate3d(-3%, -2%, 0) scale(1); }
+    to   { transform: translate3d(5%, 4%, 0) scale(1.18); }
+  }
+&lt;/<span class="k">style</span>&gt;</code></pre>
+          </div>
+          <p><code>inset: -20%</code> gives the blur room to fade instead of showing a hard edge at the viewport rim. Vary the four hex values and the durations to get anything from a calm night sky to a neon aurora.</p>
+
+          <h3>Recipe 2 — grain without an image file</h3>
+          <p>Grain is one CSS background: an inline SVG with a fractal-noise filter, URL-encoded so it can live inside a stylesheet. No request, no binary.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>grain layer — one declaration</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>.grain {
+  position: fixed; inset: 0; pointer-events: none; opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}</code></pre>
+          </div>
+          <p><code>baseFrequency</code> sets the speck size (higher is finer), <code>numOctaves</code> adds detail, and <code>%23</code> is a URL-encoded <code>#</code> — forget it and the browser silently drops the whole declaration. Toggle <code>mix-blend-mode</code> between <code>overlay</code> and <code>soft-light</code> to taste.</p>
+
+          <h3>Recipe 3 — halftone dots and a mask</h3>
+          <p>Two <code>radial-gradient</code> dot screens offset by half a tile give a print-like halftone. A radial <code>mask-image</code> fades it into the background, and scaling the layer makes the dots appear to breathe.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>halftone layer</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>.dots {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle, #e8edf6 1.1px, transparent 1.5px) 0 0 / 12px 12px,
+    radial-gradient(circle, #7aa8ff 1.1px, transparent 1.5px) 6px 6px / 12px 12px;
+  mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 62%);
+  animation: breathe 6s ease-in-out infinite alternate;
+}
+@keyframes breathe { from { transform: scale(0.9); } to { transform: scale(1.08); } }</code></pre>
+          </div>
+          <p>The whole effect is two gradients and a mask — no <code>&lt;canvas&gt;</code>, no JavaScript. Change the tile size (<code>/ 12px 12px</code>) to switch between a subtle texture and a visible dot field.</p>
+
+          <h3>Recipe 4 — canvas particles</h3>
+          <p>When you need hundreds of moving objects, canvas is the right tool. The three details that make it look professional are the device-pixel-ratio scale, a cap on that scale, and a stop for readers who ask for reduced motion.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>particles.js</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>&lt;<span class="k">canvas</span> id=<span class="s">"sky"</span> aria-hidden=<span class="s">"true"</span>&gt;&lt;/<span class="k">canvas</span>&gt;
+
+&lt;<span class="k">script</span>&gt;
+  const canvas = document.querySelector('#sky');
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const dots = Array.from({ length: 90 }, () =&gt; ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random() - 0.5) * 0.0006,
+    vy: (Math.random() - 0.5) * 0.0006
+  }));
+
+  function fit() {
+    canvas.width = innerWidth * dpr;
+    canvas.height = innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const d of dots) {
+      d.x = (d.x + d.vx + 1) % 1;
+      d.y = (d.y + d.vy + 1) % 1;
+      ctx.beginPath();
+      ctx.arc(d.x * innerWidth, d.y * innerHeight, 1.6, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(180, 214, 255, .8)';
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  addEventListener('resize', fit);
+  fit();
+  if (!calm) requestAnimationFrame(frame);
+&lt;/<span class="k">script</span>&gt;</code></pre>
+          </div>
+          <p>Drawing in CSS pixels after <code>setTransform(dpr, …)</code> keeps coordinates readable while the canvas renders at full resolution. <code>innerWidth</code>/<code>innerHeight</code> are used instead of CSS sizes so the loop does not force layout every frame.</p>
+
+          <h3>Recipe 5 — a poster from turbulence</h3>
+          <p>SVG is the only place you get real procedural noise in a document. <code>feTurbulence</code> plus <code>feDisplacementMap</code> warps type and shapes; a duotone gradient behind them supplies the colour.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>poster.svg — filters and duotone</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>&lt;<span class="k">svg</span> viewBox=<span class="s">"0 0 600 800"</span> role=<span class="s">"img"</span> aria-label=<span class="s">"Generative poster"</span>&gt;
+  &lt;<span class="k">defs</span>&gt;
+    &lt;<span class="k">filter</span> id=<span class="s">"warp"</span>&gt;
+      &lt;<span class="k">feTurbulence</span> type=<span class="s">"fractalNoise"</span> baseFrequency=<span class="s">".012 .02"</span> numOctaves=<span class="s">"4"</span>/&gt;
+      &lt;<span class="k">feDisplacementMap</span> in=<span class="s">"SourceGraphic"</span> scale=<span class="s">"36"</span>/&gt;
+    &lt;/<span class="k">filter</span>&gt;
+    &lt;<span class="k">linearGradient</span> id=<span class="s">"duo"</span> x1=<span class="s">"0"</span> y1=<span class="s">"0"</span> x2=<span class="s">"1"</span> y2=<span class="s">"1"</span>&gt;
+      &lt;<span class="k">stop</span> offset=<span class="s">"0"</span> stop-color=<span class="s">"#ff6b4a"</span>/&gt;
+      &lt;<span class="k">stop</span> offset=<span class="s">".45"</span> stop-color=<span class="s">"#d92d5c"</span>/&gt;
+      &lt;<span class="k">stop</span> offset=<span class="s">"1"</span> stop-color=<span class="s">"#120d2b"</span>/&gt;
+    &lt;/<span class="k">linearGradient</span>&gt;
+  &lt;/<span class="k">defs</span>&gt;
+  &lt;<span class="k">rect</span> width=<span class="s">"600"</span> height=<span class="s">"800"</span> fill=<span class="s">"url(#duo)"</span>/&gt;
+  &lt;<span class="k">g</span> filter=<span class="s">"url(#warp)"</span> fill=<span class="s">"none"</span> stroke=<span class="s">"#f5f2ea"</span> stroke-width=<span class="s">"10"</span>&gt;
+    &lt;<span class="k">circle</span> cx=<span class="s">"300"</span> cy=<span class="s">"360"</span> r=<span class="s">"170"</span>/&gt;
+    &lt;<span class="k">path</span> d=<span class="s">"M-40 620 Q 300 500 640 660"</span>/&gt;
+  &lt;/<span class="k">g</span>&gt;
+&lt;/<span class="k">svg</span>&gt;</code></pre>
+          </div>
+          <p>Keep the filtered group small — filters rasterise every pixel they touch. For a page-wide poster, render it once into an SVG file and load it with <code>&lt;img&gt;</code>; the browser then caches the rasterised result.</p>
+
+          <h3>Putting an effect behind your content</h3>
+          <p>The recipes are complete pages so you can read them top to bottom. To use one in a real page, keep the effect layer absolutely positioned and decorative, and lift the text above it:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>styles.css — hero with a code-drawn background</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>.hero { position: relative; isolation: isolate; overflow: hidden; padding: 96px 24px; }
+.hero .mesh { position: absolute; inset: -20%; z-index: -1; filter: blur(48px); }
+.hero .grain { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.2; }
+.hero h1 { position: relative; margin: 0; font-size: clamp(2rem, 6vw, 4.5rem); }</code></pre>
+          </div>
+          <p><code>isolation: isolate</code> gives the blending its own stacking context, so <code>mix-blend-mode</code> combines with the effect layers and not with the rest of the site. <code>pointer-events: none</code> keeps the decoration from stealing clicks, and <code>z-index: -1</code> keeps it behind the text without extra wrappers.</p>
+
+          <h3>The six recipes Studio ships</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Recipe</th><th>Technique</th><th>File written</th></tr></thead>
+              <tbody>
+                <tr><td>Animated gradient mesh</td><td>CSS radial fields + blur + inline-SVG grain</td><td><code>effects/gradient-mesh.html</code></td></tr>
+                <tr><td>Canvas particle field</td><td>Canvas 2D, DPR-aware, distance links</td><td><code>effects/particles.html</code></td></tr>
+                <tr><td>Aurora ribbons</td><td>Rotated gradient ribbons, blur, slow sway</td><td><code>effects/aurora.html</code></td></tr>
+                <tr><td>Animated halftone</td><td>Two dot screens under a radial mask</td><td><code>effects/halftone.html</code></td></tr>
+                <tr><td>Glowing orb</td><td>Spinning conic gradient + orbit rings</td><td><code>effects/orb.html</code></td></tr>
+                <tr><td>Generative poster</td><td>SVG turbulence, displacement, duotone</td><td><code>effects/poster.html</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Each file is standalone: no build step, no CDN, no fonts to fetch. Open it directly at <code>/preview/effects/poster.html</code>, or copy parts of it into <code>styles.css</code> and your own markup.</p>
+
+          <h3>Keep it fast and accessible</h3>
+          <ul>
+            <li><strong>Animate compositor properties only.</strong> <code>transform</code> and <code>opacity</code> can run on the GPU; animating <code>filter</code>, <code>background-position</code> or gradient stops forces a repaint every frame.</li>
+            <li><strong>Respect reduced motion.</strong> Wrap long animations in <code>@media (prefers-reduced-motion: reduce) { .mesh span { animation: none; } }</code>, as the shipped recipes do.</li>
+            <li><strong>Decorate, then hide.</strong> Purely visual layers get <code>aria-hidden="true"</code>; a poster that carries meaning gets a real <code>alt</code> or nearby text.</li>
+            <li><strong>Cap the pixel ratio.</strong> Rendering canvas at <code>devicePixelRatio</code> 3 triples the fill cost for no visible gain; <code>Math.min(dpr, 2)</code> is the usual compromise.</li>
+            <li><strong>Pause off-screen work.</strong> For canvas loops, stop drawing when <code>document.hidden</code> is true or an <code>IntersectionObserver</code> says the canvas left the viewport.</li>
+            <li><strong>Check contrast.</strong> Grain and glow sit under text; keep the text on a solid panel or verify it against the lightest point of the effect.</li>
+          </ul>
+
+          <h3>When it does not render</h3>
+          <ul>
+            <li><strong>The grain disappears.</strong> A raw <code>#</code> inside a data URI ends the URL early. Encode it as <code>%23</code>.</li>
+            <li><strong>The blur has a hard edge.</strong> The layer is exactly viewport-sized. Extend it with <code>inset: -20%</code> and clip the parent with <code>overflow: hidden</code>.</li>
+            <li><strong>Canvas looks soft.</strong> Set <code>canvas.width = innerWidth * dpr</code> (not just a CSS width) and call <code>ctx.setTransform(dpr, 0, 0, dpr, 0, 0)</code>.</li>
+            <li><strong>An SVG filter is clipped.</strong> Filters paint outside the element's box; give the SVG a <code>viewBox</code> with margin, or set <code>x/y/width/height</code> on the <code>filter</code> element.</li>
+            <li><strong>The effect is missing from <code>dist/</code>.</strong> The scaffold build only copies <code>.html</code>, <code>.css</code>, <code>.js</code>, <code>.svg</code> and <code>.json</code>, and skips dot-folders. Rename the asset or add its extension to the <code>include</code> regex in <code>build.mjs</code>.</li>
+            <li><strong>The preview frozen on an old version.</strong> It reloads on save and after a build; if the file changed outside Studio, press the reload button.</li>
+          </ul>
+
+          <p>Next: see how the same files flow through the terminal and the live preview in <a class="inline-link" href="#workflow">the website workflow</a>, or how Studio is put together in <a class="inline-link" href="#studio">Studio, files and the terminal</a>.</p>
+        </section>
+
+        <section id="lab">
+          <h2>Eltes Lab: training a model in the browser <a class="anchor" href="#lab" aria-label="Link to the Lab section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p><a href="train.html">Lab</a> is the other half of the on-device story. CAI answers questions with rules; Lab is an actual neural network that starts from random weights and learns from text while you watch. It is a character-level language model — embeddings, one tanh hidden layer and a softmax over the vocabulary — trained by hand-written backpropagation and Adam. Everything runs in the tab: no server, no key, no download, and no network request at any point.</p>
+          <p>It is deliberately small. About 51,000 parameters on the default corpus, roughly nine seconds for a 1,500-step run on a laptop, and a vocabulary measured in dozens of characters. That is enough to watch a loss curve fall and to memorise a paragraph exactly. It is not enough to hold a conversation, and the page never pretends otherwise.</p>
+
+          <h3>Train one</h3>
+          <ol>
+            <li>Open <a href="train.html">Lab</a> and pick a corpus: the Eltes handbook, an original story, or interface code. Each one changes the vocabulary and therefore the parameter count.</li>
+            <li>Set the steps and seed. The seed initialises the weights and every batch, so the same settings reproduce the same curve exactly.</li>
+            <li>Press <strong>Train model</strong>. The page trains in ~40 ms slices so it stays responsive, drawing the training and validation curves as they happen.</li>
+            <li>Press <strong>Generate</strong> to sample. Temperature controls risk; top-k restricts the choice to the k most likely characters; length caps the run.</li>
+            <li>Press <strong>Save model</strong>. The checkpoint goes to <code>localStorage</code> under <code>eltes.lab.model.v1</code> and <strong>Eltes Lab-1</strong> becomes usable in the workspace chat.</li>
+          </ol>
+
+          <h3>What is actually in the network</h3>
+          <p>The default shape is a context of 14 characters, 24-wide embeddings and 128 tanh units. On the Eltes handbook (53 distinct characters) that is 51,245 weights:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Tensor</th><th>Shape</th><th>Weights</th><th>Role</th></tr></thead>
+              <tbody>
+                <tr><td><code>E</code></td><td>53 × 24</td><td>1,272</td><td>The embedding table. One learned vector per character, including the unknown token.</td></tr>
+                <tr><td><code>W1</code>, <code>b1</code></td><td>336 × 128</td><td>43,136</td><td>The hidden layer over the concatenated 14-character window, followed by <code>tanh</code>.</td></tr>
+                <tr><td><code>W2</code>, <code>b2</code></td><td>128 × 53</td><td>6,837</td><td>The output layer: one logit per character, normalised by softmax.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Training uses a batch of 24 random windows, cross-entropy loss, dropout <code>0.1</code> on the hidden layer, weight decay <code>2e-5</code>, gradient clipping at a global norm of <code>5</code>, and Adam with bias correction at a learning rate of <code>0.003</code>. The gradients are derived by hand — no autograd library, no WebAssembly, no GPU. A step takes about 6 ms in a browser and the page shows the measured figure for your machine.</p>
+
+          <h3>The two curves, and why the dashed one turns up</h3>
+          <p>The last 10% of the corpus is held out. Training loss is measured on text the model sees; validation loss is measured on text it never trains on. On a corpus this small the two diverge: training loss keeps falling towards zero while validation loss bottoms out after a few hundred steps and then climbs. That is overfitting, and it is the honest headline of a 51k-parameter model on 87 KB of text. The chart marks the best validation point and the readout names its step, so you can see exactly where the model stopped generalising and started memorising.</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Readout</th><th>What it means</th></tr></thead>
+              <tbody>
+                <tr><td>Train loss</td><td>Cross-entropy on the training split. Falls with every useful update.</td></tr>
+                <tr><td>Val loss</td><td>Cross-entropy on held-out text, every 50 steps. The number that says whether it generalises.</td></tr>
+                <tr><td>Best val</td><td>The lowest validation loss and the step it happened. The ring on the chart.</td></tr>
+                <tr><td>Perplexity</td><td><code>exp(loss)</code> — how many characters the model is effectively choosing between.</td></tr>
+                <tr><td>Tokens</td><td>Character windows consumed, equal to steps × batch.</td></tr>
+                <tr><td>Speed</td><td>Measured milliseconds per step in your tab, not a platform claim.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The memorisation test</h3>
+          <p>Free generation from a model this small produces word-shaped fragments — that is what the budget buys. The fair test of whether training worked is to make the target trivially attainable: give the model one paragraph, repeated 24 times, and train until the loss approaches zero. Then prompt it with the first few words and compare the recital with the paragraph, character by character. The page reports the similarity, and a memorised paragraph scores above 90%.</p>
+          <p>This is memorisation, not understanding, and the page says so. It is also the clearest possible proof that the weights changed, the gradients flowed and the optimiser did its job — which is exactly what a demo that only ever prints confident text cannot show.</p>
+
+          <h3>Use it in the chat</h3>
+          <p>Once a checkpoint is saved, <strong>Eltes Lab-1</strong> appears in the workspace model picker under <em>On-device · no key</em>. It continues the words you type and states its parameter count, corpus and validation loss above the quote. With no checkpoint it says it is not trained yet and links to Lab. Because a character model cannot follow instructions, the reply is a quoted continuation followed by a plain note that a character-level model wrote it.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>the whole integration — app.js routes Lab-1 to EltesLab.chat</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c">// assets/js/app.js, inside runLocalTurn()</span>
+<span class="k">if</span> (model.id === <span class="s">'eltes-lab-1'</span> &amp;&amp; window.EltesLab) {
+  result = <span class="k">await</span> streamLabTurn({ messages: history, signal: controller.signal, onToken });
+} <span class="k">else</span> {
+  result = <span class="k">await</span> CAI.stream({ modelId: model.id, messages: history, onToken });
+}
+
+<span class="c">// assets/js/lab.js</span>
+<span class="k">const</span> lab = window.EltesLab;
+<span class="k">const</span> payload = lab.chat(messages);   <span class="c">// quotes a continuation, states its limits</span></code></pre>
+          </div>
+
+          <h3>Storage, exports and limits</h3>
+          <ul>
+            <li><strong>One checkpoint per browser.</strong> The key is <code>eltes.lab.model.v1</code>; saving replaces the previous snapshot. The payload is a base64 dump of the Float32 weight arrays with the vocabulary and config — about 270 KB for the default shape.</li>
+            <li><strong>Sample after loading, train again for a new run.</strong> A snapshot keeps the weights, not the corpus bytes, so a loaded model can generate but cannot continue the original run. The page labels the button accordingly.</li>
+            <li><strong>Nothing is uploaded.</strong> There is no analytics on the page, no model download and no font or script CDN call.</li>
+            <li><strong>Not a chatbot.</strong> No instruction following, no tools, no world knowledge and no coherent paragraphs. For an answer, use a hosted model; for an explanation of how a local model is trained, use Lab.</li>
+          </ul>
+        </section>
+
+        <section id="desktop">
+          <h2>Desktop apps: Windows, macOS and Linux <a class="anchor" href="#desktop" aria-label="Link to the desktop section" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes ships a desktop harness under <code>desktop/</code>. It is a thin Electron shell around the same site and the same local API the browser build serves, so there is no second product to keep in sync: <code>desktop/main.js</code> starts <code>tools/local-server.mjs</code> on a free loopback port and loads <code>app.html</code> from that origin. A packaged app needs no Node install — it runs the server with its own binary via <code>ELECTRON_RUN_AS_NODE</code>.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>one command per installer</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># Windows: NSIS installer + portable .exe</span>
+npm run desktop:win
+
+<span class="c"># macOS: .dmg + .zip (arm64 and x64)</span>
+npm run desktop:mac
+
+<span class="c"># Linux: AppImage + deb</span>
+npm run desktop:linux
+
+<span class="c"># one platform at a time, without installing anything</span>
+npm run desktop:stage   <span class="c"># assemble desktop/.build</span>
+npm run desktop:dir     <span class="c"># unpacked app, no installer</span></code></pre>
+          </div>
+
+          <h3>What is in the box</h3>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>File</th><th>Platform</th><th>What it is</th></tr></thead>
+              <tbody>
+                <tr><td><code>Eltes-Setup-&lt;v&gt;-x64.exe</code></td><td>Windows</td><td>NSIS installer. Per-user by default, choose the folder, desktop and Start-menu shortcuts, runs after install.</td></tr>
+                <tr><td><code>Eltes-&lt;v&gt;-Portable-x64.exe</code></td><td>Windows</td><td>One executable, no install and no registry entries. Runs from a USB stick. An arm64 portable is built too.</td></tr>
+                <tr><td><code>Eltes-&lt;v&gt;-arm64.dmg</code></td><td>macOS</td><td>Drag-to-Applications disk image for Apple silicon. An x64 build is produced the same way.</td></tr>
+                <tr><td><code>Eltes-&lt;v&gt;-linux-x86_64.AppImage</code></td><td>Linux</td><td>Single file: <code>chmod +x</code>, then run. No packages to satisfy.</td></tr>
+                <tr><td><code>eltes_&lt;v&gt;_amd64.deb</code></td><td>Debian/Ubuntu</td><td>Installs a menu entry and the icon set; removes cleanly.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>How the shell behaves</h3>
+          <ul>
+            <li><strong>Hardened window.</strong> Context isolation on, node integration off, <code>sandbox: true</code>, no <code>&lt;webview&gt;</code>, and developer tools only with <code>--dev</code>. The page sees five calls through <code>window.EltesDesktop</code> and nothing else.</li>
+            <li><strong>Navigation stays in the app.</strong> Only the app's own origin can navigate the window. Any other <code>https:</code> link opens in your real browser; <code>file:</code>, <code>data:</code> and <code>javascript:</code> are refused.</li>
+            <li><strong>Loopback only.</strong> The bundled server binds <code>127.0.0.1</code> on a port chosen at launch (4173 upward), so a running dev server never collides and nothing is exposed to the network.</li>
+            <li><strong>Nothing silently dies.</strong> If the server cannot start, the window shows a recovery screen with the error, the data folder, the log path and a <strong>Try again</strong> button.</li>
+            <li><strong>Where your data lives.</strong> <code>%APPDATA%\Eltes</code> on Windows, <code>~/Library/Application Support/Eltes</code> on macOS, <code>~/.config/Eltes</code> on Linux. Studio writes to <code>studio/</code> inside it (<code>ELTES_STUDIO_DIR</code> overrides), logs go to <code>logs/desktop.log</code>, and the window position is remembered in <code>window-state.json</code>.</li>
+          </ul>
+
+          <h3>Signing</h3>
+          <p>The harness builds unsigned by default so anyone can reproduce the artifacts. Set the usual electron-builder variables to sign and notarise — no code changes:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>signing is configuration, not code</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c"># macOS Developer ID + notarisation</span>
+export CSC_LINK=/path/certificate.p12 CSC_KEY_PASSWORD=…
+export APPLE_ID=… APPLE_APP_SPECIFIC_PASSWORD=… APPLE_TEAM_ID=…
+
+<span class="c"># Windows Authenticode</span>
+export CSC_LINK=/path/certificate.pfx CSC_KEY_PASSWORD=…</code></pre>
+          </div>
+          <p>Unsigned builds still work: Windows shows SmartScreen ("More info → Run anyway") and macOS needs a right-click → Open the first time. The macOS build is ad-hoc signed, so Apple silicon will launch it; distribution to other machines should be signed and notarised.</p>
+
+          <h3>Continuous builds</h3>
+          <p><code>.github/workflows/desktop.yml</code> builds each platform on its own runner — <code>windows-latest</code>, <code>macos-latest</code> for Apple silicon, <code>macos-15-intel</code> for Intel and <code>ubuntu-latest</code> — then uploads the installers. Push a tag such as <code>v3.18.0</code> (or run the workflow with a tag name) and the artifacts are attached to that GitHub release. Build Windows on Windows: cross-building the <code>.exe</code> from Linux skips the resource editor because <code>rcedit</code> needs Wine, and the icon and version metadata are then the Electron defaults.</p>
+
+          <h3>Testing without a display</h3>
+          <p>The harness core (<code>desktop/shell.js</code>, <code>window-state.js</code>, <code>menu.js</code>) is plain Node, so <code>npm test</code> covers flag parsing, deep links, the navigation policy, window clamping across removed monitors, atomic window state and the menu on each platform. Two tests go further: the real <code>desktop/main.js</code> runs against a mocked Electron module (boot, IPC, navigation guard, quit), and the packaged layout is assembled in a temp folder — site under <code>resources/site</code>, server started through the production code path, health checked, <code>app.html</code> and its assets fetched, Studio session opened, process stopped. Packaging config is validated against electron-builder's own JSON schema, and the shell is packed into an <code>.asar</code> to prove <code>main.js</code> survives the round-trip.</p>
+        </section>
+
+        <section id="settings">
+          <h2>Settings <a class="anchor" href="#settings" aria-label="Link to settings" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Open with <code>⌘,</code> or the gear in the top bar. Settings are stored in <code>eltes.settings.v1</code> and apply instantly.</p>
+
+          <table class="doc-table">
+            <thead><tr><th>Panel</th><th>Controls</th></tr></thead>
+            <tbody>
+              <tr><td>General</td><td>Default model, streaming, send key, tools by default, density, reduced motion, timestamps, metrics</td></tr>
+              <tr><td>API keys</td><td>Provider keys, reveal/save/remove and provider key test through configured proxy, Vercel/local backend URL, custom model endpoint</td></tr>
+              <tr><td>Models</td><td>Star favourites, choose the default model for new chats</td></tr>
+              <tr><td>Account</td><td>Profile, display name, sign out, delete profile, plan</td></tr>
+              <tr><td>Data</td><td>Chat count, storage meter, export all, import, delete all chats</td></tr>
+              <tr><td>About</td><td>Version, model count, shortcuts and links</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Storage meter</h3>
+          <p>The sidebar footer shows how much of the browser's local storage the app is using. The meter is deliberately conservative: browsers commonly allow about 5 MB per origin, and large attachments or very long threads consume it fastest.</p>
+        </section>
+
+        <section id="look">
+          <h2>Look and feel: the galaxy <a class="anchor" href="#look" aria-label="Link to the visual design" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>The landing page, documentation, release notes and sign-in screen sit in front of a moving galaxy. It is two stacked <code>&lt;canvas&gt;</code> elements fixed behind the page, painted by <code>assets/js/galaxy.js</code> — no video, no image files, no libraries. The band, the spiral, the star cluster, the dust lanes, the star field and the meteors are all computed in the browser, so the scene is sharp at any size and costs one small script.</p>
+
+          <h3>What is on screen</h3>
+          <ul>
+            <li><strong>The backdrop</strong> — a tilted Milky Way with a hot cream core and a dark rift, a grand-design spiral in the upper right, a globular cluster upper left, an edge-on galaxy low on the left and four emission nebulae, painted once into a separate canvas.</li>
+            <li><strong>The stars</strong> — thousands of baked specks plus six temperatures of animated stars at different depths; they drift, twinkle and lean a little toward the pointer.</li>
+            <li><strong>Travel</strong> — fast scrolling stretches the nearest stars into short warp trails, so the page feels like it is moving through space.</li>
+            <li><strong>Meteors</strong> — one every few seconds, drawn as a fading gradient with a bloom and a trail of sparks.</li>
+            <li><strong>Grain and drift</strong> — a fine noise layer hides gradient banding, and the whole sky breathes through a 190-second drift.</li>
+          </ul>
+
+          <h3>Keeping it cheap</h3>
+          <p>A background this rich is only acceptable if it stays out of the way. The renderer follows a few rules:</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Guard</th><th>What it does</th></tr></thead>
+              <tbody>
+                <tr><td>Static layer</td><td>The nebula and dust are painted once into <code>canvas[data-galaxy-backdrop]</code>; only stars redraw.</td></tr>
+                <tr><td>Frame budget</td><td>30 fps on desktop, 24 on touch devices — smooth motion, half the work.</td></tr>
+                <tr><td>Pixel ratio cap</td><td><code>1.75</code> on desktop, <code>1.4</code> on phones. The painted backdrop uses at most <code>1.4</code> — soft art does not need more.</td></tr>
+                <tr><td>Hidden tab</td><td>The loop stops on <code>visibilitychange</code> and resumes when the page is visible again.</td></tr>
+                <tr><td>Reduced motion</td><td>One still frame is painted, then nothing more.</td></tr>
+                <tr><td>Resize</td><td>Repaints are debounced to 180 ms.</td></tr>
+                <tr><td>Motion budget</td><td>The drift stops under <code>prefers-reduced-motion</code>, alongside the canvas loop.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Tuning it per page</h3>
+          <p>The canvas reads its density from a data attribute. Lower numbers mean fewer, dimmer stars — useful on text-heavy pages:</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>markup — one attribute per page</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code><span class="c">&lt;!-- index.html: the full scene --&gt;</span>
+&lt;<span class="k">canvas</span> class=<span class="s">"galaxy-canvas"</span> data-galaxy=<span class="s">"1.1"</span>&gt;&lt;/<span class="k">canvas</span>&gt;
+
+<span class="c">&lt;!-- docs.html: quieter, so long text stays readable --&gt;</span>
+&lt;<span class="k">canvas</span> class=<span class="s">"galaxy-canvas"</span> data-galaxy=<span class="s">"0.72"</span>&gt;&lt;/<span class="k">canvas</span>&gt;</code></pre>
+          </div>
+          <p>The sky is decoration, not content: the container is <code>aria-hidden="true"</code>, it never receives pointer events, and every piece of real information sits on an opaque-enough surface above it. The chat workspace and Studio deliberately do not use it — a moving background behind code and terminal output is noise.</p>
+
+          <h3>Embers on the empty chat</h3>
+          <p>The workspace stays quiet while you work, but the new-chat screen has a pulse. Move the pointer across it and a hearth of orange embers follows: a warm glow, eight sparks orbiting at different radii, wispy updraughts and embers rising from the composer. Speed is heat — move faster and it flares; stop and it settles. A click throws a burst.</p>
+          <p>It is one canvas (<code>assets/js/chat-embers.js</code>) under the thread, blending with <code>screen</code> so it only ever adds light. It starts when the empty screen is visible, fades out the moment a conversation begins, pauses in a hidden tab and paints a single still frame under reduced motion — the system setting or Settings → Conversation → <em>Reduce motion</em>, which the effect watches on <code>&lt;body&gt;</code>.</p>
+          <div class="table-scroll">
+            <table class="doc-table">
+              <thead><tr><th>Pointer</th><th>What happens</th></tr></thead>
+              <tbody>
+                <tr><td>Still</td><td>Four embers a second drift up from the lower pane against a faint hearth glow.</td></tr>
+                <tr><td>Moving</td><td>Up to nine a second near the pointer, an orbiting halo and wavy heat wisps; the glow brightens with speed.</td></tr>
+                <tr><td>Click</td><td>A burst of eight sparks and five embers, plus four extra wisps.</td></tr>
+                <tr><td>Leaving the pane</td><td>The glow fades back to the ambient burn instead of snapping off.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>The chat is black, not blue</h3>
+          <p>The workspace ships as <strong>Obsidian</strong>: <code>#000</code> surfaces, silver accents and no blue anywhere in the shell, bubbles or composer. <strong>Graphite</strong> stays available under Settings → General for a softer grey. Both themes are tokens on <code>body.app</code> in <code>assets/css/app.css</code>, so the whole shell swaps from one block; there is no blue theme left to fall back to.</p>
+          <div class="doc-code">
+            <div class="bar">
+              <span class="label"><span class="dot"></span>app.html — one attribute picks the theme</span>
+              <button class="cpy" type="button">Copy</button>
+            </div>
+            <pre><code>&lt;<span class="k">body</span> class=<span class="s">"app"</span> data-theme=<span class="s">"black"</span>&gt;  <span class="c">&lt;!-- Obsidian --&gt;</span>
+&lt;<span class="k">body</span> class=<span class="s">"app"</span> data-theme=<span class="s">"grey"</span>&gt;   <span class="c">&lt;!-- Graphite --&gt;</span></code></pre>
+          </div>
+
+          <h3>When it does not show</h3>
+          <ul>
+            <li><strong>Nothing but a flat colour.</strong> JavaScript is off or the canvas failed to start. The container has a painted CSS fallback, so the page still looks intentional.</li>
+            <li><strong>It is static.</strong> The system asks for reduced motion. That is deliberate; the still frame is the design, not a bug.</li>
+            <li><strong>It is too busy.</strong> Lower <code>data-galaxy</code> on that page, or wrap the content in a panel with a solid background.</li>
+            <li><strong>Battery drain on a laptop.</strong> The loop pauses in a hidden tab; if you want it gone entirely, remove <code>galaxy.js</code> and the two canvas elements — the CSS fallback remains.</li>
+          </ul>
+        </section>
+
+        <section id="shortcuts">
+          <h2>Keyboard shortcuts <a class="anchor" href="#shortcuts" aria-label="Link to shortcuts" data-icon="link-2" data-icon-size="16"></a></h2>
+          <div class="keys-table">
+            <div class="krow"><span>Command palette — chats, models, actions</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">K</span></span></div>
+            <div class="krow"><span>Model picker</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">M</span></span></div>
+            <div class="krow"><span>Toggle the sidebar</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">B</span></span></div>
+            <div class="krow"><span>New chat</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">N</span></span></div>
+            <div class="krow"><span>Settings</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">,</span></span></div>
+            <div class="krow"><span>Focus the composer</span><span class="keys"><span class="kbd">⌘</span><span class="kbd">/</span></span></div>
+            <div class="krow"><span>Send / newline</span><span class="keys"><span class="kbd">↵</span><span class="kbd">⇧↵</span></span></div>
+            <div class="krow"><span>Close dialog or menu</span><span class="keys"><span class="kbd">esc</span></span></div>
+          </div>
+          <p class="dim" style="margin-top:12px;font-size:12.5px">On Windows and Linux, use <code>Ctrl</code> wherever <code>⌘</code> is shown. The interface relabels the modifier automatically.</p>
+        </section>
+
         <section id="downloads">
           <h2>Downloads <a class="anchor" href="#downloads" aria-label="Link to downloads" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Chromebooks can install Eltes as a Chrome PWA directly from the secure hosted site; no APK or Linux package is needed. The Windows download includes a portable launcher and optional local Node backend. Local terminal execution is separate, opt-in, and requires user approval for every command.</p>
+          <p>Everything Eltes ships is static. The Windows download is the same site wrapped in a portable launcher, so the only requirement is a way to serve files locally.</p>
 
           <div class="doc-code">
             <div class="bar">
@@ -559,30 +1623,25 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 ├── eltes.bat           <span class="c"># double-click to launch</span>
 ├── Start-Eltes.ps1     <span class="c"># the actual server + browser open</span>
 ├── README-WINDOWS.txt
-├── package.json
-├── api/                 <span class="c"># local BYOK API routes</span>
-├── lib/                 <span class="c"># provider and HTTP helpers</span>
-├── tools/               <span class="c"># local server and opt-in runner</span>
 ├── index.html
 ├── app.html
 ├── auth.html
 ├── docs.html
-├── video.html          <span class="c"># local video editor</span>
 └── assets/ …           <span class="c"># css, js, fonts, icons</span></code></pre>
           </div>
 
           <h3>What the launcher does</h3>
           <ol>
             <li>Changes into its own folder, so it works from any drive or USB stick.</li>
-            <li>Uses Node.js 18+ for the local API when available; otherwise finds Python and serves static files.</li>
-            <li>Starts a local server bound to <code>127.0.0.1</code> and opens your default browser.</li>
-            <li>With <code>--shell</code>, prints a one-time pairing token for the opt-in command runner.</li>
+            <li>Finds <code>python</code>, <code>py -3</code> or <code>node</code>.</li>
+            <li>Starts a static server bound to <code>127.0.0.1:4173</code>.</li>
+            <li>Waits for the port, then opens your default browser at the workspace.</li>
             <li>Leaves the server running until you close the console window.</li>
           </ol>
 
           <div class="callout">
             <span data-icon="shield-check" data-icon-size="15"></span>
-            <span><strong>It is a text file.</strong> Open <code>eltes.bat</code> in Notepad before running it. There is no installer or elevation prompt. The launcher itself makes no outbound connection and binds the local server to localhost; provider requests only happen when you use a hosted model.</span>
+            <span><strong>It is a text file.</strong> Open <code>eltes.bat</code> in Notepad before running it. There is no installer, no elevation prompt and no outbound connection; the server listens on localhost only.</span>
           </div>
 
           <h3>Optional Start-menu shortcut</h3>
@@ -599,26 +1658,22 @@ eltes.bat --port 8080</code></pre>
           </div>
 
           <h3>macOS and Linux</h3>
-          <p>For a static preview, Python can serve the files. To use the local API or the supervised terminal runner, use the Node server instead:</p>
+          <p>Clone or unpack the same files and serve the root:</p>
           <div class="doc-code">
             <div class="bar">
               <span class="label"><span class="dot"></span>terminal</span>
               <button class="cpy" type="button">Copy</button>
             </div>
             <pre><code>python3 -m http.server 4173
-<span class="c"># for local API + supervised commands, stop Python and use Node:</span>
-ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
-<span class="c"># open http://127.0.0.1:4173/app.html, connect the printed token</span></code></pre>
+<span class="c"># then open http://127.0.0.1:4173/app.html</span></code></pre>
           </div>
-          <p>The command runner is not a sandbox. Commands run with your OS account permissions, may access files outside the starting folder, and are returned to the chosen model. Approve only commands you understand. Details and limits are in <a href="#agent">Agent &amp; tools</a>.</p>
 
-          <h3>Install on a Chromebook</h3>
-          <p>Open the secure Eltes website in ChromeOS Chrome. In the address bar, click the install icon if shown, or use <strong>⋮ → Cast, save, and share → Install page as app</strong>. Launch Eltes from the Chromebook Launcher; the manifest supplies standalone display, a dark theme and maskable icons. No APK, Android app, or Linux package is needed. The installed hosted PWA uses the same origin as the website and cannot run Chromebook terminal commands itself.</p>
-          <p>For local command execution, ChromeOS must have its Linux development environment enabled and Node.js 18+. Start the local Node server from Linux with shell support enabled, then open/install Eltes from that same local origin—not from the hosted PWA. The runner starts new commands under the server user; it does not attach to or read an existing Terminal session. Python commands work only if Python is installed in the same Linux environment; each approved command starts a new process rather than an interactive shell or Python REPL. Every exact command still needs browser approval. ChromeOS port forwarding can vary: the runner intentionally refuses connections the server does not see as loopback. If that happens, do not weaken the guard or expose the runner to a network.</p>
+          <h3>Install as an app</h3>
+          <p><code>site.webmanifest</code> declares standalone display, a dark theme colour and maskable icons at 192 and 512 px. Chrome, Edge and Safari can install the page as a window with the green-cloud icon; there is no Electron wrapper and no auto-updater.</p>
 
           <div class="callout tip">
             <span data-icon="download" data-icon-size="15"></span>
-            <span><strong>Update by replacing files.</strong> Copy a new build over the old folder and keep <code>localStorage</code>. Chats, settings and provider keys stay in the browser; your Supabase account lives remotely and is not in the download.</span>
+            <span><strong>Update by replacing files.</strong> Copy a new build over the old folder and keep <code>localStorage</code>. Chats, keys and your profile live in the browser, not in the download.</span>
           </div>
         </section>
 
@@ -648,7 +1703,7 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
           <p>Without a configured proxy, users save keys in their browser and provider APIs receive requests directly from that browser, subject to provider CORS. Eltes also includes Node-based local API routes for development and separate Vercel functions for deployment.</p>
 
           <h3>Run the local site and API</h3>
-          <p>With Node.js 18 or newer, run <code>npm install</code> and <code>npm start</code>, then open <code>http://localhost:4173/app.html</code>. This serves the static site and API routes, including the same-origin <code>/api/auth</code> route for Supabase accounts. The server binds to <code>0.0.0.0</code> for development-preview compatibility; it is not intended for public hosting, so keep it on a trusted network. Use <code>HOST=127.0.0.1 npm start</code> to bind only to loopback. A Python static server serves only files, so it does not provide account sign-in, key testing, or proxy routes.</p>
+          <p>With Node.js 18 or newer, run <code>npm install</code> and <code>npm start</code>, then open <code>http://localhost:4173/app.html</code>. This serves the static site and the three local API routes. The server binds to <code>0.0.0.0</code> for development-preview compatibility and has no user authentication; keep it on a trusted network. Use <code>HOST=127.0.0.1 npm start</code> to bind only to loopback. A Python static server serves only files, so it does not provide key testing or proxy routes.</p>
 
           <h3>Deploy the optional proxy to Vercel</h3>
           <ol>
@@ -656,7 +1711,7 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
             <li>Set the project environment variable <code>ELTES_ALLOWED_ORIGINS</code> to exact comma-separated browser origins, without paths or trailing slashes. Example: <code>https://gefrus112.github.io,http://localhost:4173</code>.</li>
             <li>Deploy, then in Eltes <strong>Settings → API keys → Optional Vercel/local backend</strong>, enter the Vercel deployment origin and use <strong>Save and test</strong>.</li>
           </ol>
-          <p>The available routes are <code>/api/health</code>, <code>/api/key-check</code>, and streaming/non-streaming <code>/api/chat</code>. The backend only contacts fixed provider hosts and allowlisted provider/model pairs; it never accepts an arbitrary upstream URL. CORS origin checks are not authentication; these routes are public to non-browser clients unless you add access controls. Do not offer an unprotected shared proxy to untrusted users without adding authentication and rate limiting. The key transits the backend for each call; the function code does not persist or log it, but the platform and provider process the request. Use only a deployment you trust and set provider spending limits. Static hosting and Vercel backend deployment are separate; this documentation does not mean a deployment has already occurred.</p>
+          <p>The available routes are <code>/api/health</code>, <code>/api/key-check</code>, streaming/non-streaming <code>/api/chat</code>, and <code>/api/search</code>. The backend only contacts fixed provider hosts and allowlisted provider/model pairs; it never accepts an arbitrary upstream URL. CORS origin checks are not authentication; these routes are public to non-browser clients unless you add access controls. Do not offer an unprotected shared proxy to untrusted users without adding authentication and rate limiting. The key transits the backend for each call; the function code does not persist or log it, but the platform and provider process the request. Use only a deployment you trust and set provider spending limits. Static hosting and Vercel backend deployment are separate; this documentation does not mean a deployment has already occurred.</p>
 
           <div class="doc-code">
             <div class="bar">
@@ -691,24 +1746,6 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
           </div>
         </section>
 
-        <section id="contributors">
-          <h2>Contributors <a class="anchor" href="#contributors" aria-label="Link to contributors" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Every account below has at least one commit credited in GitHub’s contributor stats. The list reflects repository activity; it does not imply endorsement. Pull requests, issues, and newer activity can be checked in the full GitHub contributor graph.</p>
-          <div class="contributor-list">
-            <a class="contributor-card" href="https://github.com/gefrus112" target="_blank" rel="noreferrer">
-              <span class="contributor-mark" data-icon="github" data-icon-size="17" aria-hidden="true"></span>
-              <span class="contributor-copy"><strong>highenough</strong><small>@gefrus112 · 126 commits</small></span>
-              <span class="contributor-link" data-icon="arrow-up-right" data-icon-size="14" aria-hidden="true"></span>
-            </a>
-            <a class="contributor-card" href="https://github.com/eltes" target="_blank" rel="noreferrer">
-              <span class="contributor-mark" data-icon="github" data-icon-size="17" aria-hidden="true"></span>
-              <span class="contributor-copy"><strong>Eltes</strong><small>@eltes · 2 commits</small></span>
-              <span class="contributor-link" data-icon="arrow-up-right" data-icon-size="14" aria-hidden="true"></span>
-            </a>
-          </div>
-          <p class="dim">Want to contribute? Open an issue or pull request on the <a class="inline-link" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">Eltes GitHub repository</a>. The <a class="inline-link" href="https://github.com/gefrus112/eltes/graphs/contributors" target="_blank" rel="noreferrer">live contributor graph</a> is the source for updated counts.</p>
-        </section>
-
         <section id="privacy">
           <h2>Privacy <a class="anchor" href="#privacy" aria-label="Link to privacy" data-icon="link-2" data-icon-size="16"></a></h2>
           <p>Eltes includes no analytics, telemetry, or third-party font requests. In direct mode, a model request goes from your browser to the selected provider. If you configure the optional backend, key checks and model requests transit that backend; the function code does not persist or log provider keys, but the backend platform processes request metadata and the key while handling the call.</p>
@@ -717,14 +1754,14 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
           <div class="keys-table">
             <div class="krow"><span><code>eltes.chats.v1</code> — conversations and per-message metadata</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.settings.v1</code> — provider keys, backend URL, model default, preferences</span><span class="keys mono">local</span></div>
-            <div class="krow"><span>Supabase Auth account and <code>public.eltes_profiles</code> — credentials and display name</span><span class="keys mono">Supabase</span></div>
-            <div class="krow"><span>Supabase access/refresh tokens — <code>HttpOnly</code>, <code>SameSite=Lax</code> cookies, Secure over HTTPS</span><span class="keys mono">cookie</span></div>
+            <div class="krow"><span><code>eltes.account.v1</code> — optional profile</span><span class="keys mono">local</span></div>
+            <div class="krow"><span><code>eltes.cloud.v1</code> — Supabase session, if cloud accounts are on</span><span class="keys mono">local</span></div>
             <div class="krow"><span><code>eltes.waitlist.v1</code> — pricing waitlist entries, if you join</span><span class="keys mono">local</span></div>
-            <div class="krow"><span>No analytics, fingerprinting, or session replay; Supabase auth cookies only when signed in</span><span class="keys mono">minimal</span></div>
+            <div class="krow"><span>No cookies, no fingerprinting, no session replay</span><span class="keys mono">none</span></div>
           </div>
 
           <h3>What providers see</h3>
-          <p>Your prompt, the conversation history sent with it, and whatever tool definitions or results are included in that request. That is exactly what any chat client must send to get an answer. Eltes does not add your Supabase account ID to provider requests.</p>
+          <p>Your prompt, the conversation history sent with it, and whatever tool definitions or results are included in that request. That is exactly what any chat client must send to get an answer. Eltes adds no account identifier, because it does not have one to add.</p>
 
           <h3>Deleting data</h3>
           <p>Use <strong>Settings → Data</strong> to delete all chats, or <strong>Account → Delete profile</strong> to remove the profile. Keys can be removed individually. Clearing site data for the origin removes everything at once.</p>
@@ -759,16 +1796,12 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
               <p>Yes, partly. Eltes CAI-1 answers chat, Eltes questions, arithmetic, units and dates with no network at all. Hosted models need a connection, unless you point a custom endpoint at a model running on your machine. The Windows launcher serves the whole site locally.</p>
             </details>
             <details>
-              <summary>How do Eltes accounts and provider keys work?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>Eltes accounts use Supabase Auth email/password sign-in and need the same-origin Vercel or local Node API; static GitHub Pages cannot host sign-in. OpenAI, Anthropic, DeepSeek, and other providers are connected separately with your API keys in the workspace. Those keys stay in this browser and are not your Eltes account password.</p>
-            </details>
-            <details>
-              <summary>Can I install Eltes on a Chromebook?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p>Yes. Install the secure website as a Chrome PWA from the Downloads section or Chrome's install menu. It appears in the Chromebook Launcher and opens in a standalone window. It is a web app, not an APK; it cannot run shell commands directly. Local command execution requires a separate opt-in Node runner in the ChromeOS Linux environment and per-command browser approval.</p>
+              <summary>Can I sign up with OpenAI, Anthropic or DeepSeek?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
+              <p>Yes. The account page offers all three. On a static copy, connecting means validating and storing a real provider key in this browser. On a hosted deployment with <code>ELTES_CONFIG.authEndpoint</code>, the same buttons start a real OAuth redirect. GitHub sign-up has been removed.</p>
             </details>
             <details>
               <summary>What is the Windows .bat file?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
-              <p><code>eltes.bat</code> is a readable launcher included in <a class="inline-link" href="#downloads">eltes-windows.zip</a>. It uses Node.js for the local API when available, otherwise Python for static files, binds to <code>127.0.0.1:4173</code>, and opens the workspace. It does not install a service or need admin rights. The risky local command runner is disabled unless launched with <code>eltes.bat --shell</code>; Node.js 18+ is required, and each command still needs browser approval.</p>
+              <p><code>eltes.bat</code> is a readable launcher included in <a class="inline-link" href="#downloads">eltes-windows.zip</a>. It finds Python or Node, starts a static server on <code>127.0.0.1:4173</code> and opens the workspace. It does not install a service, touch the registry or need admin rights.</p>
             </details>
             <details>
               <summary>What happens to my chats if I clear site data?<span class="chev" data-icon="chevron-down" data-icon-size="16"></span></summary>
@@ -792,19 +1825,27 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
         <a href="#overview" class="active">Overview</a>
         <a href="#quickstart">Quickstart</a>
         <a href="#accounts">Accounts</a>
+        <a href="#email">Welcome email</a>
+        <a href="#supabase">Cloud accounts</a>
         <a href="#api-keys">API keys</a>
         <a href="#providers">Providers &amp; CORS</a>
         <a href="#custom-endpoint">Custom endpoints</a>
         <a href="#models">Models</a>
+        <a href="#web-search">Web search</a>
         <a href="#agent">Agent &amp; tools</a>
+        <a href="#mcp">MCP servers</a>
         <a href="#chat">Chats &amp; export</a>
-        <a href="#video-editor">Video editor</a>
+        <a href="#workflow">Build a website</a>
+        <a href="#effects">Images &amp; effects</a>
+        <a href="#studio">Studio &amp; terminal</a>
+        <a href="#desktop">Desktop apps</a>
+        <a href="#lab">Lab &amp; training</a>
         <a href="#settings">Settings</a>
+        <a href="#look">Look &amp; feel</a>
         <a href="#shortcuts">Shortcuts</a>
         <a href="#downloads">Downloads</a>
         <a href="#pricing">Pricing</a>
         <a href="#self-host">Self-hosting</a>
-        <a href="#contributors">Contributors</a>
         <a href="#privacy">Privacy</a>
         <a href="#faq">FAQ</a>
       </aside>
@@ -824,7 +1865,6 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
         <div class="footer-col">
           <h4>Product</h4>
           <a href="app.html">Open the app</a>
-          <a href="video.html">Video editor</a>
           <a href="index.html#models">Models</a>
           <a href="index.html#features">Features</a>
           <a href="index.html#pricing">Pricing</a>
@@ -832,27 +1872,30 @@ ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start
         <div class="footer-col">
           <h4>Resources</h4>
           <a href="#quickstart">Quickstart</a>
+          <a href="#lab">Lab &amp; training</a>
           <a href="#api-keys">API keys</a>
           <a href="#providers">Providers &amp; CORS</a>
           <a href="#agent">Agent tools</a>
-          <a href="#video-editor">Video editor guide</a>
+          <a href="#mcp">MCP servers</a>
         </div>
         <div class="footer-col">
           <h4>Project</h4>
           <a href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">GitHub</a>
           <a href="auth.html">Accounts</a>
-          <a href="#contributors">Contributors</a>
           <a href="#privacy">Privacy</a>
           <a href="#faq">FAQ</a>
         </div>
       </div>
       <div class="footer-bottom">
         <span>© <span id="year">2026</span> Eltes AI. Built in the browser.</span>
-        <span class="status"><i></i>Local-first · Supabase accounts</span>
+        <span class="status"><i></i>All systems local</span>
       </div>
     </div>
   </footer>
 
+  <script src="config.js"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/galaxy.js"></script>
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/site.js"></script>

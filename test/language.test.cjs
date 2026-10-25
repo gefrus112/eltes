@@ -45,7 +45,7 @@ test('Lua source files are accepted by attachments and downloadable code fences'
   const docs = read('docs.html');
   assert.ok(page.includes('.lua'));
   assert.ok(app.includes("lua: 'lua'"));
-  assert.ok(app.includes('lua: \'lua\' }'));
+  assert.match(app, /lua: 'lua'/);
   assert.match(docs, /including PHP and Lua/);
   assert.equal(Highlighter.LANGS.test('Lua'), true);
 });

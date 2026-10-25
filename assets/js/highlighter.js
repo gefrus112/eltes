@@ -16,7 +16,8 @@
     'foreach endforeach endif endfor endwhile include include_once require require_once isset empty unset die exit print yield goto'
   ).split(/\s+/));
   const LUA_KEYWORDS = new Set('and break do else elseif end false for function goto if in local nil not or repeat return then true until while'.split(/\s+/));
-  const LANGS = /^(js|javascript|jsx|ts|typescript|tsx|json|py|python|bash|sh|shell|zsh|sql|css|html|xml|go|rs|rust|php|lua|yml|yaml|toml|diff|text)$/i;
+  const JAC_KEYWORDS = new Set('ability architype async await by can check disengage else elif entry enum except finally for has if impl import include init let match module node obj object report return spawn try type walker with yield'.split(/\s+/));
+  const LANGS = /^(js|javascript|jsx|ts|typescript|tsx|json|py|python|bash|sh|shell|zsh|sql|css|html|xml|go|rs|rust|php|lua|jac|jaclang|yml|yaml|toml|diff|text)$/i;
   const escapeCode = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   function highlightLua(src) {
@@ -43,7 +44,7 @@
       if (number) return `<span class="tok-num">${number}</span>`;
       if (word) {
         if (word.startsWith('$')) return `<span class="tok-var">${word}</span>`;
-        if (KEYWORDS.has(word)) return `<span class="tok-key">${word}</span>`;
+        if (KEYWORDS.has(word) || (/^jac(?:lang)?$/i.test(lang) && JAC_KEYWORDS.has(word))) return `<span class="tok-key">${word}</span>`;
         const after = src.slice(offset + word.length, offset + word.length + 2);
         if (/^[A-Z]/.test(word)) return `<span class="tok-tag">${word}</span>`;
         if (after.startsWith('(')) return `<span class="tok-fn">${word}</span>`;

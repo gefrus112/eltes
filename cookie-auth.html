@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eltes — secure account</title>
+  <meta name="description" content="Create or sign in to an Eltes account using Supabase Auth. Passwords are never stored by Eltes; chats and provider keys stay on this device." />
+  <meta name="theme-color" content="#010308" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="assets/css/auth.css" />
+</head>
+<body class="auth-page">
+  <a class="skip" href="#authMain">Skip to the form</a>
+  <div class="auth-blocks" id="authBlocks" aria-hidden="true"></div>
+
+  <header class="auth-nav">
+    <div class="wrap auth-nav-in">
+      <a class="brand" href="index.html" aria-label="Eltes home">
+        <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        Eltes <span class="brand-sub">AI</span>
+      </a>
+      <span class="grow"></span>
+      <a class="auth-back" href="docs.html#accounts">How accounts work</a>
+      <a class="auth-back" href="index.html"><span data-icon="arrow-left" data-icon-size="13"></span>Home</a>
+      <a class="btn btn-ghost btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="13"></span></a>
+    </div>
+  </header>
+
+  <main class="auth-main wrap" id="authMain">
+    <aside class="auth-side">
+      <span class="eyebrow"><span class="dot"></span>Supabase Auth · secure sign-in</span>
+      <h1>One workspace.<br /><span class="grad">Your account.</span></h1>
+      <p class="lead">Create a real Eltes account with an email and password. Supabase Auth verifies credentials and manages sign-in sessions; Eltes never saves your password.</p>
+
+      <ul class="provider-list auth-security-list" aria-label="Account security and privacy">
+        <li>
+          <span class="pl-logo" data-icon="key-round" data-icon-size="17" aria-hidden="true"></span>
+          <div><strong>Passwords handled by Supabase</strong><span>Account credentials are not stored in Eltes local storage.</span></div>
+          <span class="pl-state on">managed</span>
+        </li>
+        <li>
+          <span class="pl-logo" data-icon="shield-check" data-icon-size="17" aria-hidden="true"></span>
+          <div><strong>Protected sign-in session</strong><span>Session tokens use same-site, HttpOnly cookies.</span></div>
+          <span class="pl-state on">private</span>
+        </li>
+        <li class="local">
+          <span class="pl-logo" data-icon="hard-drive" data-icon-size="17" aria-hidden="true"></span>
+          <div><strong>Your workspace stays local-first</strong><span>Chats, settings, and provider API keys remain in this browser.</span></div>
+          <span class="pl-state on">byok</span>
+        </li>
+      </ul>
+
+      <div class="auth-note">
+        <span data-icon="info" data-icon-size="13"></span>
+        <p>A secure account reduces risks from fake local profiles, but no sign-in system is impossible to compromise. Use a unique password and keep your device and browser protected. Hosted AI providers still receive prompts you send to them.</p>
+      </div>
+
+      <div class="auth-stats">
+        <div><strong>12+</strong><span>character password</span></div>
+        <div><strong>0</strong><span>password copies in Eltes</span></div>
+        <div><strong>Local</strong><span>chat history</span></div>
+      </div>
+    </aside>
+
+    <section class="auth-card" aria-labelledby="authTitle">
+      <div class="card-blocks" aria-hidden="true"></div>
+      <div class="auth-card-head">
+        <div>
+          <h2 id="authTitle">Create your account</h2>
+          <p id="authSub">Sign up securely with Supabase Auth.</p>
+        </div>
+        <span class="badge"><span class="dot"></span>SECURE</span>
+      </div>
+
+      <div class="auth-flow" id="authFlow">
+        <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
+          <button role="tab" data-mode="signin" aria-selected="false" id="tabSignin" type="button">Sign in</button>
+          <button role="tab" data-mode="signup" aria-selected="true" id="tabSignup" type="button">Create account</button>
+          <span class="tab-ink" aria-hidden="true"></span>
+        </div>
+
+        <p class="auth-backend-note" id="authBackendNote" role="status" aria-live="polite" hidden></p>
+        <form id="authForm" novalidate autocomplete="on">
+          <div class="fld" id="nameField">
+            <label for="nameInput">Display name</label>
+            <div class="fld-in"><span data-icon="user" data-icon-size="15"></span><input id="nameInput" name="name" type="text" placeholder="Ada Lovelace" autocomplete="name" maxlength="60" /></div>
+            <em class="fld-err" id="nameErr" role="alert"></em>
+          </div>
+          <div class="fld">
+            <label for="emailInput">Email address</label>
+            <div class="fld-in"><span data-icon="mail" data-icon-size="15"></span><input id="emailInput" name="email" type="email" placeholder="you@example.com" autocomplete="email" maxlength="254" inputmode="email" required /></div>
+            <em class="fld-err" id="emailErr" role="alert"></em>
+          </div>
+          <div class="fld">
+            <label for="passwordInput">Password <span class="opt" id="passwordHint">At least 12 characters</span></label>
+            <div class="fld-in"><span data-icon="lock-keyhole" data-icon-size="15"></span><input id="passwordInput" name="password" type="password" placeholder="Use a unique password" autocomplete="new-password" minlength="12" maxlength="1024" required /></div>
+            <em class="fld-err" id="passwordErr" role="alert"></em>
+          </div>
+          <div class="auth-error" id="authError" role="alert" hidden><span data-icon="triangle-alert" data-icon-size="14"></span><span id="authErrorText"></span></div>
+          <div class="auth-notice" id="authNotice" role="status" aria-live="polite" hidden></div>
+          <button class="btn btn-primary btn-lg auth-submit" id="submitBtn" type="submit"><span id="submitLabel">Create secure account</span><span data-icon="arrow-right" data-icon-size="16"></span></button>
+          <p class="terms">Passwords go to Supabase Auth over HTTPS and are never saved by Eltes. Sign-in uses a protected same-site cookie. Chats and provider keys remain on this device.</p>
+        </form>
+      </div>
+
+      <div class="signed-in" id="signedIn" hidden>
+        <div class="si-head">
+          <span class="avatar lg" id="siAvatar" aria-hidden="true">EL</span>
+          <div class="si-who"><strong id="siName">Eltes user</strong><span id="siEmail">you@example.com</span></div>
+          <span class="key-status ok" id="siProvider"><i></i>Supabase Auth</span>
+        </div>
+        <div class="si-rows">
+          <div class="si-row"><span>Account ID</span><span class="mono" id="siId">—</span></div>
+          <div class="si-row"><span>Created</span><span id="siCreated">—</span></div>
+          <div class="si-row"><span>Authentication</span><span>Supabase Auth</span></div>
+          <div class="si-row"><span>Session storage</span><span>HttpOnly cookie</span></div>
+          <div class="si-row"><span>Chats &amp; API keys</span><span>This browser</span></div>
+        </div>
+        <div class="si-actions">
+          <a class="btn btn-primary" id="siContinue" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          <button class="btn btn-ghost" id="siSignOut" type="button"><span data-icon="log-out" data-icon-size="14"></span>Sign out</button>
+        </div>
+        <p class="terms">Signing out clears the server session cookie. It does not remove your chats or provider keys from this device.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="auth-foot wrap">
+    <p>Supabase-backed identity · local chats · local BYOK keys. <a href="docs.html#accounts">Accounts documentation</a></p>
+    <p class="dim">Use the Eltes Vercel deployment or the configured local server for account access.</p>
+  </footer>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script src="assets/js/icons.js"></script>
+  <script src="assets/js/cookie-account.js"></script>
+  <script src="assets/js/cookie-auth.js"></script>
+</body>
+</html>

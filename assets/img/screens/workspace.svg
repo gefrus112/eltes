@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img">
+<defs>
+  <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#bcc0c8" /><stop offset="0.45" stop-color="#858b95" /><stop offset="1" stop-color="#a6abb4" />
+  </linearGradient>
+  <linearGradient id="btnBlue" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#4785ff" /><stop offset="1" stop-color="#2a63ee" />
+  </linearGradient>
+  <linearGradient id="heroLine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#eff5ff" /><stop offset="0.36" stop-color="#a9c8ff" />
+    <stop offset="0.67" stop-color="#78a6ff" /><stop offset="1" stop-color="#80e2c0" />
+  </linearGradient>
+  <radialGradient id="shellGlow" cx="0.5" cy="0" r="0.75">
+    <stop offset="0" stop-color="#b4b8c1" stop-opacity="0.16" /><stop offset="1" stop-color="#b4b8c1" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaA" cx="0.18" cy="0.12" r="0.55">
+    <stop offset="0" stop-color="#2b6bff" stop-opacity="0.22" /><stop offset="1" stop-color="#2b6bff" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaB" cx="0.84" cy="0.05" r="0.5">
+    <stop offset="0" stop-color="#39dca2" stop-opacity="0.13" /><stop offset="1" stop-color="#39dca2" stop-opacity="0" />
+  </radialGradient>
+  <radialGradient id="nebulaC" cx="0.5" cy="0.98" r="0.6">
+    <stop offset="0" stop-color="#7b5cff" stop-opacity="0.16" /><stop offset="1" stop-color="#7b5cff" stop-opacity="0" />
+  </radialGradient>
+  <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0" /><stop offset="1" stop-color="#000000" stop-opacity="0.35" />
+  </linearGradient>
+</defs>
+<rect x="0" y="0" width="1440" height="900" fill="#000000" />
+<rect x="0" y="0" width="1440" height="900" fill="url(#shellGlow)" />
+<rect x="0" y="0" width="272" height="900" fill="#030304" />
+<line x1="272" y1="0" x2="272" y2="900" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(16 19) scale(0.8333333333333334)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="44" y="37" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="16" font-weight="600" text-anchor="start" letter-spacing="-0.02em">Eltes</text>
+<text x="99" y="36" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="8.5" font-weight="600" text-anchor="start" letter-spacing="0.1em">AI AGENT</text>
+<rect x="232" y="15" width="28" height="28" rx="7" fill="#ffffff08" stroke="#ffffff13" stroke-width="1" /><g transform="translate(236.5 22.5) scale(0.5416666666666666)" fill="none" stroke="#f2f3f5" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /></g><text x="255.5" y="33.375" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start"></text>
+<rect x="10" y="66" width="252" height="32" rx="8" fill="#ffffff07" stroke="#ffffff13" />
+<g transform="translate(22 74) scale(0.5833333333333334)" fill="none" stroke="#787a80" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></g>
+<text x="44" y="86" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" font-weight="400" text-anchor="start">Search chats</text>
+<rect x="224" y="73" width="21" height="18" rx="4" fill="#ffffff0a" stroke="#ffffff21" /><text x="234.5" y="85.23" fill="#787a80" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9.5" font-weight="400" text-anchor="middle">⌘K</text>
+<rect x="10" y="106" width="252" height="34" rx="8" fill="#ffffff0b" stroke="#ffffff13" />
+<g transform="translate(22 115) scale(0.625)" fill="none" stroke="#a6a8ae" stroke-width="2.720" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></g>
+<text x="44" y="128" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13" font-weight="500" text-anchor="start">New chat</text>
+<rect x="222" y="114" width="30" height="18" rx="4" fill="#ffffff0a" stroke="#ffffff21" /><text x="237" y="126.23" fill="#787a80" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9.5" font-weight="400" text-anchor="middle">⌘⇧O</text>
+<text x="16" y="166" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="8.5" font-weight="600" text-anchor="start" letter-spacing="0.14em">TODAY</text>
+<rect x="8" y="176" width="256" height="34" rx="7" fill="#ffffff0a" />
+<rect x="8" y="182" width="2" height="22" rx="1" fill="#c9ccd3" />
+<g transform="translate(20 186) scale(0.5833333333333334)" fill="none" stroke="#a6a8ae" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></g>
+<text x="42" y="198" fill="#e6e8eb" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">Neon hoverboard in Studio</text>
+<g transform="translate(20 222) scale(0.5833333333333334)" fill="none" stroke="#4e5055" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></g>
+<text x="42" y="234" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Race scaffold, three laps</text>
+<g transform="translate(20 258) scale(0.5833333333333334)" fill="none" stroke="#4e5055" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></g>
+<text x="42" y="270" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Low-poly planet in Blender</text>
+<text x="16" y="302" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="8.5" font-weight="600" text-anchor="start" letter-spacing="0.14em">YESTERDAY</text>
+<g transform="translate(20 322) scale(0.5833333333333334)" fill="none" stroke="#4e5055" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></g>
+<text x="42" y="334" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Explain MCP in one page</text>
+<g transform="translate(20 358) scale(0.5833333333333334)" fill="none" stroke="#4e5055" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></g>
+<text x="42" y="370" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">12 km in miles, exactly</text>
+<g transform="translate(20 394) scale(0.5833333333333334)" fill="none" stroke="#4e5055" stroke-width="2.914" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></g>
+<text x="42" y="406" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="400" text-anchor="start">Critique my landing page</text>
+<text x="16" y="792" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">Local storage</text>
+<text x="256" y="792" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="end">8%</text>
+<rect x="16" y="800" width="240" height="3" rx="2" fill="#ffffff0d" />
+<rect x="16" y="800" width="20" height="3" rx="2" fill="#8f949d" />
+<rect x="10" y="814" width="252" height="56" rx="10" fill="#ffffff06" stroke="#ffffff13" />
+<circle cx="36" cy="842" r="13" fill="#ffffff12" stroke="#ffffff21" />
+<text x="36" y="846" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="600" text-anchor="middle">L</text>
+<text x="58" y="838" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">Local workspace</text>
+<circle cx="61" cy="851" r="2.5" fill="#39dca2" />
+<text x="68" y="855" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">No keys connected</text>
+<g transform="translate(232 834) scale(0.6666666666666666)" fill="none" stroke="#4e5055" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /><circle cx="12" cy="12" r="3" /></g>
+<rect x="273" y="0" width="1167" height="58" fill="#03060b" />
+<line x1="273" y1="58" x2="1440" y2="58" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(285 20) scale(0.7083333333333334)" fill="none" stroke="#787a80" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18" /></g>
+<rect x="313" y="12" width="236" height="34" rx="8" fill="#ffffff05" stroke="#ffffff13" />
+<g transform="translate(325 21) scale(0.625)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="347" y="33" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12.5" font-weight="500" text-anchor="start">Eltes CAI-1</text>
+<rect x="429" y="20" width="61" height="18" rx="9" fill="#ffffff09" stroke="#ffffff13" /><text x="459.5" y="32.15" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="500" text-anchor="middle">On-device</text>
+<g transform="translate(524 23) scale(0.5416666666666666)" fill="none" stroke="#4e5055" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></g>
+<rect x="560" y="15" width="96" height="28" rx="14" fill="#ffffff05" stroke="#ffffff13" />
+<g transform="translate(572 22) scale(0.5416666666666666)" fill="none" stroke="#4e5055" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="#4e5055" /></g>
+<text x="590" y="33" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="400" text-anchor="start">No keys</text>
+<g transform="translate(1176 21) scale(0.6666666666666666)" fill="none" stroke="#4e5055" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></g>
+<g transform="translate(1214 21) scale(0.6666666666666666)" fill="none" stroke="#4e5055" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3" /><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /></g>
+<g transform="translate(1252 21) scale(0.6666666666666666)" fill="none" stroke="#4e5055" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19h8" /><path d="m4 17 6-6-6-6" /></g>
+<g transform="translate(1290 21) scale(0.6666666666666666)" fill="none" stroke="#4e5055" stroke-width="2.550" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></g>
+<line x1="1332" y1="19" x2="1332" y2="39" stroke="#ffffff13" stroke-width="1" opacity="1" />
+<g transform="translate(1348 21) scale(0.7083333333333334)" fill="none" stroke="#787a80" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" /><circle cx="12" cy="12" r="3" /></g>
+<rect x="683" y="92" width="578" height="60" rx="13" fill="#191a1e" stroke="#ffffff14" />
+<text x="699" y="116" fill="#dfe2e6" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="14" font-weight="400" text-anchor="start">Build a neon hoverboard in Roblox Studio — model it,</text>
+<text x="699" y="138" fill="#dfe2e6" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="14" font-weight="400" text-anchor="start">add a light trail, then scaffold a playable race.</text>
+<g transform="translate(451 176) scale(0.625)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="474" y="188" fill="#d8dbe0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" font-weight="600" text-anchor="start">Eltes CAI-1</text>
+<text x="563" y="188" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">· 2 servers · 8 tools</text>
+<text x="1261" y="188" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="400" text-anchor="end">4.1 s</text>
+<rect x="451" y="198" width="810" height="56" rx="10" fill="#050b14" stroke="#ffffff13" />
+<line x1="451" y1="226" x2="1261" y2="226" stroke="#ffffff09" stroke-width="1" opacity="1" />
+<rect x="462" y="203" width="19" height="19" rx="5" fill="#ffffff12" stroke="#ffffff21" />
+<g transform="translate(465 206) scale(0.5416666666666666)" fill="none" stroke="#a6a8ae" stroke-width="2.954" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" /></g>
+<text x="490" y="217" fill="#b2b6bd" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">roblox__build_model</text>
+<g transform="translate(1185 206) scale(0.4166666666666667)" fill="none" stroke="#66e0b4" stroke-width="5.760" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></g>
+<text x="1199" y="216" fill="#66e0b4" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="start" letter-spacing="0.06em">DONE</text>
+<text x="465" y="243" fill="#878b93" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">model NeonHoverboard  ·  14 parts  ·  Workspace</text>
+<rect x="451" y="262" width="810" height="56" rx="10" fill="#050b14" stroke="#ffffff13" />
+<line x1="451" y1="290" x2="1261" y2="290" stroke="#ffffff09" stroke-width="1" opacity="1" />
+<rect x="462" y="267" width="19" height="19" rx="5" fill="#ffffff12" stroke="#ffffff21" />
+<g transform="translate(465 270) scale(0.5416666666666666)" fill="none" stroke="#a6a8ae" stroke-width="2.954" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" /></g>
+<text x="490" y="281" fill="#b2b6bd" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">roblox__add_effect</text>
+<g transform="translate(1185 270) scale(0.4166666666666667)" fill="none" stroke="#66e0b4" stroke-width="5.760" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></g>
+<text x="1199" y="280" fill="#66e0b4" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="start" letter-spacing="0.06em">DONE</text>
+<text x="465" y="307" fill="#878b93" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">Trail + PointLight  ·  ThrusterA → ThrusterB</text>
+<rect x="451" y="326" width="810" height="56" rx="10" fill="#050b14" stroke="#ffffff13" />
+<line x1="451" y1="354" x2="1261" y2="354" stroke="#ffffff09" stroke-width="1" opacity="1" />
+<rect x="462" y="331" width="19" height="19" rx="5" fill="#ffffff12" stroke="#ffffff21" />
+<g transform="translate(465 334) scale(0.5416666666666666)" fill="none" stroke="#a6a8ae" stroke-width="2.954" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" /></g>
+<text x="490" y="345" fill="#b2b6bd" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">roblox__scaffold_game</text>
+<g transform="translate(1185 334) scale(0.4166666666666667)" fill="none" stroke="#66e0b4" stroke-width="5.760" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></g>
+<text x="1199" y="344" fill="#66e0b4" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="9" font-weight="600" text-anchor="start" letter-spacing="0.06em">DONE</text>
+<text x="465" y="371" fill="#878b93" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">RaceServer.luau  ·  3 checkpoints  ·  3 laps</text>
+<text x="451" y="428" fill="#cfd3d9" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="400" text-anchor="start">Done — NeonHoverboard is in Workspace with a cyan trail, two lit thrusters and a</text>
+<text x="451" y="451" fill="#cfd3d9" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="400" text-anchor="start">three-lap race at Workspace.RaceCourse. Press Play to test: LapService scores each</text>
+<text x="451" y="474" fill="#cfd3d9" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="13.5" font-weight="400" text-anchor="start">checkpoint, and the board respawns if it flips.</text>
+<rect x="451" y="496" width="810" height="104" rx="10" fill="#05070d" stroke="#ffffff13" />
+<text x="465" y="516" fill="#4e5055" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="400" text-anchor="start" letter-spacing="0.08em">RaceServer.luau · inserted</text>
+<rect x="1207" y="506" width="30" height="17" rx="8.5" fill="#ffffff0d" stroke="#ffffff13" /><text x="1222" y="517.475" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="8.5" font-weight="500" text-anchor="middle">lua</text>
+<text x="465" y="538" fill="#c3c8d0" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">local trail = Instance.new(&quot;Trail&quot;)</text>
+<text x="465" y="556" fill="#c3c8d0" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">trail.Attachment0 = left.Thruster</text>
+<text x="465" y="574" fill="#c3c8d0" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">trail.Color = ColorSequence.new(Color3.fromRGB(0, 255, 214))</text>
+<text x="465" y="592" fill="#c3c8d0" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10.5" font-weight="400" text-anchor="start">trail.MaxLength = 12</text>
+<g transform="translate(451 622) scale(0.5)" fill="none" stroke="#4e5055" stroke-width="3.400" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5" /><path d="M15 8V2" /><path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z" /><path d="M9 8V2" /></g>
+<text x="469" y="632" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">2 MCP servers connected — Blender (14 tools), Roblox Studio (8 tools)</text>
+<rect x="0" y="736" width="1440" height="164" fill="url(#fadeDown)" />
+<rect x="451" y="752" width="810" height="106" rx="14" fill="#05060a" stroke="#ffffff17" />
+<text x="467" y="782" fill="#8c9099" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="14" font-weight="400" text-anchor="start">Now animate the rig so it leans into turns</text>
+<text x="467" y="800" fill="#8c9099" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="14" font-weight="400" text-anchor="start">and add a second colour for boosts</text>
+<rect x="461" y="812" width="118" height="27" rx="7" fill="#ffffff09" stroke="#ffffff13" />
+<g transform="translate(469 819) scale(0.5416666666666666)"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2" /><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /><circle cx="15" cy="12.9" r="1.5" fill="#04101a" /><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round" /></g>
+<text x="488" y="829" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">Eltes CAI-1</text>
+<g transform="translate(555 821) scale(0.4583333333333333)" fill="none" stroke="#4e5055" stroke-width="3.709" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></g>
+<rect x="586" y="812" width="74" height="27" rx="7" fill="#ffffff10" stroke="#ffffff21" />
+<g transform="translate(594 819) scale(0.5416666666666666)" fill="none" stroke="#a6a8ae" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></g>
+<text x="612" y="830" fill="#a6a8ae" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">Agent</text>
+<rect x="666" y="812" width="88" height="27" rx="7" fill="#ffffff10" stroke="#ffffff21" />
+<g transform="translate(674 819) scale(0.5416666666666666)" fill="none" stroke="#a6a8ae" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5" /><path d="M15 8V2" /><path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z" /><path d="M9 8V2" /></g>
+<text x="692" y="830" fill="#f2f3f5" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="500" text-anchor="start">MCP · 8</text>
+<rect x="760" y="812" width="62" height="27" rx="7" fill="transparent" stroke="transparent" />
+<g transform="translate(766 819) scale(0.5416666666666666)" fill="none" stroke="#787a80" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></g>
+<text x="783" y="830" fill="#787a80" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11" font-weight="400" text-anchor="start">Web</text>
+<g transform="translate(832 819) scale(0.5416666666666666)" fill="none" stroke="#787a80" stroke-width="3.138" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551" /></g>
+<rect x="1135" y="817" width="18" height="18" rx="4" fill="#ffffff0a" stroke="#ffffff21" /><text x="1144" y="829.23" fill="#787a80" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9.5" font-weight="400" text-anchor="middle">↵</text>
+<text x="1159" y="830" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10" font-weight="400" text-anchor="start">send</text>
+<rect x="1218" y="809" width="33" height="33" rx="9" fill="url(#silver)" stroke="#ffffff4d" />
+<g transform="translate(1227 818) scale(0.625)" fill="none" stroke="#ffffff" stroke-width="3.520" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></g>
+<g transform="translate(622 874) scale(0.4583333333333333)" fill="none" stroke="#4e5055" stroke-width="3.709" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></g>
+<text x="638" y="882" fill="#4e5055" font-family="Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="10.5" font-weight="400" text-anchor="start">Keys and history stay in this browser; hosted calls go direct or through a proxy you configure.</text>
+</svg>

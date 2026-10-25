@@ -55,6 +55,7 @@
     const progress = clamp(window.scrollY / range, 0, 1);
     doc.style.setProperty('--scroll-progress', progress.toFixed(4));
   }
+  // The galaxy script follows the scroll itself; this only feeds the rail.
   updateScrollProgress();
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
   window.addEventListener('resize', updateScrollProgress);
@@ -118,7 +119,7 @@
       <div class="account-wrap" style="position:relative">
         <button class="account-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false">
           ${window.EltesAccount.avatarHtml(account)}
-          <span class="who"><strong>${escapeHtml(account.name)}</strong><span>${escapeHtml(account.email)}</span></span>
+          <span class="who"><strong>${escapeHtml(account.name)}</strong><span>${escapeHtml(account.email || (account.username ? '@' + account.username : 'local profile'))}</span></span>
           <span data-icon="chevron-down" data-icon-size="13" style="color:var(--text-3)"></span>
         </button>
       </div>`;
@@ -135,7 +136,7 @@
       m.innerHTML = `
         <div class="am-head">
           ${window.EltesAccount.avatarHtml(account, 'sm')}
-          <div><strong>${escapeHtml(account.name)}</strong><span>Supabase Auth · BYOK</span></div>
+          <div><strong>${escapeHtml(account.name)}</strong><span>${account.provider === 'local' ? 'Local profile' : (window.EltesModels && window.EltesModels.PROVIDERS[account.provider] ? window.EltesModels.PROVIDERS[account.provider].name : 'Provider')} · BYOK</span></div>
         </div>
         <a href="app.html"><span data-icon="layout-grid" data-icon-size="14"></span>Open workspace</a>
         <a href="auth.html"><span data-icon="user" data-icon-size="14"></span>Account settings</a>
@@ -147,10 +148,10 @@
       if (window.EltesIcons) window.EltesIcons.hydrate(m);
       const off = () => { m.remove(); btn.setAttribute('aria-expanded', 'false'); document.removeEventListener('click', off); };
       setTimeout(() => document.addEventListener('click', off), 0);
-      $('#accountSignOut', m).addEventListener('click', async (ev) => {
+      $('#accountSignOut', m).addEventListener('click', (ev) => {
         ev.stopPropagation();
-        const revoked = await window.EltesAccount.signOut();
-        toast(revoked ? 'Signed out. Local chats and keys remain.' : 'Signed out here; server cookie revocation could not be confirmed.', revoked ? 'log-out' : 'triangle-alert');
+        window.EltesAccount.signOut();
+        toast('Signed out locally', 'log-out');
       });
     });
   }
@@ -288,31 +289,31 @@
     },
     {
       provider: 'openai', brand: 'openai', name: 'OpenAI', meta: 'api.openai.com · streamed responses',
-      models: ['GPT‑6 Sol', 'GPT‑6.1 Sol', 'GPT‑6 Luna', 'GPT‑4.1'], href: 'app.html?model=gpt-6-sol'
+      models: ['GPT‑6 Sol', 'GPT‑4o', 'o3-mini', 'GPT‑4.1'], href: 'app.html?model=gpt-6-sol'
     },
     {
       provider: 'anthropic', brand: 'claude', name: 'Anthropic', meta: 'Native Messages API',
-      models: ['Claude Sonnet 5.5', 'Claude Opus 5.5', 'Claude Haiku 5.5'], href: 'app.html?model=claude-sonnet-5-5'
+      models: ['Claude Sonnet 5.5', 'Claude Opus 5.5', 'Claude Haiku 4', 'Sonnet 4'], href: 'app.html?model=claude-sonnet-5-5'
     },
     {
       provider: 'deepseek', brand: 'deepseek', name: 'DeepSeek', meta: 'deepseek.com · 1M context',
-      models: ['V4.1 Flash', 'V4 Pro'], href: 'app.html?model=deepseek-flash'
+      models: ['V4.1 Flash', 'V4 Pro', 'Reasoner', 'Chat'], href: 'app.html?model=deepseek-flash'
     },
     {
       provider: 'google', brand: 'gemini', name: 'Google Gemini', meta: 'OpenAI-compatible endpoint',
-      models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash'], href: 'app.html?model=gemini-2-5-pro'
+      models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash', 'Gemini 2.0 Flash', 'Gemini 1.5 Pro'], href: 'app.html?model=gemini-2-5-pro'
     },
     {
       provider: 'zai', brand: 'glm', name: 'Z.ai · GLM', meta: 'api.z.ai · tool calling',
-      models: ['GLM-4.6', 'GLM-4.5', 'GLM-4.5 Air'], href: 'app.html?model=glm-4-6'
+      models: ['GLM-4.7', 'GLM-4.6', 'GLM-4.5 Air'], href: 'app.html?model=glm-4-6'
     },
     {
       provider: 'xai', brand: 'grok', name: 'xAI Grok', meta: 'api.x.ai',
-      models: ['Grok 4', 'Grok 3'], href: 'app.html?model=grok-4'
+      models: ['Grok 4', 'Grok 4 Fast', 'Grok 3 Mini'], href: 'app.html?model=grok-4'
     },
     {
       provider: 'qwen', brand: 'qwen', name: 'Qwen · Alibaba', meta: 'Model Studio',
-      models: ['Qwen3 Max', 'Qwen3 Coder Plus'], href: 'app.html?model=qwen3-max'
+      models: ['Qwen3 Max', 'Qwen3 Coder Plus', 'Qwen2.5 32B'], href: 'app.html?model=qwen3-max'
     },
     {
       provider: 'groq', brand: 'llama', name: 'Llama · Meta', meta: 'via Groq or OpenRouter',
@@ -320,21 +321,27 @@
     },
     {
       provider: 'groq', brand: 'groq', name: 'Groq', meta: 'api.groq.com · Llama + Qwen',
-      models: ['Llama 3.3 70B', 'Llama 4 Scout', 'Qwen 3'], href: 'app.html?model=llama-3-3-70b'
+      models: ['Llama 3.3 70B', 'Llama 4 Scout', 'Llama 3.1 8B', 'Qwen3 32B'], href: 'app.html?model=llama-3-3-70b'
     },
     {
       provider: 'mistral', brand: 'mistral', name: 'Mistral', meta: 'api.mistral.ai',
-      models: ['Mistral Large', 'Codestral'], href: 'app.html?model=mistral-large'
+      models: ['Mistral Large', 'Mistral Small', 'Codestral', 'Pixtral'], href: 'app.html?model=mistral-large'
     },
     {
       provider: 'nvidia', brand: 'nvidia', name: 'NVIDIA NIM', meta: 'NVIDIA-hosted · key required',
-      models: ['Llama 3.3 70B', 'Nemotron Ultra'], href: 'app.html?model=nvidia-llama-3-3'
+      models: ['Llama 3.3 70B', 'Nemotron Ultra', 'DeepSeek R1'], href: 'app.html?model=nvidia-llama-3-3'
+    },
+    {
+      provider: 'cohere', brand: 'cohere', name: 'Cohere', meta: 'api.cohere.ai · RAG and tools',
+      models: ['Command A', 'Command R+'], href: 'app.html?model=command-a'
     },
     {
       provider: 'openrouter', brand: 'openrouter', name: 'OpenRouter', meta: 'one key · 200+ models',
       models: ['Auto router', 'Claude, Gemini, Qwen…', 'Fallback chains'], href: 'app.html?model=openrouter-auto'
     }
   ];
+
+  const ACCOUNT_PROVIDERS = ['openai', 'anthropic', 'deepseek'];
 
   function renderHeroModelPreview(modelId, focusTab = false) {
     const panel = $('#previewPanel');
@@ -395,14 +402,15 @@
   renderHeroModelPreview('claude-sonnet-5-5');
 
   function wallLink(p) {
-    return p.href;
+    if (p.local || !ACCOUNT_PROVIDERS.includes(p.provider)) return p.href;
+    return `auth.html?provider=${p.provider}&mode=signup&next=${encodeURIComponent(p.href)}`;
   }
 
   function renderModelWall() {
     const wall = $('#modelWall');
     if (!wall) return;
     wall.innerHTML = WALL.map(
-      (p) => `<a class="model-tile reveal" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : 'models — add your API key in the workspace'}">
+      (p) => `<a class="model-tile reveal" href="${wallLink(p)}" aria-label="${escapeHtml(p.name)} ${p.local ? 'on-device models' : ACCOUNT_PROVIDERS.includes(p.provider) ? '— connect your account' : 'models'}">
         <span class="mt-top">
           <span class="p-logo lg" data-brand="${p.brand}" data-brand-size="22"></span>
           <span>
@@ -411,7 +419,7 @@
           </span>
         </span>
         <ul>${p.models.map((m) => `<li>${escapeHtml(m)}</li>`).join('')}</ul>
-        <span class="mt-link">${p.local ? 'Run on-device' : 'Open in workspace'} <span data-icon="arrow-right" data-icon-size="11"></span></span>
+        <span class="mt-link">${p.local ? 'Run on-device' : ACCOUNT_PROVIDERS.includes(p.provider) ? 'Connect account' : 'Open with a key'} <span data-icon="arrow-right" data-icon-size="11"></span></span>
       </a>`
     ).join('');
     hydrateBrands(wall);
@@ -537,6 +545,125 @@
     });
   }
 
+  /* ----------------------------- quick signup ----------------------------- */
+  const quick = $('#quickSignup');
+  if (quick) {
+    const Cloud = window.EltesCloud;
+    const cloudOn = !!(Cloud && Cloud.enabled);
+    const quickPassword = $('#quickPassword');
+    const quickPasswordField = $('#quickPasswordField');
+    const quickTitle = $('#quickTitle');
+    const quickNote = $('#quickNote');
+    const quickSubmit = $('#quickSubmit');
+    const quickMode = $('#quickMode');
+
+    /* Tell the truth about which kind of account this form creates. With a
+       Supabase project in config.js it is a real account: an auth row, a
+       profile row and a password. Without one it is the local profile. */
+    if (cloudOn) {
+      if (quickPasswordField) quickPasswordField.hidden = false;
+      if (quickTitle) quickTitle.textContent = 'Create your Eltes account';
+      if (quickSubmit) quickSubmit.firstChild.textContent = 'Create account';
+      if (quickMode) quickMode.textContent = 'Supabase';
+      if (quickNote) {
+        quickNote.innerHTML = 'A real account: Supabase Auth stores the address and a hashed password, and row-level security keeps the profile yours. Model keys never go there. Already signed up? <a href="auth.html?mode=signin">Sign in</a>.';
+      }
+    }
+
+    function mirrorCloud(session, fallback) {
+      const user = (session && session.user) || null;
+      const meta = (user && user.user_metadata) || {};
+      const created = user && user.created_at ? Date.parse(user.created_at) : NaN;
+      return window.EltesAccount.create({
+        id: user && user.id ? user.id : undefined,
+        name: (fallback && fallback.name) || meta.display_name || meta.name || 'Eltes user',
+        email: (fallback && fallback.email) || (user && user.email) || '',
+        provider: 'supabase',
+        createdAt: Number.isFinite(created) ? created : undefined
+      });
+    }
+
+    quick.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(quick);
+      const name = (data.get('name') || '').toString().trim();
+      const email = (data.get('email') || '').toString().trim();
+      if (name.length < 2) {
+        toast('Add a name with at least two characters', 'triangle-alert');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        toast('Enter a valid email address', 'triangle-alert');
+        return;
+      }
+
+      if (cloudOn) {
+        const password = (data.get('password') || '').toString();
+        if (password.length < 6) {
+          toast('Use at least six characters for the password', 'triangle-alert');
+          if (quickPassword) quickPassword.focus();
+          return;
+        }
+        if (quickSubmit) quickSubmit.disabled = true;
+        if (quickNote) quickNote.textContent = 'Creating the account…';
+        try {
+          const result = await Cloud.signUp({ email, password, name });
+          if (result.needsConfirm) {
+            if (quickNote) quickNote.textContent = `Account created. Open the link sent to ${email} to confirm it, then sign in.`;
+            toast('Account created — confirm the address from the email', 'mail');
+            // The welcome letter is also the confirmation link when the
+            // project has confirmation switched on, so it goes out either way.
+            const sent = await Cloud.welcome({
+              email,
+              name,
+              userId: (result.user && result.user.id) || ''
+            });
+            if (sent && sent.status === 'sent') toast(`Welcome email sent to ${email}`, 'mail');
+            else if (sent && sent.status === 'suppressed') toast('Welcome email skipped — that address bounced before', 'mail');
+          } else {
+            mirrorCloud(result.session, { name, email });
+            toast(`Welcome, ${name.split(' ')[0]} — account created`, 'user-check');
+            const sent = await Cloud.welcome({
+              email,
+              name,
+              userId: (result.session && result.session.user && result.session.user.id) || ''
+            });
+            if (sent && sent.status === 'sent') toast(`Welcome email sent to ${email}`, 'mail');
+            else if (sent && sent.status === 'suppressed') toast('Welcome email skipped — that address bounced before', 'mail');
+            if (quickNote) quickNote.textContent = 'Account created. Opening the workspace…';
+            setTimeout(() => { window.location.href = 'app.html'; }, 500);
+            return;
+          }
+        } catch (error) {
+          const message = error && error.message ? error.message : 'Something went wrong.';
+          if (quickNote) quickNote.textContent = message;
+          toast(message, 'triangle-alert');
+        } finally {
+          if (quickSubmit) quickSubmit.disabled = false;
+        }
+        return;
+      }
+
+      const account = window.EltesAccount.create({ name, email, provider: 'local' });
+      toast(`Welcome, ${name.split(' ')[0]} — profile saved locally`, 'user-check');
+
+      /* The welcome email is sent by the server on this machine; on a static
+         host there is none, and the toast says that instead of guessing. */
+      const mail = await window.EltesAccount.welcome(account, { timeout: 2500 });
+      if (mail.status === 'sent') toast(`Welcome email sent to ${email}`, 'mail');
+      else if (mail.status === 'outbox') toast('Welcome email saved to the local outbox', 'mail');
+      else if (mail.status === 'suppressed') toast('Welcome email skipped — that address bounced before', 'mail');
+
+      setTimeout(() => { window.location.href = 'app.html'; }, mail.status === 'unavailable' ? 700 : 400);
+    });
+  }
+
+  /* -------------------------------- boot ---------------------------------- */
+  renderAccountNav();
+  renderMiniProviders();
+  renderModelWall();
+  hydrateBrands();
+  if (window.EltesIcons) window.EltesIcons.hydrate();
   /* -------------------------- installable PWA ---------------------------- */
   const installPwaButton = $('#installPwaBtn');
   if (installPwaButton) {
@@ -561,10 +688,4 @@
     });
   }
 
-  /* -------------------------------- boot ---------------------------------- */
-  renderAccountNav();
-  renderMiniProviders();
-  renderModelWall();
-  hydrateBrands();
-  if (window.EltesIcons) window.EltesIcons.hydrate();
 })();

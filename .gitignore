@@ -1,2 +1,7 @@
 node_modules
 _site
+.studio/
+
+# desktop harness staging and installers
+desktop/.build/
+.mail/

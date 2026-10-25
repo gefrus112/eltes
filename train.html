@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab — train a model in your browser · Eltes AI</title>
+  <meta name="description" content="Eltes Lab: a real character-level language model you train in the browser. Backpropagation, Adam, live loss curves, sampling and a save-to-browser checkpoint — no server, no API key, no downloads." />
+  <meta name="theme-color" content="#000003" />
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/theme.css" />
+  <link rel="stylesheet" href="assets/css/landing.css" />
+  <link rel="stylesheet" href="assets/css/lab.css" />
+  <link rel="stylesheet" href="assets/css/galaxy.css" />
+</head>
+<body class="galaxy-page lab-page">
+  <div class="galaxy" aria-hidden="true">
+    <canvas class="galaxy-backdrop" data-galaxy-backdrop aria-hidden="true"></canvas>
+    <canvas class="galaxy-canvas" data-galaxy="0.8"></canvas>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"><span></span></div>
+  <a class="skip" href="#console">Skip to the training console</a>
+
+  <header class="nav" id="nav">
+    <div class="wrap">
+      <div class="nav-left">
+        <a class="brand" href="index.html" aria-label="Eltes AI home">
+          <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          Eltes
+          <span class="brand-sub">AI agent</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html#features">Features</a>
+          <a href="index.html#models">Models</a>
+          <a href="train.html" class="active" aria-current="page">Lab</a>
+          <a href="studio.html">Studio</a>
+          <a href="docs.html">Docs</a>
+          <a href="news.html">News</a>
+          <a href="index.html#pricing">Pricing</a>
+        </nav>
+      </div>
+      <div class="nav-right">
+        <div class="nav-actions" id="navAuth">
+          <a class="icon-btn" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer" aria-label="GitHub repository" data-icon="github"></a>
+          <a class="btn btn-ghost btn-sm" href="auth.html">Sign in</a>
+          <a class="btn btn-primary btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
+        </div>
+        <div class="nav-actions" id="navAccount" hidden></div>
+        <button class="icon-btn nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" data-icon="menu" data-icon-size="20"></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#features">Features <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="index.html#models">Models <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="studio.html">Studio <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="docs.html">Docs <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="train.html">Lab <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a href="news.html">News <span data-icon="arrow-up-right" data-icon-size="15"></span></a>
+    <a class="btn btn-primary" href="app.html">Open the workspace<span data-icon="arrow-right" data-icon-size="15"></span></a>
+  </div>
+
+  <main>
+    <!-- ================================ hero ================================ -->
+    <section class="lab-hero">
+      <div class="wrap">
+        <span class="eyebrow"><span data-icon="flask" data-icon-size="14"></span>Eltes Lab · on-device training</span>
+        <h1>Train a language model in this tab.</h1>
+        <p class="lede">
+          Not a scripted demo. A real character-level neural network with embeddings, a hidden layer and a softmax output —
+          trained by backpropagation and Adam, right here in JavaScript. Watch the loss fall from a random
+          guess to recognisable words, then sample from the model you just built. <strong>No server, no API key,
+          no downloads</strong>: 51,245 parameters on the default corpus and ten seconds on an ordinary laptop.
+        </p>
+        <div class="badges">
+          <span class="badge"><span class="dot"></span>v3.20.0</span>
+          <span class="badge ember"><span data-icon="cpu" data-icon-size="12"></span>51,245 parameters</span>
+          <span class="badge"><span data-icon="timer" data-icon-size="12"></span>~9 s for 1,500 steps</span>
+          <span class="badge"><span data-icon="wifi-off" data-icon-size="12"></span>Zero network requests</span>
+        </div>
+        <div class="lab-hero-actions">
+          <a class="btn btn-primary btn-lg" href="#console"><span data-icon="play" data-icon-size="15"></span>Start training</a>
+          <a class="btn btn-ghost btn-lg" href="#limits">What it can and cannot do<span data-icon="arrow-down" data-icon-size="15"></span></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== console =============================== -->
+    <section class="section tight" id="console">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow"><span data-icon="gauge" data-icon-size="14"></span>The console</span>
+          <h2>Press train. Watch it learn.</h2>
+          <p>Every number below is measured in your browser from the model in front of you. Training runs in
+            small slices, so the page stays responsive and the curve draws as it happens.</p>
+        </div>
+
+        <div class="lab-console">
+          <!-- setup -->
+          <div class="lab-panel">
+            <div class="lab-panel-head">
+              <h2><span data-icon="sliders-horizontal" data-icon-size="14"></span>Setup</h2>
+              <button class="btn btn-quiet btn-sm" id="resetSetup" type="button" title="Restore the defaults">
+                <span data-icon="rotate-ccw" data-icon-size="13"></span> Reset
+              </button>
+            </div>
+            <div class="lab-panel-body">
+              <label class="lab-field">
+                <span>Corpus <em>what it reads</em></span>
+                <select id="corpus">
+                  <option value="eltes">The Eltes handbook</option>
+                  <option value="prose">The long night — story</option>
+                  <option value="code">Interface code</option>
+                </select>
+                <small class="hint" id="corpusHint">Product copy and documentation. Teaches the model English sentences and UI vocabulary.</small>
+              </label>
+
+              <div class="lab-row">
+                <label class="lab-field">
+                  <span>Steps</span>
+                  <input id="steps" type="number" min="100" max="6000" step="100" value="1500" />
+                </label>
+                <label class="lab-field">
+                  <span>Seed</span>
+                  <input id="seed" type="number" min="1" max="9999" step="1" value="7" />
+                </label>
+              </div>
+
+              <details class="lab-advanced">
+                <summary>Architecture</summary>
+                <div class="lab-row">
+                  <label class="lab-field">
+                    <span>Context</span>
+                    <input id="context" type="number" min="4" max="32" step="1" value="14" />
+                  </label>
+                  <label class="lab-field">
+                    <span>Embedding</span>
+                    <input id="embedding" type="number" min="8" max="64" step="4" value="24" />
+                  </label>
+                </div>
+                <div class="lab-row">
+                  <label class="lab-field">
+                    <span>Hidden</span>
+                    <input id="hidden" type="number" min="16" max="384" step="16" value="128" />
+                  </label>
+                  <label class="lab-field">
+                    <span>Batch</span>
+                    <input id="batch" type="number" min="4" max="64" step="4" value="24" />
+                  </label>
+                </div>
+                <div class="lab-row">
+                  <label class="lab-field">
+                    <span>Learn rate</span>
+                    <input id="lr" type="number" min="0.0001" max="0.05" step="0.0005" value="0.003" />
+                  </label>
+                  <label class="lab-field">
+                    <span>Dropout</span>
+                    <input id="dropout" type="number" min="0" max="0.5" step="0.05" value="0.1" />
+                  </label>
+                </div>
+                <small class="hint">A 14-character window, 24-wide embeddings and 128 tanh units give 51,245 weights on the
+                  Eltes corpus, 48,950 on the story and 53,999 on the code — the vocabulary sets the exact count.
+                  Larger shapes learn slightly more but cost time on every step.</small>
+              </details>
+
+              <div class="lab-run">
+                <button class="btn btn-primary" id="trainBtn" type="button">
+                  <span data-icon="play" data-icon-size="14"></span><span id="trainLabel">Train model</span>
+                </button>
+                <button class="btn btn-ghost" id="stopBtn" type="button" disabled title="Stop after this slice">
+                  <span data-icon="x" data-icon-size="14"></span>Stop
+                </button>
+              </div>
+
+              <div class="lab-progress is-idle" id="progress" aria-hidden="true"><i id="progressBar"></i></div>
+              <div class="lab-status" id="trainStatus" role="status" aria-live="polite">
+                <span class="dot"></span><span id="trainStatusText">Idle — nothing trained yet.</span>
+              </div>
+              <small class="hint">The model starts from a fixed seed, so the same setup always gives the same run.
+                Nothing leaves this tab; the saved checkpoint goes to <code class="mono">localStorage</code> only.</small>
+            </div>
+          </div>
+
+          <!-- monitor -->
+          <div class="lab-monitor">
+            <div class="lab-panel lab-chart-panel">
+              <div class="lab-panel-head">
+                <h3><span data-icon="trending-up" data-icon-size="14"></span>Cross-entropy loss</h3>
+                <span class="mono" id="chartMeta" style="font-size:11px;color:var(--text-4)">no run yet</span>
+              </div>
+              <div class="lab-chart-wrap">
+                <canvas id="lossChart" width="900" height="288" role="img" aria-label="Training and validation loss over steps"></canvas>
+                <div class="lab-chart-empty" id="chartEmpty">
+                  <span data-icon="trending-up" data-icon-size="22"></span>
+                  <strong>The curve appears here.</strong>
+                  <span>Loss starts near ln(vocab) — a random guess — and falls as the weights learn.<br />Validation loss is measured on text the model never trains on.</span>
+                </div>
+              </div>
+              <div class="lab-legend">
+                <span><i></i>Training</span>
+                <span><i class="val"></i>Validation</span>
+                <span class="right" id="legendMeta">—</span>
+              </div>
+              <dl class="lab-stats">
+                <div class="lab-stat"><dt>Step</dt><dd id="statStep">0</dd></div>
+                <div class="lab-stat"><dt>Tokens</dt><dd id="statTokens">0</dd></div>
+                <div class="lab-stat is-accent"><dt>Train loss</dt><dd id="statLoss">—</dd></div>
+                <div class="lab-stat"><dt>Val loss</dt><dd id="statVal">—</dd></div>
+                <div class="lab-stat"><dt>Perplexity</dt><dd id="statPpl">—</dd></div>
+                <div class="lab-stat"><dt>Speed</dt><dd id="statSpeed">—<small>ms</small></dd></div>
+              </dl>
+              <p class="lab-chart-note"><strong>Reading the dashed line.</strong> Validation is measured on the last 10% of the corpus.
+                On a corpus this small it usually bottoms out after a few hundred steps and then climbs while training
+                loss keeps falling — overfitting. The ring marks the best validation point; the readout names its step.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================== sample =============================== -->
+    <section class="section" id="sample">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow"><span data-icon="wand-sparkles" data-icon-size="14"></span>Sampling</span>
+          <h2>Give it a prompt. Read what it predicts.</h2>
+          <p>The model continues your characters one at a time. Temperature is how much risk it takes;
+            top-k keeps the choice inside the k most likely characters. A trained model writes words and
+            fragments — a model this small does not write essays.</p>
+        </div>
+
+        <div class="lab-sample-grid">
+          <div class="lab-panel">
+            <div class="lab-panel-head">
+              <h3><span data-icon="terminal" data-icon-size="14"></span>Output</h3>
+              <span class="mono" id="sampleMeta" style="font-size:11px;color:var(--text-4)">waiting for a model</span>
+            </div>
+            <div class="lab-panel-body">
+              <div class="lab-sample-out">
+                <div class="lab-sample-empty" id="sampleEmpty">
+                  <span data-icon="sparkles" data-icon-size="22"></span>
+                  <span>Train a model above, then press <b>Generate</b>.<br />The continuation appears here, character by character.</span>
+                </div>
+                <pre id="sampleOut" hidden></pre>
+              </div>
+              <div class="lab-sample-actions">
+                <button class="btn btn-primary btn-sm" id="generateBtn" type="button" disabled>
+                  <span data-icon="zap" data-icon-size="14"></span><span id="generateLabel">Generate</span>
+                </button>
+                <button class="btn btn-ghost btn-sm" id="copyBtn" type="button" disabled>
+                  <span data-icon="copy" data-icon-size="13"></span>Copy
+                </button>
+                <span class="mono" id="sampleFoot" style="font-size:11px;color:var(--text-4);align-self:center"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lab-panel">
+            <div class="lab-panel-head">
+              <h3><span data-icon="sliders-horizontal" data-icon-size="14"></span>Controls</h3>
+            </div>
+            <div class="lab-panel-body">
+              <label class="lab-field">
+                <span>Prompt</span>
+                <input id="prompt" type="text" value="Eltes is a " maxlength="120" autocomplete="off" spellcheck="false" />
+                <small class="hint">The last 14 characters become the model's context.</small>
+              </label>
+              <div class="lab-field">
+                <label for="temperature">Temperature</label>
+                <div class="lab-slider">
+                  <input id="temperature" type="range" min="0.2" max="1.3" step="0.05" value="0.7" />
+                  <output id="temperatureOut" for="temperature">0.70</output>
+                </div>
+                <small class="hint">Low = tidy and repetitive. High = adventurous, often misspelled.</small>
+              </div>
+              <div class="lab-field">
+                <label for="topK">Top-k</label>
+                <div class="lab-slider">
+                  <input id="topK" type="range" min="1" max="32" step="1" value="12" />
+                  <output id="topKOut" for="topK">12</output>
+                </div>
+              </div>
+              <div class="lab-field">
+                <label for="length">Length</label>
+                <div class="lab-slider">
+                  <input id="length" type="range" min="60" max="480" step="20" value="240" />
+                  <output id="lengthOut" for="length">240</output>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- checkpoint strip -->
+        <div class="lab-panel" id="model" style="margin-top:14px">
+          <div class="lab-panel-head">
+            <h3><span data-icon="hard-drive" data-icon-size="14"></span>Checkpoint</h3>
+            <span class="mono" style="font-size:11px;color:var(--text-4)">localStorage · eltes.lab.model.v1</span>
+          </div>
+          <div class="lab-panel-body">
+            <div class="lab-model-row">
+              <div class="lab-model-state">
+                <span class="pill" id="savedPill">No checkpoint</span>
+                <span class="truncate" id="savedText">Train a model, then save it to this browser. The chat can then answer as Eltes Lab-1.</span>
+              </div>
+              <button class="btn btn-primary btn-sm" id="saveBtn" type="button" disabled>
+                <span data-icon="save" data-icon-size="13"></span>Save model
+              </button>
+              <button class="btn btn-ghost btn-sm" id="loadBtn" type="button">
+                <span data-icon="rotate-ccw" data-icon-size="13"></span>Load saved
+              </button>
+              <button class="btn btn-danger btn-sm" id="clearBtn" type="button">
+                <span data-icon="trash-2" data-icon-size="13"></span>Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== memorize ============================== -->
+    <section class="section tight" id="memorize">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow"><span data-icon="badge-check" data-icon-size="14"></span>The learning test</span>
+          <h2>Prove it actually learned.</h2>
+          <p>Free generation from a small model is word salad, so here is a test with a pass mark. Give the model
+            one paragraph, over and over, until the loss reaches zero — then ask it to recite from a short prompt.
+            If the weights really changed, the paragraph comes back. Nothing is scripted.</p>
+        </div>
+
+        <div class="lab-memorize">
+          <div class="lab-panel">
+            <div class="lab-panel-head">
+              <h3><span data-icon="clipboard" data-icon-size="14"></span>One paragraph</h3>
+              <span class="mono" style="font-size:11px;color:var(--text-4)">repeated 24×</span>
+            </div>
+            <div class="lab-panel-body">
+              <label class="lab-field">
+                <span>Text to memorise <em id="memoChars">0 chars</em></span>
+                <textarea id="memoText" spellcheck="false" maxlength="900" rows="6">The Eltes Lab is a small language model. It reads characters, predicts the next one, and learns from its own mistakes. Every weight in this network was trained in your browser, one gradient at a time.</textarea>
+              </label>
+              <div class="lab-row">
+                <label class="lab-field">
+                  <span>Steps</span>
+                  <input id="memoSteps" type="number" min="300" max="3000" step="100" value="1400" />
+                </label>
+                <label class="lab-field">
+                  <span>Seed</span>
+                  <input id="memoSeed" type="number" min="1" max="9999" step="1" value="3" />
+                </label>
+              </div>
+              <div class="lab-run">
+                <button class="btn btn-primary" id="memoBtn" type="button">
+                  <span data-icon="flask" data-icon-size="14"></span><span id="memoLabel">Memorise it</span>
+                </button>
+                <button class="btn btn-ghost" id="memoStopBtn" type="button" disabled>Stop</button>
+              </div>
+              <div class="lab-progress is-idle" id="memoProgress" aria-hidden="true"><i id="memoBar"></i></div>
+              <div class="lab-status" id="memoStatus" role="status" aria-live="polite">
+                <span class="dot"></span><span id="memoStatusText">Idle — the paragraph is not in a model yet.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lab-panel">
+            <div class="lab-panel-head">
+              <h3><span data-icon="scan-text" data-icon-size="14"></span>Recital</h3>
+              <span class="mono" id="memoMeta" style="font-size:11px;color:var(--text-4)">loss —</span>
+            </div>
+            <div class="lab-panel-body">
+              <div class="lab-memo-result">
+                <pre id="memoOut">The model's recital appears here, generated one character at a time from its own weights.</pre>
+              </div>
+              <div class="lab-meter">
+                <span>Match</span>
+                <span class="bar"><i id="memoMatchBar"></i></span>
+                <b id="memoMatch">—</b>
+              </div>
+              <small class="hint">Match is character-level similarity between the recital and the paragraph.
+                A random model scores near zero; a memorised one should pass 90%. This is memorisation, not
+                understanding — which is exactly why it is a fair test of training.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================== limits =============================== -->
+    <section class="section" id="limits">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow"><span data-icon="info" data-icon-size="14"></span>Honest limits</span>
+          <h2>What this model is — and is not.</h2>
+          <p>The point of training your own model is to see how one actually works, not to pretend a 51k-parameter
+            network is a chatbot. Here is the straight answer.</p>
+        </div>
+
+        <div class="lab-honesty">
+          <div class="lab-panel">
+            <div class="lab-panel-body">
+              <h3><span data-icon="circle-check" data-icon-size="15"></span>What it is</h3>
+              <ul>
+                <li><strong>A real neural network.</strong> One embedding table, one tanh hidden layer, one softmax
+                  over the vocabulary. Every weight is trained by backpropagation with Adam, gradient clipping,
+                  dropout and weight decay.</li>
+                <li><strong>Reproducible.</strong> A seeded PRNG initialises the weights and picks every batch, so the
+                  same corpus, shape and seed reproduce the same curve.</li>
+                <li><strong>Measured, not asserted.</strong> Training and validation loss are computed live on a
+                  90/10 split; perplexity is derived from them.</li>
+                <li><strong>Yours.</strong> The checkpoint is a base64 dump of the weight arrays in
+                  <code class="mono">localStorage</code>. No upload, no account, no key.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="lab-panel">
+            <div class="lab-panel-body">
+              <h3><span data-icon="triangle-alert" data-icon-size="15"></span>What it is not</h3>
+              <ul class="is-not">
+                <li><strong>Not an instruction follower.</strong> It predicts the next character; it cannot answer a
+                  question, call a tool or follow a request. Ask it for the weather and you will get letters.</li>
+                <li><strong>Not a large model.</strong> 51,245 parameters on the default corpus against billions in a
+                  hosted model — and it is trained on tens of kilobytes of text, not the web.</li>
+                <li><strong>Not a writer.</strong> Free generation produces word-shaped fragments. Memorisation is the
+                  only place it looks fluent, and that is because the text is in the weights.</li>
+                <li><strong>Not Eltes CAI.</strong> CAI is the separate rule engine that answers product questions;
+                  Lab is the model you train here. In chat it is labelled <em>On-device · trained here</em>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-pipeline">
+          <div class="lab-step">
+            <span class="n">1</span>
+            <h4>Characters in</h4>
+            <p>Text becomes integer ids through a vocabulary built from the corpus; unseen characters become one
+              unknown token.</p>
+          </div>
+          <div class="lab-step">
+            <span class="n">2</span>
+            <h4>Forward pass</h4>
+            <p>The last <code>14</code> ids are looked up in the embedding table, concatenated, and pushed through
+              <code>tanh</code> to 128 hidden units.</p>
+          </div>
+          <div class="lab-step">
+            <span class="n">3</span>
+            <h4>Backward pass</h4>
+            <p>Cross-entropy against the true next character gives a gradient for every weight — hand-written
+              backprop, no autograd library.</p>
+          </div>
+          <div class="lab-step">
+            <span class="n">4</span>
+            <h4>Adam update</h4>
+            <p>Gradients are clipped by global norm, then Adam steps the weights with bias correction. Repeat.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================ cta ================================= -->
+    <section class="section tight">
+      <div class="wrap">
+        <div class="lab-cta">
+          <h2>Train it once. Chat with it after.</h2>
+          <p>Save the checkpoint and open the workspace: Eltes Lab-1 appears in the model picker as an
+            on-device model. It will quote a continuation of what you type and tell you plainly that a
+            character model wrote it.</p>
+          <div class="lab-hero-actions">
+            <a class="btn btn-primary" href="app.html"><span data-icon="message-square" data-icon-size="14"></span>Open the workspace</a>
+            <a class="btn btn-ghost" href="docs.html#lab">Read the Lab docs<span data-icon="arrow-right" data-icon-size="14"></span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <a class="brand" href="index.html">
+            <span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            Eltes
+          </a>
+          <p>A local-first AI agent workspace with real models, real keys and real tool calls. Built in the browser.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="app.html">Open the app</a>
+          <a href="index.html#models">Models</a>
+          <a href="index.html#features">Features</a>
+          <a href="studio.html">Studio</a>
+          <a href="index.html#pricing">Pricing</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a href="docs.html">Documentation</a>
+          <a href="news.html">Release notes</a>
+          <a href="docs.html#workflow">Website workflow</a>
+          <a href="docs.html#effects">Images &amp; effects</a>
+          <a href="docs.html#api-keys">API keys</a>
+        </div>
+        <div class="footer-col">
+          <h4>Project</h4>
+          <a href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="auth.html">Accounts</a>
+          <a href="docs.html#privacy">Privacy</a>
+          <a href="docs.html#faq">FAQ</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span id="year">2026</span> Eltes AI. Built in the browser.</span>
+        <span class="status"><i></i>Local-first workspace</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/galaxy.js"></script>
+  <script src="assets/js/icons.js"></script>
+  <script src="assets/js/brands.js"></script>
+  <script src="assets/js/models.js"></script>
+  <script src="assets/js/lab.js"></script>
+  <script src="assets/js/lab-page.js"></script>
+  <script src="assets/js/account.js"></script>
+  <script src="assets/js/site.js"></script>
+</body>
+</html>

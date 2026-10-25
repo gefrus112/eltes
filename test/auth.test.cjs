@@ -114,9 +114,9 @@ test('account profile migration enables RLS and restricts rows to auth.uid()', (
   assert.match(migration, /references auth\.users\s*\(id\) on delete cascade/i);
 });
 
-test('accounts and passwords are not persisted in browser localStorage or service-role credentials', () => {
-  const account = fs.readFileSync(require.resolve('../assets/js/account.js'), 'utf8');
-  const authUi = fs.readFileSync(require.resolve('../assets/js/auth.js'), 'utf8');
+test('cookie-mode accounts and passwords are not persisted in browser localStorage or service-role credentials', () => {
+  const account = fs.readFileSync(require.resolve('../assets/js/cookie-account.js'), 'utf8');
+  const authUi = fs.readFileSync(require.resolve('../assets/js/cookie-auth.js'), 'utf8');
   const apiSource = fs.readFileSync(require.resolve('../api/auth.js'), 'utf8');
   assert.doesNotMatch(account, /localStorage\.(?:setItem|getItem)\s*\(/);
   assert.doesNotMatch(authUi, /localStorage\.(?:setItem|getItem)\s*\(/);

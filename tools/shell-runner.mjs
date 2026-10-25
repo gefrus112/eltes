@@ -1,4 +1,6 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { win32 } from 'node:path';
+import { StringDecoder } from 'node:string_decoder';
 import { spawn } from 'node:child_process';
 
 const MAX_BODY_BYTES = 12 * 1024;
@@ -128,16 +130,21 @@ export function createShellRunner({ root, enabled = false } = {}) {
     const kill = () => {
       if (finished) return;
       try {
-        if (!isWindows && child.pid) process.kill(-child.pid, 'SIGKILL');
+        if (isWindows && child.pid) {
+          const fallback = () => { try { child.kill('SIGKILL'); } catch {} };
+          const taskkill = win32.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'taskkill.exe');
+          spawn(taskkill, ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' })
+            .on('error', fallback).on('exit', (code) => { if (code !== 0) fallback(); });
+        } else if (child.pid) process.kill(-child.pid, 'SIGKILL');
         else child.kill('SIGKILL');
       } catch { /* Process already exited. */ }
     };
+    const decoders = { stdout: new StringDecoder('utf8'), stderr: new StringDecoder('utf8') };
     const addOutput = (target, chunk) => {
-      const text = chunk.toString('utf8');
-      const bytes = Buffer.byteLength(text);
+      const bytes = chunk.length;
       const remaining = Math.max(0, MAX_OUTPUT_BYTES - outputBytes);
       outputBytes += bytes;
-      const clipped = bytes > remaining ? Buffer.from(text).subarray(0, remaining).toString('utf8') : text;
+      const clipped = decoders[target].write(chunk.subarray(0, remaining));
       if (target === 'stdout') stdout += clipped;
       else stderr += clipped;
       if (outputBytes >= MAX_OUTPUT_BYTES && !outputLimited) {
@@ -163,6 +170,7 @@ export function createShellRunner({ root, enabled = false } = {}) {
       clearTimeout(timer);
       finished = true;
       if (clientGone || res.writableEnded) return;
+      if (!outputLimited) { stdout += decoders.stdout.end(); stderr += decoders.stderr.end(); }
       json(res, 200, {
         command,
         workspace: root,

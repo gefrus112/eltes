@@ -126,7 +126,7 @@
       const revoked = await Account.signOut();
       renderSignedIn(null);
       setMode('signin');
-      showNotice(revoked ? 'Signed out. Your chats and API keys remain on this device.' : 'Signed out on this page, but the server could not confirm cookie revocation. Close the browser tab and retry if needed.');
+      showNotice(revoked ? 'Signed out. Your chats and API keys remain on this device.' : 'Signed out on this page, but the server could not confirm Supabase session revocation. Cookies may have been cleared; signing out on this page alone does not prove the remote session ended.');
     } finally {
       els.signOut.disabled = false;
     }

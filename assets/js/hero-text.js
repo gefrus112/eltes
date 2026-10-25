@@ -7,7 +7,6 @@
 
   const phrases = ['Keep your flow.', 'Build with focus.', 'Choose freely.'];
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (reduceMotion.matches) return;
 
   let index = 0;
   let interval = 0;

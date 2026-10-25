@@ -124,3 +124,43 @@ test('cookie-mode accounts and passwords are not persisted in browser localStora
   assert.match(apiSource, /SameSite=Lax/);
   assert.doesNotMatch(apiSource, /service_role/i);
 });
+
+test('unconfirmed email gets a specific sign-in error', async () => {
+  const original = global.fetch;
+  global.fetch = async () => Response.json({ error_code: 'email_not_confirmed' }, { status: 400 });
+  try {
+    const res = new MockResponse();
+    await auth(request({ action: 'signin', body: { email: 'ada@example.com', password: 'long-test-password' } }), res);
+    assert.equal(res.statusCode, 403);
+    assert.match(res.json.error, /Confirm your email/);
+  } finally { global.fetch = original; }
+});
+
+test('cookie sign-out refreshes an expired access session and revokes only that session', async () => {
+  const original = global.fetch;
+  const urls = [];
+  global.fetch = async (url, options) => {
+    urls.push(String(url));
+    if (String(url).includes('grant_type=refresh_token')) return Response.json({ access_token: 'fresh-access' });
+    assert.match(String(url), /logout\?scope=local$/);
+    assert.equal(options.headers.authorization, 'Bearer fresh-access');
+    return new Response(null, { status: 204 });
+  };
+  try {
+    const res = new MockResponse();
+    await auth(request({ action: 'signout', headers: { cookie: 'eltes_auth_refresh=old-refresh' } }), res);
+    assert.equal(res.json.revoked, true);
+    assert.equal(urls.length, 2);
+    assert.ok(res.headers['set-cookie'].every(cookie => /Max-Age=0/.test(cookie)));
+  } finally { global.fetch = original; }
+});
+
+test('cookie sign-out does not claim remote revocation after upstream failure', async () => {
+  const original = global.fetch;
+  global.fetch = async () => new Response(null, { status: 503 });
+  try {
+    const res = new MockResponse();
+    await auth(request({ action: 'signout', headers: { cookie: 'eltes_auth_access=expired' } }), res);
+    assert.deepEqual(res.json, { signedOut: true, revoked: false });
+  } finally { global.fetch = original; }
+});

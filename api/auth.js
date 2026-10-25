@@ -109,6 +109,7 @@ async function readUpstream(response) {
   if (!response.ok) {
     const error = new Error(String(data.msg || data.message || data.error_description || data.error || 'Authentication request failed.'));
     error.status = response.status;
+    error.code = data.error_code || data.code;
     throw error;
   }
   return data;
@@ -203,6 +204,7 @@ async function getUserSession(req, res, key) {
 }
 
 function authError(error, action) {
+  if (action === 'signin' && error.code === 'email_not_confirmed') return { status: 403, message: 'Confirm your email using the link sent by Supabase before signing in.' };
   if (error.status === 429) return { status: 429, message: 'Too many attempts. Wait a little and try again.' };
   if (action === 'signup' && (error.status === 400 || error.status === 422)) {
     return { status: 400, message: 'Could not create the account. Check the details or try signing in if you already registered.' };
@@ -307,13 +309,18 @@ module.exports = async function auth(req, res) {
 
   if (req.method === 'POST' && action === 'signout') {
     const stored = cookies(req);
-    let accessToken = '';
-    try { accessToken = decodeURIComponent(stored[ACCESS_COOKIE] || ''); } catch { /* malformed cookie */ }
+    let accessToken = '', refreshToken = '', revoked = false;
+    try { accessToken = decodeURIComponent(stored[ACCESS_COOKIE] || ''); refreshToken = decodeURIComponent(stored[REFRESH_COOKIE] || ''); } catch {}
     clearSessionCookies(req, res);
-    if (accessToken) {
-      try { await supabaseRequest('/logout', supabase.key, { method: 'POST', accessToken }); } catch { /* Local cookies are still revoked. */ }
-    }
-    return json(res, 200, { signedOut: true });
+    const revoke = async (token) => (await supabaseRequest('/logout?scope=local', supabase.key, { method: 'POST', accessToken: token })).ok;
+    try {
+      if (accessToken) revoked = await revoke(accessToken);
+      if (!revoked && refreshToken) {
+        const refreshed = await readUpstream(await supabaseRequest('/token?grant_type=refresh_token', supabase.key, { method: 'POST', body: { refresh_token: refreshToken } }));
+        if (refreshed.access_token) revoked = await revoke(refreshed.access_token);
+      }
+    } catch { /* Cookies are cleared even if upstream revocation is unavailable. */ }
+    return json(res, 200, { signedOut: true, revoked });
   }
 
   res.setHeader('Allow', 'GET, POST');

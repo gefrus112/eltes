@@ -51,3 +51,19 @@ test('project writes require model-visible planning and individual review before
   assert.match(frame, /sandbox="allow-scripts"/);
   assert.doesNotMatch(frame, /allow-same-origin|allow-popups|allow-top-navigation/);
 });
+
+test('declining a workspace write never opens a writable handle', async () => {
+  let writes = 0;
+  const handle = { kind: 'file', getFile: async () => ({ size: 3, text: async () => 'old' }), createWritable: async () => { writes++; throw new Error('Must never run'); } };
+  const context = vm.createContext({
+    TextEncoder, selectedWorkspaceDirectory: {}, workspaceFileEntries: [{ name: 'a.js', handle }],
+    activeChat: () => ({}), isProtectedWorkspaceFile: () => false,
+    requestWorkspaceWriteApproval: async () => false, state: { stopped: false }
+  });
+  const start = app.indexOf('  async function writeWorkspaceFile(');
+  const end = app.indexOf('\n  function isProtectedShellCommand', start);
+  vm.runInContext(app.slice(start, end), context);
+  const result = await context.writeWorkspaceFile({ filename: 'a.js', content: 'new' });
+  assert.match(result.error, /declined/);
+  assert.equal(writes, 0);
+});

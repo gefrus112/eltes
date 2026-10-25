@@ -526,7 +526,9 @@
       isBusy = false;
       updateControls();
     };
+    let exportFailure = '';
     const finish = (errorMessage = '') => {
+      if (errorMessage && !exportFailure) exportFailure = errorMessage;
       if (stopped) return;
       stopped = true;
       if (recorder && recorder.state !== 'inactive') {
@@ -580,6 +582,7 @@
       });
       recorder.addEventListener('stop', () => {
         cleanup();
+        if (exportFailure) { chunks = []; ui.progressWrap.hidden = true; setStatus(exportFailure); return; }
         ui.progressWrap.hidden = true;
         if (!chunks.length) {
           setStatus('The browser produced an empty export. Try a different browser or source format.');

@@ -8,6 +8,7 @@ window.EltesAccount = (function () {
   let loading = null;
   let lastError = '';
   let loaded = false;
+  let authGeneration = 0;
 
   function initials(name) {
     const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
@@ -60,20 +61,22 @@ window.EltesAccount = (function () {
 
   async function load() {
     if (loading) return loading;
+    const generation = authGeneration;
     loading = (async () => {
       try {
         const result = await request('session');
+        if (generation !== authGeneration) return current;
         current = normalize(result.user);
         lastError = '';
         loaded = true;
         emit();
         return current;
       } catch (error) {
-        current = null;
+        if (generation !== authGeneration) return current;
         lastError = error.message || 'Could not check your account session.';
         loaded = true;
         emit();
-        return null;
+        return current;
       } finally {
         loading = null;
       }
@@ -82,7 +85,9 @@ window.EltesAccount = (function () {
   }
 
   async function signUp({ name, email, password }) {
+    const generation = ++authGeneration;
     const result = await request('signup', 'POST', { name, email, password });
+    if (generation !== authGeneration) return current;
     current = normalize(result.user);
     lastError = '';
     loaded = true;
@@ -91,7 +96,9 @@ window.EltesAccount = (function () {
   }
 
   async function signIn({ email, password }) {
+    const generation = ++authGeneration;
     const result = await request('signin', 'POST', { email, password });
+    if (generation !== authGeneration) return current;
     current = normalize(result.user);
     lastError = '';
     loaded = true;
@@ -100,9 +107,11 @@ window.EltesAccount = (function () {
   }
 
   async function create(data) {
+    const generation = ++authGeneration;
     const account = current;
     if (!account) throw new Error('Sign in to update your Supabase account.');
     const result = await request('profile', 'POST', { name: data && data.name || account.name });
+    if (generation !== authGeneration) return current;
     current = normalize(result.user);
     lastError = '';
     emit();
@@ -110,9 +119,11 @@ window.EltesAccount = (function () {
   }
 
   async function signOut() {
+    const generation = ++authGeneration;
     let completed = false;
-    try { await request('signout', 'POST', {}); completed = true; }
+    try { const result = await request('signout', 'POST', {}); completed = result.revoked === true; }
     catch (error) { lastError = error.message || 'Could not revoke the server session.'; }
+    if (generation !== authGeneration) return completed;
     current = null;
     loaded = true;
     emit();
@@ -145,9 +156,7 @@ window.EltesAccount = (function () {
   function getError() { return lastError; }
   function isLoaded() { return loaded; }
 
-  // Discard the old, unauthenticated local profile. Chats, settings, and provider
-  // keys remain local; this key was never proof of identity.
-  try { localStorage.removeItem('eltes.account.v1'); } catch { /* storage may be unavailable */ }
+  // This mode is separate from the static account UI; leave its profile untouched.
   void load();
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) void load();

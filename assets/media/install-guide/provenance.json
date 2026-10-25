@@ -1,0 +1,77 @@
+{
+  "tag": "v3.18.0",
+  "method": "Actual Chromium UI captures of extracted release source, served locally",
+  "installedDesktop": false,
+  "prompt": "What is 17 * 24?",
+  "actualLocalAnswer": "408Expression: 17 \u00d7 24 = 408",
+  "hostedProviderCalls": 0,
+  "credentialsEntered": false,
+  "disclosure": "Narrated guide with real captures of the released v3.18.0 browser interface and illustrated OS installation steps. Not a recording of Windows, macOS or Linux installer execution. Interface captures are not the native desktop window. AI-generated narration. No provider keys or paid model calls were used.",
+  "verifiedOn": "2026-10-25",
+  "releaseUrl": "https://github.com/gefrus112/eltes/releases/tag/v3.18.0",
+  "durationSeconds": 600,
+  "audio": "AI-generated narration; user-selected voice",
+  "captionTiming": "Approximate sentence timing proportional to spoken text; full transcript included",
+  "chapters": [
+    {
+      "chapter": 0,
+      "originalSeconds": 52.47,
+      "spokenSeconds": 52.47,
+      "tempo": 1.0
+    },
+    {
+      "chapter": 1,
+      "originalSeconds": 57.91,
+      "spokenSeconds": 57.91,
+      "tempo": 1.0
+    },
+    {
+      "chapter": 2,
+      "originalSeconds": 56.95,
+      "spokenSeconds": 56.95,
+      "tempo": 1.0
+    },
+    {
+      "chapter": 3,
+      "originalSeconds": 54.07,
+      "spokenSeconds": 54.07,
+      "tempo": 1.0
+    },
+    {
+      "chapter": 4,
+      "originalSeconds": 56.95,
+      "spokenSeconds": 56.95,
+      "tempo": 1.0
+    },
+    {
+      "chapter": 5,
+      "originalSeconds": 60.79,
+      "spokenSeconds": 58.0,
+      "tempo": 1.048103448275862
+    },
+    {
+      "chapter": 6,
+      "originalSeconds": 58.55,
+      "spokenSeconds": 58.0,
+      "tempo": 1.0094827586206896
+    },
+    {
+      "chapter": 7,
+      "originalSeconds": 62.71,
+      "spokenSeconds": 58.0,
+      "tempo": 1.081206896551724
+    },
+    {
+      "chapter": 8,
+      "originalSeconds": 58.23,
+      "spokenSeconds": 58.0,
+      "tempo": 1.0039655172413793
+    },
+    {
+      "chapter": 9,
+      "originalSeconds": 58.87,
+      "spokenSeconds": 58.0,
+      "tempo": 1.015
+    }
+  ]
+}

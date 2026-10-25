@@ -16,7 +16,7 @@ cp config.js studio.html train.html news.html "$DEST/"
 cp -r mcp "$DEST/"
 cp tools/studio.mjs "$DEST/tools/"
 cp -r api lib "$DEST/"
-cp tools/local-server.mjs tools/shell-runner.mjs tools/project-files.mjs "$DEST/tools/"
+cp tools/local-server.mjs tools/media-response.mjs tools/shell-runner.mjs tools/project-files.mjs "$DEST/tools/"
 mkdir -p downloads
 rm -f downloads/eltes-windows.zip
 (cd "$STAGE" && zip -qr9 "$ROOT/downloads/eltes-windows.zip" eltes-windows)

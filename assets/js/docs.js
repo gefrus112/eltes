@@ -50,6 +50,65 @@
     });
   });
 
+  /* Native, user-initiated tutorial playback: no autoplay or eager MP4 fetch. */
+  const installVideo = $('#installVideo');
+  if (installVideo) {
+    const buttons = $$('[data-install-chapter]');
+    const status = $('#installVideoStatus');
+    let pending = null;
+    let announcedSeek = null;
+    let active = -1;
+    const updateChapter = () => {
+      if (pending !== null) return;
+      const index = buttons.reduce((last, btn, i) => Number(btn.dataset.installChapter) <= installVideo.currentTime ? i : last, 0);
+      if (index === active) return;
+      active = index;
+      buttons.forEach((btn, i) => {
+        if (i === index) btn.setAttribute('aria-current', 'true');
+        else btn.removeAttribute('aria-current');
+      });
+    };
+    const applySeek = () => {
+      if (pending === null || installVideo.readyState === 0) return;
+      const target = pending;
+      pending = null;
+      // Assigning currentTime preserves the user's paused/playing state.
+      installVideo.currentTime = Math.min(target, Number.isFinite(installVideo.duration) ? installVideo.duration : target);
+      updateChapter();
+    };
+    buttons.forEach(btn => {
+      btn.disabled = false;
+      btn.addEventListener('click', () => {
+        pending = Number(btn.dataset.installChapter);
+        announcedSeek = btn.textContent.trim();
+        status.textContent = `Seeking to ${announcedSeek}…`;
+        if (installVideo.readyState === 0) {
+          // First interaction fetches metadata; loading alone never starts playback.
+          if (installVideo.networkState !== 2) installVideo.load();
+        } else applySeek();
+      });
+    });
+    installVideo.addEventListener('loadedmetadata', applySeek);
+    installVideo.addEventListener('timeupdate', updateChapter);
+    installVideo.addEventListener('seeked', () => {
+      if (announcedSeek === null) return;
+      status.textContent = `At ${announcedSeek}.${installVideo.paused ? ' Press Play to watch.' : ''}`;
+      announcedSeek = null;
+    });
+    const playbackError = () => {
+      pending = null;
+      announcedSeek = null;
+      buttons.forEach(btn => { btn.disabled = true; });
+      status.textContent = 'The video could not load here. Try the Open MP4 link, or read the full transcript below.';
+    };
+    installVideo.addEventListener('error', playbackError);
+    $$('source', installVideo).forEach(source => source.addEventListener('error', playbackError));
+    $$('track[kind="captions"]', installVideo).forEach(track => track.addEventListener('error', () => {
+      status.textContent = 'English captions could not load. The full transcript is available below.';
+    }));
+    updateChapter();
+  }
+
   /* sidebar filter — narrows nav links and sections together */
   const search = $('#docsSearch');
   const navLinks = $$('#docsNav a');

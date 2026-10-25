@@ -62,6 +62,8 @@ const TYPES = {
   zip: 'application/zip',
   txt: 'text/plain; charset=utf-8',
   md: 'text/markdown; charset=utf-8',
+  mp4: 'video/mp4',
+  vtt: 'text/vtt; charset=utf-8',
   wasm: 'application/wasm',
   map: 'application/json; charset=utf-8'
 };

@@ -9,6 +9,7 @@ import keyCheck from '../api/key-check.js';
 import health from '../api/health.js';
 import search from '../api/search.js';
 import email from '../api/email.js';
+import { serveMedia } from './media-response.mjs';
 import { createShellRunner } from './shell-runner.mjs';
 import {
   WORKSPACE_DIR, createStudio, ensureWorkspace, previewMime, resolvePreviewFile, seedWorkspace
@@ -23,6 +24,7 @@ const mime = {
   '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
+  '.mp4': 'video/mp4', '.webm': 'video/webm', '.vtt': 'text/vtt; charset=utf-8', '.txt': 'text/plain; charset=utf-8',
   '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json'
 };
 
@@ -165,7 +167,8 @@ const server = createServer(async (req, res) => {
     res.setHeader('Content-Type', mime[extname(file).toLowerCase()] || 'application/octet-stream');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-cache');
-    if (req.method === 'HEAD') return res.end();
+    if (['.mp4', '.webm'].includes(extname(file).toLowerCase())) return serveMedia(req, res, file, info.size);
+    if (req.method === 'HEAD') { res.setHeader('Content-Length', info.size); return res.end(); }
     const data = await readFile(file);
     res.setHeader('Content-Length', data.length);
     res.end(data);

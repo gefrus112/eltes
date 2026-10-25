@@ -1,0 +1,504 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:01.017
+Welcome to Eltes.
+
+00:00:01.017 --> 00:00:07.060
+This ten minute guide covers downloading and installing the
+desktop app on Windows, macOS, and Linux.
+
+00:00:07.060 --> 00:00:12.504
+You can watch the whole guide, or use the chapter buttons to
+jump to your operating system.
+
+00:00:12.504 --> 00:00:17.949
+The Eltes interface captures are real, taken from the
+released version's browser interface.
+
+00:00:17.949 --> 00:00:23.333
+Operating system installation steps are illustrated, not
+recordings of installers running.
+
+00:00:23.333 --> 00:00:30.393
+At the time this guide was verified, October twenty fifth,
+twenty twenty six, the latest published desktop release was
+
+00:00:30.393 --> 00:00:32.128
+version three point eighteen.
+
+00:00:32.128 --> 00:00:38.769
+The source repository was already at three point twenty, so
+newer source features are not promised in the older
+
+00:00:38.769 --> 00:00:39.367
+installer.
+
+00:00:39.367 --> 00:00:44.932
+Eltes connects to real providers using your own key, or
+offers a limited on-device assistant.
+
+00:00:44.932 --> 00:00:51.632
+Installing the app does not download a powerful AI model,
+buy an API subscription, or grant terminal permissions
+
+00:00:51.632 --> 00:00:52.470
+automatically.
+
+00:00:52.470 --> 00:00:59.800
+Pause the video whenever you need time to follow a step.
+
+00:01:00.000 --> 00:01:04.415
+Begin at the GitHub repository named gefrus one one two
+slash eltes.
+
+00:01:04.415 --> 00:01:09.414
+Open Releases, then the latest published release, and expand
+its Assets list.
+
+00:01:09.414 --> 00:01:16.880
+Check the repository owner, release notes, version,
+operating system, and processor architecture before
+downloading
+
+00:01:16.880 --> 00:01:17.464
+anything.
+
+00:01:17.464 --> 00:01:22.658
+This guide uses the actual filenames published for version
+three point eighteen.
+
+00:01:22.658 --> 00:01:28.501
+Newer releases will use different version numbers, so always
+read the current asset names.
+
+00:01:28.501 --> 00:01:32.006
+Most Intel and AMD Windows computers use x sixty four.
+
+00:01:32.006 --> 00:01:34.993
+Windows on ARM needs the ARM sixty four build.
+
+00:01:34.993 --> 00:01:40.316
+On a Mac, Apple silicon uses ARM sixty four, while an Intel
+Mac uses x sixty four.
+
+00:01:40.316 --> 00:01:46.614
+The Linux assets verified for this guide are x eighty six
+sixty four, also called AMD sixty four.
+
+00:01:46.614 --> 00:01:49.535
+Do not assume a Linux ARM build is available.
+
+00:01:49.535 --> 00:01:53.365
+These release notes say the desktop artifacts are unsigned.
+
+00:01:53.365 --> 00:01:57.910
+An official download location does not remove that signing
+limitation.
+
+00:01:57.910 --> 00:01:59.800
+Pause the video whenever you need time to follow a step.
+
+00:02:00.000 --> 00:02:07.363
+For a normal Windows installation on an Intel or AMD
+computer, choose the file named Eltes Setup three point
+eighteen
+
+00:02:07.363 --> 00:02:09.376
+point zero x sixty four dot exe.
+
+00:02:09.376 --> 00:02:14.348
+Windows ARM users should choose the matching ARM sixty four
+setup file instead.
+
+00:02:14.348 --> 00:02:18.060
+Save the download, then locate it in your Downloads folder.
+
+00:02:18.060 --> 00:02:23.095
+Before opening it, confirm that its name and source match
+the release you chose.
+
+00:02:23.095 --> 00:02:25.926
+Close any older Eltes window before updating.
+
+00:02:25.926 --> 00:02:28.821
+Launch the setup program and read each screen.
+
+00:02:28.821 --> 00:02:34.610
+The installer is configured for a per-user installation,
+with a folder choice and shortcuts.
+
+00:02:34.610 --> 00:02:42.099
+Follow the prompts that actually appear on your computer;
+this illustration is not a promise that every Windows
+version
+
+00:02:42.099 --> 00:02:43.546
+shows the same buttons.
+
+00:02:43.546 --> 00:02:49.399
+If Windows displays an unsigned-app or reputation warning,
+stop and verify the file's origin.
+
+00:02:49.399 --> 00:02:54.118
+Do not disable antivirus or system protection to make
+installation succeed.
+
+00:02:54.118 --> 00:02:56.950
+If you cannot establish trust, do not run it.
+
+00:02:56.950 --> 00:02:59.800
+Pause the video whenever you need time to follow a step.
+
+00:03:00.000 --> 00:03:02.075
+Windows also has a portable option.
+
+00:03:02.075 --> 00:03:09.012
+Choose Eltes three point eighteen point zero Portable x
+sixty four dot exe, or the ARM sixty four portable file for
+a
+
+00:03:09.012 --> 00:03:10.435
+compatible ARM computer.
+
+00:03:10.435 --> 00:03:15.355
+Portable means you can launch the executable without the
+normal installer workflow.
+
+00:03:15.355 --> 00:03:22.292
+It does not mean your chats and settings necessarily stay
+beside that executable, and it does not remove unsigned-app
+
+00:03:22.292 --> 00:03:22.826
+warnings.
+
+00:03:22.826 --> 00:03:26.383
+Store the file somewhere you recognize and can access again.
+
+00:03:26.383 --> 00:03:30.770
+For the installed version, open Eltes from the Start menu or
+its shortcut.
+
+00:03:30.770 --> 00:03:34.149
+For the portable version, open the downloaded executable.
+
+00:03:34.149 --> 00:03:40.315
+The packaged desktop app includes its own runtime, so you do
+not need to install Node just to launch it.
+
+00:03:40.315 --> 00:03:46.718
+If startup fails, read the recovery screen and the desktop
+log location rather than repeatedly reopening it.
+
+00:03:46.718 --> 00:03:53.714
+Python and additional developer tools are separate
+installations; they are not included merely because the chat
+window
+
+00:03:53.714 --> 00:03:54.070
+opens.
+
+00:03:54.070 --> 00:03:59.800
+Pause the video whenever you need time to follow a step.
+
+00:04:00.000 --> 00:04:03.031
+On a Mac, first check which processor you have.
+
+00:04:03.031 --> 00:04:05.547
+Open the Apple menu and About This Mac.
+
+00:04:05.547 --> 00:04:10.319
+An Apple chip, such as an M-series chip, uses the ARM sixty
+four download.
+
+00:04:10.319 --> 00:04:13.931
+A Mac described as Intel uses the x sixty four download.
+
+00:04:13.931 --> 00:04:21.477
+For this release, the disk images are named Eltes three
+point eighteen point zero ARM sixty four dot D M G, and
+Eltes
+
+00:04:21.477 --> 00:04:25.024
+three point eighteen point zero x sixty four dot D M G.
+
+00:04:25.024 --> 00:04:29.346
+Download the appropriate image from the same verified
+release page.
+
+00:04:29.346 --> 00:04:35.021
+Open the disk image and copy Eltes into Applications,
+following the disk image's layout.
+
+00:04:35.021 --> 00:04:40.117
+Wait for the copy to finish before launching the application
+from Applications.
+
+00:04:40.117 --> 00:04:42.503
+You can then eject the mounted image.
+
+00:04:42.503 --> 00:04:47.792
+Keep the original download until you have confirmed that the
+app starts correctly.
+
+00:04:47.792 --> 00:04:55.467
+The packaged application includes its own runtime; building
+from source is a different workflow and is not required for
+
+00:04:55.467 --> 00:04:56.950
+this installation path.
+
+00:04:56.950 --> 00:04:59.800
+Pause the video whenever you need time to follow a step.
+
+00:05:00.000 --> 00:05:03.725
+The release notes identify these desktop downloads as
+unsigned.
+
+00:05:03.725 --> 00:05:09.282
+On macOS, that means a first launch may be blocked or may
+require a deliberate trust decision.
+
+00:05:09.282 --> 00:05:14.663
+Read the exact message and confirm the download came from
+the intended project and release.
+
+00:05:14.663 --> 00:05:21.698
+Depending on your macOS version, a verified application may
+have an Open option in its context menu, or a review option
+
+00:05:21.698 --> 00:05:25.127
+in Privacy and Security settings after the blocked launch.
+
+00:05:25.127 --> 00:05:28.143
+Those controls vary by operating system and policy.
+
+00:05:28.143 --> 00:05:35.001
+Do not treat every warning as routine, and do not globally
+disable Gatekeeper or paste commands that remove security
+
+00:05:35.001 --> 00:05:35.415
+checks.
+
+00:05:35.415 --> 00:05:40.677
+If the message reports malware, damage, or an unexpected
+publisher, stop and investigate.
+
+00:05:40.677 --> 00:05:45.584
+On a managed work or school Mac, ask the administrator
+instead of bypassing policy.
+
+00:05:45.584 --> 00:05:50.432
+If Eltes opens but reports a startup error, use its recovery
+information and logs.
+
+00:05:50.432 --> 00:05:57.527
+Redownloading from the verified release may help with an
+incomplete transfer, but it is not proof that a suspicious
+file
+
+00:05:57.527 --> 00:05:58.000
+is safe.
+
+00:05:58.000 --> 00:05:59.800
+Pause the video whenever you need time to follow a step.
+
+00:06:00.000 --> 00:06:06.057
+For a compatible sixty four bit Intel or AMD Linux desktop,
+the AppImage is the single-file option.
+
+00:06:06.057 --> 00:06:13.154
+Download Eltes three point eighteen point zero linux x
+eighty six sixty four dot AppImage from the verified
+release.
+
+00:06:13.154 --> 00:06:16.703
+In a terminal, change to the directory where you saved it.
+
+00:06:16.703 --> 00:06:24.044
+If that is Downloads, change to your Downloads directory,
+then give only this downloaded file permission to execute
+with
+
+00:06:24.044 --> 00:06:25.757
+the command shown on screen.
+
+00:06:25.757 --> 00:06:28.205
+Run it as your normal user, not as root.
+
+00:06:28.205 --> 00:06:32.304
+Your file manager may also offer an executable permission
+checkbox.
+
+00:06:32.304 --> 00:06:39.584
+An AppImage can still depend on your distribution's desktop
+libraries or AppImage support, so single-file does not mean
+
+00:06:39.584 --> 00:06:41.053
+universal compatibility.
+
+00:06:41.053 --> 00:06:43.316
+If it fails, read the terminal error.
+
+00:06:43.316 --> 00:06:49.924
+Consult your distribution's instructions for the missing
+component, or use the Debian package on a supported
+
+00:06:49.924 --> 00:06:51.148
+Debian-based system.
+
+00:06:51.148 --> 00:06:58.000
+Do not solve an Electron sandbox error by blindly adding a
+no-sandbox flag or running the application with sudo.
+
+00:06:58.000 --> 00:06:59.800
+Pause the video whenever you need time to follow a step.
+
+00:07:00.000 --> 00:07:06.281
+On a compatible Debian or Ubuntu based x eighty six sixty
+four desktop, you can use the Debian package instead.
+
+00:07:06.281 --> 00:07:13.015
+The verified release asset is named eltes underscore three
+point eighteen point zero underscore AMD sixty four dot deb.
+
+00:07:13.015 --> 00:07:15.221
+Download it from the same release page.
+
+00:07:15.221 --> 00:07:21.842
+From the folder containing that file, the apt command shown
+on screen installs the local package and lets the package
+
+00:07:21.842 --> 00:07:24.049
+manager resolve available dependencies.
+
+00:07:24.049 --> 00:07:28.010
+The dot slash before the filename tells apt that this is a
+local file.
+
+00:07:28.010 --> 00:07:34.574
+This installation command needs administrative permission,
+so review the package and the changes apt proposes before
+
+00:07:34.574 --> 00:07:35.140
+accepting.
+
+00:07:35.140 --> 00:07:41.873
+Administrative installation is different from running the
+Eltes application as root; launch the app normally
+afterward.
+
+00:07:41.873 --> 00:07:46.117
+You can also use your distribution's supported graphical
+package installer.
+
+00:07:46.117 --> 00:07:51.380
+This package is not intended for Fedora, Arch, or an ARM
+machine just because they run Linux.
+
+00:07:51.380 --> 00:07:58.000
+If the package is incompatible, stop and choose a supported
+build or consult the project's source-build instructions.
+
+00:07:58.000 --> 00:07:59.800
+Pause the video whenever you need time to follow a step.
+
+00:08:00.000 --> 00:08:06.318
+Once Eltes opens, the shared workspace gives you a model
+picker, conversation history, and Settings.
+
+00:08:06.318 --> 00:08:13.142
+The captures in this chapter show the real released web
+interface, not a native installer or a paid provider
+
+00:08:13.142 --> 00:08:14.026
+demonstration.
+
+00:08:14.026 --> 00:08:18.828
+For a simple local check, select Eltes C A I and ask an
+arithmetic question.
+
+00:08:18.828 --> 00:08:25.778
+The example on screen asks for seventeen times twenty four
+and the local assistant returns four hundred eight.
+
+00:08:25.778 --> 00:08:30.011
+C A I is a limited rules-based helper, not a frontier coding
+model.
+
+00:08:30.011 --> 00:08:37.150
+To use a hosted provider, open Settings and API keys, choose
+your provider, and enter a key from your own account
+
+00:08:37.150 --> 00:08:37.782
+privately.
+
+00:08:37.782 --> 00:08:42.837
+Never paste a real key into a tutorial, screenshot, public
+issue, or repository.
+
+00:08:42.837 --> 00:08:46.880
+Provider access and billing are separate from downloading
+Eltes.
+
+00:08:46.880 --> 00:08:49.913
+Select a model your account can actually access.
+
+00:08:49.913 --> 00:08:57.179
+If a request fails, inspect the error and provider settings
+rather than assuming that installing the app included a
+
+00:08:57.179 --> 00:08:58.000
+subscription.
+
+00:08:58.000 --> 00:08:59.800
+Pause the video whenever you need time to follow a step.
+
+00:09:00.000 --> 00:09:03.527
+Before you finish, know where the desktop app keeps its
+data.
+
+00:09:03.527 --> 00:09:10.409
+Typical locations are the Eltes folder under AppData on
+Windows, Application Support on macOS, and dot config on
+Linux,
+
+00:09:10.409 --> 00:09:12.953
+though system configuration can change them.
+
+00:09:12.953 --> 00:09:18.331
+The desktop logs and persistent Studio workspace live under
+the application's data directory.
+
+00:09:18.331 --> 00:09:22.784
+Use the app's export tools before replacing an installation
+or clearing data.
+
+00:09:22.784 --> 00:09:29.607
+Browser storage and desktop storage are separate, so do not
+assume a website conversation automatically appears in the
+
+00:09:29.607 --> 00:09:30.301
+desktop app.
+
+00:09:30.301 --> 00:09:37.240
+For updates, return to the official release page and read
+the current notes before installing the matching
+architecture.
+
+00:09:37.240 --> 00:09:42.792
+Newer repository features may need a newer published
+installer or a separate source-based setup.
+
+00:09:42.792 --> 00:09:49.210
+Code execution requires its own opt-in setup and approvals;
+local commands are not an operating system sandbox.
+
+00:09:49.210 --> 00:09:55.745
+You can now replay your platform chapter, open the verified
+download links below the player, or continue with the
+
+00:09:55.745 --> 00:09:58.000
+written documentation at your own pace.
+
+00:09:58.000 --> 00:09:59.800
+Pause the video whenever you need time to follow a step.

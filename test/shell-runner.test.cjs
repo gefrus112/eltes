@@ -236,3 +236,17 @@ test('persistent tools respect the server-configured writable desktop workspace'
     await assert.rejects(fs.stat(path.join(dir, 'resources')), { code: 'ENOENT' });
   } finally { await fs.rm(dir, { recursive: true, force: true }); }
 });
+
+test('Studio command preparation checks only the root, not unreadable child directories', { skip: process.platform === 'win32' || process.getuid?.() === 0 }, async () => {
+  const fs = require('node:fs/promises');
+  const dir = await fs.mkdtemp(path.join(require('node:os').tmpdir(), 'eltes-root-check-'));
+  const blocked = path.join(dir, '.studio', 'unreadable');
+  try {
+    await fs.mkdir(blocked, { recursive: true }); await fs.chmod(blocked, 0);
+    const runner = createShellRunner({ root: dir, enabled: true });
+    const res = new MockResponse(); const completed = new Promise(resolve => res.once('finish', resolve));
+    await runner.execute(new MockRequest({ method: 'POST', token: runner.info.token, body: JSON.stringify({ command: 'printf ready', workspace: 'studio' }) }), res);
+    await completed;
+    assert.equal(payload(res).exitCode, 0); assert.equal(payload(res).stdout, 'ready');
+  } finally { await fs.chmod(blocked, 0o700); await fs.rm(dir, { recursive: true, force: true }); }
+});

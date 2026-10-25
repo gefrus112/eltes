@@ -548,7 +548,7 @@
   /* --------------------------------- tools -------------------------------- */
   const PROJECT = window.EltesProjectSandbox.create({ openDialog, download, review: (file) => requestArtifactApproval(file, true), readReview: (file) => requestArtifactApproval(file, 'read'), stopped: () => state.sending && state.stopped,
     runScript: (file) => runApprovedLocalShell({}, file), runJavaScript: showJavaScriptSandbox, stopTask: stopGeneration });
-  const LOCAL_PROJECT = window.EltesLocalProject.create({ token: () => state.shellToken, review: requestArtifactApproval,
+  const LOCAL_PROJECT = window.EltesLocalProject.create({ token: () => state.shellToken, review: requestArtifactApproval, signal: () => state.abort?.signal,
     stopped: () => state.stopped, command: args => runApprovedLocalShell(args, null, 'studio'), replaceExact: window.EltesProjectSandbox.replaceExact });
   const TERMINAL_UI = window.EltesAgentUI.create($('#agentTerminalCards'));
   const TOOL_DEFS = [

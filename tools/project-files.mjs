@@ -1,5 +1,5 @@
 /* Reviewed local-project text operations. Path checks are not an OS sandbox. */
-import { mkdir, lstat, readdir, readFile, writeFile, rename, unlink } from 'node:fs/promises';
+import { mkdir, lstat, readdir, readFile, writeFile, rename, unlink, chmod } from 'node:fs/promises';
 import { resolve, join, dirname, extname } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 const MAX_BYTES = 100 * 1024;
@@ -49,7 +49,10 @@ export function createProjectFiles(root) {
     const queue = [directory === '.' ? '' : directory];
     while (queue.length && !truncated) {
       const relative = queue.shift();
-      for (const entry of await readdir(await locate(relative, true), { withFileTypes: true })) {
+      let entries;
+      try { entries = await readdir(await locate(relative, true), { withFileTypes: true }); }
+      catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+      for (const entry of entries) {
         if (++visited > 1500 || files.length >= 500) { truncated = true; break; }
         if (entry.isSymbolicLink() || ['node_modules', 'dist', 'build', 'coverage', 'vendor'].includes(entry.name)) continue;
         const path = relative ? `${relative}/${entry.name}` : entry.name;
@@ -67,13 +70,25 @@ export function createProjectFiles(root) {
     if (expectedVersion !== before.version) fail('File changed since review. Review the current source again.', 409);
     await mkdir(dirname(target), { recursive: true });
     await locate(filePath);
+    const mode = before.exists ? (await lstat(target)).mode & 0o777 : 0o600;
     const temporary = join(dirname(target), `.eltes-${randomBytes(12).toString('hex')}.tmp`);
     try {
-      await writeFile(temporary, content, { flag: 'wx', mode: 0o600 });
+      await writeFile(temporary, content, { flag: 'wx', mode });
+      await chmod(temporary, mode);
       if ((await snapshot(filePath)).version !== expectedVersion) fail('File changed during write. No replacement made.', 409);
       await rename(temporary, target);
     } finally { await unlink(temporary).catch(() => {}); }
     return { filePath, bytes: Buffer.byteLength(content), version: createHash('sha256').update(content).digest('hex') };
   }
-  return { list, snapshot, write };
+  // Do not return raw OS errors (which can include absolute host paths) to a model.
+  const safe = (operation, message) => async (...args) => {
+    try { return await operation(...args); }
+    catch (error) { if (error.status) throw error; fail(message); }
+  };
+  return {
+    ensureRoot: safe(() => locate('', true), 'Could not prepare the project workspace. Check local permissions.'),
+    list: safe(list, 'Could not read that project directory. Check local permissions.'),
+    snapshot: safe(snapshot, 'Could not read that project file. Check local permissions.'),
+    write: safe(write, 'Could not write that project file. Check local permissions.')
+  };
 }

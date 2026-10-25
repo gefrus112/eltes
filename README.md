@@ -78,7 +78,7 @@ must run and open the local app there; the hosted PWA gains no terminal access.
 
 Every command gets an expandable **terminal card** in Code workspace. Cards show
 real pending/running/completed/failed states and streamed stdout/stderr, use native
-keyboard-accessible disclosure controls, and retain at most 12 runs / 48 KB per
+keyboard-accessible disclosure controls, and retain at most 12 runs / 49,152 characters per
 card in this tab. Output is inert text, never interpreted HTML. A small status
 marker supplements text; it does not simulate progress. **Stop task** cancels the
 active request. Failed checks may lead to a proposed targeted patch and rerun, but

@@ -40,3 +40,23 @@ test('project refuses file and directory symlinks; list excludes dependency and 
   assert.deepEqual((await files.list()).files, ['ok.js']);
   assert.equal(await fs.readFile(path.join(dir, 'outside.js'), 'utf8'), 'outside');
 }));
+
+test('missing lists are empty and raw filesystem failures do not expose host paths', () => fixture(async (files, dir) => {
+  assert.deepEqual((await files.list('missing/directory')).files, []);
+  await fs.writeFile(path.join(dir, 'not-a-directory'), 'x');
+  const broken = createProjectFiles(path.join(dir, 'not-a-directory', 'studio'));
+  for (const operation of [() => broken.list(), () => broken.snapshot('x.js'), () => broken.write('x.js', '', null), () => broken.ensureRoot()]) {
+    await assert.rejects(operation(), error => {
+      assert.doesNotMatch(error.message, new RegExp(dir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+      assert.match(error.message, /Could not/); return true;
+    });
+  }
+}));
+
+test('approved replacements retain existing executable permissions', { skip: process.platform === 'win32' }, () => fixture(async (files, dir) => {
+  await files.write('check.sh', '#!/bin/bash\necho old', null);
+  await fs.chmod(path.join(dir, '.studio/check.sh'), 0o755);
+  const before = await files.snapshot('check.sh');
+  await files.write('check.sh', '#!/bin/bash\necho new', before.version);
+  assert.equal((await fs.stat(path.join(dir, '.studio/check.sh'))).mode & 0o777, 0o755);
+}));

@@ -15,7 +15,7 @@ requested; snippets cannot fetch model weights or other network resources.
 ## Three.js r180
 
 `three.r180.min.js` is an offline IIFE bundle of npm `three@0.180.0`'s
-`build/three.module.js`, built with esbuild (`--bundle --format=iife
+`build/three.module.js`, built with esbuild 0.28.2 (`--bundle --format=iife
 --global-name=THREE --minify`). The upstream MIT license is retained in
 `THREE-LICENSE.txt`. No model weights or remote assets are included. Only loaded
 when the user explicitly enables the Three.js website-preview option; injected

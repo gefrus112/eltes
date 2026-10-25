@@ -15,10 +15,10 @@
     if (startLine > lines.length) throw new Error(`File has ${lines.length} lines.`);
     return { startLine, endLine: Math.min(lines.length, startLine + lineCount - 1), totalLines: lines.length, content: lines.slice(startLine - 1, startLine - 1 + lineCount).join('\n') };
   }
-  function create({ token, review, stopped, command, replaceExact }) {
+  function create({ token, review, stopped, command, replaceExact, signal }) {
     async function request(body) {
       if (!token()) throw new Error('Pair the opt-in local runner first. No local file action was taken.');
-      const response = await fetch('/api/shell/files', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` }, body: JSON.stringify(body), cache: 'no-store' });
+      const response = await fetch('/api/shell/files', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` }, body: JSON.stringify(body), cache: 'no-store', signal: signal?.() });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || `Local file API returned HTTP ${response.status}.`);
       return data;

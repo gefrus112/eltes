@@ -173,7 +173,11 @@ export function createShellRunner({ root = process.cwd(), projectRoot = join(roo
       }
       ({ shell, args } = commandShell(command));
     }
-    if (payload.workspace === 'studio' && !temporaryDirectory) await project.list('');
+    if (payload.workspace === 'studio' && !temporaryDirectory) {
+      try { await project.ensureRoot(); }
+      catch (error) { return json(res, error.status || 500, { error: error.message }); }
+      if (req.aborted || res.destroyed) return;
+    }
     const workspace = temporaryDirectory || (payload.workspace === 'studio' ? projectRoot : root);
     const cleanup = () => {
       if (temporaryDirectory) {

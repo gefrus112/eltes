@@ -27,3 +27,13 @@ test('local file tools never write or share source after a denial; exact patches
     assert.match(reviewed.content, /BEFORE[\s\S]*AFTER/);
   } finally { global.fetch = original; }
 });
+
+test('local file requests propagate the active cancellation signal', async () => {
+  const original = global.fetch, controller = new AbortController();
+  let received;
+  global.fetch = async (_, options) => { received = options.signal; return Response.json({ files: [] }); };
+  try {
+    const client = create({ token: () => 'test', signal: () => controller.signal });
+    await client.run('list_files'); assert.equal(received, controller.signal);
+  } finally { global.fetch = original; }
+});

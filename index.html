@@ -107,11 +107,31 @@
             <span data-icon="film" data-icon-size="16"></span>
             Video editor
           </a>
-          <a class="btn btn-ghost btn-lg" href="#web-search">
-            See how search works
+          <a class="btn btn-ghost btn-lg" href="#installation-video">
+            Watch installation guide
             <span data-icon="arrow-down" data-icon-size="15"></span>
           </a>
         </div>
+
+        <section class="home-install-guide" id="installation-video" aria-labelledby="home-install-title">
+          <div class="home-install-heading">
+            <p class="home-install-eyebrow">START HERE · 10-MINUTE GUIDE</p>
+            <h2 id="home-install-title">Install Eltes on your computer.</h2>
+            <p id="home-install-description">Windows, macOS and Linux. English narration, captions and chapters — watch right here.</p>
+          </div>
+          <video id="homeInstallVideo" controls playsinline preload="none" width="1280" height="720" poster="assets/media/install-guide/poster.jpg" aria-labelledby="home-install-title" aria-describedby="home-install-description home-install-disclosure">
+            <source src="assets/media/install-guide/eltes-desktop-install.mp4" type="video/mp4">
+            <track kind="captions" src="assets/media/install-guide/captions.en.vtt" srclang="en" label="English" default>
+            <track kind="chapters" src="assets/media/install-guide/chapters.en.vtt" srclang="en" label="Chapters">
+            <p>Your browser cannot play this video. Use the MP4 or transcript links below.</p>
+          </video>
+          <div class="home-install-footer">
+            <a class="btn btn-primary btn-sm" href="docs.html#install-video">Chapters, transcript &amp; downloads<span data-icon="arrow-right" data-icon-size="15"></span></a>
+            <a href="assets/media/install-guide/eltes-desktop-install.mp4">Open MP4</a>
+            <a href="assets/media/install-guide/transcript.txt">Read transcript</a>
+          </div>
+          <p id="home-install-disclosure">Desktop v3.18.0 · verified October 25, 2026 · unsigned release. Real released-web-interface captures with labeled OS installation illustrations, not native installer recordings. AI narration; caption timing is approximate.</p>
+        </section>
 
         <div class="hero-stats" role="list">
           <div role="listitem"><strong>65</strong><span>models</span></div>

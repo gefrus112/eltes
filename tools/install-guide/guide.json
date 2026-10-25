@@ -1,0 +1,104 @@
+{
+  "title": "Install Eltes on Windows, macOS and Linux",
+  "durationSeconds": 600,
+  "verifiedOn": "2026-10-25",
+  "release": "v3.18.0",
+  "releaseUrl": "https://github.com/gefrus112/eltes/releases/tag/v3.18.0",
+  "latestUrl": "https://github.com/gefrus112/eltes/releases/latest",
+  "disclosure": "Narrated guide with real captures of the released v3.18.0 browser interface and illustrated OS installation steps. Not a recording of Windows, macOS or Linux installer execution. Interface captures are not the native desktop window. AI-generated narration. No provider keys or paid model calls were used.",
+  "chapters": [
+    {
+      "title": "Start here",
+      "narration": "Welcome to Eltes. This ten minute guide covers downloading and installing the desktop app on Windows, macOS, and Linux. You can watch the whole guide, or use the chapter buttons to jump to your operating system. The Eltes interface captures are real, taken from the released version's browser interface. Operating system installation steps are illustrated, not recordings of installers running. At the time this guide was verified, October twenty fifth, twenty twenty six, the latest published desktop release was version three point eighteen. The source repository was already at three point twenty, so newer source features are not promised in the older installer. Eltes connects to real providers using your own key, or offers a limited on-device assistant. Installing the app does not download a powerful AI model, buy an API subscription, or grant terminal permissions automatically.",
+      "steps": [
+        ["One guide, three platforms", "Windows · macOS · Linux", "Use the chapter buttons below the player."],
+        ["What you are watching", "Real released-app interface captures", "OS installation steps are clearly labeled illustrations."],
+        ["Release versus source", "Desktop verified: v3.18.0", "Repository: v3.20.0 · features may differ"]
+      ],
+      "capture": "home"
+    },
+    {
+      "title": "Find the official download",
+      "narration": "Begin at the GitHub repository named gefrus one one two slash eltes. Open Releases, then the latest published release, and expand its Assets list. Check the repository owner, release notes, version, operating system, and processor architecture before downloading anything. This guide uses the actual filenames published for version three point eighteen. Newer releases will use different version numbers, so always read the current asset names. Most Intel and AMD Windows computers use x sixty four. Windows on ARM needs the ARM sixty four build. On a Mac, Apple silicon uses ARM sixty four, while an Intel Mac uses x sixty four. The Linux assets verified for this guide are x eighty six sixty four, also called AMD sixty four. Do not assume a Linux ARM build is available. These release notes say the desktop artifacts are unsigned. An official download location does not remove that signing limitation.",
+      "steps": [
+        ["Go to the project’s Releases page", "github.com/gefrus112/eltes/releases", "Choose Assets under the release you intend to install."],
+        ["Match your processor", "Windows: x64 or arm64", "Mac: Apple silicon → arm64 · Intel → x64"],
+        ["Check before you open", "Linux: x86_64 / amd64 assets verified", "v3.18.0 artifacts are unsigned. Read the release notes."]
+      ]
+    },
+    {
+      "title": "Windows installer",
+      "narration": "For a normal Windows installation on an Intel or AMD computer, choose the file named Eltes Setup three point eighteen point zero x sixty four dot exe. Windows ARM users should choose the matching ARM sixty four setup file instead. Save the download, then locate it in your Downloads folder. Before opening it, confirm that its name and source match the release you chose. Close any older Eltes window before updating. Launch the setup program and read each screen. The installer is configured for a per-user installation, with a folder choice and shortcuts. Follow the prompts that actually appear on your computer; this illustration is not a promise that every Windows version shows the same buttons. If Windows displays an unsigned-app or reputation warning, stop and verify the file's origin. Do not disable antivirus or system protection to make installation succeed. If you cannot establish trust, do not run it.",
+      "steps": [
+        ["Choose the setup executable", "Eltes-Setup-3.18.0-x64.exe", "For Windows on ARM, select the arm64 setup asset."],
+        ["Open the downloaded file", "Downloads → verify name and source → open", "Close an older Eltes instance before updating."],
+        ["Follow the setup prompts", "Per-user install · location · shortcuts", "Unsigned warning? Verify trust first; do not disable protection."]
+      ]
+    },
+    {
+      "title": "Windows portable and first launch",
+      "narration": "Windows also has a portable option. Choose Eltes three point eighteen point zero Portable x sixty four dot exe, or the ARM sixty four portable file for a compatible ARM computer. Portable means you can launch the executable without the normal installer workflow. It does not mean your chats and settings necessarily stay beside that executable, and it does not remove unsigned-app warnings. Store the file somewhere you recognize and can access again. For the installed version, open Eltes from the Start menu or its shortcut. For the portable version, open the downloaded executable. The packaged desktop app includes its own runtime, so you do not need to install Node just to launch it. If startup fails, read the recovery screen and the desktop log location rather than repeatedly reopening it. Python and additional developer tools are separate installations; they are not included merely because the chat window opens.",
+      "steps": [
+        ["Portable is an alternative", "Eltes-3.18.0-Portable-x64.exe", "Use the arm64 portable asset only on a compatible ARM PC."],
+        ["Launch Eltes", "Installed: Start menu or shortcut", "Portable: open the executable · data may live in app data"],
+        ["No Node install needed to launch", "Packaged desktop includes its runtime", "Python and other developer tools are separate."]
+      ]
+    },
+    {
+      "title": "macOS download and copy",
+      "narration": "On a Mac, first check which processor you have. Open the Apple menu and About This Mac. An Apple chip, such as an M-series chip, uses the ARM sixty four download. A Mac described as Intel uses the x sixty four download. For this release, the disk images are named Eltes three point eighteen point zero ARM sixty four dot D M G, and Eltes three point eighteen point zero x sixty four dot D M G. Download the appropriate image from the same verified release page. Open the disk image and copy Eltes into Applications, following the disk image's layout. Wait for the copy to finish before launching the application from Applications. You can then eject the mounted image. Keep the original download until you have confirmed that the app starts correctly. The packaged application includes its own runtime; building from source is a different workflow and is not required for this installation path.",
+      "steps": [
+        ["Check About This Mac", "Apple chip → arm64", "Intel processor → x64"],
+        ["Download the matching disk image", "Eltes-3.18.0-arm64.dmg", "Or Eltes-3.18.0-x64.dmg for Intel"],
+        ["Copy, then launch", "Open DMG → copy Eltes to Applications", "Wait for the copy · launch from Applications · eject the image"]
+      ]
+    },
+    {
+      "title": "macOS trust and troubleshooting",
+      "narration": "The release notes identify these desktop downloads as unsigned. On macOS, that means a first launch may be blocked or may require a deliberate trust decision. Read the exact message and confirm the download came from the intended project and release. Depending on your macOS version, a verified application may have an Open option in its context menu, or a review option in Privacy and Security settings after the blocked launch. Those controls vary by operating system and policy. Do not treat every warning as routine, and do not globally disable Gatekeeper or paste commands that remove security checks. If the message reports malware, damage, or an unexpected publisher, stop and investigate. On a managed work or school Mac, ask the administrator instead of bypassing policy. If Eltes opens but reports a startup error, use its recovery information and logs. Redownloading from the verified release may help with an incomplete transfer, but it is not proof that a suspicious file is safe.",
+      "steps": [
+        ["Unsigned is an important limitation", "Read the exact macOS warning", "Verify the project, release, architecture and downloaded file."],
+        ["Make a deliberate trust decision", "Controls vary by macOS version and policy", "Do not globally disable Gatekeeper or remove security checks."],
+        ["Know when to stop", "Malware, damage or policy warning? Investigate.", "Use recovery details; contact your administrator on managed Macs."]
+      ]
+    },
+    {
+      "title": "Linux AppImage",
+      "narration": "For a compatible sixty four bit Intel or AMD Linux desktop, the AppImage is the single-file option. Download Eltes three point eighteen point zero linux x eighty six sixty four dot AppImage from the verified release. In a terminal, change to the directory where you saved it. If that is Downloads, change to your Downloads directory, then give only this downloaded file permission to execute with the command shown on screen. Run it as your normal user, not as root. Your file manager may also offer an executable permission checkbox. An AppImage can still depend on your distribution's desktop libraries or AppImage support, so single-file does not mean universal compatibility. If it fails, read the terminal error. Consult your distribution's instructions for the missing component, or use the Debian package on a supported Debian-based system. Do not solve an Electron sandbox error by blindly adding a no-sandbox flag or running the application with sudo.",
+      "steps": [
+        ["Download the AppImage", "Eltes-3.18.0-linux-x86_64.AppImage", "For compatible x86_64 desktops, not every Linux device"],
+        ["Allow this file to execute", "cd ~/Downloads", "chmod +x Eltes-3.18.0-linux-x86_64.AppImage"],
+        ["Launch as your normal user", "./Eltes-3.18.0-linux-x86_64.AppImage", "Read errors · do not blindly use sudo or --no-sandbox"]
+      ]
+    },
+    {
+      "title": "Linux Debian package",
+      "narration": "On a compatible Debian or Ubuntu based x eighty six sixty four desktop, you can use the Debian package instead. The verified release asset is named eltes underscore three point eighteen point zero underscore AMD sixty four dot deb. Download it from the same release page. From the folder containing that file, the apt command shown on screen installs the local package and lets the package manager resolve available dependencies. The dot slash before the filename tells apt that this is a local file. This installation command needs administrative permission, so review the package and the changes apt proposes before accepting. Administrative installation is different from running the Eltes application as root; launch the app normally afterward. You can also use your distribution's supported graphical package installer. This package is not intended for Fedora, Arch, or an ARM machine just because they run Linux. If the package is incompatible, stop and choose a supported build or consult the project's source-build instructions.",
+      "steps": [
+        ["Choose the Debian / Ubuntu option", "eltes_3.18.0_amd64.deb", "For compatible amd64 Debian-based desktops"],
+        ["Install the downloaded local package", "cd ~/Downloads", "sudo apt install ./eltes_3.18.0_amd64.deb"],
+        ["Review, then launch normally", "Read apt’s proposed changes before accepting", "Open Eltes from your application menu · do not run the app as root"]
+      ]
+    },
+    {
+      "title": "First conversation and provider setup",
+      "narration": "Once Eltes opens, the shared workspace gives you a model picker, conversation history, and Settings. The captures in this chapter show the real released web interface, not a native installer or a paid provider demonstration. For a simple local check, select Eltes C A I and ask an arithmetic question. The example on screen asks for seventeen times twenty four and the local assistant returns four hundred eight. C A I is a limited rules-based helper, not a frontier coding model. To use a hosted provider, open Settings and API keys, choose your provider, and enter a key from your own account privately. Never paste a real key into a tutorial, screenshot, public issue, or repository. Provider access and billing are separate from downloading Eltes. Select a model your account can actually access. If a request fails, inspect the error and provider settings rather than assuming that installing the app included a subscription.",
+      "steps": [
+        ["Start with a local check", "Select Eltes CAI → ask “17 × 24”", "A real local response: 408 · not a hosted-model simulation"],
+        ["Open Settings → API keys", "Use your own provider account", "No real keys are entered or shown in this guide."],
+        ["Model access is separate", "Choose a model your provider account supports", "Provider quotas and charges still apply."]
+      ],
+      "capture": "conversation"
+    },
+    {
+      "title": "Data, updates and next steps",
+      "narration": "Before you finish, know where the desktop app keeps its data. Typical locations are the Eltes folder under AppData on Windows, Application Support on macOS, and dot config on Linux, though system configuration can change them. The desktop logs and persistent Studio workspace live under the application's data directory. Use the app's export tools before replacing an installation or clearing data. Browser storage and desktop storage are separate, so do not assume a website conversation automatically appears in the desktop app. For updates, return to the official release page and read the current notes before installing the matching architecture. Newer repository features may need a newer published installer or a separate source-based setup. Code execution requires its own opt-in setup and approvals; local commands are not an operating system sandbox. You can now replay your platform chapter, open the verified download links below the player, or continue with the written documentation at your own pace.",
+      "steps": [
+        ["Know where your data lives", "Windows: %APPDATA%/Eltes", "macOS: ~/Library/Application Support/Eltes · Linux: ~/.config/Eltes"],
+        ["Back up before changing installs", "Use exports before replacing or clearing data", "Browser and desktop storage are separate."],
+        ["Continue at your own pace", "Replay chapters · read release notes · use the docs", "Local command execution is opt-in and not OS-sandboxed."]
+      ],
+      "capture": "settings"
+    }
+  ]
+}

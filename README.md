@@ -168,6 +168,14 @@ The marketing and documentation pages sit in front of a live galaxy drawn by `as
 
 ## Desktop apps
 
+**Watch the [10-minute installation guide on the home page](index.html#installation-video)** for Windows,
+macOS and Linux, with English narration, captions, chapter buttons and a full
+transcript in the [docs player](docs.html#install-video). It covers the unsigned **v3.18.0 desktop release** (verified
+2026-10-25), using genuine released-web-interface captures and labeled OS
+walkthrough illustrations, not recordings of native installers. The video is
+bundled locally; no external video host or autoplay. [MP4](assets/media/install-guide/eltes-desktop-install.mp4)
+· [Authoring and validation](tools/install-guide/README.md).
+
 `desktop/` is a thin Electron harness around the same site and the same local server. There is no second app: the shell starts `tools/local-server.mjs` with its own binary (`ELECTRON_RUN_AS_NODE`) on a free loopback port and loads `app.html` from it, so a packaged build needs no Node install and adds no second codebase to maintain.
 
 ```bash

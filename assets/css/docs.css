@@ -250,6 +250,7 @@
 .doc li > ul, .doc li > ol { margin-top: 6px; margin-bottom: 0; }
 .doc li strong { color: var(--text); }
 .doc code {
+  overflow-wrap: anywhere;
   padding: 1.5px 5px;
   border-radius: 5px;
   border: 1px solid rgba(130, 170, 235, 0.11);
@@ -628,4 +629,63 @@
   .workflow-steps > li { padding-left: 38px; }
   .workflow-steps::before { left: 13px; }
   .ws-num { width: 27px; height: 27px; border-radius: 8px; font-size: 11px; }
+}
+
+/* Installation guide: native controls, no autoplay, no animated UI. */
+.install-guide {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: #080b10;
+  scroll-margin-top: calc(var(--nav-h) + 20px);
+}
+.install-guide h3:first-child { margin-top: 0; font-size: 20px; line-height: 1.35; }
+.install-guide video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  margin: 18px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #000;
+}
+.install-guide .install-disclosure, .install-guide .install-video-links,
+.install-guide .install-video-status { font-size: 12px; line-height: 1.65; }
+.install-video-status { min-height: 2em; color: var(--text-2); }
+.install-guide .install-chapters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  padding: 0;
+  margin: 16px 0 20px;
+  list-style: none;
+}
+.install-guide .install-chapters li { padding: 0; margin: 0; min-width: 0; }
+.install-chapters button {
+  width: 100%;
+  min-height: 48px;
+  height: 100%;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #0e131b;
+  color: var(--text-2);
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.install-chapters button span { margin-right: 7px; font-family: var(--mono); color: #8fddc2; }
+.install-chapters button:hover, .install-chapters button[aria-current] { border-color: #71c9ac; color: #fff; }
+.install-chapters button:disabled { opacity: 0.5; cursor: default; }
+.install-guide :is(button, summary, a, video):focus-visible { outline: 2px solid #8fddc2; outline-offset: 4px; }
+.install-transcript { border-top: 1px solid var(--line); padding-top: 16px; }
+.install-transcript summary { cursor: pointer; color: var(--text); padding: 8px 0; }
+.install-transcript h4 { margin: 24px 0 8px; font-size: 14px; }
+@media (max-width: 600px) {
+  .install-guide { padding: 12px; }
+  .install-guide .install-chapters { grid-template-columns: 1fr; }
 }

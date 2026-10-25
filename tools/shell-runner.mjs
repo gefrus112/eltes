@@ -39,7 +39,7 @@ function targetsProtectedConfiguration(command) {
   return protectedPath || destructive;
 }
 
-function safeEnvironment(root) {
+function safeEnvironment(root, { electronNodeMode = false } = {}) {
   const keep = ['PATH', 'HOME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'TEMP', 'TMP', 'SYSTEMROOT', 'COMSPEC', 'PATHEXT', 'LANG', 'LC_ALL', 'TERM', 'NODE_ENV'];
   const env = {};
   keep.forEach((key) => { if (process.env[key]) env[key] = process.env[key]; });
@@ -47,7 +47,7 @@ function safeEnvironment(root) {
   env.ELTES_SHELL_RUNNER = '1';
   // In the desktop package process.execPath is Electron, not a standalone Node.
   // Preserve Node-mode explicitly without copying the rest of the server env.
-  if (process.versions.electron) env.ELECTRON_RUN_AS_NODE = '1';
+  if (electronNodeMode && process.versions.electron) env.ELECTRON_RUN_AS_NODE = '1';
   return env;
 }
 
@@ -111,6 +111,7 @@ export function createShellRunner({ root, enabled = false } = {}) {
     if (req.aborted || res.destroyed) return;
     const isWindows = process.platform === 'win32';
     let command, shell, args, temporaryDirectory;
+    let nodeScript = false;
     if (payload.script != null) {
       const { filename, content } = payload.script || {};
       if (typeof filename !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*\.(py|js|ts)$/i.test(filename) ||
@@ -121,6 +122,7 @@ export function createShellRunner({ root, enabled = false } = {}) {
         return json(res, 403, { error: 'Script blocked by Eltes safety boundaries. These text filters are not an OS sandbox.' });
       }
       const extension = filename.split('.').pop().toLowerCase();
+      nodeScript = extension === 'js' || extension === 'ts';
       const [major, minor] = process.versions.node.split('.').map(Number);
       if (extension === 'ts' && !(major > 22 || major === 22 && minor >= 18)) {
         return json(res, 400, { error: 'TypeScript scripts require Node.js 22.18+ (24 LTS recommended), with native erasable type syntax. No compiler or packages are installed automatically.' });
@@ -168,7 +170,7 @@ export function createShellRunner({ root, enabled = false } = {}) {
     }
     const child = spawn(shell, args, {
       cwd: workspace,
-      env: safeEnvironment(root),
+      env: safeEnvironment(root, { electronNodeMode: nodeScript }),
       windowsHide: true,
       detached: !isWindows,
       stdio: ['ignore', 'pipe', 'pipe']

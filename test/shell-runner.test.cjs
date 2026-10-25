@@ -196,11 +196,14 @@ test('desktop subprocesses retain Node mode without inheriting server secrets', 
   const end = source.indexOf('\nasync function readJson', start);
   const desktop = vm.createContext({ process: { versions: { electron: '44.0.0' }, env: { PATH: '/bin', PRIVATE_SERVER_TOKEN: 'test-only', NODE_OPTIONS: '--require=untrusted' } } });
   vm.runInContext(source.slice(start, end), desktop);
-  const env = desktop.safeEnvironment('/workspace');
+  const env = desktop.safeEnvironment('/workspace', { electronNodeMode: true });
+  assert.equal(desktop.safeEnvironment('/workspace').ELECTRON_RUN_AS_NODE, undefined, 'Shell/Python runs must not force Electron launches into Node mode');
   assert.equal(env.ELECTRON_RUN_AS_NODE, '1');
   assert.equal(env.PRIVATE_SERVER_TOKEN, undefined);
   assert.equal(env.NODE_OPTIONS, undefined);
   const node = vm.createContext({ process: { versions: { node: '22.22.0' }, env: { ELECTRON_RUN_AS_NODE: '0' } } });
   vm.runInContext(source.slice(start, end), node);
-  assert.equal(node.safeEnvironment('/workspace').ELECTRON_RUN_AS_NODE, undefined);
+  assert.equal(node.safeEnvironment('/workspace', { electronNodeMode: true }).ELECTRON_RUN_AS_NODE, undefined);
+  assert.match(source, /nodeScript = extension === 'js' \|\| extension === 'ts'/);
+  assert.match(source, /safeEnvironment\(root, \{ electronNodeMode: nodeScript \}\)/);
 });

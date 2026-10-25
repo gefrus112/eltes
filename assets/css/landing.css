@@ -1753,3 +1753,8 @@
 }
 
 /* phones: the panel becomes a bottom sheet, wherever the orb was left */
+
+.visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.hero-word-live { display:block; font-size:.4em; transition:opacity .18s, transform .18s; }
+.hero-word-live.is-changing { opacity:0; transform:translateY(4px); }
+@media (prefers-reduced-motion: reduce) { .hero-word-live { transition: none; } }

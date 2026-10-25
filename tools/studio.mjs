@@ -432,7 +432,7 @@ function sse(res) {
  * Build the /api/studio + /preview handler.
  * Returns null when studio is disabled, so the server can skip it entirely.
  */
-export function createStudio({ workspace, token, allowShell = true, maxRunMs = DEFAULT_RUN_MS }) {
+export function createStudio({ workspace, token, allowShell = false, maxRunMs = DEFAULT_RUN_MS }) {
   const watchers = new Set();
 
   const authorized = (req) => {
@@ -500,7 +500,7 @@ export function createStudio({ workspace, token, allowShell = true, maxRunMs = D
 
       if (route === '/run') {
         if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' }), true;
-        if (!allowShell) return json(res, 403, { error: 'Shell is disabled (ELTES_STUDIO_SHELL=0)' }), true;
+        if (!allowShell) return json(res, 403, { error: 'Shell is disabled; explicitly enable with ELTES_STUDIO_SHELL=1' }), true;
         let payload;
         try { payload = JSON.parse(await readBody(req, 32 * 1024) || '{}'); }
         catch { return json(res, 400, { error: 'Invalid JSON body' }), true; }

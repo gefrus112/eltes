@@ -50,7 +50,7 @@
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="#downloads">Downloads</a>
-          <a href="docs.html">Docs</a>
+          <a href="docs.html#contributors">Contributors</a><a href="docs.html">Docs</a>
           <a href="news.html">News</a>
         </nav>
       </div>
@@ -91,6 +91,7 @@
         <h1>
           Ask the web.
           <span class="line-2">Keep the receipts.</span>
+          <span class="visually-hidden">Keep your flow.</span><span class="hero-word-live" id="heroRotatingLine" aria-hidden="true">Keep your flow.</span>
         </h1>
 
         <p class="hero-sub">
@@ -727,7 +728,13 @@
             builds come from the same harness and the same site.</p>
         </div>
 
-        <div class="download-grid">
+        <div class="download-grid"><article class="download-card small">
+              <span class="dl-os"><span data-icon="layout-grid" data-icon-size="15"></span>Chromebook · ChromeOS</span>
+              <h3>Install Eltes as a Chromebook app</h3>
+              <p>Open Eltes in Chrome, then choose <strong>Install Eltes</strong> from the address bar or <strong>⋮ → Cast, save, and share → Install page as app</strong>. It opens in its own window and appears in your Launcher.</p>
+              <button class="btn btn-primary btn-sm pwa-install-button" id="installPwaBtn" type="button" hidden><span data-icon="download" data-icon-size="13"></span>Install Eltes</button>
+              <a class="btn btn-ghost btn-sm" href="app.html">Open workspace<span data-icon="arrow-right" data-icon-size="12"></span></a>
+            </article>
           <article class="download-card featured reveal">
             <div class="dl-top">
               <span class="dl-os"><span data-icon="monitor-down" data-icon-size="16"></span>Eltes Desktop</span>
@@ -912,5 +919,6 @@
   <script src="assets/js/account.js"></script>
   <script src="assets/js/site.js"></script>
   <script src="assets/js/guide.js"></script>
+<script src="assets/js/hero-text.js"></script>
 </body>
 </html>

@@ -52,7 +52,7 @@ function siteManifest(siteDir) {
     'app.html', 'index.html', 'train.html',
     'assets/js/app.js', 'assets/css/app.css',
     'api/health.js', 'api/chat.js', 'lib/http.cjs',
-    'tools/local-server.mjs', 'tools/studio.mjs'
+    'tools/local-server.mjs', 'tools/studio.mjs', 'tools/shell-runner.mjs'
   ];
   const missing = required.filter((rel) => !existsSync(join(siteDir, rel)));
   return { ok: missing.length === 0, missing, siteDir };

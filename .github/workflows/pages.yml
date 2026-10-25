@@ -24,7 +24,7 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir -p _site
-          cp index.html app.html auth.html docs.html news.html studio.html train.html 404.html site.webmanifest config.js _site/
+          cp cookie-auth.html index.html app.html auth.html docs.html video.html 404.html news.html studio.html train.html site.webmanifest config.js _site/
           cp -R assets downloads mcp _site/
           touch _site/.nojekyll
           REPO_NAME="${GITHUB_REPOSITORY##*/}"

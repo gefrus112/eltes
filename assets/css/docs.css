@@ -478,6 +478,17 @@
 .doc-cta .txt p { margin: 5px 0 0; font-size: 12.5px; color: var(--text-3); }
 .doc-cta .btn { flex: none; }
 
+/* ----------------------------- contributors ----------------------------- */
+.contributor-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+.contributor-card { display: flex; min-width: 0; align-items: center; gap: 11px; padding: 12px; border: 1px solid rgba(116, 156, 228, .15); border-radius: 11px; color: var(--text); background: linear-gradient(180deg, rgba(10, 20, 36, .76), rgba(5, 10, 19, .86)); text-decoration: none; }
+.contributor-card:hover, .contributor-card:focus-visible { border-color: rgba(116, 164, 255, .4); background: rgba(20, 37, 62, .82); }
+.contributor-card:focus-visible { outline: 2px solid #7ca6ff; outline-offset: 2px; }
+.contributor-mark { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(120, 158, 224, .18); border-radius: 9px; color: #b1caf0; background: rgba(70, 112, 183, .12); }
+.contributor-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 4px; }
+.contributor-copy strong { overflow: hidden; color: #dbe7f7; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.contributor-copy small { color: #8393ab; font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.contributor-link { flex: 0 0 auto; color: #8196b6; }
+
 /* ------------------------------- responsive ------------------------------ */
 
 @media (max-width: 1180px) {
@@ -508,6 +519,7 @@
 
 @media (max-width: 640px) {
   .docs-nav { grid-template-columns: 1fr; }
+  .contributor-list { grid-template-columns: 1fr; }
   .doc h2 { font-size: 22px; }
   .doc p, .doc li { font-size: 13px; }
   .doc section + section { margin-top: 40px; padding-top: 30px; }

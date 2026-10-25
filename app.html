@@ -117,7 +117,7 @@
             </button>
           </div>
 
-          <div class="provider-quick" id="providerQuick"></div>
+          <div class="provider-quick" id="providerQuick"></div><button id="openSetupGuide" class="btn btn-ghost" type="button">Quick setup</button>
 
           <div class="suggestions">
             <button class="suggestion" data-prompt="Search the web for the latest WebGPU browser support and cite the sources.">
@@ -148,12 +148,13 @@
         </div>
 
         <div class="thread-inner" id="messages" hidden aria-live="polite"></div>
+        <button id="jumpToLatest" class="jump-latest" type="button" hidden>Latest</button>
       </main>
 
       <div class="composer-dock">
         <div class="slash-menu" id="slashMenu" hidden role="listbox" aria-label="Slash commands"></div>
         <div class="composer" id="composer">
-          <textarea id="input" rows="1" placeholder="Message Eltes…  (try /help for slash commands)" aria-label="Message Eltes" autocomplete="off" spellcheck="true"></textarea>
+          <textarea id="input" rows="1" placeholder="Message Eltes…  (try /help for slash commands)" aria-label="Message Eltes" title="Alt + Up/Down: browse this chat’s recent prompts" autocomplete="off" spellcheck="true"></textarea>
           <div class="composer-bar">
             <button class="chip model-chip-btn" id="composerModel" title="Switch model (⌘M)">
               <span class="p-logo sm" id="composerLogo" data-brand="eltes" data-brand-size="13"></span>
@@ -164,6 +165,9 @@
             <button class="chip" id="agentChip" aria-pressed="false" title="Agent mode: call on-device tools and show the trace">
               <span data-icon="wrench" data-icon-size="14"></span>Agent
             </button>
+            <button class="chip" id="agentInstructionsBtn" type="button" aria-pressed="false" aria-haspopup="dialog" title="Set instructions for this chat">
+              <span data-icon="list-checks" data-icon-size="14"></span><span>Instructions</span>
+            </button>
             <button class="chip" id="mcpChip" aria-pressed="true" title="MCP: use tools from Blender, Roblox Studio and other local servers">
               <span data-icon="plug" data-icon-size="14"></span><span id="mcpChipLabel">MCP</span>
             </button>
@@ -172,6 +176,13 @@
             </button>
             <button class="chip" id="attachBtn" title="Attach a text file" aria-label="Attach a text file">
               <span data-icon="paperclip" data-icon-size="14"></span>
+            </button>
+            <button class="chip" id="openProjectSandbox" type="button" aria-haspopup="dialog">Code workspace</button>
+            <button class="chip" id="workspaceFilesBtn" type="button" aria-haspopup="dialog" title="Choose a folder; add files to your draft or review safe writes">
+              <span data-icon="folder-open" data-icon-size="14"></span><span>Files</span>
+            </button>
+            <button class="chip" id="localShellBtn" type="button" aria-haspopup="dialog" title="Pair the optional local command runner">
+              <span data-icon="terminal" data-icon-size="14"></span><span>Terminal</span>
             </button>
             <span class="grow"></span>
             <span class="composer-hint"><span class="kbd">↵</span> send</span>
@@ -585,6 +596,67 @@
     </div>
   </dialog>
 
+  <dialog id="welcomeSetupDialog" class="welcome-setup-dialog" aria-labelledby="welcomeSetupTitle">
+    <div class="dlg welcome-setup-body">
+      <div class="dlg-head">
+        <span class="welcome-cloud-mark" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M7 18.6c-2.5 0-4.4-1.9-4.4-4.3 0-2.2 1.7-4 3.9-4.2C7 6.9 9.3 4.7 12 4.7c2.8 0 5.1 2.1 5.4 4.9 2 .2 3.4 1.9 3.4 3.9 0 2.5-1.9 4.4-4.4 4.4H7Z" fill="#39dca2"/><path d="M8.5 13.1c.6.7 1.7.7 2.3 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="12.9" r="1.5" fill="#04101a"/><path d="M10.5 16.2c.8.9 2.1.9 2.9 0" fill="none" stroke="#04101a" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <div><h3 id="welcomeSetupTitle">Set up your workspace</h3><div class="sub">Choose how to start, then explicitly connect the files and tools you want.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="welcomeSetupDialog" aria-label="Close quick setup" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="welcome-setup-content">
+        <section class="welcome-setup-step">
+          <span class="welcome-step-number">01</span>
+          <div class="welcome-step-copy"><strong>Choose how to chat</strong><span>CAI runs on this device without an API key. Hosted models use your provider key and may incur provider charges.</span></div>
+          <div class="welcome-step-actions"><button id="setupChooseLocalBtn" class="btn btn-ghost btn-sm" type="button"><span data-icon="cpu" data-icon-size="13"></span>Start with CAI</button><button id="setupConnectProviderBtn" class="btn btn-primary btn-sm" type="button"><span data-icon="key-round" data-icon-size="13"></span>Connect a provider</button></div>
+        </section>
+        <section class="welcome-setup-step">
+          <span class="welcome-step-number">02</span>
+          <div class="welcome-step-copy"><strong>Install Eltes as an app</strong><span>Use the green-cloud icon in a standalone window. On Chromebook, choose Chrome’s Install page as app option; on supported browsers, use the button below.</span></div>
+          <div class="welcome-install-row"><button id="setupInstallPwaBtn" class="btn btn-ghost btn-sm" type="button" hidden><span data-icon="download" data-icon-size="13"></span>Install Eltes</button><span id="setupInstallStatus" role="status" aria-live="polite">Open your browser menu and choose Install Eltes or Install page as app.</span></div>
+        </section>
+        <section class="welcome-setup-step">
+          <span class="welcome-step-number">03</span>
+          <div class="welcome-step-copy"><strong>Connect files and local commands</strong><span>Installing Eltes does not grant blanket access to your computer. Choose a folder to add files to drafts, or set up the opt-in local runner for approved commands. It cannot attach to an existing ChromeOS Terminal session.</span></div>
+          <div class="welcome-step-actions"><button id="setupOpenFilesBtn" class="btn btn-ghost btn-sm" type="button"><span data-icon="folder-open" data-icon-size="13"></span>Choose files</button><button id="setupOpenTerminalBtn" class="btn btn-ghost btn-sm" type="button"><span data-icon="terminal" data-icon-size="13"></span>Set up local commands</button></div>
+        </section>
+        <section class="welcome-setup-step">
+          <span class="welcome-step-number">04</span>
+          <div class="welcome-step-copy"><strong>Your workspace, your choice</strong><span>Chats, settings, and keys stay in this browser. Only files you add to the draft are shared when you send. Hosted prompts go to that provider. Local commands run under the local server account after your approval.</span></div>
+        </section>
+        <div class="welcome-setup-footer"><span>Reopen with <span class="kbd">⌘</span><span class="kbd">K</span> → “Quick setup”.</span><button id="finishWelcomeSetupBtn" class="btn btn-primary btn-sm" type="button">Finish setup</button></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="artifactApprovalDialog" class="artifact-approval-dialog" aria-labelledby="artifactApprovalTitle">
+    <div class="dlg artifact-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="file-code-2" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="artifactApprovalTitle">Review generated file</h3><div class="sub">The agent prepared a file. Review it before adding a download to this chat.</div></div>
+      </div>
+      <div class="artifact-approval-name" id="artifactApprovalName"></div>
+      <pre id="artifactApprovalContent" class="artifact-approval-content"></pre>
+      <p class="artifact-approval-note">This does not run code or shell commands, and it does not write into a project folder. Approving stores the file in this local conversation so you can download it.</p>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyArtifactBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="approveArtifactBtn" type="button">Approve file</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="mcpApprovalDialog" class="mcp-approval-dialog" aria-label="Review MCP tool call">
+    <div class="dlg mcp-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-approval-mark" data-icon="triangle-alert" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3>Review tool call</h3><div class="sub">The model is asking an MCP server to perform this action.</div></div>
+      </div>
+      <div class="mcp-approval-meta"><span>SERVER</span><strong id="mcpApprovalServer"></strong></div>
+      <div class="mcp-approval-meta"><span>TOOL</span><strong id="mcpApprovalTool"></strong></div>
+      <p id="mcpApprovalDescription" class="mcp-approval-description"></p>
+      <pre id="mcpApprovalArgs" class="mcp-approval-args"></pre>
+      <p class="mcp-approval-warning">Approve only if you trust this server and these arguments. Denying sends a decline result to the model.</p>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="mcpDenyBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="mcpApproveBtn" type="button">Approve this call</button></div>
+    </div>
+  </dialog>
+
   <!-- ================================ share ============================== -->
   <dialog id="shareDialog" aria-label="Share conversation">
     <div class="dlg" style="max-width:520px">
@@ -603,6 +675,133 @@
         <button class="btn btn-ghost btn-sm" id="downloadJson"><span data-icon="file-code-2" data-icon-size="13"></span>JSON</button>
         <button class="btn btn-primary btn-sm" id="downloadMarkdown"><span data-icon="download" data-icon-size="13"></span>Markdown</button>
       </div>
+    </div>
+  </dialog>
+
+  <!-- ======================== per-chat instructions ===================== -->
+  <dialog id="agentInstructionsDialog" class="agent-instructions-dialog" aria-labelledby="agentInstructionsTitle">
+    <div class="dlg agent-instructions-body">
+      <div class="dlg-head">
+        <span data-icon="list-checks" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="agentInstructionsTitle">Guide this conversation</h3><div class="sub">Set preferences for the selected hosted model.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="agentInstructionsDialog" aria-label="Close instructions" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="dlg-body">
+        <label for="agentInstructionsInput">Conversation instructions</label>
+        <textarea id="agentInstructionsInput" rows="7" maxlength="2000" placeholder="Example: Keep answers concise, explain unfamiliar terms, and use Python for code examples."></textarea>
+        <div class="agent-instructions-meta"><span>Saved locally with this conversation. These instructions are not applied to the on-device Eltes CAI helper.</span><span id="agentInstructionsCount">0 / 2000</span></div>
+      </div>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" data-close="agentInstructionsDialog" type="button">Cancel</button><button class="btn btn-primary btn-sm" id="saveAgentInstructionsBtn" type="button">Save instructions</button></div>
+    </div>
+  </dialog>
+
+  <!-- ======================== selected local files ====================== -->
+  <dialog id="workspaceFilesDialog" class="workspace-files-dialog" aria-labelledby="workspaceFilesTitle">
+    <div class="dlg workspace-files-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="folder-open" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="workspaceFilesTitle">Selected local folder</h3><div class="sub">Eltes can only see the folder you choose here.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="workspaceFilesDialog" aria-label="Close folder access" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="workspace-files-content">
+        <div class="workspace-files-note"><span data-icon="shield-check" data-icon-size="15" aria-hidden="true"></span><span>Choose one folder to browse safe top-level source files. Reading only adds contents to your draft; nothing is sent until you press Send. The agent may propose changes only to listed files, and every complete write is shown for your approval. Access stays in memory for this tab.</span></div>
+        <div class="workspace-files-actions"><button id="chooseWorkspaceFolderBtn" class="btn btn-primary btn-sm" type="button"><span data-icon="folder-open" data-icon-size="13"></span>Choose folder</button><button id="disconnectWorkspaceFolderBtn" class="btn btn-ghost btn-sm" type="button" hidden>Disconnect folder</button><span id="workspaceFilesStatus" role="status" aria-live="polite">No folder selected.</span></div>
+        <div id="workspaceFilesList" class="workspace-files-list" role="list" aria-label="Text and code files in the selected folder"><div class="workspace-files-empty">Select a folder to see supported text and code files.</div></div>
+        <p class="workspace-files-footnote">Only top-level files are listed; subfolders are not scanned. Secret, .env, key, and production/deployment files are excluded. Reads add content to a reviewable draft; writes are limited to existing listed files up to 100 KB and require separate approval.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ======================= workspace write review ==================== -->
+  <dialog id="workspaceWriteApprovalDialog" class="workspace-write-approval-dialog" aria-labelledby="workspaceWriteApprovalTitle">
+    <div class="dlg workspace-write-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-approval-mark" data-icon="pencil" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="workspaceWriteApprovalTitle">Review file change</h3><div class="sub">No change is made until you approve this exact replacement.</div></div>
+      </div>
+      <div class="workspace-write-name" id="workspaceWriteApprovalName"></div>
+      <div class="workspace-write-columns">
+        <section><h4>Current file</h4><pre id="workspaceWriteBefore"></pre></section>
+        <section><h4>Proposed replacement</h4><pre id="workspaceWriteAfter"></pre></section>
+      </div>
+      <p class="workspace-write-warning">Review the entire file. Eltes never writes secrets, .env files, private keys, or production/deployment configuration. This approval applies only to this listed file.</p>
+      <div class="workspace-write-status" id="workspaceWriteStatus" role="status" aria-live="polite"></div>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyWorkspaceWriteBtn" type="button">Do not write</button><button class="btn btn-primary btn-sm" id="approveWorkspaceWriteBtn" type="button">Approve this file write</button></div>
+    </div>
+  </dialog>
+
+  <!-- ======================== local terminal runner ====================== -->
+  <dialog id="localShellDialog" class="local-shell-dialog" aria-labelledby="localShellTitle">
+    <div class="dlg local-shell-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="terminal" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="localShellTitle">Local terminal runner</h3><div class="sub">Run approved commands through your local Eltes server, not an existing terminal session.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="localShellDialog" aria-label="Close terminal settings" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="local-shell-content">
+        <div class="local-shell-warning"><span data-icon="triangle-alert" data-icon-size="15" aria-hidden="true"></span><span>Commands can read, change, or delete files with the server user’s permissions. Common direct references to secrets, .env files, deployment targets, and destructive operations are blocked, but these filters are not complete. Every command is shown for approval first. Output is returned to the selected model. This is not a sandbox; use only on a computer you control.</span></div>
+        <p class="local-shell-setup">Start the Eltes Node server locally with shell support enabled. Bash/macOS/Linux: <code>ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start</code>. PowerShell: <code>$env:ELTES_ENABLE_SHELL=1; $env:HOST='127.0.0.1'; npm start</code>. On Chromebook, start it from the Linux development terminal and use the local Eltes page, not the hosted PWA. Copy the one-time token printed by the server. It runs new commands as the server user; it does not attach to or read an existing terminal session. Python commands such as <code>python3 --version</code> work only if Python is installed in that same environment; each command starts a new process, not an interactive Python session. After connecting, turn on Tools and use a hosted model. This runner is unavailable on GitHub Pages or Vercel.</p>
+        <label class="local-shell-label" for="localShellToken">One-time pairing token</label>
+        <input id="localShellToken" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste token from your local server terminal" />
+        <div class="local-shell-actions">
+          <span id="localShellStatus" role="status" aria-live="polite">Disconnected. Tool calls are not sent to a shell.</span>
+          <button id="connectLocalShellBtn" class="btn btn-primary btn-sm" type="button">Connect runner</button>
+        </div>
+        <button id="disconnectLocalShellBtn" class="btn btn-ghost btn-sm" type="button" hidden>Disconnect and forget token</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================= shell command approval ==================== -->
+  <dialog id="shellCommandApprovalDialog" class="shell-command-approval-dialog" aria-labelledby="shellCommandApprovalTitle">
+    <div class="dlg shell-command-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-approval-mark" data-icon="terminal" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="shellCommandApprovalTitle">Approve terminal command</h3><div class="sub">The exact command below will run on your local Eltes server.</div></div>
+      </div>
+      <div class="shell-approval-workspace"><span>WORKING DIRECTORY</span><strong id="shellApprovalWorkspace"></strong></div>
+      <pre id="shellApprovalCommand" class="shell-approval-command"></pre>
+      <p class="shell-approval-warning">Only approve commands you understand. They run with your account’s permissions and can modify files. This is not a sandbox.</p>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyShellCommandBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="approveShellCommandBtn" type="button">Run this command</button></div>
+    </div>
+  </dialog>
+
+
+  <!-- ======================== isolated JavaScript sandbox ================= -->
+  <dialog id="projectSandboxDialog" class="project-sandbox" aria-labelledby="projectSandboxTitle">
+    <div class="dlg">
+      <div class="dlg-head"><h3 id="projectSandboxTitle">Browser coding workspace</h3><span class="grow"></span><button class="btn btn-ghost" data-close="projectSandboxDialog" type="button">Close</button></div>
+      <p class="dlg-body">Ask a hosted tool-capable model to build a website using <code>write_project_file</code>. Approve each file, edit here, then preview. Files live only in this tab; download them before leaving. This is not a shell or npm environment. Jac can be edited, not executed.</p>
+      <div class="project-grid">
+        <aside aria-label="Browser project files"><div id="projectSandboxFiles"></div><label for="projectSandboxNewName">New file</label><input type="text" id="projectSandboxNewName" placeholder="index.html" /><button id="projectSandboxAdd" class="btn btn-ghost" type="button">Add file</button></aside>
+        <section><h4 id="projectSandboxFilename">No file selected</h4><textarea id="projectSandboxEditor" aria-label="Source editor" spellcheck="false"></textarea><button id="projectSandboxSave" class="btn btn-ghost" type="button">Save in tab</button><button id="projectSandboxDownload" class="btn btn-ghost" type="button">Download file</button></section>
+        <section><h4>Isolated preview</h4><iframe id="projectSandboxPreview" title="Isolated website preview" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe><button id="projectSandboxRun" class="btn btn-primary" type="button">Preview reviewed code</button><button id="projectSandboxStop" class="btn btn-ghost" type="button">Stop preview</button></section>
+      </div><p class="dlg-body" id="projectSandboxStatus" role="status">No files yet. No automatic execution or disk access.</p>
+    </div>
+  </dialog>
+
+  <dialog id="jsSandboxDialog" class="js-sandbox-dialog" aria-labelledby="jsSandboxTitle">
+    <div class="dlg js-sandbox-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="play" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="jsSandboxTitle">JavaScript sandbox</h3><div class="sub">Review the code, then run it in an isolated, time-limited worker.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="jsSandboxDialog" aria-label="Close JavaScript sandbox" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="js-sandbox-warning"><span data-icon="shield-check" data-icon-size="14" aria-hidden="true"></span><span>JavaScript only. Runs in a disposable worker with the TensorFlow.js CPU runtime available on request. Network requests and access to the Eltes UI are blocked. Selected model files stay in this tab and are not sent to a hosted model. This is not an OS shell or a complete security boundary.</span></div>
+      <label class="js-sandbox-option"><input type="checkbox" id="jsSandboxTfjs" /> Load bundled TensorFlow.js 4.22.0 (CPU only)</label>
+      <label class="js-sandbox-label" for="jsSandboxModelFiles">Optional local TensorFlow.js model files</label>
+      <input id="jsSandboxModelFiles" class="js-sandbox-model-files" type="file" multiple accept=".json,.bin" />
+      <p class="js-sandbox-model-note">Choose a compatible model.json and its weight shards to use loadLocalGraphModel() or loadLocalLayersModel(). Model weights are not included. Files are read locally and never added to the chat.</p>
+      <div class="js-sandbox-label" id="jsSandboxSourceLabel">Code to run</div>
+      <pre id="jsSandboxSource" class="js-sandbox-source"></pre>
+      <div class="js-sandbox-output-head"><strong>Output</strong><span id="jsSandboxStatus" role="status" aria-live="polite">Not run yet.</span></div>
+      <pre id="jsSandboxOutput" class="js-sandbox-output" aria-live="polite">Logs and returned values appear here.</pre>
+      <iframe id="jsSandboxFrame" title="Isolated JavaScript execution frame" sandbox="allow-scripts" referrerpolicy="no-referrer" hidden></iframe>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" data-close="jsSandboxDialog" type="button">Cancel</button><button class="btn btn-primary btn-sm" id="runJsSandboxBtn" type="button"><span data-icon="play" data-icon-size="13"></span>Run reviewed code</button></div>
     </div>
   </dialog>
 
@@ -639,7 +838,7 @@
   </dialog>
 
   <input type="file" id="attachInput" multiple hidden
-    accept=".txt,.md,.markdown,.js,.mjs,.cjs,.ts,.tsx,.jsx,.json,.css,.scss,.html,.xml,.py,.go,.rs,.java,.c,.h,.cpp,.sh,.sql,.yml,.yaml,.toml,.env,.csv,.log,.ini" />
+    accept=".txt,.md,.markdown,.js,.mjs,.cjs,.ts,.tsx,.jsx,.json,.css,.scss,.html,.xml,.py,.jac,.php,.lua,.go,.rs,.java,.c,.h,.cpp,.sh,.sql,.yml,.yaml,.toml,.env,.csv,.log,.ini" />
 
   <script src="config.js"></script>
   <script src="assets/js/supabase.js"></script>
@@ -653,6 +852,9 @@
   <script src="assets/js/lab.js"></script>
   <script src="assets/js/account.js"></script>
   <script src="assets/js/chat-embers.js"></script>
+  <script src="assets/js/highlighter.js"></script>
+  <script src="assets/js/artifacts.js"></script>
+  <script src="assets/js/project-sandbox.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

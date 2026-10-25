@@ -3,11 +3,13 @@ import { randomBytes } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import auth from '../api/auth.js';
 import chat from '../api/chat.js';
 import keyCheck from '../api/key-check.js';
 import health from '../api/health.js';
 import search from '../api/search.js';
 import email from '../api/email.js';
+import { createShellRunner } from './shell-runner.mjs';
 import {
   WORKSPACE_DIR, createStudio, ensureWorkspace, previewMime, resolvePreviewFile, seedWorkspace
 } from './studio.mjs';
@@ -15,7 +17,8 @@ import {
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '0.0.0.0';
-const routes = { '/api/chat': chat, '/api/key-check': keyCheck, '/api/health': health, '/api/search': search };
+const shellRunner = createShellRunner({ root, enabled: process.env.ELTES_ENABLE_SHELL === '1' });
+const routes = { '/api/auth': auth, '/api/chat': chat, '/api/key-check': keyCheck, '/api/health': health, '/api/search': search };
 const mime = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
@@ -26,7 +29,7 @@ const mime = {
 
 /* ------------------------------- studio ---------------------------------- */
 const studioEnabled = process.env.ELTES_STUDIO !== '0';
-const studioAllowShell = process.env.ELTES_STUDIO_SHELL !== '0';
+const studioAllowShell = process.env.ELTES_STUDIO_SHELL === '1';
 const studioToken = process.env.ELTES_STUDIO_TOKEN || randomBytes(16).toString('hex');
 /* A packaged desktop app keeps its Studio workspace in the user's data folder
    (resources/ may be read-only), so the path can be redirected. */
@@ -77,6 +80,23 @@ async function servePreview(req, res, pathname) {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url || '/', 'http://localhost');
   const pathname = url.pathname;
+
+  if (pathname === '/api/shell/status') {
+    shellRunner.status(req, res);
+    return;
+  }
+  if (pathname === '/api/shell') {
+    try { await shellRunner.execute(req, res); }
+    catch {
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-store');
+        res.end(JSON.stringify({ error: 'The local shell runner failed.' }));
+      }
+    }
+    return;
+  }
 
   if (studio && (pathname === '/preview' || pathname.startsWith('/preview/'))) {
     await servePreview(req, res, pathname);
@@ -155,7 +175,12 @@ const server = createServer(async (req, res) => {
 server.requestTimeout = 65000;
 server.listen(port, host, async () => {
   console.log(`Eltes local server listening at http://localhost:${port}`);
-  console.log('Local API routes: /api/health, /api/key-check, /api/chat, /api/search, /api/email');
+  console.log('Local API routes: /api/health, /api/key-check, /api/chat, /api/search, /api/email, /api/shell');
+  if (shellRunner.info.enabled) {
+    console.log('Opt-in chat shell runner: enabled; token is shown below. Only direct loopback connections can use the shell endpoint.');
+    console.log(`Chat shell token: ${shellRunner.info.token}`);
+    console.log(`Chat shell workspace: ${shellRunner.info.root}`);
+  } else console.log('Chat shell runner: disabled (set ELTES_ENABLE_SHELL=1 to enable).');
   try {
     const mailStatus = email.mailer.status();
     console.log(mailStatus.configured
@@ -172,7 +197,7 @@ server.listen(port, host, async () => {
     const seeded = await seedWorkspace(workspace);
     console.log(`Studio workspace: ${workspace}${seeded.created ? ' (starter files created)' : ''}`);
     console.log(`Studio preview:   http://localhost:${port}/preview/index.html`);
-    console.log(`Studio shell:     ${studioAllowShell ? 'enabled' : 'disabled'} · jail=${WORKSPACE_DIR}`);
+    console.log(`Studio shell:     ${studioAllowShell ? 'enabled' : 'disabled'} · working directory=${WORKSPACE_DIR} (not an OS sandbox)`);
     if (studioAllowShell) {
       console.log('Studio is a local development tool with shell access. Keep it on a trusted network.');
     }

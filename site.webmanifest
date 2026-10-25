@@ -8,6 +8,21 @@
   "display": "standalone",
   "background_color": "#02050a",
   "theme_color": "#02050a",
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Open Eltes workspace",
+      "short_name": "Workspace",
+      "url": "./app.html",
+      "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Open video editor",
+      "short_name": "Video editor",
+      "url": "./video.html",
+      "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
   "icons": [
     { "src": "assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

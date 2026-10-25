@@ -712,9 +712,52 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
           <p>If no backend or key is configured, CAI answers live questions with an explicit “I cannot check live information” message instead of guessing. If a search fails, the reply reports the provider error and links the settings, rather than inventing an answer.</p>
         </section>
 
+        <section id="contributors">
+          <h2>Contributors <a class="anchor" href="#contributors" aria-label="Link to contributors" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Every account below has at least one commit credited in GitHub’s contributor stats. The list reflects repository activity; it does not imply endorsement. Pull requests, issues, and newer activity can be checked in the full GitHub contributor graph.</p>
+          <div class="contributor-list">
+            <a class="contributor-card" href="https://github.com/gefrus112" target="_blank" rel="noreferrer">
+              <span class="contributor-mark" data-icon="github" data-icon-size="17" aria-hidden="true"></span>
+              <span class="contributor-copy"><strong>highenough</strong><small>@gefrus112 · 126 commits</small></span>
+              <span class="contributor-link" data-icon="arrow-up-right" data-icon-size="14" aria-hidden="true"></span>
+            </a>
+            <a class="contributor-card" href="https://github.com/eltes" target="_blank" rel="noreferrer">
+              <span class="contributor-mark" data-icon="github" data-icon-size="17" aria-hidden="true"></span>
+              <span class="contributor-copy"><strong>Eltes</strong><small>@eltes · 2 commits</small></span>
+              <span class="contributor-link" data-icon="arrow-up-right" data-icon-size="14" aria-hidden="true"></span>
+            </a>
+          </div>
+          <p class="dim">Want to contribute? Open an issue or pull request on the <a class="inline-link" href="https://github.com/gefrus112/eltes" target="_blank" rel="noreferrer">Eltes GitHub repository</a>. The <a class="inline-link" href="https://github.com/gefrus112/eltes/graphs/contributors" target="_blank" rel="noreferrer">live contributor graph</a> is the source for updated counts.</p>
+        </section>
+
+        <section id="video-editor">
+          <h2>Video editor <a class="anchor" href="#video-editor" aria-label="Link to video editor" data-icon="link-2" data-icon-size="16"></a></h2>
+          <p>Eltes Video Editor is a lightweight, browser-native tool for quick cuts. Open <a class="inline-link" href="video.html">the video editor</a> from the workspace tab or this link. Choose a local video file, drop it onto the preview, or enter a direct HTTP(S) media URL.</p>
+
+          <h3>Make a quick edit</h3>
+          <ol>
+            <li><strong>Load a clip.</strong> Choose a local file, drag it onto the preview, or paste a direct HTTP(S) video URL in the editor panel. MP4 with H.264 and WebM are common compatible choices; support for other containers and codecs varies by browser. URL sources must be direct media files, not YouTube/Vimeo pages, and their host must allow CORS and byte-range requests for editing and seeking to work.</li>
+            <li><strong>Set the trim and pace.</strong> Enter start and end times in seconds, scrub to find a moment, and choose playback speed from 0.5× to 2×. The selected range is exported at the chosen speed.</li>
+            <li><strong>Adjust the look.</strong> Choose Original, Cinema, Mono or Warm, then combine brightness, contrast, saturation, sepia, hue shift, soft focus and vignette controls. Presets are starting points and can be adjusted freely.</li>
+            <li><strong>Add a title or caption.</strong> Type up to 120 characters, choose Inter, Georgia or monospace, and set the size, color, vertical position, alignment and backdrop. The overlay appears in the preview and is rendered into the export for the selected trim.</li>
+            <li><strong>Export.</strong> Pick Standard or High quality and select Export video. The browser renders the clip on-device; keep the page open until the download begins.</li>
+          </ol>
+
+          <div class="callout">
+            <span data-icon="shield-check" data-icon-size="15"></span>
+            <span><strong>Browser-side processing.</strong> Local files are opened with a temporary browser URL and are not uploaded to Eltes. If you enter a remote URL, your browser requests that host directly; Eltes does not proxy it, and the host can see the request and your network address. Remote previews and canvas exports require CORS. Your original local file is not modified.</span>
+          </div>
+          <p class="dim">An HTTPS-hosted Eltes page may block plain-HTTP video URLs as mixed content; use an HTTPS source. If you use a signed URL, its query string is sent to that host by your browser, so only use URLs and hosts you trust.</p>
+
+          <h3>Export and compatibility</h3>
+          <p>Export format is selected from formats supported by the current browser, usually WebM and sometimes MP4. The quality menu changes the recording bitrate, not the source resolution; exports are capped at 1920 pixels on the longest side. Audio is carried through when the browser exposes the video's audio track to the recorder. Browser support for canvas capture, audio capture, MediaRecorder and codecs differs, so an export can be silent or unavailable on some browser and codec combinations. If a file will not load or export, try a current Chrome, Edge or Firefox build and a browser-playable MP4 or WebM.</p>
+          <p class="dim">This is a focused single-clip tool, not a multitrack editor: it does not mix audio, add transitions, combine clips or save a project file. Large or high-resolution videos can use substantial memory and processor time. The current edit is kept in the open page; export or record your settings before leaving.</p>
+          <p><a class="btn btn-ghost btn-sm" href="video.html"><span data-icon="video" data-icon-size="14"></span>Open the video editor</a></p>
+        </section>
+
         <section id="agent">
           <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. <strong>Agent mode</strong> is on by default — the <strong>Agent</strong> chip in the composer toggles it. There are two ways a tool gets called, and both render the same trace cards:</p>
+          <p>Tools are real function calls, not a scripted animation. <strong>Agent mode</strong> is on by default — the <strong>Agent</strong> chip in the composer toggles it. The adjacent <strong>Instructions</strong> control saves up to 2,000 characters of per-chat preferences for hosted models in this browser; it does not alter the on-device CAI helper. There are two ways a tool gets called, and both render the same trace cards:</p>
           <ul>
             <li><strong>Hosted models</strong> drive the loop through native function calling (OpenAI <code>tools</code>, Anthropic <code>tool_use</code>): the model asks, Eltes runs the call in the page, the result goes back, up to four rounds.</li>
             <li><strong>Eltes CAI-1</strong> has no model to ask, so a deterministic on-device planner does the work: it splits the message on <code>then</code>, matches each clause to a tool, chains follow-ups such as <code>then multiply by 3</code>, and stops after six steps or when nothing matches.</li>
@@ -735,6 +778,23 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
             </tbody>
           </table>
 
+          <p>Folder access is not recursive and does not grant access to the rest of the device. When scrolled up, use <strong>Latest</strong> to jump back after scrolling up. Alt + Up/Down lets you browse prompts from this chat. Attachments are inserted into the draft for review.</p>
+          <p>Local command execution is disabled by default; every exact command must be approved in the browser first. Commands are unsandboxed. The runner does not attach to or read an existing Terminal session.</p>
+          <h3>Install on a Chromebook</h3>
+          <p>Use Chrome’s Install page as app option. The installed hosted PWA uses the same origin as the website and cannot run Chromebook terminal commands itself. Python commands work only if Python is installed in the same Linux environment as the opt-in local server.</p>
+          <h3>Coding tasks, files and command execution</h3>
+          <p>For file writes or shell commands, the hosted model must first show a visible <strong>Plan:</strong> with the exact target and checks. A selected folder is kept in memory for this tab and only its safe top-level source/text files are listed. Adding a file places its contents in the draft; the contents go to the model only after you press <strong>Send</strong>. Writes are limited to existing listed files up to 100 KB, show the full current and proposed contents, and require a separate approval each time.</p>
+          <p>The chat's local shell tool appears only after you pair a one-time token from a local Eltes server started with <code>ELTES_ENABLE_SHELL=1</code>. Every exact command is shown for approval. The runner is disabled by default, uses limited text filters, and runs with the server account's permissions; it is <strong>not</strong> an OS sandbox. Never use it on a computer or network you do not control. It is unavailable on GitHub Pages and Vercel. The separate <a href="studio.html">Studio</a> terminal is a user-operated development terminal, not an existing terminal session.</p>
+          <h3>Build a website with the model</h3>
+          <p>Select a connected hosted model with tools enabled, then ask it to build a website using <code>write_project_file</code>. It proposes HTML, CSS and JavaScript files; after you review and approve each file, the browser coding workspace opens with a file list and editable source. Press <strong>Save in tab</strong> after edits, then <strong>Preview reviewed code</strong>. Preview inlines top-level local script/stylesheet references, blocks resource fetches with CSP, and resets after 30 seconds. DOM previews are not a complete network boundary: scripts can navigate the frame, so never include private data. Download individual files to keep them: closing the tab loses this virtual project. This is not npm, a build server, or a Jac runtime. Untrusted DOM scripts can freeze a renderer; the preview timer is best-effort, not an OS isolation guarantee.</p>
+          <h3>JavaScript and TensorFlow.js sandbox</h3>
+          <p>JavaScript code fences have a review-first <strong>Run</strong> action. The code runs in a disposable worker inside an opaque-origin frame with network access blocked, no DOM access and a time limit. With the optional TensorFlow.js 4.22.0 CPU runtime enabled, snippets can use TensorFlow.js operations and the <code>loadLocalGraphModel()</code> / <code>loadLocalLayersModel()</code> helpers. To run inference, select a compatible local model JSON file and its weight shards in the sandbox dialog. Eltes ships the framework, not model weights; TensorFlow.js is not itself a conversational model. Selected files remain in the tab and are not sent to the hosted model. This is a browser execution boundary, not a promise of complete security against browser or engine vulnerabilities.</p>
+          <p>Supported source highlighting includes JavaScript, Jac and other languages, including PHP and Lua.</p>
+          <h3>Account modes</h3>
+          <p>The static Supabase account UI remains available at auth.html. The accumulated branch’s backend-hosted mode is preserved at <a href="cookie-auth.html">cookie-auth.html</a>, using HttpOnly SameSite cookies through /api/auth; its display profile stays in memory. These modes have separate sessions and profile tables; signing out of one does not sign out of the other. Chat currently displays the static account profile. No passwords are saved by either Eltes client. Use the cookie mode only with a configured local or Vercel backend.</p>
+          <h3>Jac source files</h3>
+          <p>Eltes recognizes <code>.jac</code> files and <code>jac</code> code fences for syntax highlighting, attachment and download. Jac is not executed by the JavaScript sandbox. If you install a Jac runtime in the local environment, run it through the separate local terminal with an explicit plan and exact-command approval. No Jac runtime is bundled with Eltes, and Eltes does not claim Jac's compiler internals or execution guarantees.</p>
+
           <h3>On-device agent runs</h3>
           <p>With an Eltes CAI model selected, Agent mode never calls a provider. The planner runs in the tab, so tool cards appear with arguments, result and runtime, and the reply ends with <em>On-device agent · N tool calls · nothing left this browser.</em> Turn the Agent chip off and the same prompt gets the plain router answer instead.</p>
 
@@ -752,7 +812,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
           <div class="callout tip">
             <span data-icon="wrench" data-icon-size="15"></span>
-            <span><strong>Nothing leaves the page for tools.</strong> Arithmetic, time and history search run locally in JavaScript. Only the model request and its tool results go to the provider.</span>
+            <span><strong>Tool data follows the action you approve.</strong> Arithmetic, time and history search run locally. File contents are sent only when you add them to the draft and press Send; local command output is returned only after you approve the exact command.</span>
           </div>
         </section>
 
@@ -988,7 +1048,7 @@ npm run build
 
           <div class="callout warn">
             <span data-icon="shield" data-icon-size="15"></span>
-            <span><strong>Local only, on purpose.</strong> The terminal is part of <code>npm start</code>, not part of the static site, so a Vercel or GitHub Pages deployment can never run commands. Requests need a per-process token, every path is confined to <code>.studio/</code>, and the shell refuses to start if the workspace cannot be resolved. Keep the local server on a trusted network. <code>ELTES_STUDIO=0</code> disables Studio, <code>ELTES_STUDIO_SHELL=0</code> disables only the shell.</span>
+            <span><strong>Local only, on purpose.</strong> The terminal is part of <code>npm start</code>, not part of the static site, so a Vercel or GitHub Pages deployment can never run commands. Requests need a per-process token, every path is confined to <code>.studio/</code>, and the shell refuses to start if the workspace cannot be resolved. Keep the local server on a trusted network. <code>ELTES_STUDIO=0</code> disables Studio, <code>ELTES_STUDIO_SHELL=1</code> explicitly enables the Studio shell; it is off by default. Commands are not OS-sandboxed.</span>
           </div>
 
           <h3>Without a backend</h3>

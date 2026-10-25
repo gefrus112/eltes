@@ -51,13 +51,13 @@ export const SHELL_FILES = [
 /* The site the desktop app serves. Everything else in the repository (tests,
    tools, docs screenshots, git) stays out of the installer. */
 export const SITE_ENTRIES = [
-  'index.html', 'app.html', 'auth.html', 'docs.html', 'news.html',
+  'index.html', 'app.html', 'auth.html', 'cookie-auth.html', 'video.html', 'docs.html', 'news.html',
   'studio.html', 'train.html', '404.html', 'site.webmanifest',
   'LICENSE', 'NOTICE.md', 'config.js',
   'assets', 'api', 'lib', 'mcp'
 ];
 
-export const SITE_TOOL_FILES = ['tools/local-server.mjs', 'tools/studio.mjs'];
+export const SITE_TOOL_FILES = ['tools/local-server.mjs', 'tools/studio.mjs', 'tools/shell-runner.mjs'];
 export const OPTIONAL_SITE_ENTRIES = ['downloads'];
 
 export function readVersion() {

@@ -664,4 +664,28 @@
   renderModelWall();
   hydrateBrands();
   if (window.EltesIcons) window.EltesIcons.hydrate();
+  /* -------------------------- installable PWA ---------------------------- */
+  const installPwaButton = $('#installPwaBtn');
+  if (installPwaButton) {
+    let installPrompt = null;
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      installPwaButton.hidden = false;
+    });
+    installPwaButton.addEventListener('click', async () => {
+      if (!installPrompt) return;
+      installPwaButton.disabled = true;
+      installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      installPrompt = null;
+      installPwaButton.hidden = choice.outcome === 'accepted';
+      installPwaButton.disabled = false;
+    });
+    window.addEventListener('appinstalled', () => {
+      installPrompt = null;
+      installPwaButton.hidden = true;
+    });
+  }
+
 })();

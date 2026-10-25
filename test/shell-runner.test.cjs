@@ -57,6 +57,17 @@ test('local shell runner requires a private token, loopback client, and same-ori
   assert.equal(payload(allowed).workspace, process.cwd());
 });
 
+test('local runner refuses explicit secret, environment-file, and production-config command targets', async () => {
+  const runner = createShellRunner({ root: process.cwd(), enabled: true });
+  for (const command of ['cat .env', 'cat secrets.json', 'cat vercel.json', 'npm run production', 'git push origin main', 'rm -rf build']) {
+    const req = new MockRequest({ method: 'POST', token: runner.info.token, body: JSON.stringify({ command }) });
+    const res = new MockResponse();
+    await runner.execute(req, res);
+    assert.equal(res.statusCode, 403, `${command} should be blocked before execution`);
+    assert.match(payload(res).error, /safety boundaries/);
+  }
+});
+
 test('approved local commands run in the fixed workspace with bounded output', async () => {
   const runner = createShellRunner({ root: process.cwd(), enabled: true });
   const command = process.platform === 'win32' ? 'echo runner-ok' : "printf 'runner-ok'";

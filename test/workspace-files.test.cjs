@@ -5,15 +5,22 @@ const path = require('node:path');
 
 const read = (file) => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 
-test('file browsing is limited to a user-selected read-only folder and reviewed draft content', () => {
+test('file access stays scoped to a user-selected folder with protected files filtered and reviewed writes', () => {
   const html = read('app.html');
   const app = read('assets/js/app.js');
   const docs = read('docs.html');
   assert.match(html, /id="workspaceFilesDialog"/);
   assert.match(html, /id="chooseWorkspaceFolderBtn"/);
-  assert.match(html, /nothing is sent to a model until you press Send/i);
-  assert.match(app, /showDirectoryPicker\(\{ mode: 'read' \}\)/);
+  assert.match(html, /nothing is sent until you press Send/i);
+  assert.match(app, /showDirectoryPicker\(\{ mode: 'readwrite' \}\)/);
   assert.match(app, /for await \(const \[name, handle\] of selectedWorkspaceDirectory\.entries\(\)\)/);
+  assert.match(app, /function isProtectedWorkspaceFile\(name\)/);
+  assert.match(app, /function isProtectedShellCommand\(command\)/);
+  assert.match(app, /workspaceWrite: true/);
+  assert.match(app, /createWritable\(\)/);
+  assert.match(app, /requestWorkspaceWriteApproval\(fileEntry, previous, content\)/);
+  assert.match(html, /workspaceWriteApprovalDialog/);
+  assert.match(html, /Approve this file write/);
   assert.match(app, /found\.length >= 80/);
   assert.match(app, /await attachFiles\(\[file\]\)/);
   assert.match(app, /Folder disconnected\. Access is cleared for this tab\./);

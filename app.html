@@ -623,11 +623,29 @@
         <button class="icon-btn" data-close="workspaceFilesDialog" aria-label="Close folder access" data-icon="x" data-icon-size="17"></button>
       </div>
       <div class="workspace-files-content">
-        <div class="workspace-files-note"><span data-icon="shield-check" data-icon-size="15" aria-hidden="true"></span><span>Choose a folder to browse its top-level text and code files. File contents are added to your draft for review; nothing is sent to a model until you press Send. Access is kept in memory for this tab and is not saved by Eltes.</span></div>
+        <div class="workspace-files-note"><span data-icon="shield-check" data-icon-size="15" aria-hidden="true"></span><span>Choose one folder to browse safe top-level source files. Reading only adds contents to your draft; nothing is sent until you press Send. The agent may propose changes only to listed files, and every complete write is shown for your approval. Access stays in memory for this tab.</span></div>
         <div class="workspace-files-actions"><button id="chooseWorkspaceFolderBtn" class="btn btn-primary btn-sm" type="button"><span data-icon="folder-open" data-icon-size="13"></span>Choose folder</button><button id="disconnectWorkspaceFolderBtn" class="btn btn-ghost btn-sm" type="button" hidden>Disconnect folder</button><span id="workspaceFilesStatus" role="status" aria-live="polite">No folder selected.</span></div>
         <div id="workspaceFilesList" class="workspace-files-list" role="list" aria-label="Text and code files in the selected folder"><div class="workspace-files-empty">Select a folder to see supported text and code files.</div></div>
-        <p class="workspace-files-footnote">Only top-level files are listed; subfolders are not scanned. Files above 400 KB are rejected by the composer’s existing attachment limit.</p>
+        <p class="workspace-files-footnote">Only top-level files are listed; subfolders are not scanned. Secret, .env, key, and production/deployment files are excluded. Reads add content to a reviewable draft; writes are limited to existing listed files up to 100 KB and require separate approval.</p>
       </div>
+    </div>
+  </dialog>
+
+  <!-- ======================= workspace write review ==================== -->
+  <dialog id="workspaceWriteApprovalDialog" class="workspace-write-approval-dialog" aria-labelledby="workspaceWriteApprovalTitle">
+    <div class="dlg workspace-write-approval-body">
+      <div class="dlg-head">
+        <span class="mcp-approval-mark" data-icon="pencil" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="workspaceWriteApprovalTitle">Review file change</h3><div class="sub">No change is made until you approve this exact replacement.</div></div>
+      </div>
+      <div class="workspace-write-name" id="workspaceWriteApprovalName"></div>
+      <div class="workspace-write-columns">
+        <section><h4>Current file</h4><pre id="workspaceWriteBefore"></pre></section>
+        <section><h4>Proposed replacement</h4><pre id="workspaceWriteAfter"></pre></section>
+      </div>
+      <p class="workspace-write-warning">Review the entire file. Eltes never writes secrets, .env files, private keys, or production/deployment configuration. This approval applies only to this listed file.</p>
+      <div class="workspace-write-status" id="workspaceWriteStatus" role="status" aria-live="polite"></div>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyWorkspaceWriteBtn" type="button">Do not write</button><button class="btn btn-primary btn-sm" id="approveWorkspaceWriteBtn" type="button">Approve this file write</button></div>
     </div>
   </dialog>
 
@@ -641,7 +659,7 @@
         <button class="icon-btn" data-close="localShellDialog" aria-label="Close terminal settings" data-icon="x" data-icon-size="17"></button>
       </div>
       <div class="local-shell-content">
-        <div class="local-shell-warning"><span data-icon="triangle-alert" data-icon-size="15" aria-hidden="true"></span><span>Commands can read, change, or delete files with the server user’s permissions. Every command is shown for approval first. Output is returned to the selected model. Use only on a computer you control.</span></div>
+        <div class="local-shell-warning"><span data-icon="triangle-alert" data-icon-size="15" aria-hidden="true"></span><span>Commands can read, change, or delete files with the server user’s permissions. Common direct references to secrets, .env files, deployment targets, and destructive operations are blocked, but these filters are not complete. Every command is shown for approval first. Output is returned to the selected model. This is not a sandbox; use only on a computer you control.</span></div>
         <p class="local-shell-setup">Start the Eltes Node server locally with shell support enabled. Bash/macOS/Linux: <code>ELTES_ENABLE_SHELL=1 HOST=127.0.0.1 npm start</code>. PowerShell: <code>$env:ELTES_ENABLE_SHELL=1; $env:HOST='127.0.0.1'; npm start</code>. On Chromebook, start it from the Linux development terminal and use the local Eltes page, not the hosted PWA. Copy the one-time token printed by the server. It runs new commands as the server user; it does not attach to or read an existing terminal session. Python commands such as <code>python3 --version</code> work only if Python is installed in that same environment; each command starts a new process, not an interactive Python session. After connecting, turn on Tools and use a hosted model. This runner is unavailable on GitHub Pages or Vercel.</p>
         <label class="local-shell-label" for="localShellToken">One-time pairing token</label>
         <input id="localShellToken" type="password" autocomplete="new-password" spellcheck="false" placeholder="Paste token from your local server terminal" />
@@ -703,6 +721,25 @@
     </div>
   </dialog>
 
+  <!-- ======================== isolated JavaScript sandbox ================= -->
+  <dialog id="jsSandboxDialog" class="js-sandbox-dialog" aria-labelledby="jsSandboxTitle">
+    <div class="dlg js-sandbox-body">
+      <div class="dlg-head">
+        <span class="mcp-dialog-mark" data-icon="play" data-icon-size="17" aria-hidden="true"></span>
+        <div><h3 id="jsSandboxTitle">JavaScript sandbox</h3><div class="sub">Review the code, then run it in an isolated browser frame.</div></div>
+        <span class="grow"></span>
+        <button class="icon-btn" data-close="jsSandboxDialog" aria-label="Close JavaScript sandbox" data-icon="x" data-icon-size="17"></button>
+      </div>
+      <div class="js-sandbox-warning"><span data-icon="shield-check" data-icon-size="14" aria-hidden="true"></span><span>JavaScript only. No access to the Eltes UI or selected files; network connections are blocked. This is not an OS shell or a complete security boundary. Run only code you understand.</span></div>
+      <div class="js-sandbox-label" id="jsSandboxSourceLabel">Code to run</div>
+      <pre id="jsSandboxSource" class="js-sandbox-source"></pre>
+      <div class="js-sandbox-output-head"><strong>Output</strong><span id="jsSandboxStatus" role="status" aria-live="polite">Not run yet.</span></div>
+      <pre id="jsSandboxOutput" class="js-sandbox-output" aria-live="polite">Logs and returned values appear here.</pre>
+      <iframe id="jsSandboxFrame" title="Isolated JavaScript execution frame" sandbox="allow-scripts" referrerpolicy="no-referrer" hidden></iframe>
+      <div class="dlg-actions"><button class="btn btn-ghost btn-sm" data-close="jsSandboxDialog" type="button">Cancel</button><button class="btn btn-primary btn-sm" id="runJsSandboxBtn" type="button"><span data-icon="play" data-icon-size="13"></span>Run reviewed code</button></div>
+    </div>
+  </dialog>
+
   <!-- ============================== HTML preview ========================== -->
   <dialog id="htmlPreviewDialog" class="html-preview-dialog" aria-label="HTML code preview">
     <div class="dlg html-preview-shell">
@@ -736,7 +773,7 @@
   </dialog>
 
   <input type="file" id="attachInput" multiple hidden
-    accept=".txt,.md,.markdown,.js,.mjs,.cjs,.ts,.tsx,.jsx,.json,.css,.scss,.html,.xml,.py,.php,.lua,.go,.rs,.java,.c,.h,.cpp,.sh,.sql,.yml,.yaml,.toml,.env,.csv,.log,.ini" />
+    accept=".txt,.md,.markdown,.js,.mjs,.cjs,.ts,.tsx,.jsx,.json,.css,.scss,.html,.xml,.py,.php,.lua,.go,.rs,.java,.c,.h,.cpp,.sh,.sql,.yml,.yaml,.toml,.csv,.log,.ini" />
 
   <script src="assets/js/icons.js"></script>
   <script src="assets/js/brands.js"></script>

@@ -405,7 +405,12 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="agent">
           <h2>Agent &amp; tools <a class="anchor" href="#agent" aria-label="Link to agent and tools" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Tools are real function calls, not a scripted animation. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and a supported model may call one of Eltes’ built-in local tools or tools from connected MCP servers. Eltes executes each call and returns its result to the model, then lets it continue — up to four rounds.</p>
+          <p>Tools are real function calls, not a scripted animation. The selected hosted provider model is the reasoning model; Eltes does not simulate a stronger underlying LLM. Turn on <strong>Tools</strong> in the composer (or set it as the default in Settings) and a supported model may call local tools or approved MCP tools. Eltes returns each result to the model for up to four think → act → observe rounds.</p>
+          <ul>
+            <li><strong>Plan before mutation:</strong> before any file write, generated code artifact, or terminal command, the agent must show a visible <code>Plan:</code> with target filenames and checks. The app blocks mutating tool calls until that plan appears.</li>
+            <li><strong>Workspace context:</strong> each chat keeps bounded local notes about safe filenames explicitly added to drafts and recent approved actions. Notes contain no file contents and are hints, not proof of current filesystem state.</li>
+            <li><strong>Hard boundaries:</strong> the agent is instructed not to open or modify secrets, <code>.env</code> files, private keys, or production/deployment configuration. The file browser filters known protected names, and shell checks common direct references. These safeguards are not a substitute for a sandbox; do not expose secrets to a model or approve commands you do not understand.</li>
+          </ul>
 
           <table class="doc-table">
             <thead><tr><th>Tool</th><th>Input</th><th>What it does</th></tr></thead>
@@ -414,9 +419,12 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
               <tr><td><code>current_time</code></td><td><code>{ timezone? }</code></td><td>Returns the current date and time, optionally in an IANA timezone</td></tr>
               <tr><td><code>search_history</code></td><td><code>{ query }</code></td><td>Searches saved conversations locally and returns titles plus snippets</td></tr>
               <tr><td><code>create_file</code></td><td><code>{ filename, content }</code></td><td>After you approve the full contents, stores one text file in the chat as a download (up to 100 KiB each; 10 files / 800 KiB per chat)</td></tr>
+              <tr><td><code>write_workspace_file</code></td><td><code>{ filename, content }</code></td><td>Replaces one existing safe file in the selected folder only after you review the complete before/after contents and approve the write</td></tr>
               <tr><td><code>run_shell</code></td><td><code>{ command }</code></td><td>Only when connected to an opt-in local Node runner; each exact command requires browser approval. Commands run with your OS account permissions and are not sandboxed.</td></tr>
             </tbody>
           </table>
+          <p><strong>Files:</strong> choose a folder yourself using the browser picker. The list is top-level only and filters known secret, <code>.env</code>, private-key, and production/deployment filenames. Clicking <em>Add to draft</em> inserts file text into the composer; contents go to the selected model only if you press <strong>Send</strong>. To write, the agent can only target an existing listed file (up to 100 KB). It shows the complete current and proposed file before a separate write approval. Folder permission stays in memory for this tab.</p>
+          <p><strong>JavaScript sandbox:</strong> the Run action on JavaScript code fences opens a review-first, opaque-origin frame that runs the approved snippet in a disposable worker. Network requests are blocked by policy, and the frame is reset after eight seconds, including if a script stops responding. It can run JavaScript snippets, not shell commands, Python, npm, or pytest. It is not a complete OS security boundary. For OS commands, use the separate local runner only when you explicitly need it.</p>
 
           <h3>What the timeline shows</h3>
           <ul>
@@ -449,7 +457,7 @@ OLLAMA_ORIGINS=<span class="s">"https://eltes.example"</span> ollama serve</code
 
         <section id="chat">
           <h2>Chats &amp; export <a class="anchor" href="#chat" aria-label="Link to chats and export" data-icon="link-2" data-icon-size="16"></a></h2>
-          <p>Conversations are grouped into Today, Yesterday, Previous 7 days, Previous 30 days and Older. Pinned chats sit on top. Every row has a menu with rename, pin, clear, export and delete. Use <strong>Guide</strong> in the composer to set per-chat preferences for hosted models; those preferences are saved with that conversation. The on-device CAI helper does not apply free-form instructions. Installing Eltes as a web app does not grant access to your computer. In browsers that support the secure-context folder picker, the <strong>Files</strong> button opens a folder you explicitly select; only top-level supported text/code files are listed, and adding a file places its contents in the draft for your review before sending. Folder access is memory-only for the current tab; it is not recursive and does not grant access to the rest of the device. If folder picking is unavailable, use <strong>Attach</strong> to choose individual files. Quick setup has shortcuts to choose files or configure the local runner.</p>
+          <p>Conversations are grouped into Today, Yesterday, Previous 7 days, Previous 30 days and Older. Pinned chats sit on top. Every row has a menu with rename, pin, clear, export and delete. Use <strong>Guide</strong> in the composer to set per-chat preferences for hosted models; those preferences are saved with that conversation. The on-device CAI helper does not apply free-form instructions. Installing Eltes as a web app does not grant access to your computer. In browsers that support the secure-context folder picker, the <strong>Files</strong> button opens a folder you explicitly select; only safe top-level supported text/code files are listed. Adding a file places its contents in the draft for your review before sending. Existing listed files can be written only after the full before/after is reviewed and approved. Folder access is memory-only for the current tab; it is not recursive and does not grant access to the rest of the device. If folder picking is unavailable, use <strong>Attach</strong> to choose individual safe files. Quick setup has shortcuts to choose files or configure the local runner.</p>
 
           <h3>Editing and retrying</h3>
           <ul>

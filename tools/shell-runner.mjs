@@ -27,6 +27,14 @@ function sameOrigin(req) {
   } catch { return false; }
 }
 
+function targetsProtectedConfiguration(command) {
+  const text = String(command || '').toLowerCase();
+  const terms = ['.env', 'secret', 'credential', 'id_rsa', 'id_ed25519', 'vercel.json', 'netlify.toml', 'firebase.json', 'wrangler.toml', 'terraform.tfstate', 'deploy'];
+  const protectedPath = terms.some((term) => text.includes(term)) || /\bprod(?:uction)?\b/i.test(text);
+  const destructive = /(?:^|[;&|]\s*)git\s+(?:add|commit|push|reset\s+--hard|clean\b)|\brm\s+-[a-z]*r[a-z]*f|\b(?:sudo|shutdown|poweroff|mkfs|npm\s+publish|terraform\s+apply|kubectl\s+(?:apply|delete))\b/i.test(text);
+  return protectedPath || destructive;
+}
+
 function safeEnvironment(root) {
   const keep = ['PATH', 'HOME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'TEMP', 'TMP', 'SYSTEMROOT', 'COMSPEC', 'PATHEXT', 'LANG', 'LC_ALL', 'TERM', 'NODE_ENV'];
   const env = {};
@@ -95,6 +103,9 @@ export function createShellRunner({ root, enabled = false } = {}) {
     const command = typeof payload.command === 'string' ? payload.command.trim() : '';
     if (!command || command.length > MAX_COMMAND_CHARS || command.includes('\0')) {
       return json(res, 400, { error: `Enter a shell command with 1 to ${MAX_COMMAND_CHARS} characters.` });
+    }
+    if (targetsProtectedConfiguration(command)) {
+      return json(res, 403, { error: 'Blocked by Eltes safety boundaries: commands referencing secrets, .env files, private keys, or production configuration are not allowed.' });
     }
 
     const isWindows = process.platform === 'win32';

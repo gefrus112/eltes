@@ -293,6 +293,7 @@
       <div class="settings-body">
         <nav class="settings-nav" aria-label="Settings sections">
           <button class="active" data-tab="general"><span data-icon="sliders-horizontal" data-icon-size="16"></span>General</button>
+          <button data-tab="ctab"><span data-icon="palette" data-icon-size="16"></span>CTab</button>
           <button data-tab="keys"><span data-icon="key-round" data-icon-size="16"></span>API keys</button>
           <button data-tab="mcp"><span data-icon="plug" data-icon-size="16"></span>MCP</button>
           <button data-tab="models"><span data-icon="layers" data-icon-size="16"></span>Models</button>
@@ -383,6 +384,38 @@
                 <div class="lbl"><strong>Show metrics</strong><span>Tokens, latency and tokens per second under each reply.</span></div>
                 <div class="ctl"><button class="toggle" role="switch" aria-checked="true" id="toggleMetrics" aria-label="Show metrics"></button></div>
               </div>
+            </div>
+          </section>
+
+          <section data-panel="ctab">
+            <div class="set-group">
+              <h4>CTab · Customize chat design</h4>
+              <p class="group-desc">Your workspace, your style. Start with a familiar layout, then make it yours. Dark surfaces stay dark. These are Eltes adaptations, not official interfaces or provider integrations. Changing a design never changes your model, API keys, or chats.</p>
+              <div class="ctab-presets" id="chatDesignPresets" role="group" aria-label="Chat design presets"></div>
+            </div>
+            <div class="set-group">
+              <h4>Make it yours</h4>
+              <div class="ctab-controls">
+                <label>Surface theme<select id="chatThemeSelect" class="select"><option value="black">Obsidian · true black</option><option value="grey">Graphite · soft charcoal</option></select></label>
+                <label>Accent color<input id="chatDesignAccent" type="color" value="#c4c7cf" /></label>
+                <label>Answer font<select id="chatDesignFont" class="select"><option value="system">System sans</option><option value="serif">Editorial serif</option><option value="mono">Code monospace</option></select></label>
+                <label>Message layout<select id="chatDesignLayout" class="select"><option value="bubbles">User bubbles</option><option value="flat">Flat conversation</option><option value="cards">Answer cards</option></select></label>
+                <label>Chat width <span id="chatDesignWidthValue"></span><input id="chatDesignWidth" type="range" min="680" max="1200" step="1" value="900" /></label>
+                <label>Text size <span id="chatDesignSizeValue"></span><input id="chatDesignSize" type="range" min="13" max="20" value="14" /></label>
+                <label>Corner radius <span id="chatDesignRadiusValue"></span><input id="chatDesignRadius" type="range" min="0" max="28" value="16" /></label>
+                <label>Message spacing<select id="chatDesignSpacing" class="select"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></label>
+              </div>
+            </div>
+            <div class="set-group">
+              <h4>Live design preview</h4>
+              <p class="group-desc">Sample content only. Your real chat updates immediately behind Settings.</p>
+              <div class="ctab-preview" id="chatDesignPreview">
+                <div class="ctab-preview-head"><span data-icon="message-square" data-icon-size="16"></span><strong>Eltes</strong><span>Design preview</span></div>
+                <div class="ctab-sample-user">Build a small website and show me the code.</div>
+                <div class="ctab-sample-answer"><strong>Plan</strong><p>Create the files, review the source, then preview the result.</p><code>index.html · styles.css · app.js</code></div>
+                <div class="ctab-sample-composer"><span>Ask a follow-up…</span><span class="ctab-sample-send" data-icon="arrow-up" data-icon-size="16"></span></div>
+              </div>
+              <div class="ctab-footer"><span id="chatDesignStatus" role="status">Saved on this device.</span><button id="resetChatDesign" class="btn btn-ghost btn-sm" type="button">Reset chat design</button></div>
             </div>
           </section>
 
@@ -633,11 +666,11 @@
     <div class="dlg artifact-approval-body">
       <div class="dlg-head">
         <span class="mcp-dialog-mark" data-icon="file-code-2" data-icon-size="17" aria-hidden="true"></span>
-        <div><h3 id="artifactApprovalTitle">Review generated file</h3><div class="sub">The agent prepared a file. Review it before adding a download to this chat.</div></div>
+        <div><h3 id="artifactApprovalTitle">Review generated file</h3><div class="sub" id="artifactApprovalDescription">The agent prepared a file. Review it before adding a download to this chat.</div></div>
       </div>
       <div class="artifact-approval-name" id="artifactApprovalName"></div>
       <pre id="artifactApprovalContent" class="artifact-approval-content"></pre>
-      <p class="artifact-approval-note">This does not run code or shell commands, and it does not write into a project folder. Approving stores the file in this local conversation so you can download it.</p>
+      <p class="artifact-approval-note" id="artifactApprovalNote">This does not run code or shell commands, and it does not write into a project folder. Approving stores the file in this local conversation so you can download it.</p>
       <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyArtifactBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="approveArtifactBtn" type="button">Approve file</button></div>
     </div>
   </dialog>
@@ -764,7 +797,8 @@
       </div>
       <div class="shell-approval-workspace"><span>WORKING DIRECTORY</span><strong id="shellApprovalWorkspace"></strong></div>
       <pre id="shellApprovalCommand" class="shell-approval-command"></pre>
-      <p class="shell-approval-warning">Only approve commands you understand. They run with your account’s permissions and can modify files. This is not a sandbox.</p>
+      <pre id="shellApprovalSource" class="shell-approval-command" tabindex="0" aria-label="Complete script to execute" hidden></pre>
+      <p class="shell-approval-warning">Only approve commands you understand. They run with your account’s permissions and can modify files. This is not a sandbox. For model-requested runs, output is returned to your selected provider.</p>
       <div class="dlg-actions"><button class="btn btn-ghost btn-sm" id="denyShellCommandBtn" type="button">Deny</button><button class="btn btn-primary btn-sm" id="approveShellCommandBtn" type="button">Run this command</button></div>
     </div>
   </dialog>
@@ -773,11 +807,15 @@
   <!-- ======================== isolated JavaScript sandbox ================= -->
   <dialog id="projectSandboxDialog" class="project-sandbox" aria-labelledby="projectSandboxTitle">
     <div class="dlg">
-      <div class="dlg-head"><h3 id="projectSandboxTitle">Browser coding workspace</h3><span class="grow"></span><button class="btn btn-ghost" data-close="projectSandboxDialog" type="button">Close</button></div>
-      <p class="dlg-body">Ask a hosted tool-capable model to build a website using <code>write_project_file</code>. Approve each file, edit here, then preview. Files live only in this tab; download them before leaving. This is not a shell or npm environment. Jac can be edited, not executed.</p>
+      <div class="dlg-head"><span data-icon="code-2" aria-hidden="true"></span><h3 id="projectSandboxTitle">Code workspace</h3><span class="grow"></span><button class="btn btn-ghost" id="projectSandboxCancelTask" type="button">Stop task</button><button class="btn btn-ghost" data-close="projectSandboxDialog" type="button">Close</button></div>
+      <p class="dlg-body">Watch your selected model (including Claude) write source, then approve files before saving. Preview websites in the browser, or approve Python / JavaScript / TypeScript scripts on a paired local runner. Local execution is <strong>not an OS sandbox</strong>. Files live only in this tab; download them before leaving. Jac is source-only.</p>
+      <div class="project-observer">
+        <section aria-labelledby="projectSandboxDraftTitle"><h4 id="projectSandboxDraftTitle">Live source · waiting for coding tools</h4><pre id="projectSandboxDraft" tabindex="0" aria-label="Unapproved model source draft">Source appears here as tool arguments arrive. Drafts never run automatically.</pre></section>
+        <section aria-labelledby="projectSandboxActivityTitle"><h4 id="projectSandboxActivityTitle">Activity &amp; terminal output</h4><pre id="projectSandboxActivity" tabindex="0" aria-label="Coding activity and command output">Ready. No commands running.</pre></section>
+      </div>
       <div class="project-grid">
         <aside aria-label="Browser project files"><div id="projectSandboxFiles"></div><label for="projectSandboxNewName">New file</label><input type="text" id="projectSandboxNewName" placeholder="index.html" /><button id="projectSandboxAdd" class="btn btn-ghost" type="button">Add file</button></aside>
-        <section><h4 id="projectSandboxFilename">No file selected</h4><textarea id="projectSandboxEditor" aria-label="Source editor" spellcheck="false"></textarea><button id="projectSandboxSave" class="btn btn-ghost" type="button">Save in tab</button><button id="projectSandboxDownload" class="btn btn-ghost" type="button">Download file</button></section>
+        <section><h4 id="projectSandboxFilename">No file selected</h4><textarea id="projectSandboxEditor" aria-label="Source editor" aria-describedby="projectSandboxEditorInfo projectSandboxKeyboardHelp" spellcheck="false"></textarea><button id="projectSandboxSave" class="btn btn-ghost" type="button">Save in tab</button><button id="projectSandboxDiscard" class="btn btn-ghost" type="button">Discard edits</button><p id="projectSandboxEditorInfo" class="project-runtime-note">Tab indents · Ctrl/Cmd+S saves</p><p id="projectSandboxKeyboardHelp" class="project-runtime-note">Tab indents. Escape, then Tab moves to the next control. Shift+Tab moves back. Ctrl/Cmd+S saves in this tab.</p><button id="projectSandboxDownload" class="btn btn-ghost" type="button">Download file</button><button id="projectSandboxJS" class="btn btn-ghost" type="button" disabled>Review JS in browser sandbox</button><button id="projectSandboxScript" class="btn btn-primary" type="button" disabled>Run saved script locally</button><p class="project-runtime-note">Local scripts: .py, .js, .ts. Only the saved file is copied to a temporary directory. Python needs an installed interpreter; TypeScript needs Node.js 22.18+ and erasable type syntax. No automatic package installs.</p></section>
         <section><h4>Isolated preview</h4><iframe id="projectSandboxPreview" title="Isolated website preview" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe><button id="projectSandboxRun" class="btn btn-primary" type="button">Preview reviewed code</button><button id="projectSandboxStop" class="btn btn-ghost" type="button">Stop preview</button></section>
       </div><p class="dlg-body" id="projectSandboxStatus" role="status">No files yet. No automatic execution or disk access.</p>
     </div>
@@ -855,6 +893,7 @@
   <script src="assets/js/highlighter.js"></script>
   <script src="assets/js/artifacts.js"></script>
   <script src="assets/js/project-sandbox.js"></script>
+  <script src="assets/js/chat-design.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

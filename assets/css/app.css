@@ -2412,3 +2412,70 @@ body.app .workspace-write-columns pre, body.app .js-sandbox-source, body.app .js
 .project-grid input { width:100%; background:#111; color:white; padding:8px; border:1px solid #444; }
 #projectSandboxFiles { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
 @media (max-width:800px) { .project-grid { grid-template-columns:1fr; } }
+
+/* Live code is a non-modal panel: chat Stop stays reachable, approvals sit above it. */
+.project-sandbox.project-live { position:fixed; inset:72px 16px auto auto; margin:0; z-index:90; width:min(1160px,calc(100vw - 32px)); background:#090909; color:#eee; border:1px solid #363636; border-radius:12px; box-shadow:0 18px 60px #000a; }
+.project-live > .dlg { max-height:calc(100dvh - 220px); background:#090909; }
+.project-observer { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:0 16px 16px; }
+.project-observer section { min-width:0; }
+.project-observer h4 { font-size:12px; color:#b8c4bf; margin:0 0 8px; overflow-wrap:anywhere; }
+.project-observer pre { height:180px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; margin:0; padding:12px; background:#020303; color:#d3e5db; border:1px solid #2a302d; border-radius:6px; font:12px/1.6 monospace; }
+.project-runtime-note { color:#aaa; font-size:12px; line-height:1.6; }
+@media (max-width:800px) {
+  .project-observer { grid-template-columns:1fr; }
+  .project-sandbox.project-live { inset:60px 8px auto auto; width:calc(100vw - 16px); }
+  .project-live > .dlg { max-height:calc(100dvh - 180px); }
+  .project-live .dlg-head { flex-wrap:wrap; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .project-sandbox, .project-sandbox * { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+}
+
+/* CTab adapts visual language only; model identities and controls stay intact. */
+body.app[data-chat-design] .thread-inner, body.app[data-chat-design] .composer-dock { max-width:var(--ctab-width); }
+body.app[data-chat-design] .prose, body.app[data-chat-design] .msg.user .bubble { font-family:var(--ctab-font); font-size:var(--ctab-size); }
+body.app[data-chat-design] .composer, body.app[data-chat-design] .msg.user .bubble { border-radius:var(--ctab-radius); }
+body.app[data-chat-design] .composer:focus-within { border-color:var(--ctab-accent) !important; box-shadow:0 0 0 1px rgba(var(--accent-rgb),.12); }
+body.app[data-chat-design] .send-btn:not(.stop), body.app[data-chat-design] .avatar-ai { color:var(--ctab-on-accent); background:var(--ctab-accent); }
+body.app[data-chat-layout="flat"] .msg.user { justify-content:flex-start; }
+body.app[data-chat-layout="flat"] .msg.user .msg-body { max-width:100%; align-items:flex-start; }
+body.app[data-chat-layout="flat"] .msg.user .bubble { background:transparent !important; border:0; border-left:2px solid var(--ctab-accent); border-radius:0; padding-left:14px; }
+body.app[data-chat-layout="cards"] .msg.ai .msg-body { background:var(--ink-2); border:1px solid var(--line-2); border-radius:var(--ctab-radius); padding:18px; }
+body.app[data-chat-design="kimi"] .msg-head { font-family:var(--mono); border-bottom:1px solid var(--line-2); padding-bottom:8px; }
+body.app[data-chat-design="gemini"] .msg.ai .msg-body { border-top:2px solid var(--ctab-accent); }
+body.app[data-chat-design="claude"] .prose { line-height:1.85; }
+/* Respect Graphite even where the older black-shell rules used literal colors. */
+body.app[data-theme="grey"], body.app[data-theme="grey"] .shell, body.app[data-theme="grey"] .main,
+body.app[data-theme="grey"] .thread { background:#101113 !important; }
+body.app[data-theme="grey"] .side, body.app[data-theme="grey"] .topbar,
+body.app[data-theme="grey"] .settings-nav { background:#17181b !important; }
+body.app[data-theme="grey"] .dlg, body.app[data-theme="grey"] .composer { background:#1b1c20 !important; }
+body.app[data-theme="grey"] .composer-dock { background:linear-gradient(180deg,transparent,#101113 36%) !important; }
+body.app[data-theme="grey"] .msg.user .bubble { background:#25272b !important; }
+body.app[data-theme="grey"][data-chat-layout="flat"] .msg.user .bubble { background:transparent !important; }
+.ctab-presets { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.ctab-preset { position:relative; display:grid; grid-template-columns:12px 1fr; gap:5px 9px; padding:13px; text-align:left; background:#111; border:1px solid #333; border-radius:10px; }
+.ctab-preset strong { font-size:12px; color:#eee; }
+.ctab-preset > span:last-child { grid-column:2; color:#aaa; font-size:11px; line-height:1.5; }
+.ctab-swatch { width:10px; height:10px; border-radius:50%; margin-top:3px; }
+.ctab-preset[aria-pressed="true"] { border-color:var(--ctab-accent); box-shadow:inset 0 0 0 1px var(--ctab-accent); outline:1px solid var(--accent-text); outline-offset:2px; }
+.ctab-preset:focus-visible, .ctab-controls input:focus-visible, .ctab-controls select:focus-visible { outline:2px solid #eee; outline-offset:3px; }
+.ctab-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.ctab-controls label { display:flex; flex-direction:column; gap:9px; font-size:12px; color:#ccc; }
+.ctab-controls input[type="range"] { width:100%; accent-color:var(--ctab-accent); }
+.ctab-controls input[type="color"] { width:100%; height:35px; border:1px solid #444; background:#111; border-radius:6px; cursor:pointer; }
+.ctab-controls label > span { color:var(--text-2); font:11px var(--mono); }
+.ctab-preview { padding:18px; background:var(--ink-0); border:1px solid var(--line-2); border-radius:12px; }
+.ctab-preview-head { display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:20px; }
+.ctab-preview-head > span:last-child { color:var(--text-2); margin-left:auto; font-size:10px; }
+.ctab-sample-user { margin:0 0 18px auto; width:85%; padding:12px; background:var(--ink-4); border:1px solid var(--line-2); border-radius:var(--ctab-radius); font-family:var(--ctab-font); font-size:var(--ctab-size); }
+.ctab-sample-answer { font-family:var(--ctab-font); font-size:var(--ctab-size); line-height:1.7; padding:12px; }
+.ctab-sample-answer p { margin:8px 0; }
+.ctab-sample-answer code { font:11px var(--mono); color:#bbb; }
+.ctab-preview[data-layout="flat"] .ctab-sample-user { margin-left:0; width:100%; background:transparent; border:0; border-left:2px solid var(--ctab-accent); border-radius:0; }
+.ctab-preview[data-layout="cards"] .ctab-sample-answer { background:var(--ink-2); border:1px solid var(--line-2); border-radius:var(--ctab-radius); }
+.ctab-sample-composer { display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding:12px; border:1px solid var(--line-3); border-radius:var(--ctab-radius); color:#aaa; font-size:12px; }
+.ctab-sample-send { display:grid; place-items:center; padding:6px; border-radius:6px; background:var(--ctab-accent); color:var(--ctab-on-accent); }
+.ctab-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:14px; font-size:11px; color:var(--text-2); }
+@media (max-width:600px) { .ctab-presets, .ctab-controls { grid-template-columns:1fr; } }
+#settingsDialog { margin:auto; }

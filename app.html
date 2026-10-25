@@ -813,10 +813,11 @@
         <section aria-labelledby="projectSandboxDraftTitle"><h4 id="projectSandboxDraftTitle">Live source · waiting for coding tools</h4><pre id="projectSandboxDraft" tabindex="0" aria-label="Unapproved model source draft">Source appears here as tool arguments arrive. Drafts never run automatically.</pre></section>
         <section aria-labelledby="projectSandboxActivityTitle"><h4 id="projectSandboxActivityTitle">Activity &amp; terminal output</h4><pre id="projectSandboxActivity" tabindex="0" aria-label="Coding activity and command output">Ready. No commands running.</pre></section>
       </div>
+      <div id="agentTerminalCards" class="agent-terminal-cards" aria-label="Local command runs" role="region"></div>
       <div class="project-grid">
         <aside aria-label="Browser project files"><div id="projectSandboxFiles"></div><label for="projectSandboxNewName">New file</label><input type="text" id="projectSandboxNewName" placeholder="index.html" /><button id="projectSandboxAdd" class="btn btn-ghost" type="button">Add file</button></aside>
         <section><h4 id="projectSandboxFilename">No file selected</h4><textarea id="projectSandboxEditor" aria-label="Source editor" aria-describedby="projectSandboxEditorInfo projectSandboxKeyboardHelp" spellcheck="false"></textarea><button id="projectSandboxSave" class="btn btn-ghost" type="button">Save in tab</button><button id="projectSandboxDiscard" class="btn btn-ghost" type="button">Discard edits</button><p id="projectSandboxEditorInfo" class="project-runtime-note">Tab indents · Ctrl/Cmd+S saves</p><p id="projectSandboxKeyboardHelp" class="project-runtime-note">Tab indents. Escape, then Tab moves to the next control. Shift+Tab moves back. Ctrl/Cmd+S saves in this tab.</p><button id="projectSandboxDownload" class="btn btn-ghost" type="button">Download file</button><button id="projectSandboxJS" class="btn btn-ghost" type="button" disabled>Review JS in browser sandbox</button><button id="projectSandboxScript" class="btn btn-primary" type="button" disabled>Run saved script locally</button><p class="project-runtime-note">Local scripts: .py, .js, .ts. Only the saved file is copied to a temporary directory. Python needs an installed interpreter; TypeScript needs Node.js 22.18+ and erasable type syntax. No automatic package installs.</p></section>
-        <section><h4>Isolated preview</h4><iframe id="projectSandboxPreview" title="Isolated website preview" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe><button id="projectSandboxRun" class="btn btn-primary" type="button">Preview reviewed code</button><button id="projectSandboxStop" class="btn btn-ghost" type="button">Stop preview</button></section>
+        <section><h4>Isolated preview</h4><label class="project-runtime-note"><input id="projectSandboxThree" type="checkbox" /> Bundled Three.js (offline WebGL2)</label><button id="projectSandboxThreeStarter" class="btn btn-ghost" type="button">Review 3D starter</button><iframe id="projectSandboxPreview" title="Isolated website preview" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe><button id="projectSandboxRun" class="btn btn-primary" type="button">Preview reviewed code</button><button id="projectSandboxStop" class="btn btn-ghost" type="button">Stop preview</button></section>
       </div><p class="dlg-body" id="projectSandboxStatus" role="status">No files yet. No automatic execution or disk access.</p>
     </div>
   </dialog>
@@ -892,6 +893,9 @@
   <script src="assets/js/chat-embers.js"></script>
   <script src="assets/js/highlighter.js"></script>
   <script src="assets/js/artifacts.js"></script>
+  <script src="assets/js/agent-ui.js"></script>
+  <script src="assets/js/local-project.js"></script>
+  <script src="assets/js/three-preview.js"></script>
   <script src="assets/js/project-sandbox.js"></script>
   <script src="assets/js/chat-design.js"></script>
   <script src="assets/js/app.js"></script>

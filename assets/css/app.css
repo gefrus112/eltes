@@ -2479,3 +2479,13 @@ body.app[data-theme="grey"][data-chat-layout="flat"] .msg.user .bubble { backgro
 .ctab-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:14px; font-size:11px; color:var(--text-2); }
 @media (max-width:600px) { .ctab-presets, .ctab-controls { grid-template-columns:1fr; } }
 #settingsDialog { margin:auto; }
+.agent-terminal-cards { padding:0 16px; display:grid; gap:8px; }
+.agent-terminal { border:1px solid #343434; background:#050505; border-radius:8px; overflow:hidden; }
+.agent-terminal summary { cursor:pointer; padding:10px 12px; color:#ddd; font-size:12px; }
+.agent-terminal summary strong { margin-right:10px; color:var(--accent-text); }
+.agent-terminal summary > span { overflow-wrap:anywhere; }
+.agent-terminal-state { display:block; margin:6px 0 0 18px; color:#a8b6af; font-size:11px; }
+.agent-terminal[data-failed="true"] .agent-terminal-state { color:#ffc3b3; }
+.agent-terminal pre { max-height:220px; overflow:auto; padding:12px; margin:0; white-space:pre-wrap; overflow-wrap:anywhere; font:12px/1.6 monospace; color:#ddd; }
+.agent-terminal summary:focus-visible { outline:2px solid white; outline-offset:-3px; }
+.project-grid input[type="checkbox"] { width:auto; margin-right:6px; }

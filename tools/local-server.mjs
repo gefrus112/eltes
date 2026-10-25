@@ -17,7 +17,6 @@ import {
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '0.0.0.0';
-const shellRunner = createShellRunner({ root, enabled: process.env.ELTES_ENABLE_SHELL === '1' });
 const routes = { '/api/auth': auth, '/api/chat': chat, '/api/key-check': keyCheck, '/api/health': health, '/api/search': search };
 const mime = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -34,6 +33,7 @@ const studioToken = process.env.ELTES_STUDIO_TOKEN || randomBytes(16).toString('
 /* A packaged desktop app keeps its Studio workspace in the user's data folder
    (resources/ may be read-only), so the path can be redirected. */
 const workspace = process.env.ELTES_STUDIO_DIR ? resolve(process.env.ELTES_STUDIO_DIR) : resolve(root, WORKSPACE_DIR);
+const shellRunner = createShellRunner({ root, projectRoot: workspace, enabled: process.env.ELTES_ENABLE_SHELL === '1' });
 const studio = studioEnabled
   ? createStudio({
     workspace,
@@ -83,6 +83,10 @@ const server = createServer(async (req, res) => {
 
   if (pathname === '/api/shell/status') {
     shellRunner.status(req, res);
+    return;
+  }
+  if (pathname === '/api/shell/files') {
+    await shellRunner.files(req, res);
     return;
   }
   if (pathname === '/api/shell') {

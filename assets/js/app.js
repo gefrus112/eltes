@@ -546,8 +546,11 @@
   }
 
   /* --------------------------------- tools -------------------------------- */
-  const PROJECT = window.EltesProjectSandbox.create({ openDialog, download, review: (file) => requestArtifactApproval(file, true), readReview: (file) => requestArtifactApproval(file, 'read'), stopped: () => state.stopped,
+  const PROJECT = window.EltesProjectSandbox.create({ openDialog, download, review: (file) => requestArtifactApproval(file, true), readReview: (file) => requestArtifactApproval(file, 'read'), stopped: () => state.sending && state.stopped,
     runScript: (file) => runApprovedLocalShell({}, file), runJavaScript: showJavaScriptSandbox, stopTask: stopGeneration });
+  const LOCAL_PROJECT = window.EltesLocalProject.create({ token: () => state.shellToken, review: requestArtifactApproval,
+    stopped: () => state.stopped, command: args => runApprovedLocalShell(args, null, 'studio'), replaceExact: window.EltesProjectSandbox.replaceExact });
+  const TERMINAL_UI = window.EltesAgentUI.create($('#agentTerminalCards'));
   const TOOL_DEFS = [
     {
       name: 'calculate',
@@ -662,7 +665,7 @@
   const enabledToolDefs = () => TOOL_DEFS
     .filter((t) => t.name !== 'web_search' || webSearchActive())
     .concat(selectedWorkspaceDirectory && workspaceFileEntries.some((entry) => !isProtectedWorkspaceFile(entry.name)) ? [WORKSPACE_WRITE_TOOL_DEF] : [])
-    .concat(state.shellToken ? [SHELL_TOOL_DEF, PROJECT_SCRIPT_TOOL_DEF] : [])
+    .concat(state.shellToken ? [SHELL_TOOL_DEF, PROJECT_SCRIPT_TOOL_DEF, ...LOCAL_PROJECT.tools] : [])
     .concat(mcpTools());
 
   function safeCalculate(expression) {
@@ -800,6 +803,7 @@
     }
     else if (name === 'write_workspace_file') out = await writeWorkspaceFile(args || {});
     else if (name === 'run_shell') out = await runApprovedLocalShell(args || {});
+    else if (LOCAL_PROJECT.tools.some(tool => tool.name === name)) out = await LOCAL_PROJECT.run(name, args || {});
     else if (AGENT && AGENT.hasTool(name)) out = viaAgent(name, args);
     else if (MCP && name.includes('__')) {
       const cut = name.indexOf('__');
@@ -3636,6 +3640,9 @@
   const SYSTEM_PROMPT = [
     'You are Eltes v3.20.0, a precise developer agent inside a local-first workspace. Use an inspect, plan, edit, verify, report workflow for coding tasks; you are not Claude Code and must not claim its capabilities or permissions.',
     'For coding tasks, show short user-facing **Plan:**, **Action:** and **Result:** summaries as appropriate. Explain the intended action and observed outcome, not private chain-of-thought. Use native tool calls from the supplied schemas; never print XML call_tool or thought blocks as if they executed. Ordinary questions can receive a direct answer without unnecessary tools.',
+    'For requested 3D experiences, the browser Code workspace has an opt-in bundled Three.js r180 runtime, exposed as global THREE. Never use https://cloudflare.com as a script URL. Keep geometry modest, cap device pixel ratio, resize the camera/canvas, pause when hidden, honor ELTES_PREVIEW.reducedMotion, offer pause/play controls, dispose GPU resources, and show a readable fallback without WebGL2. Use ELTES_PREVIEW.theme and accent for the current chat design. Aim for smooth animation but never guarantee 60fps or hardware acceleration. Do not add 3D to unrelated tasks by default.',
+    'For persistent local projects, use list_files(directory), read_file(filePath, startLine, lineCount), write_file(filePath, content), patch_file(filePath, searchString, replaceString), and execute_bash_command(command) ONLY when provided in the native tool registry after pairing. They target .studio source files; the command tool uses bash on Unix and PowerShell on Windows. No persistent server supervision or autonomous deployment is provided. Never claim Devin-equivalent capabilities.',
+    'When a check fails, inspect its actual logs, explain the likely cause briefly, propose a minimal patch, and request fresh approval before rerunning. Do not automatically install packages, retry declined operations or exceed the four-round limit. Use concise status labels; emoji markers may supplement but never replace accessible text.',
     'You have at most four provider/tool rounds per user turn. Use available non-mutating tools to orient yourself, make small reviewed changes, inspect actual tool results, and continue the next useful step without redundant conversational permission questions. Never bypass the application approval dialogs. After a denial, do not retry that action unless the user asks. If the round budget is reached or a required tool/runtime is absent, state what remains unverified instead of claiming completion.',
     'Answer directly with Markdown. Put code in fenced blocks with a language tag. Be concise unless the user asks for depth. Never claim to have run a tool you were not given.',
     'Before requesting any file write or shell command, first show a visible section headed exactly **Plan:** with the exact safe target and verification steps. Do not call the mutating tool until that plan is visible in your response.',
@@ -3787,7 +3794,7 @@
           await sleep(90);
           // Start timing after the paint delay so the step shows real tool time.
           if (traceStep) traceStep.at = Date.now();
-          const needsPlan = call.name === 'replace_project_text' || call.name === 'run_project_script' || call.name === 'run_shell' || call.name === 'write_workspace_file' || call.name === 'create_file' || call.name === 'write_project_file';
+          const needsPlan = ['write_file', 'patch_file', 'execute_bash_command'].includes(call.name) || call.name === 'replace_project_text' || call.name === 'run_project_script' || call.name === 'run_shell' || call.name === 'write_workspace_file' || call.name === 'create_file' || call.name === 'write_project_file';
           PROJECT.action(call.name, call.args, 'Awaiting review');
           const available = useTools && enabledToolDefs().some(tool => tool.name === call.name);
           const out = !available
@@ -4486,6 +4493,12 @@
       $('#artifactApprovalDescription').textContent = 'The selected model requested this saved file. Review exactly what will be sent.';
       $('#artifactApprovalNote').textContent = 'Approving sends the source below to your selected model/provider as a tool result. It does not write or execute code. Deny to keep it private.';
     }
+    if (project === 'local-read' || project === 'local-write') {
+      $('#artifactApprovalTitle').textContent = project === 'local-read' ? 'Share local source with the model?' : 'Approve persistent .studio write';
+      $('#approveArtifactBtn').textContent = project === 'local-read' ? 'Share this source' : 'Write this local file';
+      $('#artifactApprovalDescription').textContent = project === 'local-read' ? 'Review the source window before sending it to your selected provider.' : 'Review the full BEFORE and AFTER source. This changes a real file on your paired local server.';
+      $('#artifactApprovalNote').textContent = `Workspace: ${state.shellRunnerInfo?.projectWorkspace || '.studio on the paired server'}. No automatic execution. Local commands remain unsandboxed.`;
+    }
     $('#artifactApprovalName').textContent = `${file.filename} · ${(file.size ?? new TextEncoder().encode(file.content).length).toLocaleString()} bytes`;
     $('#artifactApprovalContent').textContent = file.content;
     return new Promise((resolve) => {
@@ -4602,9 +4615,9 @@
     return protectedPath || destructive;
   }
 
-  function requestShellApproval(command, script, signal) {
+  function requestShellApproval(command, script, signal, workspace) {
     const dialog = $('#shellCommandApprovalDialog');
-    $('#shellApprovalWorkspace').textContent = script ? 'New temporary directory on your local server; only this source file is copied and cleaned after exit.' : state.shellRunnerInfo?.workspace || 'Local Eltes workspace';
+    $('#shellApprovalWorkspace').textContent = script ? 'New temporary directory on your local server; only this source file is copied and cleaned after exit.' : workspace === 'studio' ? state.shellRunnerInfo?.projectWorkspace || '.studio on the paired local server' : state.shellRunnerInfo?.workspace || 'Local Eltes workspace';
     $('#shellApprovalSource').hidden = !script;
     $('#shellApprovalSource').textContent = script?.content || '';
     $('#shellCommandApprovalTitle').textContent = script ? 'Approve local script execution' : 'Approve terminal command';
@@ -4630,7 +4643,7 @@
   }
 
   let activeLocalExecution = null;
-  async function runApprovedLocalShell(args, script = null) {
+  async function runApprovedLocalShell(args, script = null, workspace = null) {
     const command = script ? `${/\.py$/i.test(script.filename) ? 'Python (unbuffered)' : 'Node.js'} ${script.filename}` : typeof args.command === 'string' ? args.command.trim() : '';
     if (!state.shellToken || !state.shellRunnerInfo) return { error: 'The opt-in local shell runner is disconnected. No command was run. Pair it through Local runner; Python must be installed and TypeScript requires Node.js 22.18+.' };
     if (activeLocalExecution) return { error: 'A local command is already running or awaiting approval.' };
@@ -4643,30 +4656,34 @@
     currentTurnSignal?.addEventListener('abort', abortFromTurn, { once: true });
     if (currentTurnSignal?.aborted) controller.abort();
     let timeout;
+    const terminal = TERMINAL_UI.begin(command);
     try {
       PROJECT.log(`\nAwaiting execution approval: ${command}\n`);
-      if (!await requestShellApproval(command, script, controller.signal)) return { error: 'The user declined or cancelled this exact command. Do not retry unless asked.' };
-      if (controller.signal.aborted || state.sending && state.stopped) return { error: 'Execution was cancelled before the command was sent.' };
+      if (!await requestShellApproval(command, script, controller.signal, workspace)) { terminal.finish('Declined or cancelled', true); return { error: 'The user declined or cancelled this exact command. Do not retry unless asked.' }; }
+      if (controller.signal.aborted || state.sending && state.stopped) { terminal.finish('Cancelled before execution', true); return { error: 'Execution was cancelled before the command was sent.' }; }
       timeout = setTimeout(() => controller.abort(), 40_000);
       const response = await fetch('/api/shell', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.shellToken}` },
-        body: JSON.stringify(script ? { script, stream: true } : { command, stream: true }), signal: controller.signal, cache: 'no-store'
+        body: JSON.stringify(script ? { script, stream: true } : { command, stream: true, ...(workspace ? { workspace } : {}) }), signal: controller.signal, cache: 'no-store'
       });
       if (response.status === 401 || response.status === 404) {
         state.shellToken = ''; state.shellRunnerInfo = null;
         renderLocalShellStatus('Runner token expired or runner is disabled. Reconnect with a fresh token.', false, true);
       }
       const result = await window.EltesProjectSandbox.readRunnerResponse(response, (event) => {
+        terminal.event(event);
         if (event.type === 'start') PROJECT.log(`Running: ${event.command}\nWorking directory: ${event.workspace}\n`);
         if (event.type === 'stdout' || event.type === 'stderr') PROJECT.log((event.type === 'stderr' ? '[stderr] ' : '') + event.text);
       });
       const output = [result.stdout && `STDOUT:\n${result.stdout}`, result.stderr && `STDERR:\n${result.stderr}`].filter(Boolean).join('\n') || '(no output)';
       const stateText = result.timedOut ? 'Command timed out after 30 seconds.' : result.outputLimited ? 'Output limit reached; the command was terminated.' : `Exit code: ${result.exitCode}`;
+      terminal.finish(`${stateText} · ${result.durationMs} ms`, result.exitCode !== 0 || result.timedOut || result.outputLimited);
       PROJECT.log(`\n${stateText} · ${result.durationMs} ms\n`);
       recordAgentContext(activeChat(), `Approved local command completed with ${stateText}.`);
       return { result: `${stateText}\nWorkspace: ${result.workspace}\nDuration: ${result.durationMs} ms\n${output}`, error: result.exitCode !== 0 || result.timedOut || result.outputLimited };
     } catch (error) {
       const message = error.name === 'AbortError' ? 'Execution cancelled or the 40-second browser timeout expired.' : `Local shell error: ${error.message || 'request failed.'}`;
+      terminal.finish(message, true);
       PROJECT.log(`\n${message}\n`);
       return { error: message };
     } finally {

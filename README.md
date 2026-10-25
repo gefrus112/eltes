@@ -50,6 +50,62 @@ Never approve untrusted scripts on a machine containing sensitive data. Hosted
 GitHub Pages/Vercel/PWA installations do not gain local terminal access. See
 [the execution guide](#watch-code-being-written-and-run-scripts) for runtime setup.
 
+## Persistent local tools, live terminal cards, and offline 3D
+
+Pair the opt-in local runner to enable the native **persistent `.studio/` tools**:
+
+| Tool | Behavior |
+| --- | --- |
+| `list_files(directory)` | Recursive metadata-only listing, capped at 500 supported files / 1,500 visited entries / 8 path components; skips hidden/protected paths, symlinks and dependency/build directories. |
+| `read_file(filePath, startLine?, lineCount?)` | Review a source window before sharing with the model. Default 200 lines, max 400; source file max 100 KB. |
+| `write_file(filePath, content)` | Full before/after approval for a persistent source write; creates missing parent directories only on write. |
+| `patch_file(filePath, searchString, replaceString)` | Exact unique replacement, reviewed before writing; rejects stale hashes and ambiguous matches. |
+| `execute_bash_command(command)` | Compatibility name: runs **bash on Unix or PowerShell on Windows** in `.studio/`, with individual approval, live logs, 30-second deadline and 32 KB output cap. |
+
+These are distinct from `write_project_file`, `read_project_file` and
+`replace_project_text`, which still target transient browser files. Persistent tools
+use the paired local server's configured Studio directory (`.studio/` by default;
+the desktop package uses its writable user-data folder). Only the server's
+`ELTES_STUDIO_DIR` configuration can redirect it, not a model-supplied path. Hidden/protected paths, traversal and symlinks are refused. File hashes help
+avoid stale overwrites; they are not transactional protection against another
+host process racing filesystem operations. **This is not an OS container.** Shell
+commands have host-account permissions outside the workspace, including network
+access. Neither runner is a persistent dev-server supervisor or automatic deployer.
+The separate Studio terminal also defaults to PowerShell on Windows (its existing
+`ELTES_SHELL` override remains). Python and other runtimes must be installed in the
+same local environment. Chromebook users need an enabled Linux environment and
+must run and open the local app there; the hosted PWA gains no terminal access.
+
+Every command gets an expandable **terminal card** in Code workspace. Cards show
+real pending/running/completed/failed states and streamed stdout/stderr, use native
+keyboard-accessible disclosure controls, and retain at most 12 runs / 48 KB per
+card in this tab. Output is inert text, never interpreted HTML. A small status
+marker supplements text; it does not simulate progress. **Stop task** cancels the
+active request. Failed checks may lead to a proposed targeted patch and rerun, but
+each action still requires its approval; there are only four tool rounds.
+
+### Three.js preview
+
+Choose **Review 3D starter** in Code workspace, approve `scene.html`, then click
+**Preview reviewed code**. Or ask a model to write a self-contained scene using
+`THREE` and enable **Bundled Three.js (offline WebGL2)** before previewing.
+The pinned Three.js r180 bundle is fetched from this app and inlined into the
+opaque-origin iframe; no CDN, external asset access, `allow-same-origin`, or
+`unsafe-eval` permission is added. `https://cloudflare.com` is not a library URL.
+
+The starter has a scene/camera, lit torus geometry, resize handling, capped pixel
+ratio, frame-time-based animation, pause/play controls, hidden-tab suspension,
+reduced-motion support, resource cleanup and a readable graphics fallback.
+Obsidian uses black/silver/warm lighting; Graphite uses charcoal/silver/blue.
+An explicit CTab accent is passed as a validated color. Preferences are sampled at
+preview start, so restart after changing themes. Frame rate and hardware
+acceleration depend on the browser/device, not a 60fps guarantee. The usual
+30-second preview reset and DOM resource/security limitations still apply.
+Downloaded starter source needs a local Three.js runtime supplied before its scene
+script; the library is not embedded into the saved source file. Its MIT license is
+preserved separately from Eltes's restrictive license. WebGL graphics are optional,
+not forced onto every generated application.
+
 ## Screens
 
 <p align="center">

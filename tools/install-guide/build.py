@@ -93,15 +93,17 @@ def timestamp(seconds):
     return f'{ms // 3600000:02d}:{ms // 60000 % 60:02d}:{ms // 1000 % 60:02d}.{ms % 1000:03d}'
 
 def caption_chunks(text):
-    # Readable short captions; timing follows spoken text length, not word-level alignment.
+    # Keep sentence tails readable instead of flashing a lone word on screen.
+    # Timing is still approximate, proportional to the final cue text lengths.
     chunks = []
     for sentence in re.split(r'(?<=[.!?])\s+', text):
-        words = sentence.split(); buf = ''
-        for word in words:
-            if len(buf) + len(word) + 1 > 120 and buf:
-                chunks.append(buf); buf = word
-            else: buf = (buf + ' ' + word).strip()
-        if buf: chunks.append(buf)
+        parts = textwrap.wrap(sentence, width=110, break_long_words=False, break_on_hyphens=False)
+        if len(parts) > 1 and len(parts[-1]) < 35:
+            words = (parts[-2] + ' ' + parts[-1]).split()
+            # Rebalance the last two cues, retaining the exact word order.
+            split = min(range(1, len(words)), key=lambda i: abs(len(' '.join(words[:i])) - len(' '.join(words[i:]))))
+            parts[-2:] = [' '.join(words[:split]), ' '.join(words[split:])]
+        chunks.extend(parts)
     return chunks
 
 def run(args, log):

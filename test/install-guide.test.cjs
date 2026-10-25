@@ -74,6 +74,18 @@ test('installation guide has all chapters, accessible fallbacks and fast-start m
   assert.equal((chapters.match(/ --> /g) || []).length, 10);
   assert.ok(captions.startsWith('WEBVTT\n'));
   assert.ok((captions.match(/ --> /g) || []).length > 60);
+  const cueSeconds = value => value.split(':').reduce((total, part) => total * 60 + Number(part), 0);
+  const spoken = Array.from({ length: 10 }, () => []);
+  for (const cue of captions.trim().split(/\n\n+/).slice(1)) {
+    const [timing, ...lines] = cue.split('\n');
+    const [start, end] = timing.split(' --> ').map(cueSeconds);
+    assert.ok(end - start >= 1, `caption must remain readable: ${timing} ${lines.join(' ')}`);
+    const text = lines.join(' ');
+    if (!text.startsWith('Pause the video whenever')) spoken[Math.floor(start / 60)].push(text);
+  }
+  for (const [i, chapter] of guide.chapters.entries()) {
+    assert.equal(spoken[i].join(' '), chapter.narration, `chapter ${i}: captions retain all narrated words in order`);
+  }
   const mp4 = await readFile(join(media, 'eltes-desktop-install.mp4'));
   assert.equal(mp4.toString('ascii', 4, 8), 'ftyp');
   assert.ok(mp4.indexOf(Buffer.from('moov')) < mp4.indexOf(Buffer.from('mdat')), 'metadata precedes media for progressive playback');

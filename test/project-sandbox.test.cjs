@@ -132,7 +132,7 @@ test('denied local execution never makes a network request', async () => {
   const context = vm.createContext({
     AbortController, clearTimeout, setTimeout,
     state: { shellToken: 'fixture', shellRunnerInfo: { workspace: '/test' }, sending: false },
-    PROJECT: { log() {} }, isProtectedShellCommand: () => false,
+    PROJECT: { log() {} }, TERMINAL_UI: { begin: () => ({ finish() {} }) }, isProtectedShellCommand: () => false,
     requestShellApproval: async () => false,
     fetch: () => { fetches++; throw new Error('Must not fetch'); }
   });

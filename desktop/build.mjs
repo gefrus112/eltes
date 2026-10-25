@@ -57,7 +57,7 @@ export const SITE_ENTRIES = [
   'assets', 'api', 'lib', 'mcp'
 ];
 
-export const SITE_TOOL_FILES = ['tools/local-server.mjs', 'tools/studio.mjs', 'tools/shell-runner.mjs'];
+export const SITE_TOOL_FILES = ['tools/local-server.mjs', 'tools/studio.mjs', 'tools/shell-runner.mjs', 'tools/project-files.mjs'];
 export const OPTIONAL_SITE_ENTRIES = ['downloads'];
 
 export function readVersion() {

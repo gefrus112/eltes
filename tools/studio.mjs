@@ -5,9 +5,9 @@
    part of /api, so a Vercel deployment can never expose a shell. It gives the
    Studio page three things a static site cannot have:
 
-     • a jailed workspace on disk          (.studio/)
+     • a path-scoped file workspace          (.studio/)
      • file read / write / delete          (/api/studio/file)
-     • a real Linux shell with streaming   (/api/studio/run)
+     • a real host shell with streaming   (/api/studio/run)
      • a live preview origin               (/preview/*)
      • a change watcher for auto-reload    (/api/studio/watch)
 
@@ -20,7 +20,7 @@ import { spawn } from 'node:child_process';
 import { watch } from 'node:fs';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
-import { extname, resolve, sep } from 'node:path';
+import { extname, resolve, sep, win32 } from 'node:path';
 
 export const WORKSPACE_DIR = '.studio';
 export const MAX_FILE_BYTES = 2 * 1024 * 1024;
@@ -33,12 +33,12 @@ const IGNORED_DIRS = new Set(['node_modules', '.git', '.cache', '.next', 'dist',
 const BINARY_EXT = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.mp4', '.webm', '.mp3', '.zip', '.pdf']);
 
 /* The Studio terminal is a real shell. On macOS and Linux that is bash (or
-   sh). On Windows there is no /bin/bash, so it is cmd.exe unless
+   sh). On Windows the default is PowerShell unless
    ELTES_SHELL points at Git Bash, WSL or another shell. */
 function pickShell() {
   const override = String(process.env.ELTES_SHELL || '').trim();
   if (override) return override;
-  if (process.platform === 'win32') return process.env.ComSpec || 'cmd.exe';
+  if (process.platform === 'win32') return win32.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
   return existsSync('/bin/bash') ? '/bin/bash' : '/bin/sh';
 }
 

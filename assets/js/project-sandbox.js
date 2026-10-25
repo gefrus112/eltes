@@ -18,7 +18,7 @@
   }
   // Parse HTML inertly, then inline only selected virtual assets. All network
   // resources remain subject to the CSP placed before any user-provided markup.
-  function previewDocument(files, entry) {
+  function previewDocument(files, entry, options = {}) {
     if (!/\.html$/i.test(entry) || typeof files[entry] !== 'string') throw new Error('Select an HTML file to preview.');
     const doc = new DOMParser().parseFromString(files[entry], 'text/html');
     doc.querySelectorAll('base, meta[http-equiv]').forEach((node) => node.remove());
@@ -36,6 +36,13 @@
       script.removeAttribute('src');
       script.textContent = files[name].replace(/<\/script/gi, '<\\/script');
     });
+    if (options.threeSource) {
+      const runtime = doc.createElement('script');
+      const prefs = options.preferences || {};
+      const safePrefs = { theme: prefs.theme === 'grey' ? 'grey' : 'black', accent: /^#[\da-f]{6}$/i.test(prefs.accent) ? prefs.accent : null, reducedMotion: prefs.reducedMotion !== false };
+      runtime.textContent = ('window.ELTES_PREVIEW=' + JSON.stringify(safePrefs) + ';\n' + options.threeSource).replace(/<\/script/gi, '<\\/script');
+      doc.head.prepend(runtime);
+    }
     const policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src data:; frame-src 'none'; worker-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'";
     // Parent controls a separate opaque-origin frame. Never allow same-origin.
     return '<!doctype html><meta http-equiv="Content-Security-Policy" content="' + policy + '">' + doc.documentElement.outerHTML;
@@ -90,7 +97,7 @@
     const draft = document.getElementById('projectSandboxDraft');
     const draftTitle = document.getElementById('projectSandboxDraftTitle');
     let active = '', timer = null, dismissed = false, executing = false;
-    let draftTimer = null, pendingDraft = null;
+    let draftTimer = null, pendingDraft = null, previewEpoch = 0;
     function log(text) {
       activity.textContent = (activity.textContent + String(text)).slice(-48 * 1024);
       activity.scrollTop = activity.scrollHeight;
@@ -103,7 +110,7 @@
       else dialog.setAttribute('open', '');
     }
     function showDraft(name, raw) {
-      if (!['write_project_file', 'replace_project_text', 'read_project_file', 'run_shell', 'run_project_script', 'write_workspace_file', 'create_file'].includes(name)) return;
+      if (!['write_project_file', 'replace_project_text', 'read_project_file', 'run_shell', 'run_project_script', 'write_workspace_file', 'create_file', 'list_files', 'read_file', 'write_file', 'patch_file', 'execute_bash_command'].includes(name)) return;
       reveal();
       pendingDraft = { name, raw: String(raw).slice(0, 640 * 1024) };
       if (draftTimer) return;
@@ -111,8 +118,8 @@
         draftTimer = null;
         if (!pendingDraft) return;
         const { name, raw } = pendingDraft;
-        draftTitle.textContent = `${name} · ${partialField(raw, 'filename') || 'receiving arguments'} · unapproved draft`;
-        draft.textContent = partialField(raw, name === 'run_shell' ? 'command' : 'content') || raw;
+        draftTitle.textContent = `${name} · ${partialField(raw, 'filename') || partialField(raw, 'filePath') || 'receiving arguments'} · unapproved draft`;
+        draft.textContent = partialField(raw, ['run_shell', 'execute_bash_command'].includes(name) ? 'command' : 'content') || raw;
         draft.scrollTop = draft.scrollHeight;
       }, 60);
     }
@@ -132,7 +139,7 @@
         return result;
       } finally { executing = false; }
     }
-    function resetPreview() { clearTimeout(timer); frame.srcdoc = ''; }
+    function resetPreview() { previewEpoch++; clearTimeout(timer); frame.srcdoc = ''; }
     function dirty(name = active) { return !!active && active === name && editor.value !== files[active]; }
     function editorInfo() {
       const info = document.getElementById('projectSandboxEditorInfo');
@@ -194,13 +201,26 @@
       if (dirty()) { status.textContent = 'Save or discard your edits before downloading.'; return; }
       if (active) download(active, files[active], active.endsWith('.html') ? 'text/html' : 'text/plain');
     };
-    document.getElementById('projectSandboxRun').onclick = () => {
+    document.getElementById('projectSandboxRun').onclick = async () => {
       if (dirty()) { status.textContent = 'Save or discard your edits before previewing.'; return; }
       try {
         resetPreview();
-        frame.srcdoc = previewDocument(files, active.endsWith('.html') ? active : 'index.html');
+        const epoch = previewEpoch;
+        const snapshot = { ...files };
+        const entry = active.endsWith('.html') ? active : 'index.html';
+        const includeThree = document.getElementById('projectSandboxThree').checked;
+        const options = includeThree ? { threeSource: await root.EltesThreePreview.runtime(), preferences: root.EltesThreePreview.settings() } : {};
+        if (epoch !== previewEpoch || !dialog.open) return;
+        frame.srcdoc = previewDocument(snapshot, entry, options);
         status.textContent = 'Preview running with a restrictive resource policy and no app access; resets after 30 seconds. DOM scripts may navigate the frame or freeze a renderer; do not include private data. Only run trusted code.';
         timer = setTimeout(() => { resetPreview(); status.textContent = 'Preview reset after 30 seconds.'; }, 30_000);
+      } catch (error) { status.textContent = error.message; }
+    };
+    document.getElementById('projectSandboxThreeStarter').onclick = async () => {
+      try {
+        const result = await saveReviewed(validateFile('scene.html', root.EltesThreePreview.starter()));
+        if (result.error) status.textContent = result.error;
+        else { document.getElementById('projectSandboxThree').checked = true; status.textContent = '3D starter saved after review. Click Preview to run the bundled runtime; nothing has executed yet.'; }
       } catch (error) { status.textContent = error.message; }
     };
     document.getElementById('projectSandboxStop').onclick = () => { resetPreview(); status.textContent = 'Preview stopped.'; };
@@ -232,12 +252,12 @@
         log(`\n${message}\n`);
       },
       action(name, args, phase) {
-        if (!['write_project_file', 'replace_project_text', 'read_project_file', 'run_shell', 'run_project_script', 'write_workspace_file', 'create_file'].includes(name)) return;
+        if (!['write_project_file', 'replace_project_text', 'read_project_file', 'run_shell', 'run_project_script', 'write_workspace_file', 'create_file', 'list_files', 'read_file', 'write_file', 'patch_file', 'execute_bash_command'].includes(name)) return;
         reveal();
-        log(`\n${phase}: ${name} ${args?.filename || ''}\n`);
+        log(`\n${phase}: ${name} ${args?.filename || args?.filePath || ''}\n`);
         if (phase === 'Awaiting review') showDraft(name, JSON.stringify(args));
       },
-      tools: [{ name: 'write_project_file', icon: 'code-2', description: 'Create or update one virtual browser-project file (HTML, CSS, JavaScript, TypeScript, Python, JSON, Markdown, text or Jac). Show Plan: first. User reviews and approves complete content; then the coding workspace opens. No disk writes or automatic execution. For a website use index.html with styles.css and app.js. Only plain local script/link references are inlined in preview: no modules, imports, npm or fetch in website preview. Python/JavaScript/TypeScript files can separately use run_project_script on a paired local runner after approval. Jac is source-only.', parameters: { type: 'object', properties: { filename: { type: 'string' }, content: { type: 'string' } }, required: ['filename', 'content'] } },
+      tools: [{ name: 'write_project_file', icon: 'code-2', description: 'Create or update one virtual browser-project file (HTML, CSS, JavaScript, TypeScript, Python, JSON, Markdown, text or Jac). Show Plan: first. User reviews and approves complete content; then the coding workspace opens. No disk writes or automatic execution. For a website use index.html with styles.css and app.js. Only plain local script/link references are inlined in preview: no modules, imports, npm or fetch in website preview. Python/JavaScript/TypeScript files can separately use run_project_script on a paired local runner after approval. Jac is source-only. For 3D requests the optional bundled Three.js preview provides global THREE and ELTES_PREVIEW theme/reducedMotion preferences. Do not add external CDN scripts.', parameters: { type: 'object', properties: { filename: { type: 'string' }, content: { type: 'string' } }, required: ['filename', 'content'] } },
         { name: 'list_project_files', icon: 'files', description: 'List saved virtual project filenames, byte sizes and whether the editor has unsaved changes. No disk access or source contents. Use before modifying an existing project.', parameters: { type: 'object', properties: {} } },
         { name: 'read_project_file', icon: 'file-code-2', description: 'Read one saved virtual project file only after the user explicitly approves sending its full source back to the selected model. Never reads the disk or unsaved editor draft.', parameters: { type: 'object', properties: { filename: { type: 'string' } }, required: ['filename'] } },
         { name: 'replace_project_text', icon: 'pencil', description: 'Precisely edit a saved virtual project file. Show Plan: first. Supply exact search text that occurs once, and replacement text. User reviews the full resulting source before saving. Read the current file first; stale/ambiguous matches and unsaved edits are refused. Never executes code.', parameters: { type: 'object', properties: { filename: { type: 'string' }, search: { type: 'string' }, replacement: { type: 'string' } }, required: ['filename', 'search', 'replacement'] } }

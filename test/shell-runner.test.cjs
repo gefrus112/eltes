@@ -207,3 +207,46 @@ test('desktop subprocesses retain Node mode without inheriting server secrets', 
   assert.match(source, /nodeScript = extension === 'js' \|\| extension === 'ts'/);
   assert.match(source, /safeEnvironment\(root, \{ electronNodeMode: nodeScript \}\)/);
 });
+
+test('persistent file API requires the same local authentication boundary', async () => {
+  const runner = createShellRunner({ root: process.cwd(), enabled: true });
+  const response = new MockResponse();
+  await runner.files(new MockRequest({ method: 'POST', body: JSON.stringify({ operation: 'write', filePath: 'blocked.js', content: 'bad', expectedVersion: null }) }), response);
+  assert.equal(response.statusCode, 401);
+});
+
+test('platform command construction uses native PowerShell or bash without interpolating script arguments', async () => {
+  const { commandShell } = await import('../tools/shell-runner.mjs');
+  const windows = commandShell('Write-Output "ok"', 'win32', 'C:\\Windows');
+  assert.match(windows.shell, /WindowsPowerShell\\v1\.0\\powershell\.exe$/);
+  assert.deepEqual(windows.args, ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', 'Write-Output "ok"']);
+  assert.deepEqual(commandShell('printf ok', 'linux'), { shell: '/bin/bash', args: ['--noprofile', '--norc', '-c', 'printf ok'] });
+});
+
+test('persistent tools respect the server-configured writable desktop workspace', async () => {
+  const fs = require('node:fs/promises');
+  const dir = await fs.mkdtemp(path.join(require('node:os').tmpdir(), 'eltes-desktop-workspace-'));
+  try {
+    const projectRoot = path.join(dir, 'user-data', 'studio');
+    const runner = createShellRunner({ root: path.join(dir, 'resources'), projectRoot, enabled: true });
+    const res = new MockResponse();
+    await runner.files(new MockRequest({ method: 'POST', token: runner.info.token, body: JSON.stringify({ operation: 'write', filePath: 'app.js', content: 'hello', expectedVersion: null }) }), res);
+    assert.equal(res.statusCode, 200);
+    assert.equal(await fs.readFile(path.join(projectRoot, 'app.js'), 'utf8'), 'hello');
+    await assert.rejects(fs.stat(path.join(dir, 'resources')), { code: 'ENOENT' });
+  } finally { await fs.rm(dir, { recursive: true, force: true }); }
+});
+
+test('Studio command preparation checks only the root, not unreadable child directories', { skip: process.platform === 'win32' || process.getuid?.() === 0 }, async () => {
+  const fs = require('node:fs/promises');
+  const dir = await fs.mkdtemp(path.join(require('node:os').tmpdir(), 'eltes-root-check-'));
+  const blocked = path.join(dir, '.studio', 'unreadable');
+  try {
+    await fs.mkdir(blocked, { recursive: true }); await fs.chmod(blocked, 0);
+    const runner = createShellRunner({ root: dir, enabled: true });
+    const res = new MockResponse(); const completed = new Promise(resolve => res.once('finish', resolve));
+    await runner.execute(new MockRequest({ method: 'POST', token: runner.info.token, body: JSON.stringify({ command: 'printf ready', workspace: 'studio' }) }), res);
+    await completed;
+    assert.equal(payload(res).exitCode, 0); assert.equal(payload(res).stdout, 'ready');
+  } finally { await fs.chmod(blocked, 0o700); await fs.rm(dir, { recursive: true, force: true }); }
+});

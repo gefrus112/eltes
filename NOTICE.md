@@ -10,3 +10,6 @@
 
 Model names and provider marks are used descriptively. Eltes is not affiliated with OpenAI, Anthropic,
 Google, Z.ai/Zhipu, DeepSeek, xAI, Alibaba/Qwen, Mistral, Meta, Groq or OpenRouter.
+
+- **Three.js r180** — MIT License. Offline preview bundle built from npm `three@0.180.0`; license retained in `assets/js/vendor/THREE-LICENSE.txt`. https://github.com/mrdoob/three.js
+- **TensorFlow.js 4.22.0** — Apache-2.0. License retained in `assets/js/vendor/TENSORFLOW-JS-LICENSE.txt`. https://github.com/tensorflow/tfjs

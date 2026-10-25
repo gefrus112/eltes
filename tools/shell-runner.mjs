@@ -4,6 +4,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { StringDecoder } from 'node:string_decoder';
 import { spawn } from 'node:child_process';
+import { createProjectFiles } from './project-files.mjs';
 
 const MAX_BODY_BYTES = 640 * 1024; // Allows JSON escaping of a 100 KB script.
 const MAX_COMMAND_CHARS = 4000;
@@ -71,9 +72,16 @@ async function readJson(req) {
   }
 }
 
-export function createShellRunner({ root, enabled = false } = {}) {
+export function commandShell(command, platform = process.platform, systemRoot = process.env.SystemRoot || 'C:\\Windows') {
+  return platform === 'win32'
+    ? { shell: win32.join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'), args: ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', command] }
+    : { shell: '/bin/bash', args: ['--noprofile', '--norc', '-c', command] };
+}
+
+export function createShellRunner({ root = process.cwd(), projectRoot = join(root, '.studio'), enabled = false } = {}) {
   const token = enabled ? randomBytes(32).toString('hex') : '';
   const info = { enabled: !!enabled, root, token };
+  const project = createProjectFiles(projectRoot);
 
   function authorize(req, res) {
     if (!enabled) { json(res, 404, { error: 'The local shell runner is disabled.' }); return false; }
@@ -95,10 +103,27 @@ export function createShellRunner({ root, enabled = false } = {}) {
     json(res, 200, {
       enabled: true,
       workspace: root,
+      projectWorkspace: projectRoot,
+      shell: process.platform === 'win32' ? 'PowerShell' : 'bash',
       platform: process.platform,
       timeoutMs: COMMAND_TIMEOUT_MS,
       maxOutputBytes: MAX_OUTPUT_BYTES
     });
+  }
+
+  async function files(req, res) {
+    if (req.method !== 'POST') return json(res, 405, { error: 'Use POST.' });
+    if (!authorize(req, res)) return;
+    try {
+      const body = await readJson(req);
+      if (!body || typeof body !== 'object') throw new Error('Expected an operation object.');
+      let result;
+      if (body.operation === 'list') result = await project.list(body.directory || '');
+      else if (body.operation === 'read') result = await project.snapshot(body.filePath);
+      else if (body.operation === 'write') result = await project.write(body.filePath, body.content, body.expectedVersion);
+      else return json(res, 400, { error: 'Unknown project operation.' });
+      json(res, 200, result);
+    } catch (error) { json(res, error.status || 400, { error: error.message }); }
   }
 
   async function execute(req, res) {
@@ -108,6 +133,7 @@ export function createShellRunner({ root, enabled = false } = {}) {
     try { payload = await readJson(req); }
     catch (error) { return json(res, error.status || 400, { error: error.message }); }
     if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return json(res, 400, { error: 'Expected a JSON object.' });
+    if (payload.workspace != null && payload.workspace !== 'studio') return json(res, 400, { error: 'Unknown workspace selector.' });
     if (req.aborted || res.destroyed) return;
     const isWindows = process.platform === 'win32';
     let command, shell, args, temporaryDirectory;
@@ -145,10 +171,14 @@ export function createShellRunner({ root, enabled = false } = {}) {
       if (targetsProtectedConfiguration(command)) {
         return json(res, 403, { error: 'Blocked by Eltes safety boundaries: commands referencing secrets, .env files, private keys, or production configuration are not allowed.' });
       }
-      shell = isWindows ? (process.env.ComSpec || 'cmd.exe') : '/bin/sh';
-      args = isWindows ? ['/d', '/s', '/c', command] : ['-c', command];
+      ({ shell, args } = commandShell(command));
     }
-    const workspace = temporaryDirectory || root;
+    if (payload.workspace === 'studio' && !temporaryDirectory) {
+      try { await project.ensureRoot(); }
+      catch (error) { return json(res, error.status || 500, { error: error.message }); }
+      if (req.aborted || res.destroyed) return;
+    }
+    const workspace = temporaryDirectory || (payload.workspace === 'studio' ? projectRoot : root);
     const cleanup = () => {
       if (temporaryDirectory) {
         try { rmSync(temporaryDirectory, { recursive: true, force: true }); } catch { /* OS may still hold a file lock. */ }
@@ -249,5 +279,5 @@ export function createShellRunner({ root, enabled = false } = {}) {
     });
   }
 
-  return { info, status, execute };
+  return { info, status, execute, files };
 }

@@ -14,9 +14,9 @@ test('browser exposes pairing controls and a visible exact-command approval gate
   assert.match(html, /id="shellApprovalCommand"/);
   assert.match(html, /This is not a sandbox/);
   assert.match(app, /SHELL_TOOL_DEF/);
-  assert.match(app, /requestShellApproval\(command, script, controller\.signal\)/);
+  assert.match(app, /requestShellApproval\(command, script, controller\.signal, workspace\)/);
   assert.match(app, /Authorization: `Bearer \$\{state\.shellToken\}`/);
-  assert.match(app, /\? \[SHELL_TOOL_DEF, PROJECT_SCRIPT_TOOL_DEF\] : \[\]/);
+  assert.match(app, /\? \[SHELL_TOOL_DEF, PROJECT_SCRIPT_TOOL_DEF, \.\.\.LOCAL_PROJECT\.tools\] : \[\]/);
   assert.doesNotMatch(app, /localStorage\.(setItem|getItem).*shellToken|sessionStorage\.(setItem|getItem).*shellToken/i);
 });
 

@@ -23,7 +23,8 @@ class MockRequest extends EventEmitter {
 class MockResponse extends EventEmitter {
   constructor() { super(); this.headers = {}; this.writableEnded = false; }
   setHeader(name, value) { this.headers[name.toLowerCase()] = value; }
-  end(body = '') { this.body = body; this.writableEnded = true; this.emit('finish'); }
+  write(body) { this.body = (this.body || '') + body; this.emit('chunk', body); }
+  end(body = '') { this.body = (this.body || '') + body; this.writableEnded = true; this.emit('finish'); }
 }
 
 function payload(response) { return JSON.parse(response.body); }
@@ -82,4 +83,107 @@ test('approved local commands run in the fixed workspace with bounded output', a
   assert.match(result.stdout, /runner-ok/);
   assert.equal(result.workspace, process.cwd());
   assert.equal(result.timedOut, false);
+});
+
+async function executeScript(script, stream = true) {
+  const runner = createShellRunner({ root: process.cwd(), enabled: true });
+  const req = new MockRequest({ method: 'POST', token: runner.info.token, body: JSON.stringify({ script, stream }) });
+  const res = new MockResponse();
+  const completed = new Promise(resolve => res.once('finish', resolve));
+  await runner.execute(req, res); await completed;
+  return { res, events: stream && res.statusCode === 200 ? res.body.trim().split('\n').map(JSON.parse) : [] };
+}
+
+test('local script execution validates types, paths, size, and protected content', async () => {
+  for (const script of [
+    { filename: '../oops.py', content: 'print(1)' },
+    { filename: 'x.py;echo', content: 'print(1)' },
+    { filename: 'x.jac', content: '' },
+    { filename: 'x.js', content: '界'.repeat(35_000) },
+    { filename: 'x.js', content: null }
+  ]) assert.equal((await executeScript(script)).res.statusCode, 400);
+  assert.equal((await executeScript({ filename: 'x.py', content: 'open(".env")' })).res.statusCode, 403);
+});
+
+test('JavaScript script output streams before exit, distinguishes stderr, and cleans its temporary source', async () => {
+  const runner = createShellRunner({ root: process.cwd(), enabled: true });
+  const req = new MockRequest({ method: 'POST', token: runner.info.token, body: JSON.stringify({ stream: true, script: {
+    filename: 'main.js', content: 'console.log("first"); console.error("warning"); setTimeout(() => console.log("last"), 150);'
+  } }) });
+  const res = new MockResponse();
+  let early = false;
+  res.on('chunk', raw => { if (JSON.parse(raw).type === 'stdout') { assert.equal(res.writableEnded, false); early = true; } });
+  const completed = new Promise(resolve => res.once('finish', resolve));
+  await runner.execute(req, res); await completed;
+  const events = res.body.trim().split('\n').map(JSON.parse);
+  const result = events.at(-1);
+  assert.equal(res.headers['content-type'], 'application/x-ndjson; charset=utf-8');
+  assert.equal(events[0].type, 'start');
+  assert.ok(early);
+  assert.ok(events.some(e => e.type === 'stderr' && e.text.includes('warning')));
+  assert.equal(result.type, 'result'); assert.equal(result.exitCode, 0);
+  assert.equal(result.stdout, 'first\nlast\n');
+  assert.notEqual(result.workspace, process.cwd());
+  assert.equal(require('node:fs').existsSync(result.workspace), false);
+});
+
+test('Python executes a real script when the local interpreter is installed', async t => {
+  const python = process.env.ELTES_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
+  if (require('node:child_process').spawnSync(python, ['--version']).status !== 0) return t.skip('Python not installed');
+  const { events } = await executeScript({ filename: 'hello.py', content: 'print("Python result:", 6 * 7)' });
+  assert.equal(events.at(-1).exitCode, 0);
+  assert.match(events.at(-1).stdout, /Python result: 42/);
+});
+
+test('TypeScript executes erasable types on supported Node or returns an actionable version error', async () => {
+  const { res, events } = await executeScript({ filename: 'hello.ts', content: 'const n: number = 42; console.log(n);' });
+  const [major, minor] = process.versions.node.split('.').map(Number);
+  if (major > 22 || major === 22 && minor >= 18) {
+    assert.equal(events.at(-1).exitCode, 0);
+    assert.equal(events.at(-1).stdout, '42\n');
+  } else { assert.equal(res.statusCode, 400); assert.match(payload(res).error, /22.18/); }
+});
+
+test('failed scripts report nonzero exit codes; runaway output is bounded', async () => {
+  const failure = await executeScript({ filename: 'fail.js', content: 'console.error("expected failure"); process.exit(3);' });
+  assert.equal(failure.events.at(-1).exitCode, 3);
+  assert.match(failure.events.at(-1).stderr, /expected failure/);
+  const flood = await executeScript({ filename: 'flood.js', content: 'while (true) console.log("x".repeat(1024));' });
+  assert.equal(flood.events.at(-1).outputLimited, true);
+  assert.ok(Buffer.byteLength(flood.events.at(-1).stdout) <= 32 * 1024);
+});
+
+test('disconnect cancels an executing script and removes its temporary directory', async () => {
+  const fs = require('node:fs');
+  const runner = createShellRunner({ root: process.cwd(), enabled: true });
+  const req = new MockRequest({ method: 'POST', token: runner.info.token, body: JSON.stringify({ stream: true, script: {
+    filename: 'wait.js', content: 'console.log("started"); setInterval(() => {}, 1000);'
+  } }) });
+  const res = new MockResponse();
+  let workspace;
+  const started = new Promise(resolve => res.on('chunk', raw => {
+    const event = JSON.parse(raw);
+    if (event.type === 'start') workspace = event.workspace;
+    if (event.type === 'stdout') resolve();
+  }));
+  await runner.execute(req, res); await started;
+  assert.ok(fs.existsSync(workspace));
+  res.emit('close');
+  await new Promise((resolve, reject) => {
+    const deadline = Date.now() + 3000;
+    const check = () => {
+      if (!fs.existsSync(workspace)) return resolve();
+      if (Date.now() > deadline) return reject(new Error('Temporary script not cleaned after cancellation'));
+      setTimeout(check, 20);
+    };
+    check();
+  });
+  assert.equal(res.writableEnded, false, 'No result sent to disconnected client');
+});
+
+test('script timeout terminates an infinite loop and reports the actual deadline', { timeout: 35000 }, async () => {
+  const { events } = await executeScript({ filename: 'loop.js', content: 'while (true) {}' });
+  assert.equal(events.at(-1).timedOut, true);
+  assert.notEqual(events.at(-1).exitCode, 0);
+  assert.equal(require('node:fs').existsSync(events.at(-1).workspace), false);
 });

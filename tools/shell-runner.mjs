@@ -1,9 +1,11 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto';
-import { win32 } from 'node:path';
+import { win32, join } from 'node:path';
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { StringDecoder } from 'node:string_decoder';
 import { spawn } from 'node:child_process';
 
-const MAX_BODY_BYTES = 12 * 1024;
+const MAX_BODY_BYTES = 640 * 1024; // Allows JSON escaping of a 100 KB script.
 const MAX_COMMAND_CHARS = 4000;
 const MAX_OUTPUT_BYTES = 32 * 1024;
 const COMMAND_TIMEOUT_MS = 30_000;
@@ -47,7 +49,7 @@ function safeEnvironment(root) {
 }
 
 async function readJson(req) {
-  let raw = '';
+  const chunks = [];
   let size = 0;
   for await (const chunk of req) {
     size += chunk.length;
@@ -56,9 +58,9 @@ async function readJson(req) {
       error.status = 413;
       throw error;
     }
-    raw += chunk.toString('utf8');
+    chunks.push(chunk);
   }
-  try { return JSON.parse(raw); }
+  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); }
   catch {
     const error = new Error('Request JSON is invalid.');
     error.status = 400;
@@ -102,19 +104,67 @@ export function createShellRunner({ root, enabled = false } = {}) {
     let payload;
     try { payload = await readJson(req); }
     catch (error) { return json(res, error.status || 400, { error: error.message }); }
-    const command = typeof payload.command === 'string' ? payload.command.trim() : '';
-    if (!command || command.length > MAX_COMMAND_CHARS || command.includes('\0')) {
-      return json(res, 400, { error: `Enter a shell command with 1 to ${MAX_COMMAND_CHARS} characters.` });
-    }
-    if (targetsProtectedConfiguration(command)) {
-      return json(res, 403, { error: 'Blocked by Eltes safety boundaries: commands referencing secrets, .env files, private keys, or production configuration are not allowed.' });
-    }
-
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return json(res, 400, { error: 'Expected a JSON object.' });
+    if (req.aborted || res.destroyed) return;
     const isWindows = process.platform === 'win32';
-    const shell = isWindows ? (process.env.ComSpec || 'cmd.exe') : '/bin/sh';
-    const args = isWindows ? ['/d', '/s', '/c', command] : ['-c', command];
+    let command, shell, args, temporaryDirectory;
+    if (payload.script != null) {
+      const { filename, content } = payload.script || {};
+      if (typeof filename !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*\.(py|js|ts)$/i.test(filename) ||
+          typeof content !== 'string' || Buffer.byteLength(content) > 100 * 1024) {
+        return json(res, 400, { error: 'Provide a simple .py, .js or .ts filename and at most 100 KB of source.' });
+      }
+      if (targetsProtectedConfiguration(filename + '\n' + content)) {
+        return json(res, 403, { error: 'Script blocked by Eltes safety boundaries. These text filters are not an OS sandbox.' });
+      }
+      const extension = filename.split('.').pop().toLowerCase();
+      const [major, minor] = process.versions.node.split('.').map(Number);
+      if (extension === 'ts' && !(major > 22 || major === 22 && minor >= 18)) {
+        return json(res, 400, { error: 'TypeScript scripts require Node.js 22.18+ (24 LTS recommended), with native erasable type syntax. No compiler or packages are installed automatically.' });
+      }
+      shell = extension === 'py' ? (process.env.ELTES_PYTHON || (isWindows ? 'python' : 'python3')) : process.execPath;
+      args = extension === 'py' ? ['-u', filename] : [filename];
+      command = `${extension === 'py' ? 'Python (unbuffered)' : 'Node.js'} ${filename}`;
+      try {
+        temporaryDirectory = mkdtempSync(join(tmpdir(), 'eltes-script-'));
+        writeFileSync(join(temporaryDirectory, filename), content, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+      } catch (error) {
+        if (temporaryDirectory) rmSync(temporaryDirectory, { recursive: true, force: true });
+        return json(res, 500, { error: `Could not prepare script: ${error.message}` });
+      }
+    } else {
+      command = typeof payload.command === 'string' ? payload.command.trim() : '';
+      if (!command || command.length > MAX_COMMAND_CHARS || command.includes('\0')) {
+        return json(res, 400, { error: `Enter a shell command with 1 to ${MAX_COMMAND_CHARS} characters.` });
+      }
+      if (targetsProtectedConfiguration(command)) {
+        return json(res, 403, { error: 'Blocked by Eltes safety boundaries: commands referencing secrets, .env files, private keys, or production configuration are not allowed.' });
+      }
+      shell = isWindows ? (process.env.ComSpec || 'cmd.exe') : '/bin/sh';
+      args = isWindows ? ['/d', '/s', '/c', command] : ['-c', command];
+    }
+    const workspace = temporaryDirectory || root;
+    const cleanup = () => {
+      if (temporaryDirectory) {
+        try { rmSync(temporaryDirectory, { recursive: true, force: true }); } catch { /* OS may still hold a file lock. */ }
+      }
+    };
+    // JSON remains compatible with old clients; new clients opt into live NDJSON.
+    const streaming = payload.stream === true;
+    const event = (value) => {
+      if (streaming && !res.writableEnded && !res.destroyed) res.write(JSON.stringify(value) + '\n');
+    };
+    if (streaming) {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-store');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('X-Accel-Buffering', 'no');
+      res.flushHeaders?.();
+      event({ type: 'start', command, workspace });
+    }
     const child = spawn(shell, args, {
-      cwd: root,
+      cwd: workspace,
       env: safeEnvironment(root),
       windowsHide: true,
       detached: !isWindows,
@@ -147,6 +197,7 @@ export function createShellRunner({ root, enabled = false } = {}) {
       const clipped = decoders[target].write(chunk.subarray(0, remaining));
       if (target === 'stdout') stdout += clipped;
       else stderr += clipped;
+      if (clipped) event({ type: target, text: clipped });
       if (outputBytes >= MAX_OUTPUT_BYTES && !outputLimited) {
         outputLimited = true;
         kill();
@@ -164,16 +215,22 @@ export function createShellRunner({ root, enabled = false } = {}) {
     child.on('error', (error) => {
       clearTimeout(timer);
       finished = true;
-      if (!clientGone && !res.writableEnded) json(res, 500, { error: `Could not start the configured shell: ${error.message}` });
+      cleanup();
+      if (!clientGone && !res.writableEnded) {
+        const failure = { error: `Could not start the configured runtime: ${error.message}. Install the required runtime locally.` };
+        if (streaming) { event({ type: 'error', ...failure }); res.end(); }
+        else json(res, 500, failure);
+      }
     });
     child.on('close', (code, signal) => {
       clearTimeout(timer);
       finished = true;
+      cleanup();
       if (clientGone || res.writableEnded) return;
       if (!outputLimited) { stdout += decoders.stdout.end(); stderr += decoders.stderr.end(); }
-      json(res, 200, {
+      const result = {
         command,
-        workspace: root,
+        workspace,
         exitCode: code,
         signal: signal || null,
         timedOut,
@@ -181,7 +238,9 @@ export function createShellRunner({ root, enabled = false } = {}) {
         stdout,
         stderr,
         durationMs: Math.min(COMMAND_TIMEOUT_MS, Date.now() - startedAt)
-      });
+      };
+      if (streaming) { event({ type: 'result', ...result }); res.end(); }
+      else json(res, 200, result);
     });
   }
 

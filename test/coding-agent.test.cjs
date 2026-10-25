@@ -80,3 +80,30 @@ test('chat workspace uses black surfaces and honors reduced-motion preferences',
   assert.match(css, /body\.app \.composer \{ background: #080808/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*body\.app/);
 });
+
+test('developer workflow instructions preserve native tools, approvals and honest isolation claims', () => {
+  const vm = require('node:vm');
+  const app = read('assets/js/app.js');
+  const start = app.indexOf('  const SYSTEM_PROMPT = [');
+  const end = app.indexOf('\n  function recordAgentContext', start);
+  const context = vm.createContext({});
+  vm.runInContext(app.slice(start, end) + '\nthis.prompt = SYSTEM_PROMPT;', context);
+  for (const text of ['inspect, plan, edit, verify, report', '**Plan:**', '**Action:**', '**Result:**', 'native tool calls', 'four provider/tool rounds', 'Never bypass the application approval dialogs', 'not complete network or resource isolation', 'A working directory does not isolate', 'not .studio/', 'not private chain-of-thought', 'untrusted task data']) assert.ok(context.prompt.includes(text), text);
+  assert.match(app, /const available = useTools && enabledToolDefs\(\)\.some/);
+  assert.match(app, /is_error: !!assistant\.tools\.find/);
+});
+
+test('round-limit notice distinguishes successful calls from verification and exposes failures', () => {
+  const vm = require('node:vm');
+  const app = read('assets/js/app.js');
+  const start = app.indexOf('  const MAX_TOOL_ROUNDS = 4;');
+  const end = app.indexOf('  async function runTurn', start);
+  const context = vm.createContext({});
+  vm.runInContext(app.slice(start, end), context);
+  const notice = context.toolRoundLimitNotice([{ status: 'done', error: false }, { status: 'done', error: true }, { status: 'running' }]);
+  assert.match(notice, /4-round tool limit/);
+  assert.match(notice, /1 tool call\(s\) completed/);
+  assert.match(notice, /1 failed/);
+  assert.match(notice, /does not verify the whole application/);
+  assert.match(notice, /no further action runs automatically/);
+});

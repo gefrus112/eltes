@@ -67,3 +67,128 @@ test('declining a workspace write never opens a writable handle', async () => {
   assert.match(result.error, /declined/);
   assert.equal(writes, 0);
 });
+
+test('project supports Python and TypeScript files but never executable paths', () => {
+  for (const filename of ['main.py', 'main.ts', 'HELLO.PY']) assert.equal(validateFile(filename, 'code').filename, filename);
+  for (const filename of ['../main.py', 'nested/main.ts', 'main.py;echo']) assert.throws(() => validateFile(filename, 'code'));
+});
+
+test('streamed drafts decode partial escaped JSON without inventing missing source', () => {
+  const { partialField } = require('../assets/js/project-sandbox.js');
+  const raw = JSON.stringify({ filename: 'main.py', content: 'print("hello")\n# 界\\path\t' });
+  assert.equal(partialField(raw, 'filename'), 'main.py');
+  assert.equal(partialField(raw, 'content'), 'print("hello")\n# 界\\path\t');
+  assert.equal(partialField('{"content":"first\\nsecond\\u00', 'content'), 'first\nsecond');
+  assert.equal(partialField('{"filename":', 'filename'), '');
+  assert.equal(partialField('{"content":"<script>alert(1)</script>', 'content'), '<script>alert(1)</script>');
+});
+
+test('runner client decodes arbitrarily chunked UTF-8 NDJSON and requires final status', async () => {
+  const { readRunnerResponse } = require('../assets/js/project-sandbox.js');
+  const raw = [
+    { type: 'start', command: 'test' }, { type: 'stdout', text: '界\n' },
+    { type: 'stderr', text: 'warning' }, { type: 'result', exitCode: 0, stdout: '界\n' }
+  ].map(JSON.stringify).join('\n');
+  const bytes = new TextEncoder().encode(raw);
+  const response = new Response(new ReadableStream({ start(controller) {
+    for (const byte of bytes) controller.enqueue(Uint8Array.of(byte)); controller.close();
+  } }), { headers: { 'content-type': 'application/x-ndjson' } });
+  const events = [];
+  assert.equal((await readRunnerResponse(response, event => events.push(event))).exitCode, 0);
+  assert.equal(events[1].text, '界\n');
+  for (const [body, pattern] of [
+    ['{"type":"stdout","text":"incomplete"}\n', /disconnected/],
+    ['{"type":"error","error":"missing runtime"}\n', /missing runtime/]
+  ]) await assert.rejects(readRunnerResponse(new Response(body, { headers: { 'content-type': 'application/x-ndjson' } }), () => {}), pattern);
+  await assert.rejects(readRunnerResponse(new Response('{"error":"disabled"}', { status: 404 }), () => {}), /disabled/);
+});
+
+test('denied project drafts never become runnable; execution receives only a saved immutable snapshot', async () => {
+  const { create } = require('../assets/js/project-sandbox.js');
+  const nodes = new Map();
+  const node = () => ({ textContent: '', value: '', classList: { add() {} }, setAttribute() {}, addEventListener() {}, replaceChildren() {}, append() {}, show() { this.open = true; } });
+  const original = global.document;
+  global.document = { getElementById(id) { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); }, createElement: node };
+  let approved = false, executed;
+  try {
+    const project = create({ download() {}, review: async () => approved, stopped: () => false,
+      runScript: async file => { executed = file; return { result: '42' }; }, runJavaScript() {}, stopTask() {} });
+    assert.match((await project.run({ filename: 'main.py', content: 'print(42)' })).error, /declined/);
+    assert.match((await project.execute({ filename: 'main.py' })).error, /Save/);
+    assert.equal(executed, undefined);
+    approved = true;
+    await project.run({ filename: 'main.py', content: 'print(42)' });
+    assert.equal((await project.execute({ filename: 'main.py' })).result, '42');
+    assert.deepEqual(executed, { filename: 'main.py', content: 'print(42)' });
+    nodes.get('projectSandboxEditor').value = 'print(99)';
+    assert.deepEqual(executed, { filename: 'main.py', content: 'print(42)' });
+    await nodes.get('projectSandboxScript').onclick();
+    assert.match(nodes.get('projectSandboxStatus').textContent, /Save your edits/);
+  } finally { global.document = original; }
+});
+
+test('denied local execution never makes a network request', async () => {
+  let fetches = 0;
+  const context = vm.createContext({
+    AbortController, clearTimeout, setTimeout,
+    state: { shellToken: 'fixture', shellRunnerInfo: { workspace: '/test' }, sending: false },
+    PROJECT: { log() {} }, isProtectedShellCommand: () => false,
+    requestShellApproval: async () => false,
+    fetch: () => { fetches++; throw new Error('Must not fetch'); }
+  });
+  const start = app.indexOf('  let activeLocalExecution = null;');
+  const end = app.indexOf('  function renderLocalShellStatus', start);
+  vm.runInContext(app.slice(start, end), context);
+  const out = await context.runApprovedLocalShell({}, { filename: 'test.py', content: 'print(1)' });
+  assert.match(out.error, /declined/);
+  assert.equal(fetches, 0);
+});
+
+test('precise replacements reject stale or ambiguous source and preserve unrelated text', () => {
+  const { replaceExact } = require('../assets/js/project-sandbox.js');
+  assert.equal(replaceExact('before\nconst n = 1;\nafter', 'const n = 1;', 'const n = 2;'), 'before\nconst n = 2;\nafter');
+  assert.equal(replaceExact('ab', 'a', ''), 'b');
+  assert.throws(() => replaceExact('aaa', 'aa', 'x'), /ambiguous/);
+  assert.throws(() => replaceExact('code', '', 'x'), /nonempty/);
+  assert.throws(() => replaceExact('code', 'absent', 'x'), /not found/);
+});
+
+test('project reads need consent, patches need review, unsaved and racing edits are preserved', async () => {
+  const { create } = require('../assets/js/project-sandbox.js');
+  const nodes = new Map();
+  const node = () => ({ textContent: '', value: '', classList: { add() {} }, setAttribute() {}, addEventListener() {}, replaceChildren() {}, append() {}, show() { this.open = true; } });
+  const original = global.document;
+  global.document = { getElementById(id) { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); }, createElement: node };
+  let allowedRead = false, allowedWrite = true, reviewHook = () => {}, reviews = 0;
+  try {
+    const project = create({ download() {}, review: async () => { reviews++; reviewHook(); return allowedWrite; },
+      readReview: async () => allowedRead, stopped: () => false, runScript() {}, runJavaScript() {}, stopTask() {} });
+    await project.run({ filename: 'main.js', content: 'const n = 1;' });
+    assert.match((await project.read({ filename: 'main.js' })).error, /declined/);
+    allowedRead = true;
+    assert.equal(JSON.parse((await project.read({ filename: 'main.js' })).result).content, 'const n = 1;');
+    allowedWrite = false;
+    assert.match((await project.patch({ filename: 'main.js', search: 'n = 1', replacement: 'n = 2' })).error, /declined/);
+    assert.equal(JSON.parse((await project.read({ filename: 'main.js' })).result).content, 'const n = 1;');
+    allowedWrite = true;
+    nodes.get('projectSandboxEditor').value = 'unsaved work';
+    const before = reviews;
+    assert.match((await project.patch({ filename: 'main.js', search: 'n = 1', replacement: 'n = 2' })).error, /unsaved/);
+    assert.equal(reviews, before, 'Dirty file blocked before approval');
+    assert.equal(JSON.parse(project.list().result)[0].unsaved, true);
+    assert.match((await project.execute({ filename: 'main.js' })).error, /unsaved/);
+    nodes.get('projectSandboxRun').onclick();
+    assert.match(nodes.get('projectSandboxStatus').textContent, /before previewing/);
+    nodes.get('projectSandboxDownload').onclick();
+    assert.match(nodes.get('projectSandboxStatus').textContent, /before downloading/);
+    await project.run({ filename: 'other.js', content: 'other file' });
+    assert.equal(nodes.get('projectSandboxEditor').value, 'unsaved work', 'Adding another file does not discard active edits');
+    nodes.get('projectSandboxDiscard').onclick();
+    reviewHook = () => { nodes.get('projectSandboxEditor').value = 'changed during review'; };
+    assert.match((await project.patch({ filename: 'main.js', search: 'n = 1', replacement: 'n = 2' })).error, /during review/);
+    reviewHook = () => {};
+    nodes.get('projectSandboxDiscard').onclick();
+    assert.ok((await project.patch({ filename: 'main.js', search: 'n = 1', replacement: 'n = 2' })).result);
+    assert.equal(JSON.parse((await project.read({ filename: 'main.js' })).result).content, 'const n = 2;');
+  } finally { global.document = original; }
+});

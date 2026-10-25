@@ -432,7 +432,8 @@ unsaved edits, and changes during review are refused rather than silently overwr
 This improves the editing workflow, not the underlying model's trained abilities.
 
 The editor reports lines, byte size and unsaved state; **Tab** inserts two spaces,
-**Ctrl/Cmd+S** saves in the tab, and **Shift+Tab** moves keyboard focus normally.
+**Ctrl/Cmd+S** saves in the tab, **Escape then Tab** moves to the next control,
+and **Shift+Tab** moves keyboard focus backward. Indentation resumes after refocusing.
 Save or explicitly **Discard edits** before switching files. A model saving another
 file won't discard your active draft. Execution remains separately approved, and
 models are instructed to report actual checks rather than invent test results.

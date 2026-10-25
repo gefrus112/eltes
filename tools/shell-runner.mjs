@@ -45,6 +45,9 @@ function safeEnvironment(root) {
   keep.forEach((key) => { if (process.env[key]) env[key] = process.env[key]; });
   if (!env.HOME && !env.USERPROFILE) env.HOME = root;
   env.ELTES_SHELL_RUNNER = '1';
+  // In the desktop package process.execPath is Electron, not a standalone Node.
+  // Preserve Node-mode explicitly without copying the rest of the server env.
+  if (process.versions.electron) env.ELECTRON_RUN_AS_NODE = '1';
   return env;
 }
 

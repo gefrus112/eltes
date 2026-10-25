@@ -187,3 +187,20 @@ test('script timeout terminates an infinite loop and reports the actual deadline
   assert.notEqual(events.at(-1).exitCode, 0);
   assert.equal(require('node:fs').existsSync(events.at(-1).workspace), false);
 });
+
+test('desktop subprocesses retain Node mode without inheriting server secrets', () => {
+  const fs = require('node:fs');
+  const vm = require('node:vm');
+  const source = fs.readFileSync(path.join(__dirname, '../tools/shell-runner.mjs'), 'utf8');
+  const start = source.indexOf('function safeEnvironment(');
+  const end = source.indexOf('\nasync function readJson', start);
+  const desktop = vm.createContext({ process: { versions: { electron: '44.0.0' }, env: { PATH: '/bin', PRIVATE_SERVER_TOKEN: 'test-only', NODE_OPTIONS: '--require=untrusted' } } });
+  vm.runInContext(source.slice(start, end), desktop);
+  const env = desktop.safeEnvironment('/workspace');
+  assert.equal(env.ELECTRON_RUN_AS_NODE, '1');
+  assert.equal(env.PRIVATE_SERVER_TOKEN, undefined);
+  assert.equal(env.NODE_OPTIONS, undefined);
+  const node = vm.createContext({ process: { versions: { node: '22.22.0' }, env: { ELECTRON_RUN_AS_NODE: '0' } } });
+  vm.runInContext(source.slice(start, end), node);
+  assert.equal(node.safeEnvironment('/workspace').ELECTRON_RUN_AS_NODE, undefined);
+});

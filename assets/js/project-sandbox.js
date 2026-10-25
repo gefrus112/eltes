@@ -158,9 +158,12 @@
     function open() { dismissed = false; render(); reveal(); }
     document.getElementById('openProjectSandbox').onclick = open;
     editor.addEventListener('input', editorInfo);
+    let tabIndents = true;
+    editor.addEventListener('blur', () => { tabIndents = true; });
     editor.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); tabIndents = false; return; }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); document.getElementById('projectSandboxSave').click(); }
-      if (event.key === 'Tab' && !event.shiftKey) { event.preventDefault(); editor.setRangeText('  ', editor.selectionStart, editor.selectionEnd, 'end'); editorInfo(); }
+      if (event.key === 'Tab' && !event.shiftKey && tabIndents) { event.preventDefault(); editor.setRangeText('  ', editor.selectionStart, editor.selectionEnd, 'end'); editorInfo(); }
     });
     document.getElementById('projectSandboxDiscard').onclick = () => { editor.value = files[active] || ''; editorInfo(); status.textContent = 'Edits discarded; restored the saved source.'; };
     document.getElementById('projectSandboxCancelTask').onclick = () => stopTask();

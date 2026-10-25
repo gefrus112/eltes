@@ -2177,7 +2177,7 @@
     const input = $('#chatDesign' + key[0].toUpperCase() + key.slice(1));
     input.addEventListener('input', () => {
       state.settings.chatDesign = window.EltesChatDesign.normalize({ ...state.settings.chatDesign, [key]: input.type === 'range' ? Number(input.value) : input.value });
-      applySettingsToUI(); persistNow();
+      applySettingsToUI(); persist();
     });
   }
   $('#chatThemeSelect').addEventListener('change', (event) => {
